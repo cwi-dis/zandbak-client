@@ -68,6 +68,7 @@ namespace Orchestrator.Wrapping {
                 Debug.Log("PoNG");
             };
 
+            Socket.On("Broadcast", OnBroadcastReceived);
             Socket.On("MessageSent", OnMessageSentFromOrchestrator);
             Socket.On("DataReceived", OnUserDataReceived);
             Socket.On("SceneEventToMaster", OnMasterEventReceived);
@@ -350,6 +351,15 @@ namespace Orchestrator.Wrapping {
             }
         }
 
+        public void SendBroadcastToChannel(string channel, byte[] pByteArray) {
+            lock (sendLock) {
+                Socket.Emit("Broadcast",
+                    channel,
+                    pByteArray
+                );
+            }
+        }
+
         #endregion
 
         #region data streams
@@ -440,6 +450,22 @@ namespace Orchestrator.Wrapping {
                     UnityThread.executeInUpdate(() =>
                     {
                         UserMessagesListener.OnUserEventReceived(new UserEvent(sceneEvent.sceneEventFrom, data));
+                    });
+                } else {
+                    Debug.LogWarning("No UserMessagesListener");
+                }
+            }
+        }
+
+        private void OnBroadcastReceived(SocketIOResponse response) {
+            lock (this) {
+                if (UserMessagesListener != null) {
+                    var broadcastEvent = response.GetValue<BroadcastEvent>();
+                    string data = Encoding.ASCII.GetString(response.InComingBytes[0], 0, response.InComingBytes[0].Length);
+
+                    UnityThread.executeInUpdate(() =>
+                    {
+                        UserMessagesListener.OnBroadcastReceived(new BroadcastData(broadcastEvent.channel, data));
                     });
                 } else {
                     Debug.LogWarning("No UserMessagesListener");

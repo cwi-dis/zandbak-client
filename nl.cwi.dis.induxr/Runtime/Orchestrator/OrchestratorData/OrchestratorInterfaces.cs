@@ -20,6 +20,7 @@ namespace Orchestrator.Interfaces
         void OnUserMessageReceived(UserMessage userMessage);
         void OnMasterEventReceived(UserEvent pSceneEventData);
         void OnUserEventReceived(UserEvent pSceneEventData);
+        void OnBroadcastReceived(BroadcastData broadcastData);
     }
 
     // Interface to implement to listen the user events emitted spontaneously

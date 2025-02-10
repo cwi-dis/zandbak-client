@@ -619,6 +619,15 @@ namespace Orchestrator.Wrapping
 
         #region Events
 
+        public void Broadcast(string channel, string data)
+        {
+            byte[] lData = Encoding.ASCII.GetBytes(data);
+
+            if (lData != null) {
+                orchestratorWrapper.SendBroadcastToChannel(channel, lData);
+            }
+        }
+
         public void SendEventToMaster(string pEventData) {
             byte[] lData = Encoding.ASCII.GetBytes(pEventData);
 
@@ -661,6 +670,10 @@ namespace Orchestrator.Wrapping
 
                 OnUserEventReceivedEvent?.Invoke(pUserEventData);
             }
+        }
+
+        public void OnBroadcastReceived(BroadcastData broadcastData) { 
+            
         }
 
         #endregion
