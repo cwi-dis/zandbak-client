@@ -158,12 +158,6 @@ namespace Orchestrator.Wrapping
         private void OnDestroy() {
             Debug.Log($"{gameObject.name}: OrchestratorController.OnDestroy() called. Will close orchestrator connection. ");
             orchestratorWrapper?.Disconnect();
-
-            if (mySession != null) {
-#if VRT_WITH_STATS
-                Statistics.Output("OrchestratorController", $"stopping=1, sessionId={mySession.sessionId}");
-#endif
-            }
         }
 
         #endregion
@@ -173,9 +167,6 @@ namespace Orchestrator.Wrapping
         // Connect to the orchestrator
         public void SocketConnect(string pUrl) {
             if (enableLogging) Debug.Log($"OrchestratorController: connect to {pUrl}");
-#if VRT_WITH_STATS
-            Statistics.Output("OrchestratorController", $"orchestrator_url={pUrl}");
-#endif
             orchestratorWrapper = new OrchestratorWrapper(pUrl, this, this, this);
             orchestratorWrapper.Connect();
         }
@@ -184,6 +175,7 @@ namespace Orchestrator.Wrapping
         public void OnConnect()
         {
             if (enableLogging) Debug.Log($"OrchestratorController: connected to orchestrator");
+
             connectedToOrchestrator = true;
             hasBeenConnectedToOrchestrator = true;
             connectionStatus = orchestratorConnectionStatus.__CONNECTED__;
@@ -193,10 +185,12 @@ namespace Orchestrator.Wrapping
         // SockerConnecting response callback
         public void OnConnecting() {
             if (enableLogging) Debug.Log($"OrchestratorController: connecting to orchestrator");
+
             if (hasBeenConnectedToOrchestrator)
             {
                 Debug.LogWarning("OrchestratorController: attempting to reconnect to orchestrator");
             }
+
             connectionStatus = orchestratorConnectionStatus.__CONNECTING__;
             OnConnectingEvent?.Invoke();
         }
@@ -218,9 +212,7 @@ namespace Orchestrator.Wrapping
                 OnErrorEvent?.Invoke(status);
                 return;
             }
-#if VRT_WITH_STATS
-            Statistics.Output("OrchestratorController", $"orchestrator_version={version}");
-#endif
+
             OnGetOrchestratorVersionEvent?.Invoke(version);
         }
 
@@ -326,6 +318,7 @@ namespace Orchestrator.Wrapping
         public void GetNTPTime() {
             if (enableLogging) Debug.Log("OrchestratorController: GetNTPTime: DateTimeNow: " + GetClockTimestamp(DateTime.Now));
             if (enableLogging) Debug.Log("OrchestratorController: GetNTPTime: DateTimeUTC: " + GetClockTimestamp(DateTime.UtcNow));
+
             System.TimeSpan sinceEpoch = System.DateTime.UtcNow - new System.DateTime(1970, 1, 1);
             timeOfGetNTPTimeRequest = (long)sinceEpoch.TotalMilliseconds;
             orchestratorWrapper.GetNTPTime();
@@ -340,13 +333,13 @@ namespace Orchestrator.Wrapping
             if (enableLogging) Debug.Log("OrchestratorController: OnGetNTPTimeResponse: NtpTime: " + ntpTime.Timestamp);
             if (enableLogging) Debug.Log("OrchestratorController: OnGetNTPTimeResponse: DateTimeUTC: " + GetClockTimestamp(DateTime.UtcNow));
             if (enableLogging) Debug.Log("[OrchestratorController: OnGetNTPTimeResponse: DateTimeNow: " + GetClockTimestamp(DateTime.Now));
+
             System.TimeSpan sinceEpoch = System.DateTime.UtcNow - new System.DateTime(1970, 1, 1);
             long localTimeMs = (long)sinceEpoch.TotalMilliseconds;
             long uncertainty = localTimeMs - timeOfGetNTPTimeRequest;
-#if VRT_WITH_STATS
-            Statistics.Output("OrchestratorController", $"orchestrator_ntptime_ms={ntpTime.ntpTimeMs}, localtime_behind_ms={ntpTime.ntpTimeMs - localTimeMs}, uncertainty_interval_ms={uncertainty}");
-#endif
+
             if (OnGetNTPTimeEvent == null) Debug.LogWarning("OrchestratorController: NTP time response received but nothing listens");
+
             OnGetNTPTimeEvent?.Invoke(ntpTime);
         }
 
@@ -363,11 +356,14 @@ namespace Orchestrator.Wrapping
                 OnErrorEvent?.Invoke(status);
                 return;
             }
+
             int nRemoved = sessions.RemoveAll(item => item == null);
+
             if (nRemoved > 0)
             {
                 Debug.LogWarning($"OrchestratorController: Removed {nRemoved} null sessions");
             }
+
             if (enableLogging) Debug.Log("OrchestratorController: OnGetSessionsResponse: Number of available sessions:" + sessions.Count);
 
             // update the list of available sessions
@@ -391,8 +387,10 @@ namespace Orchestrator.Wrapping
             }
 
             if (enableLogging) Debug.Log("OrchestratorController: OnAddSessionResponse: Session " + session.sessionName + " successfully created by " + session.GetUser(session.sessionAdministrator).userName + ".");
+
             // success
             mySession = session;
+
             // We may need to update our own user definition (because the sfuData may have been added)
             User newMe = session.GetUser(SelfUser.userId);
             if (newMe == null)
@@ -400,14 +398,11 @@ namespace Orchestrator.Wrapping
                 Debug.LogError($"OrchestratorController: OnAddSessionResponse: userId {SelfUser.userId} (which is me) not in session");
                 return;
             }
+
             SelfUser = newMe;
             userIsMaster = session.sessionMaster == SelfUser.userId;
             int  userCount = session.GetUserCount();
             
-#if VRT_WITH_STATS
-            Statistics.Output("OrchestratorController", $"created=1, sessionId={session.sessionId}, sessionName={session.sessionName}, isMaster={(userIsMaster?1:0)}, nUser={userCount}");
-#endif
-
             availableSessions.Add(session);
             OnAddSessionEvent?.Invoke(session);
         }
@@ -429,11 +424,11 @@ namespace Orchestrator.Wrapping
                 return;
             }
 
-           
             // success
             mySession = session;
             userIsMaster = session.sessionMaster == SelfUser.userId;
             int userCount = mySession.GetUserCount();
+
             if (enableLogging) Debug.Log($"OrchestratorController: OnGetSessionInfoResponse: Get session info of {session.sessionName}, isMaster={(userIsMaster)}, nUser={userCount}");
 
             OnSessionInfoEvent?.Invoke(session);
@@ -468,11 +463,11 @@ namespace Orchestrator.Wrapping
                 return;
             }
 
-            
             // success
             mySession = session;
             userIsMaster = session.sessionMaster == SelfUser.userId;
             int userCount = session.GetUserCount();
+
             if (enableLogging) Debug.Log($"OrchestratorController: OnJoinSessionResponse: Session {session.sessionName}, isMaster={(userIsMaster)}, nUser={userCount}");
 
             // Simulate user join a session for each connected users
@@ -503,7 +498,6 @@ namespace Orchestrator.Wrapping
             OnLeaveSessionEvent?.Invoke();
 
             if (mySession != null && SelfUser != null) {
- 
                 // As the session creator, the session should be deleted when leaving.
                 if (mySession.sessionAdministrator == SelfUser.userId) {
                     if (enableLogging) Debug.Log("OrchestratorController: OnLeaveSessionResponse: As session creator, delete the current session when its empty.");
@@ -522,9 +516,11 @@ namespace Orchestrator.Wrapping
             {
                 Debug.LogError("OrchestratorController: OnUserJoinedSession: empty userID");
             }
+
             if (user == null)
             {
                 user = mySession.GetUser(userID);
+
                 if (user == null)
                 {
                     Debug.LogError($"OrchestratorController: OnUserJoinedSession: userID {userID} unknown");
@@ -534,7 +530,9 @@ namespace Orchestrator.Wrapping
             {
                 // xxxjack we don't add the user, but we call GetSessionInfo below to get a complete picture.
             }
+
             if (enableLogging) Debug.Log("OrchestratorController: OnUserJoinedSession: User " + user.userName + " joined the session.");
+
             orchestratorWrapper.GetSessionInfo();
             OnUserJoinSessionEvent?.Invoke(userID);
         }
@@ -549,6 +547,7 @@ namespace Orchestrator.Wrapping
                 // Otherwise, just proceed to the common user left event.
                 else {
                     if (enableLogging) Debug.Log("OrchestratorController: OnUserLeftSession: User " + mySession.GetUser(userID).userName + " left the session. Getting new session info.");
+
                     // Required to update the list of connect users.
                     orchestratorWrapper.GetSessionInfo();
                     OnUserLeaveSessionEvent?.Invoke(userID);
@@ -560,7 +559,6 @@ namespace Orchestrator.Wrapping
 
         #region Users
 
-        // xxxjack can go
         public void UpdateUserDataKey(string pKey, string pValue) {
         }
 
@@ -652,6 +650,7 @@ namespace Orchestrator.Wrapping
         public void OnMasterEventReceived(UserEvent pMasterEventData) {
             if (pMasterEventData.sceneEventFrom != SelfUser.userId) {
                 if (enableLogging) Debug.Log("OrchestratorController: OnMasterEventReceived: Master user: " + pMasterEventData.sceneEventFrom + " sent: " + pMasterEventData.sceneEventData);
+
                 OnMasterEventReceivedEvent?.Invoke(pMasterEventData);
             }
         }
@@ -659,6 +658,7 @@ namespace Orchestrator.Wrapping
         public void OnUserEventReceived(UserEvent pUserEventData) {
             if (pUserEventData.sceneEventFrom != SelfUser.userId) {
                 if (enableLogging) Debug.Log("OrchestratorController: OnUserEventReceived: User: " + pUserEventData.sceneEventFrom + " sent: " + pUserEventData.sceneEventData);
+
                 OnUserEventReceivedEvent?.Invoke(pUserEventData);
             }
         }
