@@ -50,7 +50,6 @@ public class PlayerNetworkBehaviour : MonoBehaviour
         if (timer >= 1 / updateRate) {
             timer -= 1 / updateRate;
             SendPositionData();
-            Debug.Log("Send position data");
         }
 
     }
@@ -77,6 +76,8 @@ public class PlayerNetworkBehaviour : MonoBehaviour
             }
         };
 
-        OrchestratorController.Instance.Broadcast("transform", JsonUtility.ToJson(data));
+        if (OrchestratorController.Instance.CurrentSession != null) {
+          OrchestratorController.Instance.Broadcast("transform", JsonUtility.ToJson(data));
+        }
     }
 }

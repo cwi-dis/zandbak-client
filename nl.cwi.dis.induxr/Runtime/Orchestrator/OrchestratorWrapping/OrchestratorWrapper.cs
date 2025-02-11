@@ -354,7 +354,6 @@ namespace Orchestrator.Wrapping {
 
         public void SendBroadcastToChannel(string channel, byte[] pByteArray) {
             lock (sendLock) {
-                Debug.Log("Sending broadcast to " + channel);
                 Socket.Emit("Broadcast",
                     channel,
                     pByteArray
