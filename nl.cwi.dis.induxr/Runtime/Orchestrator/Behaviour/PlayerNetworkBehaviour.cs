@@ -30,6 +30,7 @@ public class RotationData
 public class PlayerNetworkBehaviour : MonoBehaviour
 {
     public string id;
+    public bool isLocal = false;
     public int updateRate = 10;
 
     private CharacterController controller;
@@ -45,6 +46,10 @@ public class PlayerNetworkBehaviour : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
+        if (!isLocal) {
+            return;
+        }
+
         timer += Time.deltaTime;
 
         if (timer >= 1 / updateRate) {
