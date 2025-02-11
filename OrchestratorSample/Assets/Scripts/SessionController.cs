@@ -1,4 +1,5 @@
 using UnityEngine;
+using System.Collections.Generic;
 using Orchestrator.Wrapping;
 using Orchestrator.Elements;
 using Orchestrator.Responses;
@@ -6,6 +7,9 @@ using Orchestrator.Responses;
 public class SessionController : MonoBehaviour
 {
     public string OrchestratorURL = "";
+    public GameObject PlayerPrefab;
+
+    private Dictionary<string, GameObject> activeUsers;
 
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
@@ -16,7 +20,8 @@ public class SessionController : MonoBehaviour
         OrchestratorController.Instance.OnLoginEvent += OnLoginComplete;
         OrchestratorController.Instance.OnSessionsEvent += OnGetSessions;
         OrchestratorController.Instance.OnAddSessionEvent += OnSessionReady;
-        OrchestratorController.Instance.OnBroadcastReceivedEvent += OnBroadcast;
+        OrchestratorController.Instance.OnUserJoinSessionEvent += OnUserJoined;
+        OrchestratorController.Instance.OnUserLeaveSessionEvent += OnUserLeft;
     }
 
     // Update is called once per frame
@@ -48,12 +53,17 @@ public class SessionController : MonoBehaviour
 
     void OnSessionReady(Session session) {
         Debug.Log("Session ready:" + session.sessionName);
-        OrchestratorController.Instance.Broadcast("transform", "Hello World");
-
     }
 
-    void OnBroadcast(BroadcastData data) {
-        Debug.Log("Broadcast received: " + data.channel);
-        Debug.Log(data.data);
+    void OnUserJoined(string userId) {
+        activeUsers.Add(userId, Instantiate(PlayerPrefab));
+    }
+
+    void OnUserLeft(string userId) {
+        GameObject obj;
+
+        if (activeUsers.TryGetValue(userId, out obj)) {
+            Destroy(obj);
+        }
     }
 }
