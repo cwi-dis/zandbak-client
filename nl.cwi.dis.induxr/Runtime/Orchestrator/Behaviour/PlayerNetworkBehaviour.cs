@@ -29,7 +29,7 @@ public class RotationData
 
 public class PlayerNetworkBehaviour : MonoBehaviour
 {
-    public string id = Guid.NewGuid().ToString();
+    public string id;
     public int updateRate = 10;
 
     private CharacterController controller;
@@ -38,6 +38,7 @@ public class PlayerNetworkBehaviour : MonoBehaviour
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
     {
+        id = Guid.NewGuid().ToString();
         controller = GetComponent<CharacterController>();
     }
 
