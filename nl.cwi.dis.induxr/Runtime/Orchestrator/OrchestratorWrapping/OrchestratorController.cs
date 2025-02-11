@@ -109,6 +109,8 @@ namespace Orchestrator.Wrapping
         // Orchestrator User Messages Events
         public Action<UserEvent> OnMasterEventReceivedEvent;
         public Action<UserEvent> OnUserEventReceivedEvent;
+        public Action<BroadcastData> OnBroadcastReceivedEvent;
+
         // Orchestrator Accessors
         public void LocalUserSessionForDevelopmentTests()
         {
@@ -374,9 +376,11 @@ namespace Orchestrator.Wrapping
     
         }
 
-        public void AddSession(string pScenarioID, Scenario scOrch, string pSessionName, string pSessionDescription, string pSessionProtocol) {
-            myScenario = scOrch;
-            orchestratorWrapper.AddSession(pScenarioID, scOrch, pSessionName, pSessionDescription, pSessionProtocol);
+        public void AddSession(string pSessionName) {
+            var scenario = new Scenario();
+            var channels = new[] {"transform"};
+
+            orchestratorWrapper.AddSession("", scenario, pSessionName, "", "socketio", channels);
         }
 
         public void OnAddSessionResponse(ResponseStatus status, Session session) {

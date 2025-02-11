@@ -190,7 +190,7 @@ namespace Orchestrator.Wrapping {
 
         #region session management
 
-        public void AddSession(string scenarioId, Scenario scenario, string sessionName, string sessionDescription, string sessionProtocol) {
+        public void AddSession(string scenarioId, Scenario scenario, string sessionName, string sessionDescription, string sessionProtocol, string[] channels) {
             lock (this) {
                 Socket.Emit("AddSession", (response) => {
                     var data = response.GetValue<OrchestratorResponse<Session>>();
@@ -206,7 +206,8 @@ namespace Orchestrator.Wrapping {
                         scenarioId,
                         scenario.scenarioName,
                         scenario.scenarioDescription
-                    }
+                    },
+                    channels
                 });
             }
         }
@@ -353,6 +354,7 @@ namespace Orchestrator.Wrapping {
 
         public void SendBroadcastToChannel(string channel, byte[] pByteArray) {
             lock (sendLock) {
+                Debug.Log("Sending broadcast to " + channel);
                 Socket.Emit("Broadcast",
                     channel,
                     pByteArray
@@ -459,6 +461,8 @@ namespace Orchestrator.Wrapping {
 
         private void OnBroadcastReceived(SocketIOResponse response) {
             lock (this) {
+                Debug.Log("Received broadcast message");
+
                 if (UserMessagesListener != null) {
                     var broadcastEvent = response.GetValue<BroadcastEvent>();
                     string data = Encoding.ASCII.GetString(response.InComingBytes[0], 0, response.InComingBytes[0].Length);
