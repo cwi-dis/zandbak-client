@@ -56,7 +56,11 @@ public class SessionController : MonoBehaviour
     }
 
     void OnUserJoined(string userId) {
-        activeUsers.Add(userId, Instantiate(PlayerPrefab));
+        var newPlayer = Instantiate(PlayerPrefab);
+        var networkBehaviour = newPlayer.GetComponent<PlayerNetworkBehaviour>();
+        networkBehaviour.id = userId;
+
+        activeUsers.Add(userId, newPlayer);
     }
 
     void OnUserLeft(string userId) {

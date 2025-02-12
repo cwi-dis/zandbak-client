@@ -46,6 +46,7 @@ public class PlayerNetworkBehaviour : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
+        // Only send transform broadcasts if we're the local player
         if (!isLocal) {
             return;
         }
