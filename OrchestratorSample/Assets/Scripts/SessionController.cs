@@ -39,7 +39,7 @@ public class SessionController : MonoBehaviour
     void OnLoginComplete(bool loggedIn, string userId) {
         Debug.Log("Login complete, received user id " + userId);
         var networkBehaviour = LocalPlayer.GetComponent<PlayerNetworkBehaviour>();
-        networkBehaviour.id = userId;
+        networkBehaviour.Id = userId;
 
         OrchestratorController.Instance.GetSessions();
     }
@@ -64,7 +64,7 @@ public class SessionController : MonoBehaviour
     void OnUserJoined(string userId) {
         var newPlayer = Instantiate(PlayerPrefab);
         var networkBehaviour = newPlayer.GetComponent<PlayerNetworkBehaviour>();
-        networkBehaviour.id = userId;
+        networkBehaviour.Id = userId;
 
         Debug.Log("Spawning new user with id " + userId);
         activeUsers.Add(userId, newPlayer);

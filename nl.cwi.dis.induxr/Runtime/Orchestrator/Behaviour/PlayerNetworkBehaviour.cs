@@ -31,23 +31,23 @@ public class RotationData
 
 public class PlayerNetworkBehaviour : MonoBehaviour
 {
-    public string id;
-    public bool isLocal = false;
-    public int updateRate = 10;
+    public string Id;
+    public bool IsLocal = false;
+    public int UpdateRate = 10;
 
     private CharacterController controller;
     private float timer = 0;
 
-    private MovementData PreviousReceivedData;
-    private MovementData LastReceivedData;
-    private float LastReceiveTime;
+    private MovementData previousReceivedData;
+    private MovementData lastReceivedData;
+    private float lastReceiveTime;
 
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
     {
         controller = GetComponent<CharacterController>();
 
-        if (!isLocal) {
+        if (!IsLocal) {
             Debug.Log("Listening for broadcasts");
             OrchestratorController.Instance.OnBroadcastReceivedEvent += OnBroadcastReceived;
         }
@@ -57,14 +57,14 @@ public class PlayerNetworkBehaviour : MonoBehaviour
     void Update()
     {
         // Only send transform broadcasts if we're the local player
-        if (!isLocal) {
+        if (!IsLocal) {
             return;
         }
 
         timer += Time.deltaTime;
 
-        if (timer >= 1 / updateRate) {
-            timer -= 1 / updateRate;
+        if (timer >= 1 / UpdateRate) {
+            timer -= 1 / UpdateRate;
             SendPositionData();
         }
 
@@ -76,7 +76,7 @@ public class PlayerNetworkBehaviour : MonoBehaviour
 
         var data = new MovementData()
         {
-            userId = id,
+            userId = Id,
             timestamp = Time.time,
             position = new PositionData()
             {
@@ -102,21 +102,21 @@ public class PlayerNetworkBehaviour : MonoBehaviour
         if (data.channel == "transform") {
             var movement = JsonUtility.FromJson<MovementData>(data.data);
 
-            if (true || movement.userId == id) {
-                PreviousReceivedData = LastReceivedData;
-                LastReceivedData = movement;
-                LastReceiveTime = Time.realtimeSinceStartup;
+            if (true || movement.userId == Id) {
+                previousReceivedData = lastReceivedData;
+                lastReceivedData = movement;
+                lastReceiveTime = Time.realtimeSinceStartup;
 
-                if (PreviousReceivedData != null) {
-                    float t = Mathf.Clamp01((Time.realtimeSinceStartup - LastReceiveTime) / (1.0f / updateRate));
+                if (previousReceivedData != null) {
+                    float t = Mathf.Clamp01((Time.realtimeSinceStartup - lastReceiveTime) / (1.0f / UpdateRate));
 
                     controller.transform.SetPositionAndRotation(Vector3.Lerp(
-                        new Vector3(PreviousReceivedData.position.x, PreviousReceivedData.position.y, PreviousReceivedData.position.z),
-                        new Vector3(LastReceivedData.position.x, LastReceivedData.position.y, LastReceivedData.position.z),
+                        new Vector3(previousReceivedData.position.x, previousReceivedData.position.y, previousReceivedData.position.z),
+                        new Vector3(lastReceivedData.position.x, lastReceivedData.position.y, lastReceivedData.position.z),
                         t
                     ), Quaternion.Slerp(
-                        new Quaternion(PreviousReceivedData.rotation.x, PreviousReceivedData.rotation.y, PreviousReceivedData.rotation.z, PreviousReceivedData.rotation.w),
-                        new Quaternion(LastReceivedData.rotation.x, LastReceivedData.rotation.y, LastReceivedData.rotation.z, LastReceivedData.rotation.w),
+                        new Quaternion(previousReceivedData.rotation.x, previousReceivedData.rotation.y, previousReceivedData.rotation.z, previousReceivedData.rotation.w),
+                        new Quaternion(lastReceivedData.rotation.x, lastReceivedData.rotation.y, lastReceivedData.rotation.z, lastReceivedData.rotation.w),
                         t
                     ));
                 }
