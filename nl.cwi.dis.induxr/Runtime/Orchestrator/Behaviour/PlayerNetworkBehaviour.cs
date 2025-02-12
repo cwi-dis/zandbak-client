@@ -1,6 +1,7 @@
 using System;
 using UnityEngine;
 using Orchestrator.Wrapping;
+using Orchestrator.Responses;
 
 [System.Serializable]
 public class MovementData
@@ -25,6 +26,7 @@ public class RotationData
     public float x;
     public float y;
     public float z;
+    public float w;
 }
 
 public class PlayerNetworkBehaviour : MonoBehaviour
@@ -36,11 +38,20 @@ public class PlayerNetworkBehaviour : MonoBehaviour
     private CharacterController controller;
     private float timer = 0;
 
+    private MovementData PreviousReceivedData;
+    private MovementData LastReceivedData;
+    private float LastReceiveTime;
+
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
     {
         id = Guid.NewGuid().ToString();
         controller = GetComponent<CharacterController>();
+
+        if (!isLocal) {
+            Debug.Log("Listening for broadcasts");
+            OrchestratorController.Instance.OnBroadcastReceivedEvent += OnBroadcastReceived;
+        }
     }
 
     // Update is called once per frame
@@ -79,11 +90,38 @@ public class PlayerNetworkBehaviour : MonoBehaviour
                 x = rotation.x,
                 y = rotation.y,
                 z = rotation.z,
+                w = rotation.w
             }
         };
 
         if (OrchestratorController.Instance.CurrentSession != null) {
           OrchestratorController.Instance.Broadcast("transform", JsonUtility.ToJson(data));
+        }
+    }
+
+    void OnBroadcastReceived(BroadcastData data) {
+        if (data.channel == "transform") {
+            var movement = JsonUtility.FromJson<MovementData>(data.data);
+
+            if (movement.userId == id) {
+                PreviousReceivedData = LastReceivedData;
+                LastReceivedData = movement;
+                LastReceiveTime = Time.realtimeSinceStartup;
+
+                if (PreviousReceivedData != null) {
+                    float t = Mathf.Clamp01((Time.realtimeSinceStartup - LastReceiveTime) / (1.0f / updateRate));
+
+                    controller.transform.SetPositionAndRotation(Vector3.Lerp(
+                        new Vector3(PreviousReceivedData.position.x, PreviousReceivedData.position.y, PreviousReceivedData.position.z),
+                        new Vector3(LastReceivedData.position.x, LastReceivedData.position.y, LastReceivedData.position.z),
+                        t
+                    ), Quaternion.Slerp(
+                        new Quaternion(PreviousReceivedData.rotation.x, PreviousReceivedData.rotation.y, PreviousReceivedData.rotation.z, PreviousReceivedData.rotation.w),
+                        new Quaternion(LastReceivedData.rotation.x, LastReceivedData.rotation.y, LastReceivedData.rotation.z, LastReceivedData.rotation.w),
+                        t
+                    ));
+                }
+            }
         }
     }
 }
