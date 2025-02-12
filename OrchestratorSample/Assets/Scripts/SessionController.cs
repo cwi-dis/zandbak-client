@@ -1,4 +1,5 @@
 using UnityEngine;
+using System;
 using System.Collections.Generic;
 using Orchestrator.Wrapping;
 using Orchestrator.Elements;
@@ -9,7 +10,7 @@ public class SessionController : MonoBehaviour
     public string OrchestratorURL = "";
     public GameObject PlayerPrefab;
 
-    private Dictionary<string, GameObject> activeUsers;
+    private Dictionary<string, GameObject> activeUsers = new Dictionary<string, GameObject>();
 
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
@@ -31,7 +32,7 @@ public class SessionController : MonoBehaviour
     }
 
     void OnOrchestratorConnected(bool connected) {
-        OrchestratorController.Instance.Login("test", "");
+        OrchestratorController.Instance.Login(Guid.NewGuid().ToString(), "");
     }
 
     void OnLoginComplete(bool loggedIn) {
@@ -60,6 +61,7 @@ public class SessionController : MonoBehaviour
         var networkBehaviour = newPlayer.GetComponent<PlayerNetworkBehaviour>();
         networkBehaviour.id = userId;
 
+        Debug.Log("Spawning new user with id " + userId);
         activeUsers.Add(userId, newPlayer);
     }
 

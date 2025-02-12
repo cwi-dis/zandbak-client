@@ -460,8 +460,6 @@ namespace Orchestrator.Wrapping {
 
         private void OnBroadcastReceived(SocketIOResponse response) {
             lock (this) {
-                Debug.Log("Received broadcast message");
-
                 if (UserMessagesListener != null) {
                     var broadcastEvent = response.GetValue<BroadcastEvent>();
                     string data = Encoding.ASCII.GetString(response.InComingBytes[0], 0, response.InComingBytes[0].Length);

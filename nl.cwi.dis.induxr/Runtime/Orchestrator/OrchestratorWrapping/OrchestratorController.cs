@@ -676,8 +676,8 @@ namespace Orchestrator.Wrapping
             }
         }
 
-        public void OnBroadcastReceived(BroadcastData broadcastData) { 
-            
+        public void OnBroadcastReceived(BroadcastData broadcastData) {
+            OnBroadcastReceivedEvent?.Invoke(broadcastData);
         }
 
         #endregion
