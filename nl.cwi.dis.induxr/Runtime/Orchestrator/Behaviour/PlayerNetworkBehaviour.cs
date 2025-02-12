@@ -45,7 +45,6 @@ public class PlayerNetworkBehaviour : MonoBehaviour
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
     {
-        id = Guid.NewGuid().ToString();
         controller = GetComponent<CharacterController>();
 
         if (!isLocal) {
@@ -103,7 +102,7 @@ public class PlayerNetworkBehaviour : MonoBehaviour
         if (data.channel == "transform") {
             var movement = JsonUtility.FromJson<MovementData>(data.data);
 
-            if (movement.userId == id) {
+            if (true || movement.userId == id) {
                 PreviousReceivedData = LastReceivedData;
                 LastReceivedData = movement;
                 LastReceiveTime = Time.realtimeSinceStartup;

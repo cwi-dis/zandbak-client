@@ -86,7 +86,7 @@ namespace Orchestrator.Wrapping
         public Action<string> OnOrchestratorResponseEvent;
 
         // Orchestrator Login Events
-        public Action<bool> OnLoginEvent;
+        public Action<bool, string> OnLoginEvent;
         public Action<bool> OnLogoutEvent;
         
         // Orchestrator NTP clock Events
@@ -236,6 +236,7 @@ namespace Orchestrator.Wrapping
             SelfUser = new User();
             SelfUser.userName = pName;
             SelfUser.userPassword = "";
+
             orchestratorWrapper.Login(pName);
         }
 
@@ -266,7 +267,7 @@ namespace Orchestrator.Wrapping
                 }
             }
 
-            OnLoginEvent?.Invoke(userLoggedSucessfully);
+            OnLoginEvent?.Invoke(userLoggedSucessfully, userId);
         }
 
 

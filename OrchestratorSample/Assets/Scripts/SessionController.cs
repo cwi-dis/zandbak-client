@@ -8,6 +8,7 @@ using Orchestrator.Responses;
 public class SessionController : MonoBehaviour
 {
     public string OrchestratorURL = "";
+    public GameObject LocalPlayer;
     public GameObject PlayerPrefab;
 
     private Dictionary<string, GameObject> activeUsers = new Dictionary<string, GameObject>();
@@ -35,7 +36,11 @@ public class SessionController : MonoBehaviour
         OrchestratorController.Instance.Login(Guid.NewGuid().ToString());
     }
 
-    void OnLoginComplete(bool loggedIn) {
+    void OnLoginComplete(bool loggedIn, string userId) {
+        Debug.Log("Login complete, received user id " + userId);
+        var networkBehaviour = LocalPlayer.GetComponent<PlayerNetworkBehaviour>();
+        networkBehaviour.id = userId;
+
         OrchestratorController.Instance.GetSessions();
     }
 
