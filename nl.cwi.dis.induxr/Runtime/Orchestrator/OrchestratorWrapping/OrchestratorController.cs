@@ -232,11 +232,11 @@ namespace Orchestrator.Wrapping
 
         #region Login/Logout
 
-        public void Login(string pName, string pPassword) {
+        public void Login(string pName) {
             SelfUser = new User();
             SelfUser.userName = pName;
-            SelfUser.userPassword = pPassword;
-            orchestratorWrapper.Login(pName, pPassword);
+            SelfUser.userPassword = "";
+            orchestratorWrapper.Login(pName);
         }
 
         public void OnLoginResponse(ResponseStatus status, string userId) {

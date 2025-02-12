@@ -32,7 +32,7 @@ public class SessionController : MonoBehaviour
     }
 
     void OnOrchestratorConnected(bool connected) {
-        OrchestratorController.Instance.Login(Guid.NewGuid().ToString(), "");
+        OrchestratorController.Instance.Login(Guid.NewGuid().ToString());
     }
 
     void OnLoginComplete(bool loggedIn) {

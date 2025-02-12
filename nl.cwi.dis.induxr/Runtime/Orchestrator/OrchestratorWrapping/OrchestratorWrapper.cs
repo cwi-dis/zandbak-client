@@ -158,7 +158,7 @@ namespace Orchestrator.Wrapping {
 
         #region login/logout
 
-        public void Login(string username, string password) {
+        public void Login(string username) {
             lock (this) {
                 Socket.Emit("Login", (response) => {
                     var data = response.GetValue<OrchestratorResponse<LoginResponse>>();
