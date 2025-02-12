@@ -55,10 +55,6 @@ namespace Orchestrator.Responses {
         public string sceneEventFrom;
     }
 
-    public class BroadcastEvent {
-        public string channel;
-    }
-
     // class that stores a user data-stream packet incoming from the orchestrator
     public class UserDataStreamPacket
     {
