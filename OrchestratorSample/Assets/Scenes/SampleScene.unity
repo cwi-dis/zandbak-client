@@ -585,6 +585,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   OrchestratorURL: http://localhost:8090
+  LocalPlayer: {fileID: 869275388}
   PlayerPrefab: {fileID: 5171808935100316256, guid: 0580b64174c674f51865390454364378, type: 3}
 --- !u!4 &968632562
 Transform:
