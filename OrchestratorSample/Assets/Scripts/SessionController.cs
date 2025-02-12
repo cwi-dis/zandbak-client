@@ -71,10 +71,19 @@ public class SessionController : MonoBehaviour
     }
 
     void OnUserLeft(string userId) {
+        Debug.Log("User " + userId + "left session");
         GameObject obj;
 
-        if (activeUsers.TryGetValue(userId, out obj)) {
+        if (activeUsers.TryGetValue(userId, out obj))
+        {
+            Debug.Log("User found, removing and destroying player object");
+
+            activeUsers.Remove(userId);
             Destroy(obj);
+        }
+        else
+        {
+            Debug.LogWarning("Could not find object for user with id " + userId);
         }
     }
 }
