@@ -102,7 +102,7 @@ public class PlayerNetworkBehaviour : MonoBehaviour
         if (data.channel == "transform") {
             var movement = JsonUtility.FromJson<MovementData>(data.data);
 
-            if (true || movement.userId == Id) {
+            if (movement.userId == Id) {
                 previousReceivedData = lastReceivedData;
                 lastReceivedData = movement;
                 lastReceiveTime = Time.realtimeSinceStartup;
