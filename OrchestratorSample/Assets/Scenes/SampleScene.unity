@@ -877,6 +877,10 @@ PrefabInstance:
       propertyPath: m_AnimatePhysics
       value: 1
       objectReference: {fileID: 0}
+    - target: {fileID: 5866666021909216657, guid: 69fd822bc58de4c99a1f205ac00c74d7, type: 3}
+      propertyPath: m_ApplyRootMotion
+      value: 1
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
@@ -890,6 +894,12 @@ PrefabInstance:
     - targetCorrespondingSourceObject: {fileID: -7863586138991820771, guid: 69fd822bc58de4c99a1f205ac00c74d7, type: 3}
       insertIndex: -1
       addedObject: {fileID: 2065133114}
+    - targetCorrespondingSourceObject: {fileID: -7863586138991820771, guid: 69fd822bc58de4c99a1f205ac00c74d7, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 2065133115}
+    - targetCorrespondingSourceObject: {fileID: -7863586138991820771, guid: 69fd822bc58de4c99a1f205ac00c74d7, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 2065133116}
   m_SourcePrefab: {fileID: 100100000, guid: 69fd822bc58de4c99a1f205ac00c74d7, type: 3}
 --- !u!1 &1847442961 stripped
 GameObject:
@@ -951,6 +961,34 @@ MonoBehaviour:
   jointRegressorJSON: {fileID: 4900000, guid: 70f989df64d7148888b20a119c1e3e79, type: 3}
   shapeParmsJSON: {fileID: 0}
   optimizePoseBlends: 0
+--- !u!114 &2065133115
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2065133111}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 8975e231be3e54995b86eedb772b29b4, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  mesh: {fileID: 0}
+--- !u!114 &2065133116
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2065133111}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5e98cd886599c432c8645da65ed1559a, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  Id: 
+  IsLocal: 1
+  UpdateRate: 10
 --- !u!1001 &6890208056478816467
 PrefabInstance:
   m_ObjectHideFlags: 0
