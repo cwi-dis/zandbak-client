@@ -31,15 +31,9 @@ namespace Orchestrator.Behaviours
         public float w;
     }
 
-    public class PlayerNetworkBehaviour : MonoBehaviour, INetworkBehaviour
+    public class PlayerNetworkBehaviour : NetworkBehaviour
     {
-        public string Id;
-        public bool IsLocal = false;
-        public int UpdateRate = 10;
-
         private CharacterController controller;
-        private float timer = 0;
-
         private MovementData previousReceivedData;
         private MovementData lastReceivedData;
         private float lastReceiveTime;
@@ -47,40 +41,17 @@ namespace Orchestrator.Behaviours
         // Start is called once before the first execution of Update after the MonoBehaviour is created
         void Start()
         {
+            // Initialize networked object
+            Initialize();
             controller = GetComponent<CharacterController>();
-
-            if (!IsLocal)
-            {
-                Debug.Log("Listening for broadcasts");
-                OrchestratorController.Instance.OnBroadcastReceivedEvent += OnBroadcastReceived;
-            }
         }
 
-        // Update is called once per frame
-        void Update()
-        {
-            // Only send transform broadcasts if we're the local player
-            if (!IsLocal)
-            {
-                return;
-            }
-
-            timer += Time.deltaTime;
-
-            if (timer >= 1 / UpdateRate)
-            {
-                timer -= 1 / UpdateRate;
-                SendPositionData();
-            }
-
-        }
-
-        public void SendPositionData()
+        public override object SendPositionData()
         {
             var position = controller.transform.position;
             var rotation = controller.transform.rotation;
 
-            var data = new MovementData()
+            return new MovementData()
             {
                 userId = Id,
                 timestamp = Time.time,
@@ -98,14 +69,9 @@ namespace Orchestrator.Behaviours
                     w = rotation.w
                 }
             };
-
-            if (OrchestratorController.Instance.CurrentSession != null)
-            {
-                OrchestratorController.Instance.Broadcast("transform", JsonUtility.ToJson(data));
-            }
         }
 
-        public void OnBroadcastReceived(BroadcastData data)
+        public override void OnBroadcastReceived(BroadcastData data)
         {
             if (data.channel == "transform")
             {
