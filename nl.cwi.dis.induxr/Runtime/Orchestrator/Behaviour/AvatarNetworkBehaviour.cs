@@ -1,4 +1,5 @@
 ﻿using UnityEngine;
+using System.Collections.Generic;
 using Orchestrator.Responses;
 
 namespace Orchestrator.Behaviours
@@ -7,7 +8,7 @@ namespace Orchestrator.Behaviours
     public class AvatarMovementData
     {
         public string userId;
-        public BoneData[] bones;
+        public Dictionary<string, BoneData> bones;
         public float timestamp;
     }
 
@@ -31,26 +32,25 @@ namespace Orchestrator.Behaviours
 
         public override object SendPositionData()
         {
-            var boneData = new BoneData[mesh.bones.Length];
-            int i = 0;
+            var boneData = new Dictionary<string, BoneData>();
 
             foreach (var bone in mesh.bones) {
-                boneData[i] = new BoneData {
+                boneData.Add(bone.name, new BoneData {
                     name = bone.name,
-                    position = new PositionData {
+                    position = new PositionData
+                    {
                         x = bone.position.x,
                         y = bone.position.y,
                         z = bone.position.z
                     },
-                    rotation = new RotationData {
+                    rotation = new RotationData
+                    {
                         x = bone.rotation.x,
                         y = bone.rotation.y,
                         z = bone.rotation.z,
                         w = bone.rotation.w
                     },
-                };
-
-                i++;
+                });
             }
 
             return new AvatarMovementData {
