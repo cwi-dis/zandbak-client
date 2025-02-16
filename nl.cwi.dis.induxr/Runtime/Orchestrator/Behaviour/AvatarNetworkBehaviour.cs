@@ -62,7 +62,27 @@ namespace Orchestrator.Behaviours
 
         public override void OnBroadcastReceived(BroadcastData data)
         {
-            Debug.Log(data.channel + " " + data.data);
+            if (data.channel == "transform")
+            {
+                var movement = JsonUtility.FromJson<AvatarMovementData>(data.data);
+
+                if (movement.userId == Id) {
+                    foreach (var bone in mesh.bones) {
+                        if (movement.bones.TryGetValue(bone.name, out BoneData foundBone)) {
+                            bone.SetPositionAndRotation(new Vector3(
+                                foundBone.position.x,
+                                foundBone.position.y,
+                                foundBone.position.z
+                            ), new Quaternion(
+                                foundBone.rotation.x,
+                                foundBone.rotation.y,
+                                foundBone.rotation.z,
+                                foundBone.rotation.w
+                            ));
+                        }
+                    }
+                }
+            }
         }
     }
 }
