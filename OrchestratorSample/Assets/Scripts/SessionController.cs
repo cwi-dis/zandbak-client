@@ -38,7 +38,7 @@ public class SessionController : MonoBehaviour
 
     void OnLoginComplete(bool loggedIn, string userId) {
         Debug.Log("Login complete, received user id " + userId);
-        var networkBehaviour = LocalPlayer.GetComponent<PlayerNetworkBehaviour>();
+        var networkBehaviour = LocalPlayer.GetComponent<NetworkBehaviour>();
         networkBehaviour.Id = userId;
 
         OrchestratorController.Instance.GetSessions();
