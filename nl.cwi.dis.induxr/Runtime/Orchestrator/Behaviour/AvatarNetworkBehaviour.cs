@@ -14,7 +14,6 @@ namespace Orchestrator.Behaviours
 
     [System.Serializable]
     public class BoneData {
-        public string name;
         public PositionData position;
         public RotationData rotation;
     }
@@ -36,7 +35,6 @@ namespace Orchestrator.Behaviours
 
             foreach (var bone in mesh.bones) {
                 boneData.Add(bone.name, new BoneData {
-                    name = bone.name,
                     position = new PositionData
                     {
                         x = bone.position.x,
