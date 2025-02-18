@@ -14,8 +14,8 @@ namespace Orchestrator.Behaviours
 
     [System.Serializable]
     public class BoneData {
-        public PositionData position;
-        public RotationData rotation;
+        public PositionData pos;
+        public RotationData rot;
     }
 
     public class AvatarNetworkBehaviour : NetworkBehaviour
@@ -35,13 +35,13 @@ namespace Orchestrator.Behaviours
 
             foreach (var bone in mesh.bones) {
                 boneData.Add(bone.name, new BoneData {
-                    position = new PositionData
+                    pos = new PositionData
                     {
                         x = bone.position.x,
                         y = bone.position.y,
                         z = bone.position.z
                     },
-                    rotation = new RotationData
+                    rot = new RotationData
                     {
                         x = bone.rotation.x,
                         y = bone.rotation.y,
@@ -68,14 +68,14 @@ namespace Orchestrator.Behaviours
                     foreach (var bone in mesh.bones) {
                         if (movement.bones.TryGetValue(bone.name, out BoneData foundBone)) {
                             bone.SetPositionAndRotation(new Vector3(
-                                foundBone.position.x,
-                                foundBone.position.y,
-                                foundBone.position.z
+                                foundBone.pos.x,
+                                foundBone.pos.y,
+                                foundBone.pos.z
                             ), new Quaternion(
-                                foundBone.rotation.x,
-                                foundBone.rotation.y,
-                                foundBone.rotation.z,
-                                foundBone.rotation.w
+                                foundBone.rot.x,
+                                foundBone.rot.y,
+                                foundBone.rot.z,
+                                foundBone.rot.w
                             ));
                         }
                     }
