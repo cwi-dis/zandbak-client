@@ -1,6 +1,7 @@
 using UnityEngine;
 using Orchestrator.Responses;
 using Orchestrator.Wrapping;
+using Newtonsoft.Json;
 
 namespace Orchestrator.Behaviours {
     public abstract class NetworkBehaviour : MonoBehaviour
@@ -43,7 +44,7 @@ namespace Orchestrator.Behaviours {
         private void Broadcast(object data) { 
             if (OrchestratorController.Instance.CurrentSession != null)
             {
-                OrchestratorController.Instance.Broadcast("transform", JsonUtility.ToJson(data));
+                OrchestratorController.Instance.Broadcast("transform", JsonConvert.SerializeObject(data));
             }
         }
 
