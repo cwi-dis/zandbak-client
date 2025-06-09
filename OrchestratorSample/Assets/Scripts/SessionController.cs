@@ -3,7 +3,7 @@ using System;
 using System.Collections.Generic;
 using Orchestrator.Wrapping;
 using Orchestrator.Elements;
-using Orchestrator.Behaviours;
+using Orchestrator.Behaviour;
 
 public class SessionController : MonoBehaviour
 {
@@ -24,12 +24,6 @@ public class SessionController : MonoBehaviour
         OrchestratorController.Instance.OnAddSessionEvent += OnSessionReady;
         OrchestratorController.Instance.OnUserJoinSessionEvent += OnUserJoined;
         OrchestratorController.Instance.OnUserLeaveSessionEvent += OnUserLeft;
-    }
-
-    // Update is called once per frame
-    void Update()
-    {
-        
     }
 
     void OnOrchestratorConnected(bool connected) {

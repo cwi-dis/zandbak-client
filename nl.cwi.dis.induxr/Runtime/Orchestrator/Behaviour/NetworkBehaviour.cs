@@ -3,7 +3,7 @@ using Orchestrator.Responses;
 using Orchestrator.Wrapping;
 using Newtonsoft.Json;
 
-namespace Orchestrator.Behaviours {
+namespace Orchestrator.Behaviour {
     public abstract class NetworkBehaviour : MonoBehaviour
     {
         public string Id;

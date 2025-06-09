@@ -3,7 +3,7 @@ using UnityEngine;
 using Orchestrator.Wrapping;
 using Orchestrator.Responses;
 
-namespace Orchestrator.Behaviours
+namespace Orchestrator.Behaviour
 {
     [System.Serializable]
     public class MovementData
