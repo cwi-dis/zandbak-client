@@ -21,12 +21,21 @@ namespace Orchestrator.Behaviour
     public class AvatarNetworkBehaviour : NetworkBehaviour
     {
         private SkinnedMeshRenderer mesh;
+        private Rigidbody parentRigidbody;
 
         // Use this for initialization
         void Start()
         {
             Initialize();
             mesh = GetComponent<SkinnedMeshRenderer>();
+
+            if (!IsLocal) { 
+                parentRigidbody = GetComponentInParent<Rigidbody>();
+
+                if (parentRigidbody) {
+                    parentRigidbody.isKinematic = true;
+                }
+            }
         }
 
         public override object SendPositionData()
@@ -66,7 +75,7 @@ namespace Orchestrator.Behaviour
 
                 if (movement.userId == Id) {
                     foreach (var bone in mesh.bones) {
-                        if (movement.bones.TryGetValue(bone.name, out BoneData foundBone)) {
+                        if (movement.bones.TryGetValue(bone.name, out var foundBone)) {
                             bone.SetPositionAndRotation(new Vector3(
                                 foundBone.pos.x,
                                 foundBone.pos.y,

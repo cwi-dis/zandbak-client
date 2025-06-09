@@ -32,9 +32,9 @@ namespace Orchestrator.Behaviour {
 
             timer += Time.deltaTime;
 
-            if (timer >= 1 / UpdateRate)
+            if (timer >= 1f / UpdateRate)
             {
-                timer -= 1 / UpdateRate;
+                timer -= 1f / UpdateRate;
 
                 var data = SendPositionData();
                 Broadcast(data);
