@@ -172,6 +172,22 @@ namespace Orchestrator.Wrapping {
                 });
             }
         }
+        
+        public void Login(string username, string password) {
+            lock (this) {
+                Socket.Emit("Login", (response) => {
+                    var data = response.GetValue<OrchestratorResponse<LoginResponse>>();
+                    myUserID = data.body.userId;
+
+                    UnityThread.executeInUpdate(() => {
+                        ResponsesListener?.OnLoginResponse(data.ResponseStatus, data.body.userId);
+                    });
+                }, new {
+                    userName = username,
+                    password = password
+                });
+            }
+        }
 
         public void Logout() {
             lock (this) {

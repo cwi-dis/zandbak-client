@@ -240,6 +240,15 @@ namespace Orchestrator.Wrapping
             orchestratorWrapper.Login(pName);
         }
 
+        public void Login(string username, string password)
+        {
+            SelfUser = new User();
+            SelfUser.userName = username;
+            SelfUser.userPassword = password;
+
+            orchestratorWrapper.Login(username, password);
+        }
+
         public void OnLoginResponse(ResponseStatus status, string userId) {
             bool userLoggedSucessfully = (status.Error == 0);
 
