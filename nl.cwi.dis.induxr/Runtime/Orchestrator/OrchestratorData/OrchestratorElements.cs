@@ -29,13 +29,45 @@ namespace Orchestrator.Elements
         }
     }
 
+    public class UserPosition : OrchestratorElement
+    {
+        public float x;
+        public float y;
+        public float z;
+    }
+
+    public class UserQuaternion : OrchestratorElement
+    {
+        public float x;
+        public float y;
+        public float z;
+        public float w;
+    }
+
+    public class UserBoneData
+    {
+        public UserPosition pos;
+        public UserQuaternion rot;
+    }
+
+    public class UserTransform : OrchestratorElement
+    {
+        public string timestamp;
+        public UserPosition position;
+        public UserQuaternion rotation;
+        public Dictionary<string, UserBoneData> bones;
+    }
+
     public class User: OrchestratorElement
     {
-        public string userId = "";
-        public string userName = "";
-        public string userPassword = "";
+        public string userId;
+        public string userName;
         public UserData userData;
         public SfuData sfuData;
+        public string userType;
+        public UserTransform transform;
+        public string deviceType;
+        public bool hasHandRaised;
 
         public User()
         {
