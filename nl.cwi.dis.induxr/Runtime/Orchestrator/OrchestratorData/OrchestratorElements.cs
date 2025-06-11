@@ -145,6 +145,14 @@ namespace Orchestrator.Elements
         }
     }
 
+    public class ChatMessage : OrchestratorElement
+    {
+        public string id;
+        public User sender;
+        public string message;
+        public string timestamp;
+    }
+
     public class Session : OrchestratorElement
     {
         public string sessionId;
@@ -155,6 +163,10 @@ namespace Orchestrator.Elements
         public string scenarioId; // the scenario ID
         public string[] sessionUsers;
         public List<User> sessionUserDefinitions;
+        public string sessionProtocol;
+        public string[] sessionChannels;
+        public ChatMessage[] sessionChat;
+        public User[] sessionRaisedHands;
 
         public Session() { }
 
