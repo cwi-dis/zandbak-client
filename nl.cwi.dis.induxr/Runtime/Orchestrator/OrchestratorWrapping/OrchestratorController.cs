@@ -100,7 +100,7 @@ namespace Orchestrator.Wrapping
         public Action OnSessionJoinedEvent;
         public Action OnLeaveSessionEvent;
         public Action OnDeleteSessionEvent;
-        public Action<string> OnUserJoinSessionEvent;
+        public Action<string, User> OnUserJoinSessionEvent;
         public Action<string> OnUserLeaveSessionEvent;
 
         // Orchestrator User Messages Events
@@ -548,7 +548,7 @@ namespace Orchestrator.Wrapping
             if (enableLogging) Debug.Log("OrchestratorController: OnUserJoinedSession: User " + user.userName + " joined the session.");
 
             orchestratorWrapper.GetSessionInfo();
-            OnUserJoinSessionEvent?.Invoke(userID);
+            OnUserJoinSessionEvent?.Invoke(userID, user);
         }
 
         public void OnUserLeftSession(string userID) {
