@@ -235,7 +235,6 @@ namespace Orchestrator.Wrapping
         public void Login(string pName) {
             SelfUser = new User();
             SelfUser.userName = pName;
-            SelfUser.userPassword = "";
 
             orchestratorWrapper.Login(pName);
         }
