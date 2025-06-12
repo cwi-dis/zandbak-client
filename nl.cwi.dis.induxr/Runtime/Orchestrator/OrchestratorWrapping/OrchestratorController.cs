@@ -332,7 +332,7 @@ namespace Orchestrator.Wrapping
 
             TimeSpan sinceEpoch = DateTime.UtcNow - new DateTime(1970, 1, 1);
             _timeOfGetNtpTimeRequest = (long)sinceEpoch.TotalMilliseconds;
-            _orchestratorWrapper.GetNTPTime();
+            _orchestratorWrapper.GetNtpTime();
         }
 
         public void OnGetNTPTimeResponse(ResponseStatus status, NtpClock ntpTime) {

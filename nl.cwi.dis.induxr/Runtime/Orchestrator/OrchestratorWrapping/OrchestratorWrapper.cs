@@ -12,78 +12,83 @@ using Orchestrator.Elements;
 namespace Orchestrator.Wrapping {
     public class OrchestratorWrapper : IOrchestratorConnectionListener
     {
-        private SocketIOUnity Socket;
-        private readonly object sendLock = new();
+        private SocketIOUnity _socket;
+        private readonly object _sendLock = new();
 
-        public static OrchestratorWrapper instance;
+        private static OrchestratorWrapper _instance;
         // Listener for the responses of the orchestrator
-        private IOrchestratorResponsesListener ResponsesListener;
+        private IOrchestratorResponsesListener _responsesListener;
 
         // Listener for the messages emitted spontaneously by the orchestrator
-        private IUserMessagesListener UserMessagesListener;
+        private IUserMessagesListener _userMessagesListener;
 
         // Listeners for the user events emitted when a session is updated by the orchestrator
-        private List<IUserSessionEventsListener> UserSessionEventslisteners;
+        private List<IUserSessionEventsListener> _userSessionEventslisteners;
 
         public Action<UserDataStreamPacket> OnDataStreamReceived;
-        private string myUserID = "";
+        private string _myUserID = "";
 
         public OrchestratorWrapper(string orchestratorSocketUrl, IOrchestratorResponsesListener responsesListener, IUserMessagesListener userMessagesListener, IUserSessionEventsListener userSessionEventsListener)
         {
-            if (instance is null)
+            if (_instance is null)
             {
-                instance = this;
+                _instance = this;
             }
 
-            ResponsesListener = responsesListener;
-            UserMessagesListener = userMessagesListener;
+            _responsesListener = responsesListener;
+            _userMessagesListener = userMessagesListener;
 
-            UserSessionEventslisteners = new List<IUserSessionEventsListener> {
+            _userSessionEventslisteners = new List<IUserSessionEventsListener> {
                 userSessionEventsListener
             };
 
-            Socket = new SocketIOUnity(new Uri(orchestratorSocketUrl), new SocketIOOptions {
+            _socket = new SocketIOUnity(new Uri(orchestratorSocketUrl), new SocketIOOptions {
                 Transport = SocketIOClient.Transport.TransportProtocol.WebSocket,
                 Reconnection = false,
                 EIO = EngineIO.V4
             });
-            Socket.JsonSerializer = new NewtonsoftJsonSerializer();
+            _socket.JsonSerializer = new NewtonsoftJsonSerializer();
 
-            Socket.OnConnected += (sender, e) => OnSocketConnect();
-            Socket.OnDisconnected += (sender, e) =>
+            _socket.OnConnected += (_, _) => OnSocketConnect();
+            _socket.OnDisconnected += (_, _) =>
             {
                 OnSocketDisconnect();
             };
-            Socket.OnError += (sender, e) =>
+            _socket.OnError += (_, e) =>
             {
                 Debug.LogError($"ERROR: {e}");
                 OnSocketError(null);
             };
 
-            Socket.OnPing += (sender, e) => {
+            _socket.OnPing += (_, _) => {
                 Debug.Log("PING");
             };
 
-            Socket.OnPong += (sender, e) => {
+            _socket.OnPong += (_, _) => {
                 Debug.Log("PoNG");
             };
 
-            Socket.On("Broadcast", OnBroadcastReceived);
-            Socket.On("MessageSent", OnMessageSentFromOrchestrator);
-            Socket.On("DataReceived", OnUserDataReceived);
-            Socket.On("SceneEventToMaster", OnMasterEventReceived);
-            Socket.On("SceneEventToUser", OnUserEventReceived);
-            Socket.On("SessionUpdated", OnSessionUpdated);
+            _socket.On("Broadcast", OnBroadcastReceived);
+            _socket.On("MessageSent", OnMessageSentFromOrchestrator);
+            _socket.On("DataReceived", OnUserDataReceived);
+            _socket.On("SceneEventToMaster", OnMasterEventReceived);
+            _socket.On("SceneEventToUser", OnUserEventReceived);
+            _socket.On("SessionUpdated", OnSessionUpdated);
         }
 
-        public void Connect() {
-            Socket.Connect();
+        public void Connect()
+        {
+            lock (_sendLock)
+            {
+                _socket.Connect();
+            }
+
             OnSocketConnecting();
         }
 
         public void OnSocketConnect()
         {
-            if (ResponsesListener == null)
+            if (_responsesListener == null)
             {
                 Debug.LogWarning($"OrchestratorWrapper: OnSocketConnect: no ResponsesListener");
             }
@@ -91,26 +96,30 @@ namespace Orchestrator.Wrapping {
             {
                 Debug.Log("Calling OnConnect");
                 UnityThread.executeInUpdate(() => {
-                  ResponsesListener.OnConnect();
+                  _responsesListener.OnConnect();
                 });
             }
         }
 
-        public void Disconnect() {
-            Debug.Log("DISCONNECT called");
-            Socket.Disconnect();        
+        public void Disconnect()
+        {
+            lock (_sendLock)
+            {
+                Debug.Log("DISCONNECT called");
+                _socket.Disconnect();
+            }
         }
 
         public void OnSocketDisconnect()
         {
-            if (ResponsesListener == null)
+            if (_responsesListener == null)
             {
                 Debug.LogWarning($"OrchestratorWrapper: OnSocketDisconnect: no ResponsesListener");
             }
             else
             {
                 UnityThread.executeInUpdate(() => {
-                    ResponsesListener.OnDisconnect();
+                    _responsesListener.OnDisconnect();
                 });
             }
         }
@@ -119,7 +128,7 @@ namespace Orchestrator.Wrapping {
         {
             UnityThread.executeInUpdate(() =>
             {
-                ResponsesListener?.OnConnecting();
+                _responsesListener?.OnConnecting();
             });
         }
 
@@ -132,23 +141,23 @@ namespace Orchestrator.Wrapping {
 
         public void GetOrchestratorVersion() {
             lock (this) {
-                Socket.Emit("GetOrchestratorVersion", (response) => {
+                _socket.Emit("GetOrchestratorVersion", (response) => {
                     var data = response.GetValue<OrchestratorResponse<VersionResponse>>();
                     
                     UnityThread.executeInUpdate(() => {
-                        ResponsesListener?.OnGetOrchestratorVersionResponse(data.ResponseStatus, data.body.orchestratorVersion);
+                        _responsesListener?.OnGetOrchestratorVersionResponse(data.ResponseStatus, data.body.orchestratorVersion);
                     });
                 }, new { });
             }
         }
 
-        public void GetNTPTime() {
+        public void GetNtpTime() {
             lock (this) {
-                Socket.Emit("GetNTPTime", (response) => {
+                _socket.Emit("GetNTPTime", (response) => {
                     var data = response.GetValue<OrchestratorResponse<NtpClock>>();
 
                     UnityThread.executeInUpdate(() => {
-                        ResponsesListener?.OnGetNTPTimeResponse(data.ResponseStatus, data.body);
+                        _responsesListener?.OnGetNTPTimeResponse(data.ResponseStatus, data.body);
                     });
                 }, new { });
             }
@@ -160,12 +169,12 @@ namespace Orchestrator.Wrapping {
 
         public void Login(string username) {
             lock (this) {
-                Socket.Emit("Login", (response) => {
+                _socket.Emit("Login", (response) => {
                     var data = response.GetValue<OrchestratorResponse<LoginResponse>>();
-                    myUserID = data.body.userId;
+                    _myUserID = data.body.userId;
 
                     UnityThread.executeInUpdate(() => {
-                        ResponsesListener?.OnLoginResponse(data.ResponseStatus, data.body.userId);
+                        _responsesListener?.OnLoginResponse(data.ResponseStatus, data.body.userId);
                     });
                 }, new {
                     userName = username
@@ -175,28 +184,28 @@ namespace Orchestrator.Wrapping {
         
         public void Login(string username, string password) {
             lock (this) {
-                Socket.Emit("Login", (response) => {
+                _socket.Emit("Login", (response) => {
                     var data = response.GetValue<OrchestratorResponse<LoginResponse>>();
-                    myUserID = data.body.userId;
+                    _myUserID = data.body.userId;
 
                     UnityThread.executeInUpdate(() => {
-                        ResponsesListener?.OnLoginResponse(data.ResponseStatus, data.body.userId);
+                        _responsesListener?.OnLoginResponse(data.ResponseStatus, data.body.userId);
                     });
                 }, new {
                     userName = username,
-                    password = password
+                    password
                 });
             }
         }
 
         public void Logout() {
             lock (this) {
-                Socket.Emit("Logout", (response) => {
+                _socket.Emit("Logout", (response) => {
                     var data = response.GetValue<OrchestratorResponse<EmptyResponse>>();
-                    myUserID = "";
+                    _myUserID = "";
 
                     UnityThread.executeInUpdate(() => {
-                        ResponsesListener?.OnLogoutResponse(data.ResponseStatus);
+                        _responsesListener?.OnLogoutResponse(data.ResponseStatus);
                     });
                 }, new { });
             }
@@ -208,11 +217,11 @@ namespace Orchestrator.Wrapping {
 
         public void AddSession(string scenarioId, Scenario scenario, string sessionName, string sessionDescription, string sessionProtocol, string[] channels) {
             lock (this) {
-                Socket.Emit("AddSession", (response) => {
+                _socket.Emit("AddSession", (response) => {
                     var data = response.GetValue<OrchestratorResponse<Session>>();
 
                     UnityThread.executeInUpdate(() => {
-                        ResponsesListener?.OnAddSessionResponse(data.ResponseStatus, data.body);
+                        _responsesListener?.OnAddSessionResponse(data.ResponseStatus, data.body);
                     });
                 }, new {
                     sessionName,
@@ -230,7 +239,7 @@ namespace Orchestrator.Wrapping {
 
         public void GetSessions() {
             lock (this) {
-                Socket.Emit("GetSessions", (response) => {
+                _socket.Emit("GetSessions", (response) => {
                     var data = response.GetValue<OrchestratorResponse<Dictionary<string, Session>>>();
 
                     var sessions = new List<Session>();
@@ -239,7 +248,7 @@ namespace Orchestrator.Wrapping {
                     }
 
                     UnityThread.executeInUpdate(() => {
-                        ResponsesListener?.OnGetSessionsResponse(data.ResponseStatus, sessions);
+                        _responsesListener?.OnGetSessionsResponse(data.ResponseStatus, sessions);
                     });
                 }, new { });
             }
@@ -247,11 +256,11 @@ namespace Orchestrator.Wrapping {
 
         public void GetSessionInfo() {
             lock (this) {
-                Socket.Emit("GetSessionInfo", (response) => {
+                _socket.Emit("GetSessionInfo", (response) => {
                     var data = response.GetValue<OrchestratorResponse<Session>>();
 
                     UnityThread.executeInUpdate(() => {
-                        ResponsesListener?.OnGetSessionInfoResponse(data.ResponseStatus, data.body);
+                        _responsesListener?.OnGetSessionInfoResponse(data.ResponseStatus, data.body);
                     });
                 }, new { });
             }
@@ -259,11 +268,11 @@ namespace Orchestrator.Wrapping {
 
         public void DeleteSession(string sessionId) {
             lock (this) {
-                Socket.Emit("DeleteSession", (response) => {
+                _socket.Emit("DeleteSession", (response) => {
                     var data = response.GetValue<OrchestratorResponse<EmptyResponse>>();
 
                     UnityThread.executeInUpdate(() => {
-                        ResponsesListener?.OnDeleteSessionResponse(data.ResponseStatus);
+                        _responsesListener?.OnDeleteSessionResponse(data.ResponseStatus);
                     });
                 }, new {
                     sessionId
@@ -273,11 +282,11 @@ namespace Orchestrator.Wrapping {
 
         public void JoinSession(string sessionId) {
             lock (this) {
-                Socket.Emit("JoinSession", (response) => {
+                _socket.Emit("JoinSession", (response) => {
                     var data = response.GetValue<OrchestratorResponse<Session>>();
 
                     UnityThread.executeInUpdate(() => {
-                        ResponsesListener?.OnJoinSessionResponse(data.ResponseStatus, data.body);
+                        _responsesListener?.OnJoinSessionResponse(data.ResponseStatus, data.body);
                     });
                 }, new {
                     sessionId
@@ -287,11 +296,11 @@ namespace Orchestrator.Wrapping {
 
         public void LeaveSession() {
             lock (this) {
-                Socket.Emit("LeaveSession", (response) => {
+                _socket.Emit("LeaveSession", (response) => {
                     var data = response.GetValue<OrchestratorResponse<EmptyResponse>>();
 
                     UnityThread.executeInUpdate(() => {
-                        ResponsesListener?.OnLeaveSessionResponse(data.ResponseStatus);
+                        _responsesListener?.OnLeaveSessionResponse(data.ResponseStatus);
                     });
                 }, new { });
             }
@@ -299,11 +308,11 @@ namespace Orchestrator.Wrapping {
 
         public void SendMessage(string message, string userId) {
             lock (this) {
-                Socket.Emit("SendMessage", (response) => {
+                _socket.Emit("SendMessage", (response) => {
                     var data = response.GetValue<OrchestratorResponse<EmptyResponse>>();
 
                     UnityThread.executeInUpdate(() => {
-                        ResponsesListener?.OnSendMessageResponse(data.ResponseStatus);
+                        _responsesListener?.OnSendMessageResponse(data.ResponseStatus);
                     });
                 }, new {
                     message,
@@ -314,11 +323,11 @@ namespace Orchestrator.Wrapping {
 
         public void SendMessageToAll(string message) {
             lock (this) {
-                Socket.Emit("SendMessageToAll", (response) => {
+                _socket.Emit("SendMessageToAll", (response) => {
                     var data = response.GetValue<OrchestratorResponse<EmptyResponse>>();
 
                     UnityThread.executeInUpdate(() => {
-                        ResponsesListener?.OnSendMessageResponse(data.ResponseStatus);
+                        _responsesListener?.OnSendMessageResponse(data.ResponseStatus);
                     });
                 }, new {
                     message
@@ -328,11 +337,11 @@ namespace Orchestrator.Wrapping {
 
         public void UpdateUserDataJson(UserData userData) {
             lock (this) {
-                Socket.Emit("UpdateUserDataJson", (response) => {
+                _socket.Emit("UpdateUserDataJson", (response) => {
                     var data = response.GetValue<OrchestratorResponse<EmptyResponse>>();
 
                     UnityThread.executeInUpdate(() => {
-                        ResponsesListener?.OnUpdateUserDataJsonResponse(data.ResponseStatus);
+                        _responsesListener?.OnUpdateUserDataJsonResponse(data.ResponseStatus);
                     });
                 }, new {
                     userDataJson = userData.AsJsonString()
@@ -345,32 +354,32 @@ namespace Orchestrator.Wrapping {
         #region scene events
 
         public void SendSceneEventPacketToMaster(byte[] pByteArray) {
-            lock (sendLock) {
-                Socket.Emit("SendSceneEventToMaster",
+            lock (_sendLock) {
+                _socket.Emit("SendSceneEventToMaster",
                     pByteArray
                 );
             }
         }
 
         public void SendSceneEventPacketToUser(string pUserID, byte[] pByteArray) {
-            lock (sendLock) {
-                Socket.Emit("SendSceneEventToUser",
+            lock (_sendLock) {
+                _socket.Emit("SendSceneEventToUser",
                     pUserID, pByteArray
                 );
             }
         }
 
         public void SendSceneEventPacketToAllUsers(byte[] pByteArray) {
-            lock (sendLock) {
-                Socket.Emit("SendSceneEventToAllUsers",
+            lock (_sendLock) {
+                _socket.Emit("SendSceneEventToAllUsers",
                     pByteArray
                 );
             }
         }
 
         public void SendBroadcastToChannel(string channel, byte[] pByteArray) {
-            lock (sendLock) {
-                Socket.Emit("Broadcast",
+            lock (_sendLock) {
+                _socket.Emit("Broadcast",
                     channel,
                     pByteArray
                 );
@@ -383,31 +392,31 @@ namespace Orchestrator.Wrapping {
 
         public void DeclareDataStream(string pDataStreamType) {
             lock (this) {
-                Socket.Emit("DeclareDataStream", pDataStreamType);
+                _socket.Emit("DeclareDataStream", pDataStreamType);
             }
         }
 
         public void RemoveDataStream(string pDataStreamType) {
             lock (this) {
-                Socket.Emit("RemoveDataStream", pDataStreamType);
+                _socket.Emit("RemoveDataStream", pDataStreamType);
             }
         }
 
         public void RegisterForDataStream(string pDataStreamUserId, string pDataStreamType) {
             lock (this) {
-                Socket.Emit("RegisterForDataStream", pDataStreamUserId, pDataStreamType);
+                _socket.Emit("RegisterForDataStream", pDataStreamUserId, pDataStreamType);
             }
         }
 
         public void UnregisterFromDataStream(string pDataStreamUserId, string pDataStreamType) {
             lock (this) {
-                Socket.Emit("UnregisterFromDataStream", pDataStreamUserId, pDataStreamType);
+                _socket.Emit("UnregisterFromDataStream", pDataStreamUserId, pDataStreamType);
             }
         }
 
         public void SendData(string pDataStreamType, byte[] pDataStreamBytes) {
             lock (this) {
-                Socket.Emit("SendData", pDataStreamType, pDataStreamBytes);
+                _socket.Emit("SendData", pDataStreamType, pDataStreamBytes);
             }
         }
 
@@ -419,14 +428,14 @@ namespace Orchestrator.Wrapping {
             lock (this) {
                 var message = response.GetValue<UserMessage>();
                 UnityThread.executeInUpdate(() => {
-                    UserMessagesListener?.OnUserMessageReceived(message);
+                    _userMessagesListener?.OnUserMessageReceived(message);
                 });
             }
         }
 
         private void OnUserDataReceived(SocketIOResponse response) {
             lock (this) {
-                var userId = response.GetValue<string>(0);
+                var userId = response.GetValue<string>();
                 var type = response.GetValue<string>(1);
                 var data = response.GetValue<byte[]>(2);
 
@@ -441,14 +450,14 @@ namespace Orchestrator.Wrapping {
 
         private void OnMasterEventReceived(SocketIOResponse response) {
             lock (this) {
-                if (UserMessagesListener != null)
+                if (_userMessagesListener != null)
                 {
                     var sceneEvent = response.GetValue<SceneEvent>();
                     string data = Encoding.ASCII.GetString(response.InComingBytes[0], 0, response.InComingBytes[0].Length);
 
                     UnityThread.executeInUpdate(() =>
                     {
-                        UserMessagesListener.OnMasterEventReceived(new UserEvent(sceneEvent.sceneEventFrom, data));
+                        _userMessagesListener.OnMasterEventReceived(new UserEvent(sceneEvent.sceneEventFrom, data));
                     });
                 }
                 else {
@@ -459,14 +468,14 @@ namespace Orchestrator.Wrapping {
 
         private void OnUserEventReceived(SocketIOResponse response) {
             lock (this) {
-                if (UserMessagesListener != null) {
+                if (_userMessagesListener != null) {
                     var sceneEvent = response.GetValue<SceneEvent>();
                     string data = Encoding.ASCII.GetString(response.InComingBytes[0], 0, response.InComingBytes[0].Length);
 
 
                     UnityThread.executeInUpdate(() =>
                     {
-                        UserMessagesListener.OnUserEventReceived(new UserEvent(sceneEvent.sceneEventFrom, data));
+                        _userMessagesListener.OnUserEventReceived(new UserEvent(sceneEvent.sceneEventFrom, data));
                     });
                 } else {
                     Debug.LogWarning("No UserMessagesListener");
@@ -476,14 +485,14 @@ namespace Orchestrator.Wrapping {
 
         private void OnBroadcastReceived(SocketIOResponse response) {
             lock (this) {
-                if (UserMessagesListener != null)
+                if (_userMessagesListener != null)
                 {
                         var channel = response.GetValue<string>();
                         string data = Encoding.ASCII.GetString(response.InComingBytes[0], 0, response.InComingBytes[0].Length);
 
                         UnityThread.executeInUpdate(() =>
                         {
-                            UserMessagesListener.OnBroadcastReceived(new BroadcastData(channel, data));
+                            _userMessagesListener.OnBroadcastReceived(new BroadcastData(channel, data));
                         });
                 }
                 else
@@ -497,13 +506,13 @@ namespace Orchestrator.Wrapping {
             lock (this) {
                 var data = response.GetValue<SessionUpdate>();
 
-                if (data.eventData.userId == myUserID) {
+                if (data.eventData.userId == _myUserID) {
                     return;
                 }
 
                 switch (data.eventId) {
                     case "USER_JOINED_SESSION":
-                        foreach (IUserSessionEventsListener e in UserSessionEventslisteners)
+                        foreach (IUserSessionEventsListener e in _userSessionEventslisteners)
                         {
                             UnityThread.executeInUpdate(() => {
                                 e?.OnUserJoinedSession(data.eventData.userId, data.eventData.userData);
@@ -511,7 +520,7 @@ namespace Orchestrator.Wrapping {
                         }
                         break;
                     case "USER_LEFT_SESSION":
-                        foreach (IUserSessionEventsListener e in UserSessionEventslisteners)
+                        foreach (IUserSessionEventsListener e in _userSessionEventslisteners)
                         {
                             UnityThread.executeInUpdate(() => {
                                 e?.OnUserLeftSession(data.eventData.userId);
@@ -519,7 +528,7 @@ namespace Orchestrator.Wrapping {
                         }
                         break;
                     case "USER_RAISED_HAND":
-                        foreach (IUserSessionEventsListener e in UserSessionEventslisteners)
+                        foreach (IUserSessionEventsListener e in _userSessionEventslisteners)
                         {
                             UnityThread.executeInUpdate(() => {
                                 e?.OnUserRaisedHand(data.eventData.userId);
@@ -527,14 +536,12 @@ namespace Orchestrator.Wrapping {
                         }
                         break;
                     case "USER_CLEARED_RAISED_HAND":
-                        foreach (IUserSessionEventsListener e in UserSessionEventslisteners)
+                        foreach (IUserSessionEventsListener e in _userSessionEventslisteners)
                         {
                             UnityThread.executeInUpdate(() => {
                                 e?.OnUserClearedRaisedHand(data.eventData.userId);
                             });
                         }
-                        break;
-                    default:
                         break;
                 }
             }
