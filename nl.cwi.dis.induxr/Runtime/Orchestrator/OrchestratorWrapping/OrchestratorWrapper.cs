@@ -518,6 +518,22 @@ namespace Orchestrator.Wrapping {
                             });
                         }
                         break;
+                    case "USER_RAISED_HAND":
+                        foreach (IUserSessionEventsListener e in UserSessionEventslisteners)
+                        {
+                            UnityThread.executeInUpdate(() => {
+                                e?.OnUserRaisedHand(data.eventData.userId);
+                            });
+                        }
+                        break;
+                    case "USER_CLEARED_RAISED_HAND":
+                        foreach (IUserSessionEventsListener e in UserSessionEventslisteners)
+                        {
+                            UnityThread.executeInUpdate(() => {
+                                e?.OnUserClearedRaisedHand(data.eventData.userId);
+                            });
+                        }
+                        break;
                     default:
                         break;
                 }

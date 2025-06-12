@@ -102,6 +102,8 @@ namespace Orchestrator.Wrapping
         public Action OnDeleteSessionEvent;
         public Action<string, User> OnUserJoinSessionEvent;
         public Action<string> OnUserLeaveSessionEvent;
+        public Action<string> OnUserRaisedHandEvent;
+        public Action<string> OnUserClearedRaisedHandEvent;
 
         // Orchestrator User Messages Events
         public Action<UserMessage> OnUserMessageReceivedEvent;
@@ -566,6 +568,18 @@ namespace Orchestrator.Wrapping
                     OnUserLeaveSessionEvent?.Invoke(userID);
                 }
             }
+        }
+
+        public void OnUserRaisedHand(string userID)
+        {
+            orchestratorWrapper.GetSessionInfo();
+            OnUserRaisedHandEvent?.Invoke(userID);
+        }
+
+        public void OnUserClearedRaisedHand(string userID)
+        {
+            orchestratorWrapper.GetSessionInfo();
+            OnUserClearedRaisedHandEvent?.Invoke(userID);
         }
 
         #endregion

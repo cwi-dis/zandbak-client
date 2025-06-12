@@ -29,6 +29,8 @@ namespace Orchestrator.Interfaces
     {
         void OnUserJoinedSession(string userID, User user);
         void OnUserLeftSession(string userID);
+        void OnUserRaisedHand(string userId);
+        void OnUserClearedRaisedHand(string userId);
     }
 
     // Interface for clients that will use the orchestrator wrapper
