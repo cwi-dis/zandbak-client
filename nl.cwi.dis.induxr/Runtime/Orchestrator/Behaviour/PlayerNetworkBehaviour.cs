@@ -1,6 +1,4 @@
-using System;
 using UnityEngine;
-using Orchestrator.Wrapping;
 using Orchestrator.Responses;
 
 namespace Orchestrator.Behaviour
@@ -33,27 +31,27 @@ namespace Orchestrator.Behaviour
 
     public class PlayerNetworkBehaviour : NetworkBehaviour
     {
-        private CharacterController controller;
-        private MovementData previousReceivedData;
-        private MovementData lastReceivedData;
-        private float lastReceiveTime;
+        private CharacterController _controller;
+        private MovementData _previousReceivedData;
+        private MovementData _lastReceivedData;
+        private float _lastReceiveTime;
 
         // Start is called once before the first execution of Update after the MonoBehaviour is created
         void Start()
         {
             // Initialize networked object
             Initialize();
-            controller = GetComponent<CharacterController>();
+            _controller = GetComponent<CharacterController>();
         }
 
         public override object SendPositionData()
         {
-            var position = controller.transform.position;
-            var rotation = controller.transform.rotation;
+            var position = _controller.transform.position;
+            var rotation = _controller.transform.rotation;
 
             return new MovementData()
             {
-                userId = Id,
+                userId = id,
                 timestamp = Time.time,
                 position = new PositionData()
                 {
@@ -77,23 +75,23 @@ namespace Orchestrator.Behaviour
             {
                 var movement = JsonUtility.FromJson<MovementData>(data.data);
 
-                if (movement.userId == Id)
+                if (movement.userId == id)
                 {
-                    previousReceivedData = lastReceivedData;
-                    lastReceivedData = movement;
-                    lastReceiveTime = Time.realtimeSinceStartup;
+                    _previousReceivedData = _lastReceivedData;
+                    _lastReceivedData = movement;
+                    _lastReceiveTime = Time.realtimeSinceStartup;
 
-                    if (previousReceivedData != null)
+                    if (_previousReceivedData != null)
                     {
-                        float t = Mathf.Clamp01((Time.realtimeSinceStartup - lastReceiveTime) / (1.0f / UpdateRate));
+                        float t = Mathf.Clamp01((Time.realtimeSinceStartup - _lastReceiveTime) / (1.0f / updateRate));
 
-                        controller.transform.SetPositionAndRotation(Vector3.Lerp(
-                            new Vector3(previousReceivedData.position.x, previousReceivedData.position.y, previousReceivedData.position.z),
-                            new Vector3(lastReceivedData.position.x, lastReceivedData.position.y, lastReceivedData.position.z),
+                        _controller.transform.SetPositionAndRotation(Vector3.Lerp(
+                            new Vector3(_previousReceivedData.position.x, _previousReceivedData.position.y, _previousReceivedData.position.z),
+                            new Vector3(_lastReceivedData.position.x, _lastReceivedData.position.y, _lastReceivedData.position.z),
                             t
                         ), Quaternion.Slerp(
-                            new Quaternion(previousReceivedData.rotation.x, previousReceivedData.rotation.y, previousReceivedData.rotation.z, previousReceivedData.rotation.w),
-                            new Quaternion(lastReceivedData.rotation.x, lastReceivedData.rotation.y, lastReceivedData.rotation.z, lastReceivedData.rotation.w),
+                            new Quaternion(_previousReceivedData.rotation.x, _previousReceivedData.rotation.y, _previousReceivedData.rotation.z, _previousReceivedData.rotation.w),
+                            new Quaternion(_lastReceivedData.rotation.x, _lastReceivedData.rotation.y, _lastReceivedData.rotation.z, _lastReceivedData.rotation.w),
                             t
                         ));
                     }

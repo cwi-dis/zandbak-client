@@ -6,15 +6,15 @@ using Newtonsoft.Json;
 namespace Orchestrator.Behaviour {
     public abstract class NetworkBehaviour : MonoBehaviour
     {
-        public string Id;
-        public bool IsLocal = false;
-        public int UpdateRate = 10;
+        public string id;
+        public bool isLocal;
+        public int updateRate = 10;
 
-        private float timer = 0;
+        private float _timer;
 
         protected void Initialize()
         {
-            if (!IsLocal)
+            if (!isLocal)
             {
                 Debug.Log("Listening for broadcasts");
                 OrchestratorController.Instance.OnBroadcastReceivedEvent += OnBroadcastReceived;
@@ -25,16 +25,16 @@ namespace Orchestrator.Behaviour {
         void Update()
         {
             // Only send transform broadcasts if we're the local player
-            if (!IsLocal)
+            if (!isLocal)
             {
                 return;
             }
 
-            timer += Time.deltaTime;
+            _timer += Time.deltaTime;
 
-            if (timer >= 1f / UpdateRate)
+            if (_timer >= 1f / updateRate)
             {
-                timer -= 1f / UpdateRate;
+                _timer -= 1f / updateRate;
 
                 var data = SendPositionData();
                 Broadcast(data);
