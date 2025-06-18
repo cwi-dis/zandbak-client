@@ -1,10 +1,11 @@
 ﻿using System.Collections.Generic;
 using UnityEngine;
+using System;
 
-namespace Orchestrator.Elements
+namespace Orchestrator.Data
 {
     // Base class for the elements returned by the orchestrator
-    public abstract class OrchestratorElement
+    public class OrchestratorElement
     {
         // used to retrieve the ID
         public virtual string GetId()

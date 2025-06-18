@@ -4,10 +4,7 @@ using SocketIOClient;
 using SocketIOClient.Newtonsoft.Json;
 using UnityEngine;
 using System.Text;
-
-using Orchestrator.Responses;
-using Orchestrator.Interfaces;
-using Orchestrator.Elements;
+using Orchestrator.Data;
 
 namespace Orchestrator.Wrapping {
     public class OrchestratorWrapper : IOrchestratorConnectionListener

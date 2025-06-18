@@ -3,10 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Text;
 using UnityEngine;
-
-using Orchestrator.Responses;
-using Orchestrator.Interfaces;
-using Orchestrator.Elements;
+using Orchestrator.Data;
 
 #if UNITY_EDITOR
 using UnityEditor.Search;
@@ -140,7 +137,7 @@ namespace Orchestrator.Wrapping
         private void Awake() {
             if (_instance == null) {
                 DontDestroyOnLoad(this.gameObject);
-                this.gameObject.name = this.gameObject.name + "_keep";
+                this.gameObject.name += "_keep";
                 _instance = this;
             } else if (_instance != this) {
 #if UNITY_EDITOR

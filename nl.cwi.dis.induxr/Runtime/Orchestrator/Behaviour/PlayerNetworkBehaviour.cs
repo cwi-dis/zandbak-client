@@ -1,5 +1,5 @@
 using UnityEngine;
-using Orchestrator.Responses;
+using Orchestrator.Data;
 
 namespace Orchestrator.Behaviour
 {

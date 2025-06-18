@@ -1,6 +1,6 @@
-﻿using Orchestrator.Elements;
+﻿using Orchestrator.Data;
 
-namespace Orchestrator.Responses { 
+namespace Orchestrator.Data { 
     public interface IOrchestratorResponseBody { }
 
     // class that describes the status for the response from the orchestrator
