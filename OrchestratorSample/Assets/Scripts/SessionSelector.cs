@@ -1,6 +1,6 @@
 using System;
 using System.Linq;
-using Orchestrator.Elements;
+using Orchestrator.Data;
 using Orchestrator.Wrapping;
 using TMPro;
 using UnityEngine;
@@ -8,6 +8,8 @@ using UnityEngine;
 public class SessionSelector : MonoBehaviour
 {
     public TMP_Dropdown sessionDropdown;
+    public GameObject sessionPrefab;
+    
     private Session[] _sessions;
     
     // Start is called once before the first execution of Update after the MonoBehaviour is created
@@ -30,21 +32,17 @@ public class SessionSelector : MonoBehaviour
         OrchestratorController.Instance.JoinSession(_sessions[selectedDropdownValue].sessionId);
     }
 
-    private void OnSessionJoined(Session session)
-    {
-        Debug.Log("Session joined: " + session.sessionName);
-        Destroy(this.gameObject);
-    }
-
     public void OnCreateSession()
     {
-        OrchestratorController.Instance.OnAddSessionEvent = OnSessionCreated;
+        OrchestratorController.Instance.OnAddSessionEvent = OnSessionJoined;
         OrchestratorController.Instance.AddSession("test-" + Guid.NewGuid().ToString());
     }
 
-    private void OnSessionCreated(Session session)
+    private void OnSessionJoined(Session session)
     {
-        Debug.Log("Session created: " + session.sessionName);
+        Debug.Log("Session joined: " + session.sessionName);
+        
         Destroy(this.gameObject);
+        Instantiate(sessionPrefab);
     }
 }
