@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using Orchestrator.Data;
 using Orchestrator.Wrapping;
 using UnityEngine;
 
@@ -9,13 +10,30 @@ namespace Orchestrator.App
     {
         private List<Session> _sessions;
 
-        private void Start()
+        public void GetOrchestratorVersion(Action<string> callback)
         {
+            Action<string> fn = null;
+            fn = (version) =>
+            {
+                callback?.Invoke(version);
+                OrchestratorController.Instance.OnGetOrchestratorVersionEvent -= fn;
+            };
+
+            OrchestratorController.Instance.OnGetOrchestratorVersionEvent += fn;
+            OrchestratorController.Instance.GetVersion();
         }
 
-        public void GetSessions(Action<List<Session>> callback)
+        public void GetSessions(Action<Data.Session[]> callback)
         {
-            callback(_sessions);
+            Action<Data.Session[]> fn = null;
+            fn = (sessions) =>
+            {
+                callback?.Invoke(sessions);
+                OrchestratorController.Instance.OnSessionsEvent -= fn;
+            };
+
+            OrchestratorController.Instance.OnSessionsEvent += fn;
+            OrchestratorController.Instance.GetSessions();
         }
     }
 }
