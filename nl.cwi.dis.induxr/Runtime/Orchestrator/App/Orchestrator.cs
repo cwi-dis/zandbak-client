@@ -10,6 +10,7 @@ namespace Orchestrator.App
     {
         public List<Session> Sessions { get; private set; }
         public Session CurrentSession { get; private set; }
+        public User CurrentUser { get; private set; }
 
         public void GetOrchestratorVersion(Action<string> callback)
         {
@@ -22,6 +23,44 @@ namespace Orchestrator.App
 
             OrchestratorController.Instance.OnGetOrchestratorVersionEvent += fn;
             OrchestratorController.Instance.GetVersion();
+        }
+
+        public void Login(string username, string password, Action<bool, string> callback)
+        {
+            Action<bool, string> fn = null;
+            fn = (success, userId) =>
+            {
+                callback?.Invoke(success, userId);
+
+                if (success)
+                {
+                    CurrentUser = new User(
+                        new Data.User
+                        {
+                            userName = username,
+                            userId = userId
+                        }
+                    );
+                }
+
+                OrchestratorController.Instance.OnLoginEvent -= fn;
+            };
+
+            OrchestratorController.Instance.OnLoginEvent += fn;
+
+            if (password == null)
+            {
+                OrchestratorController.Instance.Login(username);
+            }
+            else
+            {
+                OrchestratorController.Instance.Login(username, password);
+            }
+        }
+
+        public void Login(string username, Action<bool, string> callback)
+        {
+            Login(username, null, callback);
         }
 
         public void GetSessions(Action<List<Session>> callback)
@@ -52,6 +91,8 @@ namespace Orchestrator.App
             fn = (session) =>
             {
                 CurrentSession = sessionToJoin;
+                CurrentUser.Session = CurrentSession;
+
                 callback?.Invoke(CurrentSession);
                 OrchestratorController.Instance.OnJoinSessionEvent -= fn;
             };
