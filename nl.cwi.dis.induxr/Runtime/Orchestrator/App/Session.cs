@@ -1,3 +1,6 @@
+using System;
+using System.Linq;
+using Orchestrator.Wrapping;
 using UnityEngine.PlayerLoop;
 
 namespace Orchestrator.App
@@ -16,6 +19,20 @@ namespace Orchestrator.App
         public void Update(Data.Session sessionData)
         {
             _sessionData = sessionData;
+        }
+
+        public void Info(Action<Session> callback)
+        {
+            Action<Data.Session> fn = null;
+            fn = (sessionData) =>
+            {
+                _sessionData = sessionData;
+                callback?.Invoke(this);
+                OrchestratorController.Instance.OnSessionInfoEvent -= fn;
+            };
+
+            OrchestratorController.Instance.OnSessionInfoEvent += fn;
+            OrchestratorController.Instance.GetSessionInfo();
         }
     }
 }
