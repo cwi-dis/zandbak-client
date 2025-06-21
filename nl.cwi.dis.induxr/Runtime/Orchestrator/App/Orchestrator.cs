@@ -63,6 +63,19 @@ namespace Orchestrator.App
             Login(username, null, callback);
         }
 
+        public void Logout(Action<bool> callback)
+        {
+            Action<bool> fn = null;
+            fn = (success) =>
+            {
+                callback?.Invoke(success);
+                OrchestratorController.Instance.OnLogoutEvent -= fn;
+            };
+
+            OrchestratorController.Instance.OnLogoutEvent += fn;
+            OrchestratorController.Instance.Logout();
+        }
+
         public void GetSessions(Action<List<Session>> callback)
         {
             Action<Data.Session[]> fn = null;
