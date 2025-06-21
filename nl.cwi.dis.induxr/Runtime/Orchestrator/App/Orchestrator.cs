@@ -1,6 +1,6 @@
 using System;
 using System.Collections.Generic;
-using Orchestrator.Data;
+using System.Linq;
 using Orchestrator.Wrapping;
 using UnityEngine;
 
@@ -8,7 +8,8 @@ namespace Orchestrator.App
 {
     public class Orchestrator : MonoBehaviour
     {
-        private List<Session> _sessions;
+        public List<Session> Sessions { get; private set; }
+        public Session CurrentSession { get; private set; }
 
         public void GetOrchestratorVersion(Action<string> callback)
         {
@@ -23,17 +24,40 @@ namespace Orchestrator.App
             OrchestratorController.Instance.GetVersion();
         }
 
-        public void GetSessions(Action<Data.Session[]> callback)
+        public void GetSessions(Action<List<Session>> callback)
         {
             Action<Data.Session[]> fn = null;
             fn = (sessions) =>
             {
-                callback?.Invoke(sessions);
+                Sessions = sessions.Select(session => new Session(session)).ToList();
+                callback?.Invoke(Sessions);
                 OrchestratorController.Instance.OnSessionsEvent -= fn;
             };
 
             OrchestratorController.Instance.OnSessionsEvent += fn;
             OrchestratorController.Instance.GetSessions();
+        }
+
+        public void JoinSession(string sessionId, Action<Session> callback)
+        {
+            var sessionToJoin = Sessions.Find((s) => s.Id == sessionId);
+
+            if (sessionToJoin == null)
+            {
+                Debug.LogError($"Session {sessionId} not found");
+                return;
+            }
+
+            Action<Data.Session> fn = null;
+            fn = (session) =>
+            {
+                CurrentSession = sessionToJoin;
+                callback?.Invoke(CurrentSession);
+                OrchestratorController.Instance.OnJoinSessionEvent -= fn;
+            };
+
+            OrchestratorController.Instance.OnJoinSessionEvent += fn;
+            OrchestratorController.Instance.JoinSession(sessionId);
         }
     }
 }
