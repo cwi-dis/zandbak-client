@@ -103,6 +103,7 @@ namespace Orchestrator.App
             Action<Data.Session> fn = null;
             fn = (session) =>
             {
+                sessionToJoin.Update(session);
                 CurrentSession = sessionToJoin;
                 CurrentUser.Session = CurrentSession;
 
