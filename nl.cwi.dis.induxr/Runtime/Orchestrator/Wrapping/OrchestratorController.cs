@@ -42,9 +42,6 @@ namespace Orchestrator.Wrapping
         private Session _session;
         private List<Session> _availableSessions = new List<Session>();
 
-        //Scenario
-        private Scenario _scenario;
-
         // user Login state
         private bool _userIsLogged;
 
@@ -68,7 +65,6 @@ namespace Orchestrator.Wrapping
                 return _instance;
             }
         }
-
 
         // Orchestrator Error Response Events
         public Action<ResponseStatus> OnErrorEvent;
@@ -126,7 +122,6 @@ namespace Orchestrator.Wrapping
         public bool UserIsLogged { get { return _userIsLogged; } }
         public bool UserIsMaster { get { return _userIsMaster; } }
         public User SelfUser { get { return _me; } set { _me = value; } }
-        public Scenario CurrentScenario { get { return _scenario; } }
         public Session[] AvailableSessions { get { return _availableSessions?.ToArray(); } }
         public Session CurrentSession { get { return _session; } }
 
@@ -497,7 +492,6 @@ namespace Orchestrator.Wrapping
             if (enableLogging) Debug.Log("OrchestratorController: OnLeaveSessionResponse: Session " + _session.sessionName + " succesfully left.");
 
             // success
-            _scenario = null;
             OnLeaveSessionEvent?.Invoke();
 
             if (_session != null && SelfUser != null) {
