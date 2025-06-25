@@ -17,8 +17,6 @@ namespace Orchestrator.Data
     public interface IUserMessagesListener
     {
         void OnUserMessageReceived(UserMessage userMessage);
-        void OnMasterEventReceived(UserEvent pSceneEventData);
-        void OnUserEventReceived(UserEvent pSceneEventData);
         void OnBroadcastReceived(BroadcastData broadcastData);
     }
 

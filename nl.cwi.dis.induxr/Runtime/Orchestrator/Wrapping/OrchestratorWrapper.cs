@@ -68,8 +68,6 @@ namespace Orchestrator.Wrapping {
             _socket.On("Broadcast", OnBroadcastReceived);
             _socket.On("MessageSent", OnMessageSentFromOrchestrator);
             _socket.On("DataReceived", OnUserDataReceived);
-            _socket.On("SceneEventToMaster", OnMasterEventReceived);
-            _socket.On("SceneEventToUser", OnUserEventReceived);
             _socket.On("SessionUpdated", OnSessionUpdated);
         }
 
@@ -428,41 +426,6 @@ namespace Orchestrator.Wrapping {
                 {
                     OnDataStreamReceived?.Invoke(packet);
                 });
-            }
-        }
-
-        private void OnMasterEventReceived(SocketIOResponse response) {
-            lock (this) {
-                if (_userMessagesListener != null)
-                {
-                    var sceneEvent = response.GetValue<SceneEvent>();
-                    string data = Encoding.ASCII.GetString(response.InComingBytes[0], 0, response.InComingBytes[0].Length);
-
-                    UnityThread.executeInUpdate(() =>
-                    {
-                        _userMessagesListener.OnMasterEventReceived(new UserEvent(sceneEvent.sceneEventFrom, data));
-                    });
-                }
-                else {
-                    Debug.LogWarning("No UserMessagesListener");
-                }
-            }
-        }
-
-        private void OnUserEventReceived(SocketIOResponse response) {
-            lock (this) {
-                if (_userMessagesListener != null) {
-                    var sceneEvent = response.GetValue<SceneEvent>();
-                    string data = Encoding.ASCII.GetString(response.InComingBytes[0], 0, response.InComingBytes[0].Length);
-
-
-                    UnityThread.executeInUpdate(() =>
-                    {
-                        _userMessagesListener.OnUserEventReceived(new UserEvent(sceneEvent.sceneEventFrom, data));
-                    });
-                } else {
-                    Debug.LogWarning("No UserMessagesListener");
-                }
             }
         }
 

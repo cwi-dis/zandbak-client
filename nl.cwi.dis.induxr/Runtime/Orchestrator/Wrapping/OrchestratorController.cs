@@ -581,42 +581,6 @@ namespace Orchestrator.Wrapping
             _orchestratorWrapper.SendBroadcastToChannel(channel, lData);
         }
 
-        public void SendEventToMaster(string pEventData) {
-            byte[] lData = Encoding.ASCII.GetBytes(pEventData);
-            _orchestratorWrapper.SendSceneEventPacketToMaster(lData);
-        }
-
-        public void SendEventToUser(string pUserID, string pEventData) {
-            byte[] lData = Encoding.ASCII.GetBytes(pEventData);
-            _orchestratorWrapper.SendSceneEventPacketToUser(pUserID, lData);
-        }
-
-        public void SendEventToAll(string pEventData) {
-            if (!_userIsMaster)
-            {
-                Debug.LogError("OrchestratorController: SendEventToAll() called, but not master user");
-            }
-
-            byte[] lData = Encoding.ASCII.GetBytes(pEventData);
-            _orchestratorWrapper.SendSceneEventPacketToAllUsers(lData);
-        }
-
-        void IUserMessagesListener.OnMasterEventReceived(UserEvent pMasterEventData) {
-            if (pMasterEventData.sceneEventFrom != SelfUser.userId) {
-                if (enableLogging) Debug.Log("OrchestratorController: OnMasterEventReceived: Master user: " + pMasterEventData.sceneEventFrom + " sent: " + pMasterEventData.sceneEventData);
-
-                OnMasterEventReceivedEvent?.Invoke(pMasterEventData);
-            }
-        }
-
-        void IUserMessagesListener.OnUserEventReceived(UserEvent pUserEventData) {
-            if (pUserEventData.sceneEventFrom != SelfUser.userId) {
-                if (enableLogging) Debug.Log("OrchestratorController: OnUserEventReceived: User: " + pUserEventData.sceneEventFrom + " sent: " + pUserEventData.sceneEventData);
-
-                OnUserEventReceivedEvent?.Invoke(pUserEventData);
-            }
-        }
-
         void IUserMessagesListener.OnBroadcastReceived(BroadcastData broadcastData) {
             OnBroadcastReceivedEvent?.Invoke(broadcastData);
         }
