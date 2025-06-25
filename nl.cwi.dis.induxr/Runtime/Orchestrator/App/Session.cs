@@ -1,19 +1,22 @@
 using System;
-using System.Linq;
+using System.Collections.Generic;
 using Orchestrator.Wrapping;
-using UnityEngine.PlayerLoop;
 
 namespace Orchestrator.App
 {
     public class Session
     {
         private Data.Session _sessionData;
+        private List<User> _users;
 
         public string Id => _sessionData.sessionId;
 
         public Session(Data.Session sessionData)
         {
             _sessionData = sessionData;
+
+            OrchestratorController.Instance.OnUserJoinSessionEvent += UserJoined;
+            OrchestratorController.Instance.OnUserLeaveSessionEvent += UserLeft;
         }
 
         public void Update(Data.Session sessionData)
@@ -39,6 +42,21 @@ namespace Orchestrator.App
         {
             OrchestratorController.Instance.LeaveSession();
             callback?.Invoke();
+        }
+
+        private void UserJoined(string userId, Data.User userData)
+        {
+            _users.Add(new User(userData));
+        }
+
+        private void UserLeft(string userId)
+        {
+            var userToRemove = _users.Find(user => user.Session.Id == Id);
+
+            if (userToRemove != null)
+            {
+                _users.Remove(userToRemove);
+            }
         }
     }
 }
