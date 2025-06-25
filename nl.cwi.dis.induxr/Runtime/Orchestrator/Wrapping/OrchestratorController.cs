@@ -171,6 +171,7 @@ namespace Orchestrator.Wrapping
 
         /// <summary>
         /// Establishes a socket connection to the Orchestrator using the specified URL.
+        /// Invokes <c>OnConnectionEvent</c> upon completion.
         /// </summary>
         /// <param name="pUrl">The URL of the orchestrator to establish the connection to.</param>
         public void SocketConnect(string pUrl) {
@@ -202,7 +203,7 @@ namespace Orchestrator.Wrapping
         }
 
         /// <summary>
-        /// Abort connection to Orchestrator
+        /// Abort connection to Orchestrator.
         /// </summary>
         public void Abort() {
             _orchestratorWrapper.Disconnect();
@@ -211,14 +212,13 @@ namespace Orchestrator.Wrapping
 
         /// <summary>
         /// Retrieves the version of the Orchestrator by sending a request to the connected server.
-        /// `OnGetOrchestratorVersionEvent` will be called with the response as a parameter.
+        /// Invokes <c>OnGetOrchestratorVersionEvent</c> upon completion.
         /// </summary>
         public void GetVersion()
         {
             _orchestratorWrapper.GetOrchestratorVersion();
         }
 
-        // Get connected Orchestrator version
         void IOrchestratorResponsesListener.OnGetOrchestratorVersionResponse(ResponseStatus status, string version) {
             if (status.Error != 0) {
                 OnErrorEvent?.Invoke(status);
@@ -228,7 +228,6 @@ namespace Orchestrator.Wrapping
             OnGetOrchestratorVersionEvent?.Invoke(version);
         }
 
-        // SockerDisconnect response callback
         void IOrchestratorResponsesListener.OnDisconnect() {
             Debug.LogWarning($"OrchestratorController: disconnected from orchestrator");
             SelfUser = null;
@@ -244,8 +243,9 @@ namespace Orchestrator.Wrapping
 
         /// <summary>
         /// Logs in a user to the Orchestrator with the specified username.
-        /// `OnLoginEvent` is invoked with a boolean parameter indicating whether the login was successful and if so,
-        /// also a string parameter with the logged in user's user ID.
+        ///
+        /// Invokes <c>OnLoginEvent</c> upon completion with a boolean parameter indicating whether the login was
+        /// successful and if so, also a string parameter with the user's ID.
         /// </summary>
         /// <param name="pName">The username of the user to log in.</param>
         public void Login(string pName)
@@ -260,8 +260,8 @@ namespace Orchestrator.Wrapping
         /// Logs in a user to the Orchestrator with the specified username and password. The given username and password
         /// combination is checked against the Orchestrator's database.
         ///
-        /// `OnLoginEvent` is invoked with a boolean parameter indicating whether the login was successful and if so,
-        /// also a string parameter with the logged in user's user ID.
+        /// Invokes <c>OnLoginEvent</c> upon completion with a boolean parameter indicating whether the login was
+        /// successful and if so, also a string parameter with the user's ID.
         /// </summary>
         /// <param name="username">The username of the user to log in.</param>
         /// <param name="password">The password of the user to log in</param>
@@ -309,6 +309,7 @@ namespace Orchestrator.Wrapping
 
         /// <summary>
         /// Terminates an existing Orchestrator connection.
+        /// Invokes <c>OnLogoutEvent</c> upon completion.
         /// </summary>
         public void Logout() {
             _orchestratorWrapper.Logout();
@@ -350,6 +351,10 @@ namespace Orchestrator.Wrapping
 
         #region NTP clock
 
+        /// <summary>
+        /// Gets the current NTP time from the Orchestrator.
+        /// Invokes <c>OnGetNtpTimeEvent</c> upon completion with the current NTP time.
+        /// </summary>
         public void GetNtpTime() {
             _orchestratorWrapper.GetNtpTime();
         }
@@ -372,6 +377,7 @@ namespace Orchestrator.Wrapping
 
         /// <summary>
         /// Retrieves the list of currently active sessions.
+        /// Invokes <c>OnSessionsEvent</c> upon completion with a list of sessions.
         /// </summary>
         public void GetSessions() {
             _orchestratorWrapper.GetSessions();
@@ -401,7 +407,8 @@ namespace Orchestrator.Wrapping
         }
 
         /// <summary>
-        /// Creates a new session with the given name
+        /// Creates a new session with the given name.
+        /// Invokes <c>OnAddSessionEvent</c> upon completion with all information about the created session.
         /// </summary>
         /// <param name="pSessionName">The name of the session to be created</param>
         public void AddSession(string pSessionName) {
@@ -439,7 +446,8 @@ namespace Orchestrator.Wrapping
         }
 
         /// <summary>
-        /// Retrieves information about the session that the user is currently a member of
+        /// Retrieves information about the session that the user is currently a member of.
+        /// Invokes <c>OnSessionInfoEvent</c> upon completion with all information about the current session.
         /// </summary>
         public void GetSessionInfo() {
             _orchestratorWrapper.GetSessionInfo();
@@ -493,6 +501,7 @@ namespace Orchestrator.Wrapping
 
         /// <summary>
         /// Joins the session given by the ID.
+        /// Invokes <c>OnJoinSessionEvent</c> upon completion with all information about the joined session.
         /// </summary>
         /// <param name="pSessionID">The ID of the session to be joined</param>
         public void JoinSession(string pSessionID) {
@@ -637,7 +646,6 @@ namespace Orchestrator.Wrapping
             }
         }
 
-        // Message from a user received spontaneously from the Orchestrator
         void IUserMessagesListener.OnUserMessageReceived(UserMessage userMessage) {
             OnUserMessageReceivedEvent?.Invoke(userMessage);
         }
