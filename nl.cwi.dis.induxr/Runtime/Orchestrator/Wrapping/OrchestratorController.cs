@@ -46,8 +46,6 @@ namespace Orchestrator.Wrapping
         private bool _connectedToOrchestrator;
         private bool _hasBeenConnectedToOrchestrator;
 
-        #region public
-
         //Orchestrator Controller Singleton
         public static OrchestratorController Instance {
             get {
@@ -58,56 +56,79 @@ namespace Orchestrator.Wrapping
             }
         }
 
-        // Orchestrator Error Response Events
-        public Action<ResponseStatus> OnErrorEvent;
+        #region event handlers
 
+        /// <summary>
+        /// Invoked when an error occurs, with the error object as an argument
+        /// </summary>
+        public Action<ResponseStatus> OnErrorEvent;
+        /// <summary>
+        /// Invoked whenever a new connection is attempted
+        /// </summary>
+        public Action OnConnectingEvent;
         // Orchestrator Connection Events
         public Action<bool> OnConnectionEvent;
-        public Action OnConnectingEvent;
+        /// <summary>
+        /// Invoked when the Orchestrator's current version is requested, with the version as an argument
+        /// </summary>
         public Action<string> OnGetOrchestratorVersionEvent;
-
-        // Orchestrator Messages Events
-        public Action<string> OnOrchestratorRequestEvent;
-        public Action<string> OnOrchestratorResponseEvent;
-
-        // Orchestrator Login Events
+        /// <summary>
+        /// Invoked when the current user logs into the Orchestrator, with a boolean indicating success and the user's ID as arguments
+        /// </summary>
         public Action<bool, string> OnLoginEvent;
+        /// <summary>
+        /// Invoked when the current user logs out of the Orchestrator, with a boolean indicating success as argument
+        /// </summary>
         public Action<bool> OnLogoutEvent;
-
-        // Orchestrator NTP clock Events
+        /// <summary>
+        /// Invoked when the current NTP time is received, with the NTP time as argument
+        /// </summary>
         public Action<NtpClock> OnGetNtpTimeEvent;
-
-        // Orchestrator Sessions Events
+        /// <summary>
+        /// Invoked when a list of sessions has been requested with the list of sessions as argument
+        /// </summary>
         public Action<Session[]> OnSessionsEvent;
+        /// <summary>
+        /// Invoked when information about the current session has been requested, with the session information as argument
+        /// </summary>
         public Action<Session> OnSessionInfoEvent;
+        /// <summary>
+        /// Invoked when a new session has been created, with the session information as argument
+        /// </summary>
         public Action<Session> OnAddSessionEvent;
+        /// <summary>
+        /// Invoked when a given session has been joined successfully, with the session information as argument
+        /// </summary>
         public Action<Session> OnJoinSessionEvent;
-        public Action OnSessionJoinedEvent;
-        public Action OnLeaveSessionEvent;
-        public Action OnDeleteSessionEvent;
+        /// <summary>
+        /// Invoked when a new user joins the current session, with the user ID as argument
+        /// </summary>
         public Action<string, User> OnUserJoinSessionEvent;
+        /// <summary>
+        /// Invoked when a user leaves the current session, with the user ID as argument
+        /// </summary>
         public Action<string> OnUserLeaveSessionEvent;
+        /// <summary>
+        /// Invoked when a user raises their hand in the current session, with the user ID as argument
+        /// </summary>
         public Action<string> OnUserRaisedHandEvent;
+        /// <summary>
+        /// Invoked when a user's raised hand is cleared in the current session, with the user ID as argument
+        /// </summary>
         public Action<string> OnUserClearedRaisedHandEvent;
-
-        // Orchestrator User Messages Events
+        /// <summary>
+        /// Invoked when a message is received in the current session
+        /// </summary>
         public Action<UserMessage> OnUserMessageReceivedEvent;
-
         // Orchestrator User Messages Events
-        public Action<UserEvent> OnMasterEventReceivedEvent;
-        public Action<UserEvent> OnUserEventReceivedEvent;
+        /// <summary>
+        /// Invoked when a broadcast is received in the current session
+        /// </summary>
         public Action<BroadcastData> OnBroadcastReceivedEvent;
 
-        // Orchestrator Accessors
-        public void LocalUserSessionForDevelopmentTests()
-        {
-            _userIsMaster = true;
-            _session = new Session()
-            {
-                scenarioId = "LocalDevelopmentTest",
-                sessionId = "0000"
-            };
-        }
+        #endregion
+
+        #region public properties
 
         public bool ConnectedToOrchestrator { get { return _connectedToOrchestrator; } }
         public OrchestratorConnectionStatus ConnectionStatus { get { return _connectionStatus; } }
@@ -148,7 +169,10 @@ namespace Orchestrator.Wrapping
 
         #region Socket.io connect
 
-        // Connect to the orchestrator
+        /// <summary>
+        /// Establishes a socket connection to the Orchestrator using the specified URL.
+        /// </summary>
+        /// <param name="pUrl">The URL of the orchestrator to establish the connection to.</param>
         public void SocketConnect(string pUrl) {
             if (enableLogging) Debug.Log($"OrchestratorController: connect to {pUrl}");
             _orchestratorWrapper = new OrchestratorWrapper(pUrl, this, this, this);
@@ -177,12 +201,18 @@ namespace Orchestrator.Wrapping
             OnConnectingEvent?.Invoke();
         }
 
-        // Abort Socket connection
+        /// <summary>
+        /// Abort connection to Orchestrator
+        /// </summary>
         public void Abort() {
             _orchestratorWrapper.Disconnect();
             ((IOrchestratorResponsesListener)this).OnDisconnect();
         }
 
+        /// <summary>
+        /// Retrieves the version of the Orchestrator by sending a request to the connected server.
+        /// `OnGetOrchestratorVersionEvent` will be called with the response as a parameter.
+        /// </summary>
         public void GetVersion()
         {
             _orchestratorWrapper.GetOrchestratorVersion();
@@ -212,13 +242,29 @@ namespace Orchestrator.Wrapping
 
         #region Login/Logout
 
-        public void Login(string pName) {
+        /// <summary>
+        /// Logs in a user to the Orchestrator with the specified username.
+        /// `OnLoginEvent` is invoked with a boolean parameter indicating whether the login was successful and if so,
+        /// also a string parameter with the logged in user's user ID.
+        /// </summary>
+        /// <param name="pName">The username of the user to log in.</param>
+        public void Login(string pName)
+        {
             SelfUser = new User();
             SelfUser.userName = pName;
 
             _orchestratorWrapper.Login(pName);
         }
 
+        /// <summary>
+        /// Logs in a user to the Orchestrator with the specified username and password. The given username and password
+        /// combination is checked against the Orchestrator's database.
+        ///
+        /// `OnLoginEvent` is invoked with a boolean parameter indicating whether the login was successful and if so,
+        /// also a string parameter with the logged in user's user ID.
+        /// </summary>
+        /// <param name="username">The username of the user to log in.</param>
+        /// <param name="password">The password of the user to log in</param>
         public void Login(string username, string password)
         {
             SelfUser = new User
@@ -261,6 +307,9 @@ namespace Orchestrator.Wrapping
         }
 
 
+        /// <summary>
+        /// Terminates an existing Orchestrator connection.
+        /// </summary>
         public void Logout() {
             _orchestratorWrapper.Logout();
         }
@@ -321,6 +370,9 @@ namespace Orchestrator.Wrapping
 
         #region Sessions
 
+        /// <summary>
+        /// Retrieves the list of currently active sessions.
+        /// </summary>
         public void GetSessions() {
             _orchestratorWrapper.GetSessions();
         }
@@ -348,6 +400,10 @@ namespace Orchestrator.Wrapping
 
         }
 
+        /// <summary>
+        /// Creates a new session with the given name
+        /// </summary>
+        /// <param name="pSessionName">The name of the session to be created</param>
         public void AddSession(string pSessionName) {
             var scenario = new Scenario();
             var channels = new[] {"transform"};
@@ -382,6 +438,9 @@ namespace Orchestrator.Wrapping
             OnAddSessionEvent?.Invoke(session);
         }
 
+        /// <summary>
+        /// Retrieves information about the session that the user is currently a member of
+        /// </summary>
         public void GetSessionInfo() {
             _orchestratorWrapper.GetSessionInfo();
         }
@@ -409,6 +468,11 @@ namespace Orchestrator.Wrapping
             OnSessionInfoEvent?.Invoke(session);
         }
 
+        /// <summary>
+        /// Deletes the current session. The current user must either be the session creator or its admin in order to
+        /// be allowed to do this.
+        /// </summary>
+        /// <param name="pSessionID"></param>
         public void DeleteSession(string pSessionID) {
             _orchestratorWrapper.DeleteSession(pSessionID);
         }
@@ -421,13 +485,16 @@ namespace Orchestrator.Wrapping
 
             if (enableLogging) Debug.Log("OrchestratorController: OnDeleteSessionResponse: Session succesfully deleted.");
 
-            OnDeleteSessionEvent?.Invoke();
             _session = null;
 
             // update the lists of session, anyway the result
             _orchestratorWrapper.GetSessions();
         }
 
+        /// <summary>
+        /// Joins the session given by the ID.
+        /// </summary>
+        /// <param name="pSessionID">The ID of the session to be joined</param>
         public void JoinSession(string pSessionID) {
             _orchestratorWrapper.JoinSession(pSessionID);
         }
@@ -453,9 +520,11 @@ namespace Orchestrator.Wrapping
             }
 
             OnJoinSessionEvent?.Invoke(_session);
-            OnSessionJoinedEvent?.Invoke();
         }
 
+        /// <summary>
+        /// Leaves the current session.
+        /// </summary>
         public void LeaveSession() {
             _orchestratorWrapper.LeaveSession();
         }
@@ -467,9 +536,6 @@ namespace Orchestrator.Wrapping
             }
 
             if (enableLogging) Debug.Log("OrchestratorController: OnLeaveSessionResponse: Session " + _session.sessionName + " succesfully left.");
-
-            // success
-            OnLeaveSessionEvent?.Invoke();
 
             if (_session != null && SelfUser != null) {
                 // As the session creator, the session should be deleted when leaving.
@@ -500,10 +566,6 @@ namespace Orchestrator.Wrapping
                     Debug.LogError($"OrchestratorController: OnUserJoinedSession: userID {userID} unknown");
                     return;
                 }
-            }
-            else
-            {
-                // xxxjack we don't add the user, but we call GetSessionInfo below to get a complete picture.
             }
 
             if (enableLogging) Debug.Log("OrchestratorController: OnUserJoinedSession: User " + user.userName + " joined the session.");
@@ -546,6 +608,11 @@ namespace Orchestrator.Wrapping
 
         #region Messages
 
+        /// <summary>
+        /// Sends a message to the user identified by the given ID.
+        /// </summary>
+        /// <param name="pMessage">The message to be delivered</param>
+        /// <param name="pUserID">The ID of the user that the message should be delivered to</param>
         public void SendMessage(string pMessage, string pUserID) {
             _orchestratorWrapper.SendMessage(pMessage, pUserID);
         }
@@ -556,6 +623,10 @@ namespace Orchestrator.Wrapping
             }
         }
 
+        /// <summary>
+        /// Sends a message to all users in the current session.
+        /// </summary>
+        /// <param name="pMessage">The message to be delivered</param>
         public void SendMessageToAll(string pMessage) {
             _orchestratorWrapper.SendMessageToAll(pMessage);
         }
@@ -575,6 +646,11 @@ namespace Orchestrator.Wrapping
 
         #region Events
 
+        /// <summary>
+        /// Broadcasts some data to all users in the current session listening on the given channel.
+        /// </summary>
+        /// <param name="channel">Channel to broadcast the message to</param>
+        /// <param name="data">Data to be broadcast</param>
         public void Broadcast(string channel, string data)
         {
             byte[] lData = Encoding.ASCII.GetBytes(data);
