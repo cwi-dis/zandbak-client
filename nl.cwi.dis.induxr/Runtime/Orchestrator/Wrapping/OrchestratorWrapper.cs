@@ -140,7 +140,7 @@ namespace Orchestrator.Wrapping {
             lock (this) {
                 _socket.Emit("GetOrchestratorVersion", (response) => {
                     var data = response.GetValue<OrchestratorResponse<VersionResponse>>();
-                    
+
                     UnityThread.executeInUpdate(() => {
                         _responsesListener?.OnGetOrchestratorVersionResponse(data.ResponseStatus, data.body.orchestratorVersion);
                     });
@@ -178,7 +178,7 @@ namespace Orchestrator.Wrapping {
                 });
             }
         }
-        
+
         public void Login(string username, string password) {
             lock (this) {
                 _socket.Emit("Login", (response) => {
@@ -328,20 +328,6 @@ namespace Orchestrator.Wrapping {
                     });
                 }, new {
                     message
-                });
-            }
-        }
-
-        public void UpdateUserDataJson(UserData userData) {
-            lock (this) {
-                _socket.Emit("UpdateUserDataJson", (response) => {
-                    var data = response.GetValue<OrchestratorResponse<EmptyResponse>>();
-
-                    UnityThread.executeInUpdate(() => {
-                        _responsesListener?.OnUpdateUserDataJsonResponse(data.ResponseStatus);
-                    });
-                }, new {
-                    userDataJson = userData.AsJsonString()
                 });
             }
         }

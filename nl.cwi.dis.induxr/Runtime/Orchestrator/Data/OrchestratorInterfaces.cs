@@ -54,7 +54,6 @@ namespace Orchestrator.Data
         void OnDeleteSessionResponse(ResponseStatus status);
         void OnJoinSessionResponse(ResponseStatus status, Session session);
         void OnLeaveSessionResponse(ResponseStatus status);
-        void OnUpdateUserDataJsonResponse(ResponseStatus status);
 
         void OnSendMessageResponse(ResponseStatus status);
         void OnSendMessageToAllResponse(ResponseStatus status);

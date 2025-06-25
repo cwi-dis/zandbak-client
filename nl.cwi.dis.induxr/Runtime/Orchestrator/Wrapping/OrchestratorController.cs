@@ -16,17 +16,11 @@ namespace Orchestrator.Wrapping
         [Tooltip("Enable trace logging output")]
         [SerializeField] private bool enableLogging = true;
 
-        #region enum
-
         public enum OrchestratorConnectionStatus {
             Disconnected,
             Connecting,
             Connected
         }
-
-        #endregion
-
-        #region orchestration logics
 
         // the wrapper for the orchestrator
         private OrchestratorWrapper _orchestratorWrapper;
@@ -51,8 +45,6 @@ namespace Orchestrator.Wrapping
         // orchestrator connection state
         private bool _connectedToOrchestrator;
         private bool _hasBeenConnectedToOrchestrator;
-
-        #endregion
 
         #region public
 
@@ -239,7 +231,7 @@ namespace Orchestrator.Wrapping
         }
 
         void IOrchestratorResponsesListener.OnLoginResponse(ResponseStatus status, string userId) {
-            bool userLoggedSucessfully = (status.Error == 0);
+            var userLoggedSuccessfully = (status.Error == 0);
 
             if (status.Error != 0) {
                 OnErrorEvent?.Invoke(status);
@@ -248,7 +240,7 @@ namespace Orchestrator.Wrapping
 
             if (!_userIsLogged) {
                 //user was not logged before request
-                if (userLoggedSucessfully) {
+                if (userLoggedSuccessfully) {
                     if (enableLogging) Debug.Log("OrchestratorController: OnLoginResponse: User logged in.");
 
                     _userIsLogged = true;
@@ -258,14 +250,14 @@ namespace Orchestrator.Wrapping
                 }
             } else {
                 //user was logged before previously
-                if (!userLoggedSucessfully) {
+                if (!userLoggedSuccessfully) {
                     // normal, user previopusly logged, nothing to do
                 } else {
                     // should not occur
                 }
             }
 
-            OnLoginEvent?.Invoke(userLoggedSucessfully, userId);
+            OnLoginEvent?.Invoke(userLoggedSuccessfully, userId);
         }
 
 
@@ -309,19 +301,7 @@ namespace Orchestrator.Wrapping
 
         #region NTP clock
 
-        long _timeOfGetNtpTimeRequest;
-
-        public static double GetClockTimestamp(DateTime pDate)
-        {
-            return pDate.Subtract(new DateTime(1970, 1, 1)).TotalSeconds;
-        }
-
         public void GetNtpTime() {
-            if (enableLogging) Debug.Log("OrchestratorController: GetNTPTime: DateTimeNow: " + GetClockTimestamp(DateTime.Now));
-            if (enableLogging) Debug.Log("OrchestratorController: GetNTPTime: DateTimeUTC: " + GetClockTimestamp(DateTime.UtcNow));
-
-            TimeSpan sinceEpoch = DateTime.UtcNow - new DateTime(1970, 1, 1);
-            _timeOfGetNtpTimeRequest = (long)sinceEpoch.TotalMilliseconds;
             _orchestratorWrapper.GetNtpTime();
         }
 
@@ -332,9 +312,6 @@ namespace Orchestrator.Wrapping
             }
 
             if (enableLogging) Debug.Log("OrchestratorController: OnGetNTPTimeResponse: NtpTime: " + ntpTime.Timestamp);
-            if (enableLogging) Debug.Log("OrchestratorController: OnGetNTPTimeResponse: DateTimeUTC: " + GetClockTimestamp(DateTime.UtcNow));
-            if (enableLogging) Debug.Log("[OrchestratorController: OnGetNTPTimeResponse: DateTimeNow: " + GetClockTimestamp(DateTime.Now));
-
             if (OnGetNtpTimeEvent == null) Debug.LogWarning("OrchestratorController: NTP time response received but nothing listens");
 
             OnGetNtpTimeEvent?.Invoke(ntpTime);
@@ -567,35 +544,6 @@ namespace Orchestrator.Wrapping
 
         #endregion
 
-        #region Users
-
-        public void UpdateUserDataKey(string pKey, string pValue) {
-        }
-
-        public void OnUpdateUserDataResponse(ResponseStatus status) {
-            if (status.Error != 0) {
-                OnErrorEvent?.Invoke(status);
-                return;
-            }
-
-            if (enableLogging) Debug.Log("OrchestratorController: OnUpdateUserDataResponse: User data key updated.");
-        }
-
-        public void UpdateFullUserData(UserData pUserData) {
-            _orchestratorWrapper.UpdateUserDataJson(pUserData);
-        }
-
-        void IOrchestratorResponsesListener.OnUpdateUserDataJsonResponse(ResponseStatus status) {
-            if (status.Error != 0) {
-                OnErrorEvent?.Invoke(status);
-                return;
-            }
-
-            if (enableLogging) Debug.Log("OrchestratorControler: OnUpdateUserDataJsonResponse: User data fully updated.");
-        }
-
-        #endregion
-
         #region Messages
 
         public void SendMessage(string pMessage, string pUserID) {
@@ -675,7 +623,7 @@ namespace Orchestrator.Wrapping
 
         #endregion
 
-        #region Logics
+        #region Logic
 
         private IEnumerator WaitForEmptySessionToDelete() {
             if (_session == null) {
