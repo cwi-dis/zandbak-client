@@ -34,5 +34,11 @@ namespace Orchestrator.App
             OrchestratorController.Instance.OnSessionInfoEvent += fn;
             OrchestratorController.Instance.GetSessionInfo();
         }
+
+        public void Leave(Action callback)
+        {
+            OrchestratorController.Instance.LeaveSession();
+            callback?.Invoke();
+        }
     }
 }
