@@ -1,7 +1,6 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using Orchestrator.Data;
 using Orchestrator.Wrapping;
 using UnityEngine;
 
@@ -77,9 +76,9 @@ namespace Orchestrator.App
             OrchestratorController.Instance.Logout();
         }
 
-        public void GetNTPTime(Action<NtpClock> callback)
+        public void GetNTPTime(Action<Data.NtpClock> callback)
         {
-            Action<NtpClock> fn = null;
+            Action<Data.NtpClock> fn = null;
             fn = (ntpTime) =>
             {
                 callback?.Invoke(ntpTime);
@@ -102,6 +101,22 @@ namespace Orchestrator.App
 
             OrchestratorController.Instance.OnSessionsEvent += fn;
             OrchestratorController.Instance.GetSessions();
+        }
+
+        public void CreateSession(string sessionName, Action<Session> callback)
+        {
+            Action<Data.Session> fn = null;
+            fn = (session) =>
+            {
+                CurrentSession = new Session(new Data.Session { sessionName = sessionName });
+                CurrentUser.Session = CurrentSession;
+
+                callback?.Invoke(CurrentSession);
+                OrchestratorController.Instance.OnAddSessionEvent -= fn;
+            };
+
+            OrchestratorController.Instance.OnAddSessionEvent += fn;
+            OrchestratorController.Instance.AddSession(sessionName);
         }
 
         public void JoinSession(string sessionId, Action<Session> callback)
