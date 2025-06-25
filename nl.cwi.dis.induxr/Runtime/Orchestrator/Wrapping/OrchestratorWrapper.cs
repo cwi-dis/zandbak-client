@@ -27,10 +27,7 @@ namespace Orchestrator.Wrapping {
 
         public OrchestratorWrapper(string orchestratorSocketUrl, IOrchestratorResponsesListener responsesListener, IUserMessagesListener userMessagesListener, IUserSessionEventsListener userSessionEventsListener)
         {
-            if (_instance is null)
-            {
-                _instance = this;
-            }
+            _instance ??= this;
 
             _responsesListener = responsesListener;
             _userMessagesListener = userMessagesListener;
@@ -62,7 +59,7 @@ namespace Orchestrator.Wrapping {
             };
 
             _socket.OnPong += (_, _) => {
-                Debug.Log("PoNG");
+                Debug.Log("PONG");
             };
 
             _socket.On("Broadcast", OnBroadcastReceived);
@@ -332,31 +329,7 @@ namespace Orchestrator.Wrapping {
 
         #endregion
 
-        #region scene events
-
-        public void SendSceneEventPacketToMaster(byte[] pByteArray) {
-            lock (_sendLock) {
-                _socket.Emit("SendSceneEventToMaster",
-                    pByteArray
-                );
-            }
-        }
-
-        public void SendSceneEventPacketToUser(string pUserID, byte[] pByteArray) {
-            lock (_sendLock) {
-                _socket.Emit("SendSceneEventToUser",
-                    pUserID, pByteArray
-                );
-            }
-        }
-
-        public void SendSceneEventPacketToAllUsers(byte[] pByteArray) {
-            lock (_sendLock) {
-                _socket.Emit("SendSceneEventToAllUsers",
-                    pByteArray
-                );
-            }
-        }
+        #region broadcasts
 
         public void SendBroadcastToChannel(string channel, byte[] pByteArray) {
             lock (_sendLock) {
@@ -364,40 +337,6 @@ namespace Orchestrator.Wrapping {
                     channel,
                     pByteArray
                 );
-            }
-        }
-
-        #endregion
-
-        #region data streams
-
-        public void DeclareDataStream(string pDataStreamType) {
-            lock (this) {
-                _socket.Emit("DeclareDataStream", pDataStreamType);
-            }
-        }
-
-        public void RemoveDataStream(string pDataStreamType) {
-            lock (this) {
-                _socket.Emit("RemoveDataStream", pDataStreamType);
-            }
-        }
-
-        public void RegisterForDataStream(string pDataStreamUserId, string pDataStreamType) {
-            lock (this) {
-                _socket.Emit("RegisterForDataStream", pDataStreamUserId, pDataStreamType);
-            }
-        }
-
-        public void UnregisterFromDataStream(string pDataStreamUserId, string pDataStreamType) {
-            lock (this) {
-                _socket.Emit("UnregisterFromDataStream", pDataStreamUserId, pDataStreamType);
-            }
-        }
-
-        public void SendData(string pDataStreamType, byte[] pDataStreamBytes) {
-            lock (this) {
-                _socket.Emit("SendData", pDataStreamType, pDataStreamBytes);
             }
         }
 
