@@ -85,7 +85,7 @@ namespace Orchestrator.Wrapping
         // Orchestrator Login Events
         public Action<bool, string> OnLoginEvent;
         public Action<bool> OnLogoutEvent;
-        
+
         // Orchestrator NTP clock Events
         public Action<NtpClock> OnGetNtpTimeEvent;
 
@@ -168,8 +168,7 @@ namespace Orchestrator.Wrapping
             _orchestratorWrapper.Connect();
         }
 
-        // SockerConnect response callback
-        public void OnConnect()
+        void IOrchestratorResponsesListener.OnConnect()
         {
             if (enableLogging) Debug.Log($"OrchestratorController: connected to orchestrator");
 
@@ -179,8 +178,7 @@ namespace Orchestrator.Wrapping
             OnConnectionEvent?.Invoke(true);
         }
 
-        // SockerConnecting response callback
-        public void OnConnecting() {
+        void IOrchestratorResponsesListener.OnConnecting() {
             if (enableLogging) Debug.Log($"OrchestratorController: connecting to orchestrator");
 
             if (_hasBeenConnectedToOrchestrator)
@@ -195,7 +193,7 @@ namespace Orchestrator.Wrapping
         // Abort Socket connection
         public void Abort() {
             _orchestratorWrapper.Disconnect();
-            OnDisconnect();
+            ((IOrchestratorResponsesListener)this).OnDisconnect();
         }
 
         public void GetVersion()
@@ -204,7 +202,7 @@ namespace Orchestrator.Wrapping
         }
 
         // Get connected Orchestrator version
-        public void OnGetOrchestratorVersionResponse(ResponseStatus status, string version) {
+        void IOrchestratorResponsesListener.OnGetOrchestratorVersionResponse(ResponseStatus status, string version) {
             if (status.Error != 0) {
                 OnErrorEvent?.Invoke(status);
                 return;
@@ -214,7 +212,7 @@ namespace Orchestrator.Wrapping
         }
 
         // SockerDisconnect response callback
-        public void OnDisconnect() {
+        void IOrchestratorResponsesListener.OnDisconnect() {
             Debug.LogWarning($"OrchestratorController: disconnected from orchestrator");
             SelfUser = null;
             _connectedToOrchestrator = false;
@@ -245,7 +243,7 @@ namespace Orchestrator.Wrapping
             _orchestratorWrapper.Login(username, password);
         }
 
-        public void OnLoginResponse(ResponseStatus status, string userId) {
+        void IOrchestratorResponsesListener.OnLoginResponse(ResponseStatus status, string userId) {
             bool userLoggedSucessfully = (status.Error == 0);
 
             if (status.Error != 0) {
@@ -280,7 +278,7 @@ namespace Orchestrator.Wrapping
             _orchestratorWrapper.Logout();
         }
 
-        public void OnLogoutResponse(ResponseStatus status) {
+        void IOrchestratorResponsesListener.OnLogoutResponse(ResponseStatus status) {
             bool userLoggedOutSucessfully = (status.Error == 0);
 
             if (status.Error != 0) {
@@ -332,7 +330,7 @@ namespace Orchestrator.Wrapping
             _orchestratorWrapper.GetNtpTime();
         }
 
-        public void OnGetNTPTimeResponse(ResponseStatus status, NtpClock ntpTime) {
+        void IOrchestratorResponsesListener.OnGetNTPTimeResponse(ResponseStatus status, NtpClock ntpTime) {
             if (status.Error != 0) {
                 OnErrorEvent?.Invoke(status);
                 return;
@@ -355,7 +353,7 @@ namespace Orchestrator.Wrapping
             _orchestratorWrapper.GetSessions();
         }
 
-        public void OnGetSessionsResponse(ResponseStatus status, List<Session> sessions) {
+        void IOrchestratorResponsesListener.OnGetSessionsResponse(ResponseStatus status, List<Session> sessions) {
             if (status.Error != 0) {
                 OnErrorEvent?.Invoke(status);
                 return;
@@ -375,7 +373,7 @@ namespace Orchestrator.Wrapping
 
             OnSessionsEvent?.Invoke(sessions.ToArray());
 
-    
+
         }
 
         public void AddSession(string pSessionName) {
@@ -385,7 +383,7 @@ namespace Orchestrator.Wrapping
             _orchestratorWrapper.AddSession("", scenario, pSessionName, "", "socketio", channels);
         }
 
-        public void OnAddSessionResponse(ResponseStatus status, Session session) {
+        void IOrchestratorResponsesListener.OnAddSessionResponse(ResponseStatus status, Session session) {
             if (status.Error != 0) {
                 _session = null;
                 OnErrorEvent?.Invoke(status);
@@ -407,7 +405,7 @@ namespace Orchestrator.Wrapping
 
             SelfUser = newMe;
             _userIsMaster = session.sessionMaster == SelfUser.userId;
-            
+
             _availableSessions.Add(session);
             OnAddSessionEvent?.Invoke(session);
         }
@@ -416,7 +414,7 @@ namespace Orchestrator.Wrapping
             _orchestratorWrapper.GetSessionInfo();
         }
 
-        public void OnGetSessionInfoResponse(ResponseStatus status, Session session) {
+        void IOrchestratorResponsesListener.OnGetSessionInfoResponse(ResponseStatus status, Session session) {
             if (_session == null || string.IsNullOrEmpty(session.sessionId)) {
                 if (enableLogging) Debug.LogError("OrchestratorController: OnGetSessionInfoResponse: Aborted, current session is null.");
                 return;
@@ -443,7 +441,7 @@ namespace Orchestrator.Wrapping
             _orchestratorWrapper.DeleteSession(pSessionID);
         }
 
-        public void OnDeleteSessionResponse(ResponseStatus status) {
+        void IOrchestratorResponsesListener.OnDeleteSessionResponse(ResponseStatus status) {
             if (status.Error != 0) {
                 OnErrorEvent?.Invoke(status);
                 return;
@@ -462,7 +460,7 @@ namespace Orchestrator.Wrapping
             _orchestratorWrapper.JoinSession(pSessionID);
         }
 
-        public void OnJoinSessionResponse(ResponseStatus status, Session session) {
+        void IOrchestratorResponsesListener.OnJoinSessionResponse(ResponseStatus status, Session session) {
             if (status.Error != 0) {
                 OnErrorEvent?.Invoke(status);
                 return;
@@ -478,7 +476,7 @@ namespace Orchestrator.Wrapping
             // Simulate user join a session for each connected users
             foreach (string id in session.sessionUsers) {
                 if (id != SelfUser.userId) {
-                    OnUserJoinedSession(id, null);
+                    ((IUserSessionEventsListener)this).OnUserJoinedSession(id, null);
                 }
             }
 
@@ -490,7 +488,7 @@ namespace Orchestrator.Wrapping
             _orchestratorWrapper.LeaveSession();
         }
 
-        public void OnLeaveSessionResponse(ResponseStatus status) {
+        void IOrchestratorResponsesListener.OnLeaveSessionResponse(ResponseStatus status) {
             if (status.Error != 0) {
                 OnErrorEvent?.Invoke(status);
                 return;
@@ -515,7 +513,7 @@ namespace Orchestrator.Wrapping
             _session = null;
         }
 
-        public void OnUserJoinedSession(string userID, User user) {
+        void IUserSessionEventsListener.OnUserJoinedSession(string userID, User user) {
             // Someone has joined the session
             if (string.IsNullOrEmpty(userID))
             {
@@ -543,7 +541,7 @@ namespace Orchestrator.Wrapping
             OnUserJoinSessionEvent?.Invoke(userID, user);
         }
 
-        public void OnUserLeftSession(string userID) {
+        void IUserSessionEventsListener.OnUserLeftSession(string userID) {
             if (!string.IsNullOrEmpty(userID)) {
                 // If the session creator left, I need to leave also.
                 if (_session.sessionAdministrator == userID) {
@@ -561,13 +559,13 @@ namespace Orchestrator.Wrapping
             }
         }
 
-        public void OnUserRaisedHand(string userID)
+        void IUserSessionEventsListener.OnUserRaisedHand(string userID)
         {
             _orchestratorWrapper.GetSessionInfo();
             OnUserRaisedHandEvent?.Invoke(userID);
         }
 
-        public void OnUserClearedRaisedHand(string userID)
+        void IUserSessionEventsListener.OnUserClearedRaisedHand(string userID)
         {
             _orchestratorWrapper.GetSessionInfo();
             OnUserClearedRaisedHandEvent?.Invoke(userID);
@@ -593,7 +591,7 @@ namespace Orchestrator.Wrapping
             _orchestratorWrapper.UpdateUserDataJson(pUserData);
         }
 
-        public void OnUpdateUserDataJsonResponse(ResponseStatus status) {
+        void IOrchestratorResponsesListener.OnUpdateUserDataJsonResponse(ResponseStatus status) {
             if (status.Error != 0) {
                 OnErrorEvent?.Invoke(status);
                 return;
@@ -610,7 +608,7 @@ namespace Orchestrator.Wrapping
             _orchestratorWrapper.SendMessage(pMessage, pUserID);
         }
 
-        public void OnSendMessageResponse(ResponseStatus status) {
+        void IOrchestratorResponsesListener.OnSendMessageResponse(ResponseStatus status) {
             if (status.Error != 0) {
                 OnErrorEvent?.Invoke(status);
             }
@@ -620,14 +618,14 @@ namespace Orchestrator.Wrapping
             _orchestratorWrapper.SendMessageToAll(pMessage);
         }
 
-        public void OnSendMessageToAllResponse(ResponseStatus status) {
+        void IOrchestratorResponsesListener.OnSendMessageToAllResponse(ResponseStatus status) {
             if (status.Error != 0) {
                 OnErrorEvent?.Invoke(status);
             }
         }
 
-        // Message from a user received spontaneously from the Orchestrator         
-        public void OnUserMessageReceived(UserMessage userMessage) {
+        // Message from a user received spontaneously from the Orchestrator
+        void IUserMessagesListener.OnUserMessageReceived(UserMessage userMessage) {
             OnUserMessageReceivedEvent?.Invoke(userMessage);
         }
 
@@ -656,12 +654,12 @@ namespace Orchestrator.Wrapping
             {
                 Debug.LogError("OrchestratorController: SendEventToAll() called, but not master user");
             }
-            
+
             byte[] lData = Encoding.ASCII.GetBytes(pEventData);
             _orchestratorWrapper.SendSceneEventPacketToAllUsers(lData);
         }
 
-        public void OnMasterEventReceived(UserEvent pMasterEventData) {
+        void IUserMessagesListener.OnMasterEventReceived(UserEvent pMasterEventData) {
             if (pMasterEventData.sceneEventFrom != SelfUser.userId) {
                 if (enableLogging) Debug.Log("OrchestratorController: OnMasterEventReceived: Master user: " + pMasterEventData.sceneEventFrom + " sent: " + pMasterEventData.sceneEventData);
 
@@ -669,7 +667,7 @@ namespace Orchestrator.Wrapping
             }
         }
 
-        public void OnUserEventReceived(UserEvent pUserEventData) {
+        void IUserMessagesListener.OnUserEventReceived(UserEvent pUserEventData) {
             if (pUserEventData.sceneEventFrom != SelfUser.userId) {
                 if (enableLogging) Debug.Log("OrchestratorController: OnUserEventReceived: User: " + pUserEventData.sceneEventFrom + " sent: " + pUserEventData.sceneEventData);
 
@@ -677,7 +675,7 @@ namespace Orchestrator.Wrapping
             }
         }
 
-        public void OnBroadcastReceived(BroadcastData broadcastData) {
+        void IUserMessagesListener.OnBroadcastReceived(BroadcastData broadcastData) {
             OnBroadcastReceivedEvent?.Invoke(broadcastData);
         }
 
@@ -706,7 +704,7 @@ namespace Orchestrator.Wrapping
 
         #region Errors
 
-        public void OnError(ResponseStatus status) {
+        void IOrchestratorResponsesListener.OnError(ResponseStatus status) {
             if (enableLogging) Debug.Log("OrchestratorController: OnError: Error code: " + status.Error + "::Error message: " + status.Message);
 
             OnErrorEvent?.Invoke(status);
