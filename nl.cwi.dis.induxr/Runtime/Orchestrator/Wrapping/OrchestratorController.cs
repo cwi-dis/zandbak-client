@@ -66,7 +66,9 @@ namespace Orchestrator.Wrapping
         /// Invoked whenever a new connection is attempted
         /// </summary>
         public Action OnConnectingEvent;
-        // Orchestrator Connection Events
+        /// <summary>
+        /// Invoked whenever a new connection is established
+        /// </summary>
         public Action<bool> OnConnectionEvent;
         /// <summary>
         /// Invoked when the Orchestrator's current version is requested, with the version as an argument
