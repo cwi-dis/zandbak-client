@@ -10,6 +10,8 @@ namespace Orchestrator.App
         private List<User> _users;
 
         public string Id => _sessionData.sessionId;
+        public string Name => _sessionData.sessionName;
+        public List<User> Users => _users;
 
         public Session(Data.Session sessionData)
         {
