@@ -76,7 +76,7 @@ namespace Orchestrator.App
             OrchestratorController.Instance.Logout();
         }
 
-        public void GetNTPTime(Action<Data.NtpClock> callback)
+        public void GetNtpTime(Action<Data.NtpClock> callback)
         {
             Action<Data.NtpClock> fn = null;
             fn = (ntpTime) =>
@@ -108,7 +108,7 @@ namespace Orchestrator.App
             Action<Data.Session> fn = null;
             fn = (session) =>
             {
-                CurrentSession = new Session(new Data.Session { sessionName = sessionName });
+                CurrentSession = new Session(session);
                 CurrentUser.Session = CurrentSession;
 
                 callback?.Invoke(CurrentSession);
