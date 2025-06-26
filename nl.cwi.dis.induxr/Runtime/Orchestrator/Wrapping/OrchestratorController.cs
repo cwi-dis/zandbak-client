@@ -402,17 +402,16 @@ namespace Orchestrator.Wrapping
             _availableSessions = sessions;
 
             OnSessionsEvent?.Invoke(sessions.ToArray());
-
-
         }
 
         /// <summary>
-        /// Creates a new session with the given name.
+        /// Creates a new session with the given name and the given description.
         /// Invokes <c>OnAddSessionEvent</c> upon completion with all information about the created session.
         /// </summary>
-        /// <param name="pSessionName">The name of the session to be created</param>
-        public void AddSession(string pSessionName) {
-            _orchestratorWrapper.AddSession(pSessionName, "", "socketio", new[] { "transform" });
+        /// <param name="sessionName">The name of the session to be created</param>
+        /// <param name="sessionDescription">The description of the session to be created. This parameter is optional and defaults to the empty string</param>
+        public void AddSession(string sessionName, string sessionDescription = "") {
+            _orchestratorWrapper.AddSession(sessionName, sessionDescription, "socketio", new[] { "transform" });
         }
 
         void IOrchestratorResponsesListener.OnAddSessionResponse(ResponseStatus status, Session session) {
