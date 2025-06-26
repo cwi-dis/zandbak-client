@@ -21,14 +21,14 @@ public class SessionController : MonoBehaviour
         OrchestratorController.Instance.OnUserLeaveSessionEvent += OnUserLeft;
 
         var user = OrchestratorController.Instance.SelfUser;
-        Debug.Log("Building session for user: " + user.userName + " " + user.userType);
+        Debug.Log("Building session for user: " + user.Username + " " + user.UserType);
 
-        if (user.userType == "presenter")
+        if (user.UserType == "presenter")
         {
             var self = Instantiate(avatarPrefab, new Vector3(8, 0, 8), Quaternion.identity);
             var avatar = self.GetComponentInChildren<AvatarNetworkBehaviour>();
             
-            avatar.id = user.userId;
+            avatar.id = user.Id;
             avatar.isLocal = true;
 
             var controller = self.GetComponent<PlayerWalk>();
@@ -39,7 +39,7 @@ public class SessionController : MonoBehaviour
             var self = Instantiate(playerPrefab);
                 
             var player = self.GetComponent<PlayerNetworkBehaviour>();
-            player.id = user.userId;
+            player.id = user.Id;
             player.isLocal = true;
 
             var controller = self.GetComponent<PlayerController>();
@@ -54,12 +54,12 @@ public class SessionController : MonoBehaviour
             0,
             Random.Range(-8, 8)
         );
-        var newPlayer = (user.userType == "presenter") ? Instantiate(avatarPrefab) : Instantiate(playerPrefab, spawnPosition, Quaternion.identity);
+        var newPlayer = (user.UserType == "presenter") ? Instantiate(avatarPrefab) : Instantiate(playerPrefab, spawnPosition, Quaternion.identity);
         var networkBehaviour = newPlayer.GetComponent<NetworkBehaviour>();
         networkBehaviour.id = userId;
 
         Debug.Log("Spawning new user with id " + userId);
-        notificationField.text += user.userName + " joined the session!\n";
+        notificationField.text += user.Username + " joined the session!\n";
         _activeUsers.Add(userId, newPlayer);
     }
 

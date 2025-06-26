@@ -1,6 +1,6 @@
 ﻿using System.Collections.Generic;
 using UnityEngine;
-using System;
+using Newtonsoft.Json;
 
 namespace Orchestrator.Data
 {
@@ -32,132 +32,131 @@ namespace Orchestrator.Data
 
     public class UserPosition : OrchestratorElement
     {
-        public float x;
-        public float y;
-        public float z;
+        [JsonProperty("x")] public float X;
+        [JsonProperty("y")] public float Y;
+        [JsonProperty("z")] public float Z;
     }
 
     public class UserQuaternion : OrchestratorElement
     {
-        public float x;
-        public float y;
-        public float z;
-        public float w;
+        [JsonProperty("x")] public float X;
+        [JsonProperty("y")] public float Y;
+        [JsonProperty("z")] public float Z;
+        [JsonProperty("w")] public float W;
     }
 
     public class UserBoneData
     {
-        public UserPosition pos;
-        public UserQuaternion rot;
+        [JsonProperty("pos")] public UserPosition Pos;
+        [JsonProperty("rot")] public UserQuaternion Rot;
     }
 
     public class UserTransform : OrchestratorElement
     {
-        public string timestamp;
-        public UserPosition position;
-        public UserQuaternion rotation;
-        public Dictionary<string, UserBoneData> bones;
+        [JsonProperty("timestamp")] public string Timestamp;
+        [JsonProperty("position")] public UserPosition Position;
+        [JsonProperty("rotation")] public UserQuaternion Rotation;
+        [JsonProperty("bones")] public Dictionary<string, UserBoneData> Bones;
     }
 
     public class User: OrchestratorElement
     {
-        public string userId;
-        public string userName;
-        public string userPassword;
-        public UserData userData;
-        public SfuData sfuData;
-        public string userType;
-        public UserTransform transform;
-        public string deviceType;
-        public bool hasHandRaised;
+        [JsonProperty("userId")] public string Id;
+        [JsonProperty("userName")] public string Username;
+        [JsonProperty("userPassword")] public string Password;
+        [JsonProperty("userData")] public UserData UserData;
+        [JsonProperty("sfuData")] public SfuData SfuData;
+        [JsonProperty("userType")] public string UserType;
+        [JsonProperty("transform")] public UserTransform Transform;
+        [JsonProperty("deviceType")] public string DeviceType;
+        [JsonProperty("hasHandRaised")] public bool HasHandRaised;
 
         public override string GetId()
         {
-            return userId;
+            return Id;
         }
 
         public override string GetGuiRepresentation()
         {
-            return userName;
+            return Username;
         }
     }
 
     public class UserData: OrchestratorElement
     {
+        [JsonProperty("userAudioUrl")] public string UserAudioUrl = "";
 
-        public string userAudioUrl = "";
+        [JsonProperty("webcamName")] public string WebcamName = "";
+        [JsonProperty("microphoneName")] public string MicrophoneName = "";
 
-        public string webcamName = "";
-        public string microphoneName = "";
-
-        public string userRepresentationType = "";
+        [JsonProperty("userRepresentationType")] public string UserRepresentationType = "";
     }
 
     public class SfuData : OrchestratorElement
     {
-        public string url_gen = "";
-        public string url_audio = "";
-        public string url_pcc = "";
+        [JsonProperty("url_gen")] public string URLGen = "";
+        [JsonProperty("url_audio")] public string URLAudio = "";
+        [JsonProperty("url_pcc")] public string URLPcc = "";
     }
 
     public class DataStream : OrchestratorElement
     {
-        public string dataStreamUserId = "";
-        public string dataStreamKind = "";
-        public string dataStreamDescription = "";
+        [JsonProperty("dataStreamUserId")] public string UserId = "";
+        [JsonProperty("dataStreamKind")] public string StreamKind = "";
+        [JsonProperty("dataStreamDescription")] public string Description = "";
     }
 
     public class NtpClock: OrchestratorElement
     {
-        public string ntpDate;
-        public long ntpTimeMs;
+        [JsonProperty("ntpDate")] public string NtpDate;
+        [JsonProperty("ntpTimeMs")] public long NtpTimeMs;
 
-        public double Timestamp => ntpTimeMs / 1000.0;
+        public double Timestamp => NtpTimeMs / 1000.0;
     }
 
     public class ChatMessage : OrchestratorElement
     {
-        public string id;
-        public User sender;
-        public string message;
-        public string timestamp;
+        [JsonProperty("id")] public string Id;
+        [JsonProperty("sender")] public User Sender;
+        [JsonProperty("message")] public string Message;
+        [JsonProperty("timestamp")] public string Timestamp;
     }
 
     public class Session : OrchestratorElement
     {
-        public string sessionId;
-        public string sessionName;
-        public string sessionDescription;
-        public string sessionAdministrator;
-        public string sessionMaster;
-        public string scenarioId; // the scenario ID
-        public string[] sessionUsers;
-        public List<User> sessionUserDefinitions;
-        public string sessionProtocol;
-        public string[] sessionChannels;
-        public ChatMessage[] sessionChat;
-        public User[] sessionRaisedHands;
+        [JsonProperty("sessionId")] public string Id;
+        [JsonProperty("sessionName")] public string Name;
+        [JsonProperty("sessionDescription")] public string Description;
+        [JsonProperty("sessionAdministrator")] public string AdministratorId;
+        [JsonProperty("sessionMaster")] public string MasterId;
+        [JsonProperty("scenarioId")] public string ScenarioId;
+        [JsonProperty("sessionUsers")] public string[] UserIds;
+        [JsonProperty("sessionUserDefinitions")] public List<User> UserDefinitions;
+        [JsonProperty("sessionProtocol")] public string Protocol;
+        [JsonProperty("sessionChannels")] public string[] Channels;
+        [JsonProperty("sessionChat")] public ChatMessage[] Chat;
+        [JsonProperty("sessionRaisedHands")] public User[] RaisedHands;
 
         public override string GetId()
         {
-            return sessionId;
+            return Id;
         }
 
         public override string GetGuiRepresentation()
         {
-            return sessionName + " (" + sessionDescription + ")";
+            return Name + " (" + Description + ")";
         }
 
         public User[] GetUsers()
         {
-            return sessionUserDefinitions.ToArray();
+            return UserDefinitions.ToArray();
         }
 
         public User GetUser(string userID)
         {
-            foreach(var userDefinition in sessionUserDefinitions)
+            foreach(var userDefinition in UserDefinitions)
             {
-                if (userDefinition.userId == userID)
+                if (userDefinition.Id == userID)
                 {
                     return userDefinition;
                 }
@@ -167,7 +166,7 @@ namespace Orchestrator.Data
 
         public int GetUserCount()
         {
-            return sessionUserDefinitions.Count;
+            return UserDefinitions.Count;
         }
     }
 }

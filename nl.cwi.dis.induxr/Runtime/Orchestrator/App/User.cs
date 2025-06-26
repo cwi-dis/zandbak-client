@@ -5,8 +5,8 @@ namespace Orchestrator.App
         private Data.User _userData;
 
         public Session Session { get; set; }
-        public string Id => _userData.userId;
-        public string Name => _userData.userName;
+        public string Id => _userData.Id;
+        public string Name => _userData.Username;
 
         public User(Data.User userData)
         {

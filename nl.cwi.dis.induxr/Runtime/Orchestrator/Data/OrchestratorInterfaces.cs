@@ -1,5 +1,4 @@
 ﻿using System.Collections.Generic;
-using Orchestrator.Data;
 
 //Interfaces to be implemented to supervise the orchestrator
 namespace Orchestrator.Data
@@ -12,7 +11,7 @@ namespace Orchestrator.Data
         void OnSocketError(ResponseStatus message);
     }
 
-    // Interface to implement to listen the user messages emitted spontaneously
+    // Interface to implement to listen for user messages emitted spontaneously
     // by the orchestrator
     public interface IUserMessagesListener
     {
@@ -20,7 +19,7 @@ namespace Orchestrator.Data
         void OnBroadcastReceived(BroadcastData broadcastData);
     }
 
-    // Interface to implement to listen the user events emitted spontaneously
+    // Interface to implement to listen for user events emitted spontaneously
     // from the session updates by the orchestrator
     public interface IUserSessionEventsListener
     {

@@ -37,8 +37,8 @@ namespace Orchestrator.App
                     CurrentUser = new User(
                         new Data.User
                         {
-                            userName = username,
-                            userId = userId
+                            Username = username,
+                            Id = userId
                         }
                     );
                 }

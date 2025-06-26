@@ -250,7 +250,7 @@ namespace Orchestrator.Wrapping
         {
             SelfUser = new User
             {
-                userName = pName
+                Username = pName
             };
 
             _orchestratorWrapper.Login(pName);
@@ -269,8 +269,8 @@ namespace Orchestrator.Wrapping
         {
             SelfUser = new User
             {
-                userName = username,
-                userPassword = password
+                Username = username,
+                Password = password
             };
 
             _orchestratorWrapper.Login(username, password);
@@ -290,7 +290,7 @@ namespace Orchestrator.Wrapping
                     Log("OrchestratorController: OnLoginResponse: User logged in.");
 
                     _userIsLogged = true;
-                    SelfUser.userId = userId;
+                    SelfUser.Id = userId;
                 } else {
                     _userIsLogged = false;
                 }
@@ -421,21 +421,21 @@ namespace Orchestrator.Wrapping
                 return;
             }
 
-            Log("OrchestratorController: OnAddSessionResponse: Session " + session.sessionName + " successfully created by " + session.GetUser(session.sessionAdministrator).userName + ".");
+            Log("OrchestratorController: OnAddSessionResponse: Session " + session.Name + " successfully created by " + session.GetUser(session.AdministratorId).Username + ".");
 
             // success
             _session = session;
 
             // We may need to update our own user definition (because the sfuData may have been added)
-            User newMe = session.GetUser(SelfUser.userId);
+            User newMe = session.GetUser(SelfUser.Id);
             if (newMe == null)
             {
-                Debug.LogError($"OrchestratorController: OnAddSessionResponse: userId {SelfUser.userId} (which is me) not in session");
+                Debug.LogError($"OrchestratorController: OnAddSessionResponse: userId {SelfUser.Id} (which is me) not in session");
                 return;
             }
 
             SelfUser = newMe;
-            _userIsMaster = session.sessionMaster == SelfUser.userId;
+            _userIsMaster = session.MasterId == SelfUser.Id;
 
             _availableSessions.Add(session);
             OnAddSessionEvent?.Invoke(session);
@@ -450,7 +450,7 @@ namespace Orchestrator.Wrapping
         }
 
         void IOrchestratorResponsesListener.OnGetSessionInfoResponse(ResponseStatus status, Session session) {
-            if (_session == null || string.IsNullOrEmpty(session.sessionId)) {
+            if (_session == null || string.IsNullOrEmpty(session.Id)) {
                 LogError("OrchestratorController: OnGetSessionInfoResponse: Aborted, current session is null.");
                 return;
             }
@@ -464,10 +464,10 @@ namespace Orchestrator.Wrapping
 
             // success
             _session = session;
-            _userIsMaster = session.sessionMaster == SelfUser.userId;
+            _userIsMaster = session.MasterId == SelfUser.Id;
             int userCount = _session.GetUserCount();
 
-            Log($"OrchestratorController: OnGetSessionInfoResponse: Get session info of {session.sessionName}, isMaster={(_userIsMaster)}, nUser={userCount}");
+            Log($"OrchestratorController: OnGetSessionInfoResponse: Get session info of {session.Name}, isMaster={(_userIsMaster)}, nUser={userCount}");
 
             OnSessionInfoEvent?.Invoke(session);
         }
@@ -512,14 +512,14 @@ namespace Orchestrator.Wrapping
 
             // success
             _session = session;
-            _userIsMaster = session.sessionMaster == SelfUser.userId;
+            _userIsMaster = session.MasterId == SelfUser.Id;
             int userCount = session.GetUserCount();
 
-            Log($"OrchestratorController: OnJoinSessionResponse: Session {session.sessionName}, isMaster={(_userIsMaster)}, nUser={userCount}");
+            Log($"OrchestratorController: OnJoinSessionResponse: Session {session.Name}, isMaster={(_userIsMaster)}, nUser={userCount}");
 
             // Simulate a user joining a session for each connected user
-            foreach (var id in session.sessionUsers) {
-                if (id != SelfUser.userId) {
+            foreach (var id in session.UserIds) {
+                if (id != SelfUser.Id) {
                     ((IUserSessionEventsListener)this).OnUserJoinedSession(id, null);
                 }
             }
@@ -540,11 +540,11 @@ namespace Orchestrator.Wrapping
                 return;
             }
 
-            Log("OrchestratorController: OnLeaveSessionResponse: Session " + _session.sessionName + " successfully left.");
+            Log("OrchestratorController: OnLeaveSessionResponse: Session " + _session.Name + " successfully left.");
 
             if (_session != null && SelfUser != null) {
                 // As the session creator, the session should be deleted when leaving.
-                if (_session.sessionAdministrator == SelfUser.userId) {
+                if (_session.AdministratorId == SelfUser.Id) {
                     Log("OrchestratorController: OnLeaveSessionResponse: As session creator, delete the current session when its empty.");
                     StartCoroutine(WaitForEmptySessionToDelete());
                     return;
@@ -573,7 +573,7 @@ namespace Orchestrator.Wrapping
                 }
             }
 
-            Log("OrchestratorController: OnUserJoinedSession: User " + user.userName + " joined the session.");
+            Log("OrchestratorController: OnUserJoinedSession: User " + user.Username + " joined the session.");
 
             _orchestratorWrapper.GetSessionInfo();
             OnUserJoinSessionEvent?.Invoke(userID, user);
@@ -582,13 +582,13 @@ namespace Orchestrator.Wrapping
         void IUserSessionEventsListener.OnUserLeftSession(string userID) {
             if (!string.IsNullOrEmpty(userID)) {
                 // If the session creator left, I need to leave also.
-                if (_session.sessionAdministrator == userID) {
-                    Debug.Log("OrchestratorController: OnUserLeftSession: Session creator " + _session.GetUser(userID).userName + " left the session. Also leaving.");
+                if (_session.AdministratorId == userID) {
+                    Debug.Log("OrchestratorController: OnUserLeftSession: Session creator " + _session.GetUser(userID).Username + " left the session. Also leaving.");
                     LeaveSession();
                 }
                 // Otherwise, proceed to the common user left event.
                 else {
-                    Log("OrchestratorController: OnUserLeftSession: User " + _session.GetUser(userID).userName + " left the session. Getting new session info.");
+                    Log("OrchestratorController: OnUserLeftSession: User " + _session.GetUser(userID).Username + " left the session. Getting new session info.");
 
                     // Required to update the list of connected users.
                     _orchestratorWrapper.GetSessionInfo();
@@ -675,14 +675,14 @@ namespace Orchestrator.Wrapping
             }
 
             // Check frequently if there are users connected and ensure a null session (from the delete command) is escaped.
-            while (_session.sessionUsers.Length > 0) {
+            while (_session.UserIds.Length > 0) {
                 GetSessionInfo();
                 yield return new WaitForSeconds(1.0f);
             }
 
             // When the session is free of users, delete it.
-            if (_session.sessionUsers.Length == 0) {
-                DeleteSession(_session.sessionId);
+            if (_session.UserIds.Length == 0) {
+                DeleteSession(_session.Id);
             }
         }
 

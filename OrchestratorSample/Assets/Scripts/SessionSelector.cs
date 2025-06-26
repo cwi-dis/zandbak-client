@@ -21,7 +21,7 @@ public class SessionSelector : MonoBehaviour
 
     private void OnGetSessions(Session[] sessions)
     {
-        sessionDropdown.AddOptions(sessions.Select((s) => s.sessionName).ToList());
+        sessionDropdown.AddOptions(sessions.Select((s) => s.Name).ToList());
         _sessions = sessions;
     }
 
@@ -29,7 +29,7 @@ public class SessionSelector : MonoBehaviour
     {
         var selectedDropdownValue = sessionDropdown.value;
         OrchestratorController.Instance.OnJoinSessionEvent += OnSessionJoined;
-        OrchestratorController.Instance.JoinSession(_sessions[selectedDropdownValue].sessionId);
+        OrchestratorController.Instance.JoinSession(_sessions[selectedDropdownValue].Id);
     }
 
     public void OnCreateSession()
@@ -40,7 +40,7 @@ public class SessionSelector : MonoBehaviour
 
     private void OnSessionJoined(Session session)
     {
-        Debug.Log("Session joined: " + session.sessionName);
+        Debug.Log("Session joined: " + session.Name);
 
         Destroy(this.gameObject);
         Instantiate(sessionPrefab);
