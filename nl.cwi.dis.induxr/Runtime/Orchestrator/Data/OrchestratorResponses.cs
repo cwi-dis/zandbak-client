@@ -1,6 +1,6 @@
-﻿using Orchestrator.Data;
+﻿using Newtonsoft.Json;
 
-namespace Orchestrator.Data { 
+namespace Orchestrator.Data {
     public interface IOrchestratorResponseBody { }
 
     // class that describes the status for the response from the orchestrator
@@ -11,86 +11,81 @@ namespace Orchestrator.Data {
 
         public ResponseStatus(int error, string message)
         {
-            this.Error = error;
-            this.Message = message;
+            Error = error;
+            Message = message;
         }
         public ResponseStatus() : this(0, "OK") { }
     }
 
     public class OrchestratorResponse<T>
     {
-        public int error { get; set; }
-        public string message { get; set; }
+        [JsonProperty("error")] public int Error { get; set; }
+        [JsonProperty("message")] public string Message { get; set; }
 
-        public T body;
+        [JsonProperty("body")] public T Body;
 
-        public ResponseStatus ResponseStatus {
-            get {
-                return new ResponseStatus(error, message);
-            }
-        }
+        public ResponseStatus ResponseStatus => new(Error, Message);
     }
 
     public class EmptyResponse : IOrchestratorResponseBody {}
 
     public class VersionResponse : IOrchestratorResponseBody {
-        public string orchestratorVersion;
+        [JsonProperty("orchestratorVersion")] public string OrchestratorVersion;
     }
 
     public class LoginResponse : IOrchestratorResponseBody {
-        public string userId;
+        [JsonProperty("userId")] public string UserId;
     }
 
     public class SessionUpdateEventData {
-        public string userId;
-        public User userData;
+        [JsonProperty("userId")] public string UserId;
+        [JsonProperty("userData")] public User UserData;
     }
 
     public class SessionUpdate {
-        public string eventId;
-        public SessionUpdateEventData eventData;
+        [JsonProperty("eventId")] public string EventId;
+        [JsonProperty("eventData")] public SessionUpdateEventData EventData;
     }
 
     public class SceneEvent {
-        public string sceneEventFrom;
+        [JsonProperty("sceneEventFrom")] public string SceneEventFrom;
     }
 
     // class that stores a user data-stream packet incoming from the orchestrator
     public class UserDataStreamPacket
     {
-        public string dataStreamUserID;
-        public string dataStreamType;
-        public string dataStreamDesc;
-        public byte[] dataStreamPacket;
+        [JsonProperty("dataStreamUserID")] public string UserId;
+        [JsonProperty("dataStreamType")] public string Type;
+        [JsonProperty("dataStreamDesc")] public string Description;
+        [JsonProperty("dataStreamPacket")] public byte[] Packet;
 
         public UserDataStreamPacket() { }
 
-        public UserDataStreamPacket(string pDataStreamUserID, string pDataStreamType, string pDataStreamDesc, byte[] pDataStreamPacket)
+        public UserDataStreamPacket(string userId, string type, string description, byte[] packet)
         {
-            if (pDataStreamPacket != null)
-            {
-                dataStreamUserID = pDataStreamUserID;
-                dataStreamType = pDataStreamType;
-                dataStreamDesc = pDataStreamDesc;
-                dataStreamPacket = pDataStreamPacket;
-            }
+            if (packet == null) return;
+
+            UserId = userId;
+            Type = type;
+            Description = description;
+            Packet = packet;
         }
     }
 
     // class that stores a user message incoming from the orchestrator
     public class UserMessage
     {
-        public string messageFrom;
-        public string messageFromName;
-        public string message;
+        [JsonProperty("messageFrom")] public string FromId;
+        [JsonProperty("messageFromName")] public string FromName;
+        [JsonProperty("message")] public string Message;
 
         public UserMessage() { }
 
-        public UserMessage(string pFromID, string pFromName, string pMessage)
+        public UserMessage(string fromId, string fromName, string message)
         {
-            messageFrom = pFromID;
-            messageFromName = pFromName;
-            message = pMessage;
+            FromId = fromId;
+            FromName = fromName;
+            Message = message;
         }
     }
 
@@ -98,28 +93,28 @@ namespace Orchestrator.Data {
     // necessary new parameters welcomed
     public class UserEvent
     {
-        public string sceneEventFrom;
-        public string sceneEventData;
+        [JsonProperty("sceneEventFrom")] public string SceneEventFrom;
+        [JsonProperty("sceneEventData")] public string SceneEventData;
 
         public UserEvent() { }
 
-        public UserEvent(string pFromID, string pMessage)
+        public UserEvent(string fromID, string message)
         {
-            sceneEventFrom = pFromID;
-            sceneEventData = pMessage;
+            SceneEventFrom = fromID;
+            SceneEventData = message;
         }
     }
 
     public class BroadcastData
     {
-        public string channel;
-        public string data;
+        [JsonProperty("channel")] public string Channel;
+        [JsonProperty("data")] public string Data;
 
         public BroadcastData() { }
 
         public BroadcastData(string channel, string data) {
-            this.channel = channel;
-            this.data = data;
+            Channel = channel;
+            Data = data;
         }
     }
 }

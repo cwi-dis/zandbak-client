@@ -71,9 +71,9 @@ namespace Orchestrator.Behaviour
 
         public override void OnBroadcastReceived(BroadcastData data)
         {
-            if (data.channel == "transform")
+            if (data.Channel == "transform")
             {
-                var movement = JsonUtility.FromJson<MovementData>(data.data);
+                var movement = JsonUtility.FromJson<MovementData>(data.Data);
 
                 if (movement.userId == id)
                 {

@@ -137,7 +137,7 @@ namespace Orchestrator.Wrapping {
                     var data = response.GetValue<OrchestratorResponse<VersionResponse>>();
 
                     UnityThread.executeInUpdate(() => {
-                        _responsesListener?.OnGetOrchestratorVersionResponse(data.ResponseStatus, data.body.orchestratorVersion);
+                        _responsesListener?.OnGetOrchestratorVersionResponse(data.ResponseStatus, data.Body.OrchestratorVersion);
                     });
                 }, new { });
             }
@@ -149,7 +149,7 @@ namespace Orchestrator.Wrapping {
                     var data = response.GetValue<OrchestratorResponse<NtpClock>>();
 
                     UnityThread.executeInUpdate(() => {
-                        _responsesListener?.OnGetNTPTimeResponse(data.ResponseStatus, data.body);
+                        _responsesListener?.OnGetNTPTimeResponse(data.ResponseStatus, data.Body);
                     });
                 }, new { });
             }
@@ -163,10 +163,10 @@ namespace Orchestrator.Wrapping {
             lock (this) {
                 _socket.Emit("Login", (response) => {
                     var data = response.GetValue<OrchestratorResponse<LoginResponse>>();
-                    _myUserID = data.body.userId;
+                    _myUserID = data.Body.UserId;
 
                     UnityThread.executeInUpdate(() => {
-                        _responsesListener?.OnLoginResponse(data.ResponseStatus, data.body.userId);
+                        _responsesListener?.OnLoginResponse(data.ResponseStatus, data.Body.UserId);
                     });
                 }, new {
                     userName = username
@@ -178,10 +178,10 @@ namespace Orchestrator.Wrapping {
             lock (this) {
                 _socket.Emit("Login", (response) => {
                     var data = response.GetValue<OrchestratorResponse<LoginResponse>>();
-                    _myUserID = data.body.userId;
+                    _myUserID = data.Body.UserId;
 
                     UnityThread.executeInUpdate(() => {
-                        _responsesListener?.OnLoginResponse(data.ResponseStatus, data.body.userId);
+                        _responsesListener?.OnLoginResponse(data.ResponseStatus, data.Body.UserId);
                     });
                 }, new {
                     userName = username,
@@ -213,7 +213,7 @@ namespace Orchestrator.Wrapping {
                     var data = response.GetValue<OrchestratorResponse<Session>>();
 
                     UnityThread.executeInUpdate(() => {
-                        _responsesListener?.OnAddSessionResponse(data.ResponseStatus, data.body);
+                        _responsesListener?.OnAddSessionResponse(data.ResponseStatus, data.Body);
                     });
                 }, new {
                     sessionName,
@@ -231,7 +231,7 @@ namespace Orchestrator.Wrapping {
                     var data = response.GetValue<OrchestratorResponse<Dictionary<string, Session>>>();
 
                     var sessions = new List<Session>();
-                    foreach (var item in data.body) {
+                    foreach (var item in data.Body) {
                         sessions.Add(item.Value);
                     }
 
@@ -248,7 +248,7 @@ namespace Orchestrator.Wrapping {
                     var data = response.GetValue<OrchestratorResponse<Session>>();
 
                     UnityThread.executeInUpdate(() => {
-                        _responsesListener?.OnGetSessionInfoResponse(data.ResponseStatus, data.body);
+                        _responsesListener?.OnGetSessionInfoResponse(data.ResponseStatus, data.Body);
                     });
                 }, new { });
             }
@@ -274,7 +274,7 @@ namespace Orchestrator.Wrapping {
                     var data = response.GetValue<OrchestratorResponse<Session>>();
 
                     UnityThread.executeInUpdate(() => {
-                        _responsesListener?.OnJoinSessionResponse(data.ResponseStatus, data.body);
+                        _responsesListener?.OnJoinSessionResponse(data.ResponseStatus, data.Body);
                     });
                 }, new {
                     sessionId
@@ -387,16 +387,16 @@ namespace Orchestrator.Wrapping {
             lock (this) {
                 var data = response.GetValue<SessionUpdate>();
 
-                if (data.eventData.userId == _myUserID) {
+                if (data.EventData.UserId == _myUserID) {
                     return;
                 }
 
-                switch (data.eventId) {
+                switch (data.EventId) {
                     case "USER_JOINED_SESSION":
                         foreach (IUserSessionEventsListener e in _userSessionEventListeners)
                         {
                             UnityThread.executeInUpdate(() => {
-                                e?.OnUserJoinedSession(data.eventData.userId, data.eventData.userData);
+                                e?.OnUserJoinedSession(data.EventData.UserId, data.EventData.UserData);
                             });
                         }
                         break;
@@ -404,7 +404,7 @@ namespace Orchestrator.Wrapping {
                         foreach (IUserSessionEventsListener e in _userSessionEventListeners)
                         {
                             UnityThread.executeInUpdate(() => {
-                                e?.OnUserLeftSession(data.eventData.userId);
+                                e?.OnUserLeftSession(data.EventData.UserId);
                             });
                         }
                         break;
@@ -412,7 +412,7 @@ namespace Orchestrator.Wrapping {
                         foreach (IUserSessionEventsListener e in _userSessionEventListeners)
                         {
                             UnityThread.executeInUpdate(() => {
-                                e?.OnUserRaisedHand(data.eventData.userId);
+                                e?.OnUserRaisedHand(data.EventData.UserId);
                             });
                         }
                         break;
@@ -420,7 +420,7 @@ namespace Orchestrator.Wrapping {
                         foreach (IUserSessionEventsListener e in _userSessionEventListeners)
                         {
                             UnityThread.executeInUpdate(() => {
-                                e?.OnUserClearedRaisedHand(data.eventData.userId);
+                                e?.OnUserClearedRaisedHand(data.EventData.UserId);
                             });
                         }
                         break;

@@ -69,9 +69,9 @@ namespace Orchestrator.Behaviour
 
         public override void OnBroadcastReceived(BroadcastData data)
         {
-            if (data.channel == "transform")
+            if (data.Channel == "transform")
             {
-                var movement = JsonUtility.FromJson<AvatarMovementData>(data.data);
+                var movement = JsonUtility.FromJson<AvatarMovementData>(data.Data);
 
                 if (movement.userId == id) {
                     foreach (var bone in _mesh.bones) {
