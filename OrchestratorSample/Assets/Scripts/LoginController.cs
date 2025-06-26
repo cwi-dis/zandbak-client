@@ -8,7 +8,7 @@ public class LoginController : MonoBehaviour
     public GameObject sessionSelector;
     public TMP_InputField usernameField;
     public TMP_InputField passwordField;
-    
+
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     private void Start()
     {
@@ -19,10 +19,10 @@ public class LoginController : MonoBehaviour
     {
         var username = usernameField.text;
         var password = passwordField.text;
-        
+
         Debug.Log("Performing login using: " + username + " " + password);
 
-        OrchestratorController.Instance.OnLoginEvent = OnLoginResponse;
+        OrchestratorController.Instance.OnLoginEvent += OnLoginResponse;
 
         if (password != "")
         {

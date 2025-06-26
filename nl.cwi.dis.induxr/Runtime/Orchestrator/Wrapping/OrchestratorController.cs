@@ -61,72 +61,72 @@ namespace Orchestrator.Wrapping
         /// <summary>
         /// Invoked when an error occurs, with the error object as an argument
         /// </summary>
-        public Action<ResponseStatus> OnErrorEvent;
+        public event Action<ResponseStatus> OnErrorEvent;
         /// <summary>
         /// Invoked whenever a new connection is attempted
         /// </summary>
-        public Action OnConnectingEvent;
+        public event Action OnConnectingEvent;
         /// <summary>
         /// Invoked whenever a new connection is established
         /// </summary>
-        public Action<bool> OnConnectionEvent;
+        public event Action<bool> OnConnectionEvent;
         /// <summary>
         /// Invoked when the Orchestrator's current version is requested, with the version as an argument
         /// </summary>
-        public Action<string> OnGetOrchestratorVersionEvent;
+        public event Action<string> OnGetOrchestratorVersionEvent;
         /// <summary>
         /// Invoked when the current user logs into the Orchestrator, with a boolean indicating success and the user's ID as arguments
         /// </summary>
-        public Action<bool, string> OnLoginEvent;
+        public event Action<bool, string> OnLoginEvent;
         /// <summary>
         /// Invoked when the current user logs out of the Orchestrator, with a boolean indicating success as argument
         /// </summary>
-        public Action<bool> OnLogoutEvent;
+        public event Action<bool> OnLogoutEvent;
         /// <summary>
         /// Invoked when the current NTP time is received, with the NTP time as argument
         /// </summary>
-        public Action<NtpClock> OnGetNtpTimeEvent;
+        public event Action<NtpClock> OnGetNtpTimeEvent;
         /// <summary>
         /// Invoked when a list of sessions has been requested with the list of sessions as argument
         /// </summary>
-        public Action<Session[]> OnSessionsEvent;
+        public event Action<Session[]> OnSessionsEvent;
         /// <summary>
         /// Invoked when information about the current session has been requested, with the session information as argument
         /// </summary>
-        public Action<Session> OnSessionInfoEvent;
+        public event Action<Session> OnSessionInfoEvent;
         /// <summary>
         /// Invoked when a new session has been created, with the session information as argument
         /// </summary>
-        public Action<Session> OnAddSessionEvent;
+        public event Action<Session> OnAddSessionEvent;
         /// <summary>
         /// Invoked when a given session has been joined successfully, with the session information as argument
         /// </summary>
-        public Action<Session> OnJoinSessionEvent;
+        public event Action<Session> OnJoinSessionEvent;
         /// <summary>
         /// Invoked when a new user joins the current session, with the user ID as argument
         /// </summary>
-        public Action<string, User> OnUserJoinSessionEvent;
+        public event Action<string, User> OnUserJoinSessionEvent;
         /// <summary>
         /// Invoked when a user leaves the current session, with the user ID as argument
         /// </summary>
-        public Action<string> OnUserLeaveSessionEvent;
+        public event Action<string> OnUserLeaveSessionEvent;
         /// <summary>
         /// Invoked when a user raises their hand in the current session, with the user ID as argument
         /// </summary>
-        public Action<string> OnUserRaisedHandEvent;
+        public event Action<string> OnUserRaisedHandEvent;
         /// <summary>
         /// Invoked when a user's raised hand is cleared in the current session, with the user ID as argument
         /// </summary>
-        public Action<string> OnUserClearedRaisedHandEvent;
+        public event Action<string> OnUserClearedRaisedHandEvent;
         /// <summary>
         /// Invoked when a message is received in the current session
         /// </summary>
-        public Action<UserMessage> OnUserMessageReceivedEvent;
+        public event Action<UserMessage> OnUserMessageReceivedEvent;
         // Orchestrator User Messages Events
         /// <summary>
         /// Invoked when a broadcast is received in the current session
         /// </summary>
-        public Action<BroadcastData> OnBroadcastReceivedEvent;
+        public event Action<BroadcastData> OnBroadcastReceivedEvent;
 
         #endregion
 
