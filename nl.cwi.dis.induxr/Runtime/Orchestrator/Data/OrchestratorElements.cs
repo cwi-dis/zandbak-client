@@ -71,10 +71,6 @@ namespace Orchestrator.Data
         public string deviceType;
         public bool hasHandRaised;
 
-        public User()
-        {
-        }
-
         public override string GetId()
         {
             return userId;
@@ -95,9 +91,6 @@ namespace Orchestrator.Data
         public string microphoneName = "";
 
         public string userRepresentationType = "";
-
-        // empty constructor callled by the JsonData parser
-        public UserData() { }
     }
 
     public class SfuData : OrchestratorElement
@@ -105,8 +98,6 @@ namespace Orchestrator.Data
         public string url_gen = "";
         public string url_audio = "";
         public string url_pcc = "";
-
-        public SfuData() {}
     }
 
     public class DataStream : OrchestratorElement
@@ -114,16 +105,12 @@ namespace Orchestrator.Data
         public string dataStreamUserId = "";
         public string dataStreamKind = "";
         public string dataStreamDescription = "";
-
-        public DataStream() { }
     }
 
     public class NtpClock: OrchestratorElement
     {
         public string ntpDate;
         public long ntpTimeMs;
-
-        public NtpClock() { }
 
         public double Timestamp => ntpTimeMs / 1000.0;
     }
@@ -150,8 +137,6 @@ namespace Orchestrator.Data
         public string[] sessionChannels;
         public ChatMessage[] sessionChat;
         public User[] sessionRaisedHands;
-
-        public Session() { }
 
         public override string GetId()
         {
