@@ -29,9 +29,6 @@ namespace Orchestrator.Wrapping
 
         private OrchestratorConnectionStatus _connectionStatus;
 
-        //Users
-        private User _me; // Accessed via SelfUser
-
         //Session
         private Session _session;
         private List<Session> _availableSessions = new List<Session>();
@@ -132,13 +129,13 @@ namespace Orchestrator.Wrapping
 
         #region public properties
 
-        public bool ConnectedToOrchestrator { get { return _connectedToOrchestrator; } }
-        public OrchestratorConnectionStatus ConnectionStatus { get { return _connectionStatus; } }
-        public bool UserIsLogged { get { return _userIsLogged; } }
-        public bool UserIsMaster { get { return _userIsMaster; } }
-        public User SelfUser { get { return _me; } set { _me = value; } }
-        public Session[] AvailableSessions { get { return _availableSessions?.ToArray(); } }
-        public Session CurrentSession { get { return _session; } }
+        public bool ConnectedToOrchestrator => _connectedToOrchestrator;
+        public OrchestratorConnectionStatus ConnectionStatus => _connectionStatus;
+        public bool UserIsLogged => _userIsLogged;
+        public bool UserIsMaster => _userIsMaster;
+        public User SelfUser { get; private set; }
+        public Session[] AvailableSessions => _availableSessions?.ToArray();
+        public Session CurrentSession => _session;
 
         #endregion
 
@@ -158,7 +155,6 @@ namespace Orchestrator.Wrapping
                 string oldName = instance.gameObject.name;
 #endif
                 Debug.LogWarning($"OrchestratorController: attempt to create second instance from {newName}. Keep first one, from {oldName}.");
-                // xxxjack Destroy(gameObject);
             }
         }
 
@@ -252,8 +248,10 @@ namespace Orchestrator.Wrapping
         /// <param name="pName">The username of the user to log in.</param>
         public void Login(string pName)
         {
-            SelfUser = new User();
-            SelfUser.userName = pName;
+            SelfUser = new User
+            {
+                userName = pName
+            };
 
             _orchestratorWrapper.Login(pName);
         }
@@ -287,7 +285,7 @@ namespace Orchestrator.Wrapping
             }
 
             if (!_userIsLogged) {
-                //user was not logged before request
+                // user was not logged before the request
                 if (userLoggedSuccessfully) {
                     if (enableLogging) Debug.Log("OrchestratorController: OnLoginResponse: User logged in.");
 
@@ -297,9 +295,9 @@ namespace Orchestrator.Wrapping
                     _userIsLogged = false;
                 }
             } else {
-                //user was logged before previously
+                // user was logged in previously
                 if (!userLoggedSuccessfully) {
-                    // normal, user previopusly logged, nothing to do
+                    // normal, user previously logged, nothing to do
                 } else {
                     // should not occur
                 }
@@ -318,7 +316,7 @@ namespace Orchestrator.Wrapping
         }
 
         void IOrchestratorResponsesListener.OnLogoutResponse(ResponseStatus status) {
-            bool userLoggedOutSucessfully = (status.Error == 0);
+            bool userLoggedOutSuccessfully = (status.Error == 0);
 
             if (status.Error != 0) {
                 OnErrorEvent?.Invoke(status);
@@ -326,15 +324,15 @@ namespace Orchestrator.Wrapping
             }
 
             if (!_userIsLogged) {
-                //user was not logged before request
-                if (!userLoggedOutSucessfully) {
+                //user was not logged before the request
+                if (!userLoggedOutSuccessfully) {
                     // normal, was not logged, nothing to do
                 } else {
                     // should not occur
                 }
             } else {
-                //user was logged before request
-                if (userLoggedOutSucessfully) {
+                //user was logged before the request
+                if (userLoggedOutSuccessfully) {
                     if (enableLogging) Debug.Log("OrchestratorController: OnLogoutResponse: User logout.");
 
                     //normal
@@ -346,7 +344,7 @@ namespace Orchestrator.Wrapping
                 }
             }
 
-            OnLogoutEvent?.Invoke(userLoggedOutSucessfully);
+            OnLogoutEvent?.Invoke(userLoggedOutSuccessfully);
         }
 
         #endregion
@@ -479,8 +477,8 @@ namespace Orchestrator.Wrapping
         }
 
         /// <summary>
-        /// Deletes the current session. The current user must either be the session creator or its admin in order to
-        /// be allowed to do this.
+        /// Deletes the current session. The current user must either be the session creator or its admin to be allowed
+        /// to do this.
         /// </summary>
         /// <param name="pSessionID"></param>
         public void DeleteSession(string pSessionID) {
@@ -493,7 +491,7 @@ namespace Orchestrator.Wrapping
                 return;
             }
 
-            if (enableLogging) Debug.Log("OrchestratorController: OnDeleteSessionResponse: Session succesfully deleted.");
+            if (enableLogging) Debug.Log("OrchestratorController: OnDeleteSessionResponse: Session successfully deleted.");
 
             _session = null;
 
@@ -523,8 +521,8 @@ namespace Orchestrator.Wrapping
 
             if (enableLogging) Debug.Log($"OrchestratorController: OnJoinSessionResponse: Session {session.sessionName}, isMaster={(_userIsMaster)}, nUser={userCount}");
 
-            // Simulate user join a session for each connected users
-            foreach (string id in session.sessionUsers) {
+            // Simulate a user joining a session for each connected user
+            foreach (var id in session.sessionUsers) {
                 if (id != SelfUser.userId) {
                     ((IUserSessionEventsListener)this).OnUserJoinedSession(id, null);
                 }
@@ -546,7 +544,7 @@ namespace Orchestrator.Wrapping
                 return;
             }
 
-            if (enableLogging) Debug.Log("OrchestratorController: OnLeaveSessionResponse: Session " + _session.sessionName + " succesfully left.");
+            if (enableLogging) Debug.Log("OrchestratorController: OnLeaveSessionResponse: Session " + _session.sessionName + " successfully left.");
 
             if (_session != null && SelfUser != null) {
                 // As the session creator, the session should be deleted when leaving.
@@ -592,11 +590,11 @@ namespace Orchestrator.Wrapping
                     Debug.Log("OrchestratorController: OnUserLeftSession: Session creator " + _session.GetUser(userID).userName + " left the session. Also leaving.");
                     LeaveSession();
                 }
-                // Otherwise, just proceed to the common user left event.
+                // Otherwise, proceed to the common user left event.
                 else {
                     if (enableLogging) Debug.Log("OrchestratorController: OnUserLeftSession: User " + _session.GetUser(userID).userName + " left the session. Getting new session info.");
 
-                    // Required to update the list of connect users.
+                    // Required to update the list of connected users.
                     _orchestratorWrapper.GetSessionInfo();
                     OnUserLeaveSessionEvent?.Invoke(userID);
                 }
@@ -680,7 +678,7 @@ namespace Orchestrator.Wrapping
                 yield break;
             }
 
-            // Check frequently if there is users connected and ensure a null session (from the delete command) is escaped.
+            // Check frequently if there are users connected and ensure a null session (from the delete command) is escaped.
             while (_session.sessionUsers.Length > 0) {
                 GetSessionInfo();
                 yield return new WaitForSeconds(1.0f);
