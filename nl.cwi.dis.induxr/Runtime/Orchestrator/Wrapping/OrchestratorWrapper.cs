@@ -20,7 +20,7 @@ namespace Orchestrator.Wrapping {
         private IUserMessagesListener _userMessagesListener;
 
         // Listeners for the user events emitted when a session is updated by the orchestrator
-        private List<IUserSessionEventsListener> _userSessionEventListeners;
+        private IUserSessionEventsListener _userSessionEventListener;
 
         public Action<UserDataStreamPacket> OnDataStreamReceived;
         private string _myUserID = "";
@@ -31,10 +31,7 @@ namespace Orchestrator.Wrapping {
 
             _responsesListener = responsesListener;
             _userMessagesListener = userMessagesListener;
-
-            _userSessionEventListeners = new List<IUserSessionEventsListener> {
-                userSessionEventsListener
-            };
+            _userSessionEventListener = userSessionEventsListener;
 
             _socket = new SocketIOUnity(new Uri(orchestratorSocketUrl), new SocketIOOptions {
                 Transport = SocketIOClient.Transport.TransportProtocol.WebSocket,
@@ -393,36 +390,24 @@ namespace Orchestrator.Wrapping {
 
                 switch (data.EventId) {
                     case "USER_JOINED_SESSION":
-                        foreach (IUserSessionEventsListener e in _userSessionEventListeners)
-                        {
-                            UnityThread.executeInUpdate(() => {
-                                e?.OnUserJoinedSession(data.EventData.UserId, data.EventData.UserData);
-                            });
-                        }
+                        UnityThread.executeInUpdate(() => {
+                            _userSessionEventListener?.OnUserJoinedSession(data.EventData.UserId, data.EventData.UserData);
+                        });
                         break;
                     case "USER_LEFT_SESSION":
-                        foreach (IUserSessionEventsListener e in _userSessionEventListeners)
-                        {
-                            UnityThread.executeInUpdate(() => {
-                                e?.OnUserLeftSession(data.EventData.UserId);
-                            });
-                        }
+                        UnityThread.executeInUpdate(() => {
+                            _userSessionEventListener?.OnUserLeftSession(data.EventData.UserId);
+                        });
                         break;
                     case "USER_RAISED_HAND":
-                        foreach (IUserSessionEventsListener e in _userSessionEventListeners)
-                        {
-                            UnityThread.executeInUpdate(() => {
-                                e?.OnUserRaisedHand(data.EventData.UserId);
-                            });
-                        }
+                        UnityThread.executeInUpdate(() => {
+                            _userSessionEventListener?.OnUserRaisedHand(data.EventData.UserId);
+                        });
                         break;
                     case "USER_CLEARED_RAISED_HAND":
-                        foreach (IUserSessionEventsListener e in _userSessionEventListeners)
-                        {
-                            UnityThread.executeInUpdate(() => {
-                                e?.OnUserClearedRaisedHand(data.EventData.UserId);
-                            });
-                        }
+                        UnityThread.executeInUpdate(() => {
+                            _userSessionEventListener?.OnUserClearedRaisedHand(data.EventData.UserId);
+                        });
                         break;
                 }
             }
