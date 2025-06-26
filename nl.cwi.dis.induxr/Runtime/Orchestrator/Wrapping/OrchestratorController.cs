@@ -412,10 +412,7 @@ namespace Orchestrator.Wrapping
         /// </summary>
         /// <param name="pSessionName">The name of the session to be created</param>
         public void AddSession(string pSessionName) {
-            var scenario = new Scenario();
-            var channels = new[] {"transform"};
-
-            _orchestratorWrapper.AddSession("", scenario, pSessionName, "", "socketio", channels);
+            _orchestratorWrapper.AddSession(pSessionName, "", "socketio", new[] { "transform" });
         }
 
         void IOrchestratorResponsesListener.OnAddSessionResponse(ResponseStatus status, Session session) {

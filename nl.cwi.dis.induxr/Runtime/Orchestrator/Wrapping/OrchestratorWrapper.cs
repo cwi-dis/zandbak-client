@@ -207,7 +207,7 @@ namespace Orchestrator.Wrapping {
 
         #region session management
 
-        public void AddSession(string scenarioId, Scenario scenario, string sessionName, string sessionDescription, string sessionProtocol, string[] channels) {
+        public void AddSession(string sessionName, string sessionDescription, string sessionProtocol, string[] channels) {
             lock (this) {
                 _socket.Emit("AddSession", (response) => {
                     var data = response.GetValue<OrchestratorResponse<Session>>();
@@ -219,11 +219,7 @@ namespace Orchestrator.Wrapping {
                     sessionName,
                     sessionDescription,
                     sessionProtocol,
-                    scenarioDefinition = new {
-                        scenarioId,
-                        scenario.scenarioName,
-                        scenario.scenarioDescription
-                    },
+                    scenarioDefinition = new { scenarioId="", scenarioName="", scenarioDescription="" },
                     channels
                 });
             }
