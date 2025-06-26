@@ -125,26 +125,7 @@ namespace Orchestrator.Data
 
         public NtpClock() { }
 
-        public double Timestamp { get { return (ntpTimeMs / 1000.0); } }
-    }
-
-    public class Scenario : OrchestratorElement
-    {
-        public string scenarioId;
-        public string scenarioName;
-        public string scenarioDescription;
-
-        public Scenario() { }
-
-        public override string GetId()
-        {
-            return scenarioId;
-        }
-
-        public override string GetGuiRepresentation()
-        {
-            return scenarioName + " (" + scenarioDescription + ")";
-        }
+        public double Timestamp => ntpTimeMs / 1000.0;
     }
 
     public class ChatMessage : OrchestratorElement
