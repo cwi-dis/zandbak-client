@@ -20,7 +20,7 @@ namespace Orchestrator.Wrapping {
         private IUserMessagesListener _userMessagesListener;
 
         // Listeners for the user events emitted when a session is updated by the orchestrator
-        private List<IUserSessionEventsListener> _userSessionEventslisteners;
+        private List<IUserSessionEventsListener> _userSessionEventListeners;
 
         public Action<UserDataStreamPacket> OnDataStreamReceived;
         private string _myUserID = "";
@@ -32,7 +32,7 @@ namespace Orchestrator.Wrapping {
             _responsesListener = responsesListener;
             _userMessagesListener = userMessagesListener;
 
-            _userSessionEventslisteners = new List<IUserSessionEventsListener> {
+            _userSessionEventListeners = new List<IUserSessionEventsListener> {
                 userSessionEventsListener
             };
 
@@ -393,7 +393,7 @@ namespace Orchestrator.Wrapping {
 
                 switch (data.eventId) {
                     case "USER_JOINED_SESSION":
-                        foreach (IUserSessionEventsListener e in _userSessionEventslisteners)
+                        foreach (IUserSessionEventsListener e in _userSessionEventListeners)
                         {
                             UnityThread.executeInUpdate(() => {
                                 e?.OnUserJoinedSession(data.eventData.userId, data.eventData.userData);
@@ -401,7 +401,7 @@ namespace Orchestrator.Wrapping {
                         }
                         break;
                     case "USER_LEFT_SESSION":
-                        foreach (IUserSessionEventsListener e in _userSessionEventslisteners)
+                        foreach (IUserSessionEventsListener e in _userSessionEventListeners)
                         {
                             UnityThread.executeInUpdate(() => {
                                 e?.OnUserLeftSession(data.eventData.userId);
@@ -409,7 +409,7 @@ namespace Orchestrator.Wrapping {
                         }
                         break;
                     case "USER_RAISED_HAND":
-                        foreach (IUserSessionEventsListener e in _userSessionEventslisteners)
+                        foreach (IUserSessionEventsListener e in _userSessionEventListeners)
                         {
                             UnityThread.executeInUpdate(() => {
                                 e?.OnUserRaisedHand(data.eventData.userId);
@@ -417,7 +417,7 @@ namespace Orchestrator.Wrapping {
                         }
                         break;
                     case "USER_CLEARED_RAISED_HAND":
-                        foreach (IUserSessionEventsListener e in _userSessionEventslisteners)
+                        foreach (IUserSessionEventsListener e in _userSessionEventListeners)
                         {
                             UnityThread.executeInUpdate(() => {
                                 e?.OnUserClearedRaisedHand(data.eventData.userId);
