@@ -173,14 +173,14 @@ namespace Orchestrator.Wrapping
         /// </summary>
         /// <param name="pUrl">The URL of the orchestrator to establish the connection to.</param>
         public void SocketConnect(string pUrl) {
-            if (enableLogging) Debug.Log($"OrchestratorController: connect to {pUrl}");
+            Log($"OrchestratorController: connect to {pUrl}");
             _orchestratorWrapper = new OrchestratorWrapper(pUrl, this, this, this);
             _orchestratorWrapper.Connect();
         }
 
         void IOrchestratorResponsesListener.OnConnect()
         {
-            if (enableLogging) Debug.Log($"OrchestratorController: connected to orchestrator");
+            Log($"OrchestratorController: connected to orchestrator");
 
             _connectedToOrchestrator = true;
             _hasBeenConnectedToOrchestrator = true;
@@ -189,7 +189,7 @@ namespace Orchestrator.Wrapping
         }
 
         void IOrchestratorResponsesListener.OnConnecting() {
-            if (enableLogging) Debug.Log($"OrchestratorController: connecting to orchestrator");
+            Log($"OrchestratorController: connecting to orchestrator");
 
             if (_hasBeenConnectedToOrchestrator)
             {
@@ -287,7 +287,7 @@ namespace Orchestrator.Wrapping
             if (!_userIsLogged) {
                 // user was not logged before the request
                 if (userLoggedSuccessfully) {
-                    if (enableLogging) Debug.Log("OrchestratorController: OnLoginResponse: User logged in.");
+                    Log("OrchestratorController: OnLoginResponse: User logged in.");
 
                     _userIsLogged = true;
                     SelfUser.userId = userId;
@@ -333,7 +333,7 @@ namespace Orchestrator.Wrapping
             } else {
                 //user was logged before the request
                 if (userLoggedOutSuccessfully) {
-                    if (enableLogging) Debug.Log("OrchestratorController: OnLogoutResponse: User logout.");
+                    Log("OrchestratorController: OnLogoutResponse: User logout.");
 
                     //normal
                     SelfUser = null;
@@ -365,7 +365,7 @@ namespace Orchestrator.Wrapping
                 return;
             }
 
-            if (enableLogging) Debug.Log("OrchestratorController: OnGetNTPTimeResponse: NtpTime: " + ntpTime.Timestamp);
+            Log("OrchestratorController: OnGetNTPTimeResponse: NtpTime: " + ntpTime.Timestamp);
             if (OnGetNtpTimeEvent == null) Debug.LogWarning("OrchestratorController: NTP time response received but nothing listens");
 
             OnGetNtpTimeEvent?.Invoke(ntpTime);
@@ -396,7 +396,7 @@ namespace Orchestrator.Wrapping
                 Debug.LogWarning($"OrchestratorController: Removed {nRemoved} null sessions");
             }
 
-            if (enableLogging) Debug.Log("OrchestratorController: OnGetSessionsResponse: Number of available sessions:" + sessions.Count);
+            Log("OrchestratorController: OnGetSessionsResponse: Number of available sessions:" + sessions.Count);
 
             // update the list of available sessions
             _availableSessions = sessions;
@@ -421,7 +421,7 @@ namespace Orchestrator.Wrapping
                 return;
             }
 
-            if (enableLogging) Debug.Log("OrchestratorController: OnAddSessionResponse: Session " + session.sessionName + " successfully created by " + session.GetUser(session.sessionAdministrator).userName + ".");
+            Log("OrchestratorController: OnAddSessionResponse: Session " + session.sessionName + " successfully created by " + session.GetUser(session.sessionAdministrator).userName + ".");
 
             // success
             _session = session;
@@ -451,12 +451,12 @@ namespace Orchestrator.Wrapping
 
         void IOrchestratorResponsesListener.OnGetSessionInfoResponse(ResponseStatus status, Session session) {
             if (_session == null || string.IsNullOrEmpty(session.sessionId)) {
-                if (enableLogging) Debug.LogError("OrchestratorController: OnGetSessionInfoResponse: Aborted, current session is null.");
+                LogError("OrchestratorController: OnGetSessionInfoResponse: Aborted, current session is null.");
                 return;
             }
 
             if (status.Error != 0) {
-                if (enableLogging) Debug.LogError($"OrchestratorController: OnGetSessionInfoResponse: clear session, status={status}");
+                LogError($"OrchestratorController: OnGetSessionInfoResponse: clear session, status={status}");
                 _session = null;
                 OnErrorEvent?.Invoke(status);
                 return;
@@ -467,7 +467,7 @@ namespace Orchestrator.Wrapping
             _userIsMaster = session.sessionMaster == SelfUser.userId;
             int userCount = _session.GetUserCount();
 
-            if (enableLogging) Debug.Log($"OrchestratorController: OnGetSessionInfoResponse: Get session info of {session.sessionName}, isMaster={(_userIsMaster)}, nUser={userCount}");
+            Log($"OrchestratorController: OnGetSessionInfoResponse: Get session info of {session.sessionName}, isMaster={(_userIsMaster)}, nUser={userCount}");
 
             OnSessionInfoEvent?.Invoke(session);
         }
@@ -487,7 +487,7 @@ namespace Orchestrator.Wrapping
                 return;
             }
 
-            if (enableLogging) Debug.Log("OrchestratorController: OnDeleteSessionResponse: Session successfully deleted.");
+            Log("OrchestratorController: OnDeleteSessionResponse: Session successfully deleted.");
 
             _session = null;
 
@@ -515,7 +515,7 @@ namespace Orchestrator.Wrapping
             _userIsMaster = session.sessionMaster == SelfUser.userId;
             int userCount = session.GetUserCount();
 
-            if (enableLogging) Debug.Log($"OrchestratorController: OnJoinSessionResponse: Session {session.sessionName}, isMaster={(_userIsMaster)}, nUser={userCount}");
+            Log($"OrchestratorController: OnJoinSessionResponse: Session {session.sessionName}, isMaster={(_userIsMaster)}, nUser={userCount}");
 
             // Simulate a user joining a session for each connected user
             foreach (var id in session.sessionUsers) {
@@ -540,12 +540,12 @@ namespace Orchestrator.Wrapping
                 return;
             }
 
-            if (enableLogging) Debug.Log("OrchestratorController: OnLeaveSessionResponse: Session " + _session.sessionName + " successfully left.");
+            Log("OrchestratorController: OnLeaveSessionResponse: Session " + _session.sessionName + " successfully left.");
 
             if (_session != null && SelfUser != null) {
                 // As the session creator, the session should be deleted when leaving.
                 if (_session.sessionAdministrator == SelfUser.userId) {
-                    if (enableLogging) Debug.Log("OrchestratorController: OnLeaveSessionResponse: As session creator, delete the current session when its empty.");
+                    Log("OrchestratorController: OnLeaveSessionResponse: As session creator, delete the current session when its empty.");
                     StartCoroutine(WaitForEmptySessionToDelete());
                     return;
                 }
@@ -573,7 +573,7 @@ namespace Orchestrator.Wrapping
                 }
             }
 
-            if (enableLogging) Debug.Log("OrchestratorController: OnUserJoinedSession: User " + user.userName + " joined the session.");
+            Log("OrchestratorController: OnUserJoinedSession: User " + user.userName + " joined the session.");
 
             _orchestratorWrapper.GetSessionInfo();
             OnUserJoinSessionEvent?.Invoke(userID, user);
@@ -588,7 +588,7 @@ namespace Orchestrator.Wrapping
                 }
                 // Otherwise, proceed to the common user left event.
                 else {
-                    if (enableLogging) Debug.Log("OrchestratorController: OnUserLeftSession: User " + _session.GetUser(userID).userName + " left the session. Getting new session info.");
+                    Log("OrchestratorController: OnUserLeftSession: User " + _session.GetUser(userID).userName + " left the session. Getting new session info.");
 
                     // Required to update the list of connected users.
                     _orchestratorWrapper.GetSessionInfo();
@@ -691,11 +691,27 @@ namespace Orchestrator.Wrapping
         #region Errors
 
         void IOrchestratorResponsesListener.OnError(ResponseStatus status) {
-            if (enableLogging) Debug.Log("OrchestratorController: OnError: Error code: " + status.Error + "::Error message: " + status.Message);
+            Log("OrchestratorController: OnError: Error code: " + status.Error + "::Error message: " + status.Message);
 
             OnErrorEvent?.Invoke(status);
         }
 
         #endregion
+
+        private void Log(string message)
+        {
+            if (enableLogging)
+            {
+                Debug.Log(message);
+            }
+        }
+
+        private void LogError(string message)
+        {
+            if (enableLogging)
+            {
+                Debug.LogError(message);
+            }
+        }
     }
 }
