@@ -53,6 +53,7 @@ namespace Orchestrator.Data
         void OnLeaveSessionResponse(ResponseStatus status);
 
         void OnSendMessageResponse(ResponseStatus status);
+        void OnRaiseHandResponse(ResponseStatus status);
         void OnSendMessageToAllResponse(ResponseStatus status);
 
     }

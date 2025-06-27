@@ -312,11 +312,26 @@ namespace Orchestrator.Wrapping {
                     var data = response.GetValue<OrchestratorResponse<EmptyResponse>>();
 
                     UnityThread.executeInUpdate(() => {
-                        _responsesListener?.OnSendMessageResponse(data.ResponseStatus);
+                        _responsesListener?.OnSendMessageToAllResponse(data.ResponseStatus);
                     });
                 }, new {
                     message
                 });
+            }
+        }
+
+        public void RaiseHand()
+        {
+            lock (this)
+            {
+                _socket.Emit("RaiseHand", (response) =>
+                {
+                    var data = response.GetValue<OrchestratorResponse<EmptyResponse>>();
+
+                    UnityThread.executeInUpdate(() => {
+                        _responsesListener?.OnRaiseHandResponse(data.ResponseStatus);
+                    });
+                }, new {});
             }
         }
 
