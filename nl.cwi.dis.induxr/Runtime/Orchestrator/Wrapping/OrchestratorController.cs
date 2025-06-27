@@ -2,6 +2,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using System.Text;
+using System.Threading.Tasks;
 using UnityEngine;
 using Orchestrator.Data;
 
@@ -29,6 +30,8 @@ namespace Orchestrator.Wrapping
 
         private OrchestratorConnectionStatus _connectionStatus;
 
+        public App.Orchestrator Orchestrator { get; private set; }
+
         //Session
         private Session _session;
         private List<Session> _availableSessions = new List<Session>();
@@ -42,6 +45,8 @@ namespace Orchestrator.Wrapping
         // orchestrator connection state
         private bool _connectedToOrchestrator;
         private bool _hasBeenConnectedToOrchestrator;
+
+        private TaskCompletionSource<App.Orchestrator> _connectionTaskCompletionSource = new();
 
         //Orchestrator Controller Singleton
         public static OrchestratorController Instance {
@@ -171,11 +176,23 @@ namespace Orchestrator.Wrapping
         /// Establishes a socket connection to the Orchestrator using the specified URL.
         /// Invokes <c>OnConnectionEvent</c> upon completion.
         /// </summary>
-        /// <param name="pUrl">The URL of the orchestrator to establish the connection to.</param>
-        public void SocketConnect(string pUrl) {
-            Log($"OrchestratorController: connect to {pUrl}");
-            _orchestratorWrapper = new OrchestratorWrapper(pUrl, this, this, this);
+        /// <param name="url">The URL of the orchestrator to establish the connection to.</param>
+        public void SocketConnect(string url) {
+            Log($"OrchestratorController: connect to {url}");
+
+            _orchestratorWrapper = new OrchestratorWrapper(url, this, this, this);
             _orchestratorWrapper.Connect();
+        }
+
+        /// <summary>
+        /// Establishes a socket connection to the Orchestrator using the specified URL in an asynchronous manner.
+        /// Returns a Task, which returns an instance of an Orchestrator object upon successful connection.
+        /// </summary>
+        /// <param name="url">The URL of the orchestrator to establish the connection to.</param>
+        public Task<App.Orchestrator> SocketConnectAsync(string url)
+        {
+            SocketConnect(url);
+            return _connectionTaskCompletionSource.Task;
         }
 
         void IOrchestratorResponsesListener.OnConnect()
@@ -185,7 +202,11 @@ namespace Orchestrator.Wrapping
             _connectedToOrchestrator = true;
             _hasBeenConnectedToOrchestrator = true;
             _connectionStatus = OrchestratorConnectionStatus.Connected;
+
+            Orchestrator = new App.Orchestrator();
+
             OnConnectionEvent?.Invoke(true);
+            _connectionTaskCompletionSource.SetResult(Orchestrator);
         }
 
         void IOrchestratorResponsesListener.OnConnecting() {
