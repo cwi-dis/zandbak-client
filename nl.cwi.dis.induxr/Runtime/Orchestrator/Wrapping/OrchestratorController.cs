@@ -614,6 +614,21 @@ namespace Orchestrator.Wrapping
         #region Messages
 
         /// <summary>
+        /// Raises the current user's hand in the session.
+        /// </summary>
+        public void RaiseHand()
+        {
+            _orchestratorWrapper.RaiseHand();
+        }
+
+        void IOrchestratorResponsesListener.OnRaiseHandResponse(ResponseStatus status)
+        {
+            if (status.Error != 0) {
+                OnErrorEvent?.Invoke(status);
+            }
+        }
+
+        /// <summary>
         /// Sends a message to the user identified by the given ID.
         /// </summary>
         /// <param name="pMessage">The message to be delivered</param>
