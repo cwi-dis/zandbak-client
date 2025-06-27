@@ -426,6 +426,17 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &1843545986 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 2022883470294030376, guid: ca6362ea069d94cd191cf23222deb399, type: 3}
+  m_PrefabInstance: {fileID: 3197244288410586903}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 4e29b1a8efbd4b44bb3f3716e73f07ff, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &2145527819
 GameObject:
   m_ObjectHideFlags: 0
@@ -570,6 +581,18 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 0}
     m_Modifications:
+    - target: {fileID: 1294139776792562445, guid: ca6362ea069d94cd191cf23222deb399, type: 3}
+      propertyPath: loginButton
+      value: 
+      objectReference: {fileID: 1843545986}
+    - target: {fileID: 1342095846708443012, guid: ca6362ea069d94cd191cf23222deb399, type: 3}
+      propertyPath: m_IsActive
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 2022883470294030376, guid: ca6362ea069d94cd191cf23222deb399, type: 3}
+      propertyPath: m_Interactable
+      value: 1
+      objectReference: {fileID: 0}
     - target: {fileID: 7571488305789904799, guid: ca6362ea069d94cd191cf23222deb399, type: 3}
       propertyPath: m_Name
       value: LoginUI

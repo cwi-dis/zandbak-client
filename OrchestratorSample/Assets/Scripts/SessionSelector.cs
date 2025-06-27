@@ -1,6 +1,7 @@
 using System;
+using System.Collections.Generic;
 using System.Linq;
-using Orchestrator.Data;
+using Orchestrator.App;
 using Orchestrator.Wrapping;
 using TMPro;
 using UnityEngine;
@@ -10,32 +11,34 @@ public class SessionSelector : MonoBehaviour
     public TMP_Dropdown sessionDropdown;
     public GameObject sessionPrefab;
 
-    private Session[] _sessions;
+    private List<Session> _sessions;
+    private Orchestrator.App.Orchestrator _orchestrator;
 
-    // Start is called once before the first execution of Update after the MonoBehaviour is created
-    private void Start()
+    private void Awake()
     {
-        OrchestratorController.Instance.OnSessionsEvent += OnGetSessions;
-        OrchestratorController.Instance.GetSessions();
+        _orchestrator = OrchestratorController.Instance.Orchestrator;
     }
 
-    private void OnGetSessions(Session[] sessions)
+    // Start is called once before the first execution of Update after the MonoBehaviour is created
+    private async void Start()
     {
+        var sessions = await _orchestrator.GetSessions();
+
         sessionDropdown.AddOptions(sessions.Select((s) => s.Name).ToList());
         _sessions = sessions;
     }
 
-    public void OnJoinSession()
+    public async void OnJoinSession()
     {
         var selectedDropdownValue = sessionDropdown.value;
-        OrchestratorController.Instance.OnJoinSessionEvent += OnSessionJoined;
-        OrchestratorController.Instance.JoinSession(_sessions[selectedDropdownValue].Id);
+        var joinedSession = await _orchestrator.JoinSession(_sessions[selectedDropdownValue].Id);
+        OnSessionJoined(joinedSession);
     }
 
-    public void OnCreateSession()
+    public async void OnCreateSession()
     {
-        OrchestratorController.Instance.OnAddSessionEvent += OnSessionJoined;
-        OrchestratorController.Instance.AddSession("test-" + Guid.NewGuid().ToString());
+        var createdSession = await _orchestrator.CreateSession("test-" + Guid.NewGuid());
+        OnSessionJoined(createdSession);
     }
 
     private void OnSessionJoined(Session session)

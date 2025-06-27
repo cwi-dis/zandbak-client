@@ -27,7 +27,7 @@ public class SessionController : MonoBehaviour
         {
             var self = Instantiate(avatarPrefab, new Vector3(8, 0, 8), Quaternion.identity);
             var avatar = self.GetComponentInChildren<AvatarNetworkBehaviour>();
-            
+
             avatar.id = user.Id;
             avatar.isLocal = true;
 
@@ -37,7 +37,7 @@ public class SessionController : MonoBehaviour
         else
         {
             var self = Instantiate(playerPrefab);
-                
+
             var player = self.GetComponent<PlayerNetworkBehaviour>();
             player.id = user.Id;
             player.isLocal = true;
