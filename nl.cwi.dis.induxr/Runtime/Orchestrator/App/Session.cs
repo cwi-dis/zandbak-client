@@ -9,7 +9,7 @@ namespace Orchestrator.App
     {
         private readonly Orchestrator _orchestrator;
         private Data.Session _sessionData;
-        private List<User> _users;
+        private List<User> _users = new();
 
         public string Id => _sessionData.Id;
         public string Name => _sessionData.Name;
