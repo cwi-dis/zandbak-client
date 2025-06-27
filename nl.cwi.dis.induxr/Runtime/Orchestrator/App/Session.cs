@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Threading.Tasks;
 using Orchestrator.Wrapping;
 
 namespace Orchestrator.App
@@ -26,24 +27,31 @@ namespace Orchestrator.App
             _sessionData = sessionData;
         }
 
-        public void Info(Action<Session> callback)
+        public Task<Session> Info()
         {
+            var tcs = new TaskCompletionSource<Session>();
+
             Action<Data.Session> fn = null;
             fn = (sessionData) =>
             {
                 _sessionData = sessionData;
-                callback?.Invoke(this);
+                tcs.SetResult(this);
                 OrchestratorController.Instance.OnSessionInfoEvent -= fn;
             };
 
             OrchestratorController.Instance.OnSessionInfoEvent += fn;
             OrchestratorController.Instance.GetSessionInfo();
+
+            return tcs.Task;
         }
 
-        public void Leave(Action callback)
+        public Task<bool> Leave()
         {
+            var tcs = new TaskCompletionSource<bool>();
             OrchestratorController.Instance.LeaveSession();
-            callback?.Invoke();
+
+            tcs.SetResult(true);
+            return tcs.Task;
         }
 
         private void UserJoined(string userId, Data.User userData)
