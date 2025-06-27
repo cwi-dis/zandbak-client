@@ -7,7 +7,7 @@ using UnityEngine;
 
 namespace Orchestrator.App
 {
-    public class Orchestrator : MonoBehaviour
+    public class Orchestrator
     {
         public List<Session> Sessions { get; private set; }
         public Session CurrentSession { get; private set; }
