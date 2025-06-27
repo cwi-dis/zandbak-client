@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
 using Orchestrator.Wrapping;
 using UnityEngine;
 
@@ -12,28 +13,34 @@ namespace Orchestrator.App
         public Session CurrentSession { get; private set; }
         public User CurrentUser { get; private set; }
 
-        public void GetOrchestratorVersion(Action<string> callback)
+        public Task<string> GetOrchestratorVersion()
         {
+            var tcs = new TaskCompletionSource<string>();
+
             Action<string> fn = null;
             fn = (version) =>
             {
-                callback?.Invoke(version);
+                tcs.SetResult(version);
                 OrchestratorController.Instance.OnGetOrchestratorVersionEvent -= fn;
             };
 
             OrchestratorController.Instance.OnGetOrchestratorVersionEvent += fn;
             OrchestratorController.Instance.GetVersion();
+
+            return tcs.Task;
         }
 
-        public void Login(string username, string password, Action<bool, string> callback)
+        public Task<string> Login(string username, string password = null)
         {
+            var tcs = new TaskCompletionSource<string>();
+
             Action<bool, string> fn = null;
             fn = (success, userId) =>
             {
-                callback?.Invoke(success, userId);
-
                 if (success)
                 {
+                    tcs.SetResult(userId);
+
                     CurrentUser = new User(
                         new Data.User
                         {
@@ -41,6 +48,10 @@ namespace Orchestrator.App
                             Id = userId
                         }
                     );
+                }
+                else
+                {
+                    tcs.SetException(new Exception("Login failed"));
                 }
 
                 OrchestratorController.Instance.OnLoginEvent -= fn;
@@ -56,92 +67,110 @@ namespace Orchestrator.App
             {
                 OrchestratorController.Instance.Login(username, password);
             }
+
+            return tcs.Task;
         }
 
-        public void Login(string username, Action<bool, string> callback)
+        public Task<bool> Logout()
         {
-            Login(username, null, callback);
-        }
+            var tcs = new TaskCompletionSource<bool>();
 
-        public void Logout(Action<bool> callback)
-        {
             Action<bool> fn = null;
             fn = (success) =>
             {
-                callback?.Invoke(success);
+                tcs.SetResult(success);
                 OrchestratorController.Instance.OnLogoutEvent -= fn;
             };
 
             OrchestratorController.Instance.OnLogoutEvent += fn;
             OrchestratorController.Instance.Logout();
+
+            return tcs.Task;
         }
 
-        public void GetNtpTime(Action<Data.NtpClock> callback)
+        public Task<double> GetNtpTime()
         {
+            var tcs = new TaskCompletionSource<double>();
+
             Action<Data.NtpClock> fn = null;
             fn = (ntpTime) =>
             {
-                callback?.Invoke(ntpTime);
+                tcs.SetResult(ntpTime.Timestamp);
                 OrchestratorController.Instance.OnGetNtpTimeEvent -= fn;
             };
 
             OrchestratorController.Instance.OnGetNtpTimeEvent += fn;
             OrchestratorController.Instance.GetNtpTime();
+
+            return tcs.Task;
         }
 
-        public void GetSessions(Action<List<Session>> callback)
+        public Task<List<Session>> GetSessions()
         {
+            var tcs = new TaskCompletionSource<List<Session>>();
+
             Action<Data.Session[]> fn = null;
             fn = (sessions) =>
             {
                 Sessions = sessions.Select(session => new Session(session)).ToList();
-                callback?.Invoke(Sessions);
+                tcs.SetResult(Sessions);
                 OrchestratorController.Instance.OnSessionsEvent -= fn;
             };
 
             OrchestratorController.Instance.OnSessionsEvent += fn;
             OrchestratorController.Instance.GetSessions();
+
+            return tcs.Task;
         }
 
-        public void CreateSession(string sessionName, Action<Session> callback)
+        public Task<Session> CreateSession(string sessionName)
         {
+            var tcs = new TaskCompletionSource<Session>();
+
             Action<Data.Session> fn = null;
             fn = (session) =>
             {
                 CurrentSession = new Session(session);
                 CurrentUser.Session = CurrentSession;
 
-                callback?.Invoke(CurrentSession);
+                tcs.SetResult(CurrentSession);
                 OrchestratorController.Instance.OnAddSessionEvent -= fn;
             };
 
             OrchestratorController.Instance.OnAddSessionEvent += fn;
             OrchestratorController.Instance.AddSession(sessionName);
+
+            return tcs.Task;
         }
 
-        public void JoinSession(string sessionId, Action<Session> callback)
+        public Task<Session> JoinSession(string sessionId)
         {
+            var tcs = new TaskCompletionSource<Session>();
             var sessionToJoin = Sessions.Find((s) => s.Id == sessionId);
 
             if (sessionToJoin == null)
             {
                 Debug.LogError($"Session {sessionId} not found");
-                return;
+                tcs.SetException(new Exception($"Session {sessionId} not found"));
+            }
+            else
+            {
+                Action<Data.Session> fn = null;
+                fn = (session) =>
+                {
+                    sessionToJoin.Update(session);
+                    CurrentSession = sessionToJoin;
+                    CurrentUser.Session = CurrentSession;
+
+                    tcs.SetResult(CurrentSession);
+                    OrchestratorController.Instance.OnJoinSessionEvent -= fn;
+                };
+
+                OrchestratorController.Instance.OnJoinSessionEvent += fn;
+                OrchestratorController.Instance.JoinSession(sessionId);
             }
 
-            Action<Data.Session> fn = null;
-            fn = (session) =>
-            {
-                sessionToJoin.Update(session);
-                CurrentSession = sessionToJoin;
-                CurrentUser.Session = CurrentSession;
-
-                callback?.Invoke(CurrentSession);
-                OrchestratorController.Instance.OnJoinSessionEvent -= fn;
-            };
-
-            OrchestratorController.Instance.OnJoinSessionEvent += fn;
-            OrchestratorController.Instance.JoinSession(sessionId);
+            return tcs.Task;
         }
     }
 }
