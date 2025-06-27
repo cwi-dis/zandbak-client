@@ -14,6 +14,7 @@ namespace Orchestrator.App
         public string Id => _sessionData.Id;
         public string Name => _sessionData.Name;
         public List<User> Users => _users;
+        public User Self => _orchestrator.Self;
 
         public Session(Orchestrator orchestrator, Data.Session sessionData)
         {

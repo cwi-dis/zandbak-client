@@ -11,7 +11,7 @@ namespace Orchestrator.App
     {
         public List<Session> Sessions { get; private set; }
         public Session CurrentSession { get; private set; }
-        public User CurrentUser { get; private set; }
+        public User Self { get; private set; }
 
         public Task<string> GetOrchestratorVersion()
         {
@@ -41,7 +41,7 @@ namespace Orchestrator.App
                 {
                     tcs.SetResult(userId);
 
-                    CurrentUser = new User(
+                    Self = new User(
                         new Data.User
                         {
                             Username = username,
@@ -131,7 +131,7 @@ namespace Orchestrator.App
             fn = (session) =>
             {
                 CurrentSession = new Session(this, session);
-                CurrentUser.Session = CurrentSession;
+                Self.Session = CurrentSession;
 
                 tcs.SetResult(CurrentSession);
                 OrchestratorController.Instance.OnAddSessionEvent -= fn;
@@ -160,7 +160,7 @@ namespace Orchestrator.App
                 {
                     sessionToJoin.Update(session);
                     CurrentSession = sessionToJoin;
-                    CurrentUser.Session = CurrentSession;
+                    Self.Session = CurrentSession;
 
                     tcs.SetResult(CurrentSession);
                     OrchestratorController.Instance.OnJoinSessionEvent -= fn;
