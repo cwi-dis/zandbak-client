@@ -9,12 +9,14 @@ namespace Orchestrator.App
     {
         private readonly Orchestrator _orchestrator;
         private Data.Session _sessionData;
-        private List<User> _users = new();
 
         public string Id => _sessionData.Id;
         public string Name => _sessionData.Name;
-        public List<User> Users => _users;
+        public List<User> Users { get; } = new();
         public User Self => _orchestrator.Self;
+
+        public event Action<User> OnUserJoined;
+        public event Action<User> OnUserLeft;
 
         public Session(Orchestrator orchestrator, Data.Session sessionData)
         {
@@ -51,7 +53,9 @@ namespace Orchestrator.App
         public Task<bool> Leave()
         {
             var tcs = new TaskCompletionSource<bool>();
+
             OrchestratorController.Instance.LeaveSession();
+            Self.Session = null;
 
             tcs.SetResult(true);
             return tcs.Task;
@@ -59,16 +63,20 @@ namespace Orchestrator.App
 
         private void UserJoined(string userId, Data.User userData)
         {
-            _users.Add(new User(userData));
+            var joinedUser = new User(userData);
+            Users.Add(joinedUser);
+
+            OnUserJoined?.Invoke(joinedUser);
         }
 
         private void UserLeft(string userId)
         {
-            var userToRemove = _users.Find(user => user.Session.Id == Id);
+            var userToRemove = Users.Find(user => user.Id == Id);
 
             if (userToRemove != null)
             {
-                _users.Remove(userToRemove);
+                Users.Remove(userToRemove);
+                OnUserLeft?.Invoke(userToRemove);
             }
         }
     }
