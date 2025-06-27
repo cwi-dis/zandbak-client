@@ -1,0 +1,120 @@
+﻿using Newtonsoft.Json;
+
+namespace Orchestrator.Data {
+    public interface IOrchestratorResponseBody { }
+
+    // class that describes the status for the response from the orchestrator
+    public class ResponseStatus
+    {
+        public int Error;
+        public string Message;
+
+        public ResponseStatus(int error, string message)
+        {
+            Error = error;
+            Message = message;
+        }
+        public ResponseStatus() : this(0, "OK") { }
+    }
+
+    public class OrchestratorResponse<T>
+    {
+        [JsonProperty("error")] public int Error { get; set; }
+        [JsonProperty("message")] public string Message { get; set; }
+
+        [JsonProperty("body")] public T Body;
+
+        public ResponseStatus ResponseStatus => new(Error, Message);
+    }
+
+    public class EmptyResponse : IOrchestratorResponseBody {}
+
+    public class VersionResponse : IOrchestratorResponseBody {
+        [JsonProperty("orchestratorVersion")] public string OrchestratorVersion;
+    }
+
+    public class LoginResponse : IOrchestratorResponseBody {
+        [JsonProperty("userId")] public string UserId;
+    }
+
+    public class SessionUpdateEventData {
+        [JsonProperty("userId")] public string UserId;
+        [JsonProperty("userData")] public User UserData;
+    }
+
+    public class SessionUpdate {
+        [JsonProperty("eventId")] public string EventId;
+        [JsonProperty("eventData")] public SessionUpdateEventData EventData;
+    }
+
+    public class SceneEvent {
+        [JsonProperty("sceneEventFrom")] public string SceneEventFrom;
+    }
+
+    // class that stores a user data-stream packet incoming from the orchestrator
+    public class UserDataStreamPacket
+    {
+        [JsonProperty("dataStreamUserID")] public string UserId;
+        [JsonProperty("dataStreamType")] public string Type;
+        [JsonProperty("dataStreamDesc")] public string Description;
+        [JsonProperty("dataStreamPacket")] public byte[] Packet;
+
+        public UserDataStreamPacket() { }
+
+        public UserDataStreamPacket(string userId, string type, string description, byte[] packet)
+        {
+            if (packet == null) return;
+
+            UserId = userId;
+            Type = type;
+            Description = description;
+            Packet = packet;
+        }
+    }
+
+    // class that stores a user message incoming from the orchestrator
+    public class UserMessage
+    {
+        [JsonProperty("messageFrom")] public string FromId;
+        [JsonProperty("messageFromName")] public string FromName;
+        [JsonProperty("message")] public string Message;
+
+        public UserMessage() { }
+
+        public UserMessage(string fromId, string fromName, string message)
+        {
+            FromId = fromId;
+            FromName = fromName;
+            Message = message;
+        }
+    }
+
+    // class that stores a user event incoming from the orchestrator
+    // necessary new parameters welcomed
+    public class UserEvent
+    {
+        [JsonProperty("sceneEventFrom")] public string SceneEventFrom;
+        [JsonProperty("sceneEventData")] public string SceneEventData;
+
+        public UserEvent() { }
+
+        public UserEvent(string fromID, string message)
+        {
+            SceneEventFrom = fromID;
+            SceneEventData = message;
+        }
+    }
+
+    public class BroadcastData
+    {
+        [JsonProperty("channel")] public string Channel;
+        [JsonProperty("data")] public string Data;
+
+        public BroadcastData() { }
+
+        public BroadcastData(string channel, string data) {
+            Channel = channel;
+            Data = data;
+        }
+    }
+}

@@ -1,6 +1,6 @@
 ﻿using UnityEngine;
 using System.Collections.Generic;
-using Orchestrator.Responses;
+using Orchestrator.Data;
 
 namespace Orchestrator.Behaviour
 {
@@ -20,20 +20,20 @@ namespace Orchestrator.Behaviour
 
     public class AvatarNetworkBehaviour : NetworkBehaviour
     {
-        private SkinnedMeshRenderer mesh;
-        private Rigidbody parentRigidbody;
+        private SkinnedMeshRenderer _mesh;
+        private Rigidbody _parentRigidbody;
 
         // Use this for initialization
         void Start()
         {
             Initialize();
-            mesh = GetComponent<SkinnedMeshRenderer>();
+            _mesh = GetComponent<SkinnedMeshRenderer>();
 
-            if (!IsLocal) { 
-                parentRigidbody = GetComponentInParent<Rigidbody>();
+            if (!isLocal) { 
+                _parentRigidbody = GetComponentInParent<Rigidbody>();
 
-                if (parentRigidbody) {
-                    parentRigidbody.isKinematic = true;
+                if (_parentRigidbody) {
+                    _parentRigidbody.isKinematic = true;
                 }
             }
         }
@@ -42,7 +42,7 @@ namespace Orchestrator.Behaviour
         {
             var boneData = new Dictionary<string, BoneData>();
 
-            foreach (var bone in mesh.bones) {
+            foreach (var bone in _mesh.bones) {
                 boneData.Add(bone.name, new BoneData {
                     pos = new PositionData
                     {
@@ -61,7 +61,7 @@ namespace Orchestrator.Behaviour
             }
 
             return new AvatarMovementData {
-                userId = Id,
+                userId = id,
                 timestamp = Time.time,
                 bones = boneData
             };
@@ -69,12 +69,12 @@ namespace Orchestrator.Behaviour
 
         public override void OnBroadcastReceived(BroadcastData data)
         {
-            if (data.channel == "transform")
+            if (data.Channel == "transform")
             {
-                var movement = JsonUtility.FromJson<AvatarMovementData>(data.data);
+                var movement = JsonUtility.FromJson<AvatarMovementData>(data.Data);
 
-                if (movement.userId == Id) {
-                    foreach (var bone in mesh.bones) {
+                if (movement.userId == id) {
+                    foreach (var bone in _mesh.bones) {
                         if (movement.bones.TryGetValue(bone.name, out var foundBone)) {
                             bone.SetPositionAndRotation(new Vector3(
                                 foundBone.pos.x,

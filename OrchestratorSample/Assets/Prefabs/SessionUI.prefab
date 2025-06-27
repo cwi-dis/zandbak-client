@@ -1809,6 +1809,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   sessionDropdown: {fileID: 2793761738974563517}
+  sessionPrefab: {fileID: 6319405375226795595, guid: bb1a12149ce4343109c9e0721f5b1f59, type: 3}
 --- !u!1 &8106016454412842190
 GameObject:
   m_ObjectHideFlags: 0

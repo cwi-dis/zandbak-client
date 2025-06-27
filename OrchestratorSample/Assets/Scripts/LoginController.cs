@@ -1,6 +1,7 @@
 using UnityEngine;
 using Orchestrator.Wrapping;
 using TMPro;
+using UnityEngine.UI;
 
 public class LoginController : MonoBehaviour
 {
@@ -8,35 +9,37 @@ public class LoginController : MonoBehaviour
     public GameObject sessionSelector;
     public TMP_InputField usernameField;
     public TMP_InputField passwordField;
-    
-    // Start is called once before the first execution of Update after the MonoBehaviour is created
-    private void Start()
+    public Button loginButton;
+
+    private Orchestrator.App.Orchestrator _orchestrator;
+
+    private void Awake()
     {
-        OrchestratorController.Instance.SocketConnect(orchestratorURL);
+        loginButton.interactable = false;
     }
 
-    public void OnLoginClicked()
+    // Start is called once before the first execution of Update after the MonoBehaviour is created
+    private async void Start()
+    {
+        Debug.Log("Connecting to orchestrator at: " + orchestratorURL);
+        _orchestrator = await OrchestratorController.Instance.SocketConnectAsync(orchestratorURL);
+
+        Debug.Log("Connected to orchestrator.");
+        loginButton.interactable = true;
+
+        var version = await _orchestrator.GetOrchestratorVersion();
+        Debug.Log("Version " + version);
+    }
+
+    public async void OnLoginClicked()
     {
         var username = usernameField.text;
         var password = passwordField.text;
-        
+
         Debug.Log("Performing login using: " + username + " " + password);
 
-        OrchestratorController.Instance.OnLoginEvent = OnLoginResponse;
-
-        if (password != "")
-        {
-            OrchestratorController.Instance.Login(username, password);
-        }
-        else
-        {
-            OrchestratorController.Instance.Login(username);
-        }
-    }
-
-    private void OnLoginResponse(bool success, string userId)
-    {
-        Debug.Log("Login response: " + success + " " + userId);
+        var userId = await _orchestrator.Login(username, (password != "") ? password : null);
+        Debug.Log("Login successful. User ID: " + userId);
 
         Destroy(this.gameObject);
         Instantiate(sessionSelector);

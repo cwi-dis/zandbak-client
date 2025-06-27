@@ -1,78 +1,76 @@
 using UnityEngine;
-using System;
 using System.Collections.Generic;
 using Orchestrator.Wrapping;
-using Orchestrator.Elements;
+using Orchestrator.Data;
 using Orchestrator.Behaviour;
+using TMPro;
+using UnityEngine.Rendering;
 
 public class SessionController : MonoBehaviour
 {
-    public string OrchestratorURL = "";
-    public GameObject LocalPlayer;
-    public GameObject PlayerPrefab;
+    public GameObject playerPrefab;
+    public GameObject avatarPrefab;
+    public TMP_Text notificationField;
 
-    private Dictionary<string, GameObject> activeUsers = new Dictionary<string, GameObject>();
+    private Dictionary<string, GameObject> _activeUsers = new Dictionary<string, GameObject>();
 
     // Start is called once before the first execution of Update after the MonoBehaviour is created
-    void Start()
+    private void Start()
     {
-        OrchestratorController.Instance.SocketConnect(OrchestratorURL);
-
-        OrchestratorController.Instance.OnConnectionEvent += OnOrchestratorConnected;
-        OrchestratorController.Instance.OnLoginEvent += OnLoginComplete;
-        OrchestratorController.Instance.OnSessionsEvent += OnGetSessions;
-        OrchestratorController.Instance.OnAddSessionEvent += OnSessionReady;
         OrchestratorController.Instance.OnUserJoinSessionEvent += OnUserJoined;
         OrchestratorController.Instance.OnUserLeaveSessionEvent += OnUserLeft;
-    }
 
-    void OnOrchestratorConnected(bool connected) {
-        OrchestratorController.Instance.Login(Guid.NewGuid().ToString());
-    }
+        var user = OrchestratorController.Instance.SelfUser;
+        Debug.Log("Building session for user: " + user.Username + " " + user.UserType);
 
-    void OnLoginComplete(bool loggedIn, string userId) {
-        Debug.Log("Login complete, received user id " + userId);
-        var networkBehaviour = LocalPlayer.GetComponent<NetworkBehaviour>();
-        networkBehaviour.Id = userId;
-
-        OrchestratorController.Instance.GetSessions();
-    }
-
-    void OnGetSessions(Session[] sessions) {
-        if (sessions.Length == 0)
+        if (user.UserType == "presenter")
         {
-            Debug.Log("Creating new session 'test'");
-            OrchestratorController.Instance.AddSession("test");
+            var self = Instantiate(avatarPrefab, new Vector3(8, 0, 8), Quaternion.identity);
+            var avatar = self.GetComponentInChildren<AvatarNetworkBehaviour>();
+
+            avatar.id = user.Id;
+            avatar.isLocal = true;
+
+            var controller = self.GetComponent<PlayerWalk>();
+            controller.enabled = true;
         }
         else
         {
-            Debug.Log("Joining existing session with id " + sessions[0].sessionId);
-            OrchestratorController.Instance.JoinSession(sessions[0].sessionId);
+            var self = Instantiate(playerPrefab);
+
+            var player = self.GetComponent<PlayerNetworkBehaviour>();
+            player.id = user.Id;
+            player.isLocal = true;
+
+            var controller = self.GetComponent<PlayerController>();
+            controller.enabled = true;
         }
     }
 
-    void OnSessionReady(Session session) {
-        Debug.Log("Session ready:" + session.sessionName);
-    }
-
-    void OnUserJoined(string userId) {
-        var newPlayer = Instantiate(PlayerPrefab);
-        var networkBehaviour = newPlayer.GetComponent<PlayerNetworkBehaviour>();
-        networkBehaviour.Id = userId;
+    void OnUserJoined(string userId, User user)
+    {
+        var spawnPosition = new Vector3(
+            Random.Range(-8, 8),
+            0,
+            Random.Range(-8, 8)
+        );
+        var newPlayer = (user.UserType == "presenter") ? Instantiate(avatarPrefab) : Instantiate(playerPrefab, spawnPosition, Quaternion.identity);
+        var networkBehaviour = newPlayer.GetComponent<NetworkBehaviour>();
+        networkBehaviour.id = userId;
 
         Debug.Log("Spawning new user with id " + userId);
-        activeUsers.Add(userId, newPlayer);
+        notificationField.text += user.Username + " joined the session!\n";
+        _activeUsers.Add(userId, newPlayer);
     }
 
     void OnUserLeft(string userId) {
         Debug.Log("User " + userId + "left session");
-        GameObject obj;
 
-        if (activeUsers.TryGetValue(userId, out obj))
+        if (_activeUsers.TryGetValue(userId, out var obj))
         {
             Debug.Log("User found, removing and destroying player object");
 
-            activeUsers.Remove(userId);
+            _activeUsers.Remove(userId);
             Destroy(obj);
         }
         else

@@ -1,9 +1,7 @@
 ﻿using System.Collections.Generic;
-using Orchestrator.Responses;
-using Orchestrator.Elements;
 
 //Interfaces to be implemented to supervise the orchestrator
-namespace Orchestrator.Interfaces
+namespace Orchestrator.Data
 {
     public interface IOrchestratorConnectionListener
     {
@@ -13,22 +11,22 @@ namespace Orchestrator.Interfaces
         void OnSocketError(ResponseStatus message);
     }
 
-    // Interface to implement to listen the user messages emitted spontaneously
+    // Interface to implement to listen for user messages emitted spontaneously
     // by the orchestrator
     public interface IUserMessagesListener
     {
         void OnUserMessageReceived(UserMessage userMessage);
-        void OnMasterEventReceived(UserEvent pSceneEventData);
-        void OnUserEventReceived(UserEvent pSceneEventData);
         void OnBroadcastReceived(BroadcastData broadcastData);
     }
 
-    // Interface to implement to listen the user events emitted spontaneously
+    // Interface to implement to listen for user events emitted spontaneously
     // from the session updates by the orchestrator
     public interface IUserSessionEventsListener
     {
         void OnUserJoinedSession(string userID, User user);
         void OnUserLeftSession(string userID);
+        void OnUserRaisedHand(string userId);
+        void OnUserClearedRaisedHand(string userId);
     }
 
     // Interface for clients that will use the orchestrator wrapper
@@ -53,9 +51,9 @@ namespace Orchestrator.Interfaces
         void OnDeleteSessionResponse(ResponseStatus status);
         void OnJoinSessionResponse(ResponseStatus status, Session session);
         void OnLeaveSessionResponse(ResponseStatus status);
-        void OnUpdateUserDataJsonResponse(ResponseStatus status);
 
         void OnSendMessageResponse(ResponseStatus status);
+        void OnRaiseHandResponse(ResponseStatus status);
         void OnSendMessageToAllResponse(ResponseStatus status);
 
     }
