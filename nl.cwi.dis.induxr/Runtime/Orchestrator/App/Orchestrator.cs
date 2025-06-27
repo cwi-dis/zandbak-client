@@ -112,7 +112,7 @@ namespace Orchestrator.App
             Action<Data.Session[]> fn = null;
             fn = (sessions) =>
             {
-                Sessions = sessions.Select(session => new Session(session)).ToList();
+                Sessions = sessions.Select(session => new Session(this, session)).ToList();
                 tcs.SetResult(Sessions);
                 OrchestratorController.Instance.OnSessionsEvent -= fn;
             };
@@ -130,7 +130,7 @@ namespace Orchestrator.App
             Action<Data.Session> fn = null;
             fn = (session) =>
             {
-                CurrentSession = new Session(session);
+                CurrentSession = new Session(this, session);
                 CurrentUser.Session = CurrentSession;
 
                 tcs.SetResult(CurrentSession);

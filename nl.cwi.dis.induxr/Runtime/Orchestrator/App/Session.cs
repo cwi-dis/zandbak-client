@@ -7,6 +7,7 @@ namespace Orchestrator.App
 {
     public class Session
     {
+        private readonly Orchestrator _orchestrator;
         private Data.Session _sessionData;
         private List<User> _users;
 
@@ -14,9 +15,10 @@ namespace Orchestrator.App
         public string Name => _sessionData.Name;
         public List<User> Users => _users;
 
-        public Session(Data.Session sessionData)
+        public Session(Orchestrator orchestrator, Data.Session sessionData)
         {
             _sessionData = sessionData;
+            _orchestrator = orchestrator;
 
             OrchestratorController.Instance.OnUserJoinSessionEvent += UserJoined;
             OrchestratorController.Instance.OnUserLeaveSessionEvent += UserLeft;
