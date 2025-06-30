@@ -189,6 +189,27 @@ namespace Orchestrator.App
             return tcs.Task;
         }
 
+        /// <summary>
+        /// Initiates a "raise hand" action for the current user and waits for the Orchestrator's acknowledgement.
+        /// </summary>
+        /// <returns>A task that represents the asynchronous operation. The task result contains the user ID of the user who raised their hand.</returns>
+        public Task<string> RaiseHand()
+        {
+            var tcs = new TaskCompletionSource<string>();
+
+            Action<string> fn = null;
+            fn = (userId) =>
+            {
+                tcs.SetResult(userId);
+                OrchestratorController.Instance.OnUserRaisedHandEvent -= fn;
+            };
+
+            OrchestratorController.Instance.OnUserRaisedHandEvent += fn;
+            OrchestratorController.Instance.RaiseHand();
+
+            return tcs.Task;
+        }
+
         private void UserJoined(string userId, Data.User userData)
         {
             var joinedUser = new User(userData);

@@ -64,78 +64,97 @@ namespace Orchestrator.Wrapping
         /// Invoked when an error occurs, with the error object as an argument
         /// </summary>
         public event Action<ResponseStatus> OnErrorEvent;
+
         /// <summary>
         /// Invoked whenever a new connection is attempted
         /// </summary>
         public event Action OnConnectingEvent;
+
         /// <summary>
         /// Invoked whenever a new connection is established
         /// </summary>
         public event Action<bool> OnConnectionEvent;
+
         /// <summary>
         /// Invoked when the Orchestrator's current version is requested, with the version as an argument
         /// </summary>
         public event Action<string> OnGetOrchestratorVersionEvent;
+
         /// <summary>
         /// Invoked when the current user logs into the Orchestrator, with a boolean indicating success and the user's ID as arguments
         /// </summary>
         public event Action<bool, string> OnLoginEvent;
+
         /// <summary>
         /// Invoked when the current user logs out of the Orchestrator, with a boolean indicating success as argument
         /// </summary>
         public event Action<bool> OnLogoutEvent;
+
         /// <summary>
         /// Invoked when the current NTP time is received, with the NTP time as argument
         /// </summary>
         public event Action<NtpClock> OnGetNtpTimeEvent;
+
         /// <summary>
         /// Invoked when a list of sessions has been requested with the list of sessions as argument
         /// </summary>
         public event Action<Session[]> OnSessionsEvent;
+
         /// <summary>
         /// Invoked when information about the current session has been requested, with the session information as argument
         /// </summary>
         public event Action<Session> OnSessionInfoEvent;
+
         /// <summary>
         /// Invoked when a new session has been created, with the session information as argument
         /// </summary>
         public event Action<Session> OnAddSessionEvent;
+
         /// <summary>
         /// Invoked when a given session has been joined successfully, with the session information as argument
         /// </summary>
         public event Action<Session> OnJoinSessionEvent;
+
         /// <summary>
         /// Invoked when a new user joins the current session, with the user ID as argument
         /// </summary>
         public event Action<string, User> OnUserJoinSessionEvent;
+
         /// <summary>
         /// Invoked when a user leaves the current session, with the user ID as argument
         /// </summary>
         public event Action<string> OnUserLeaveSessionEvent;
+
         /// <summary>
         /// Invoked when a user raises their hand in the current session, with the user ID as argument
         /// </summary>
         public event Action<string> OnUserRaisedHandEvent;
+
         /// <summary>
         /// Invoked when a user's raised hand is cleared in the current session, with the user ID as argument
         /// </summary>
         public event Action<string> OnUserClearedRaisedHandEvent;
+
         /// <summary>
         /// Invoked when the status of the current session changes
         /// </summary>
         public event Action<string> OnSessionStatusChangedEvent;
+
         /// <summary>
         /// Invoked when the current presentation of the current session changes
         /// </summary>
         public event Action<Presentation> OnSessionPresentationChangedEvent;
+
         /// <summary>
         /// Invoked when the current presentation's slide of the current session changes
         /// </summary>
         public event Action<Presentation> OnSessionPresentationSlideChangedEvent;
+
         /// <summary>
         /// Invoked when a message is received in the current session
         /// </summary>
         public event Action<UserMessage> OnUserMessageReceivedEvent;
+
         // Orchestrator User Messages Events
         /// <summary>
         /// Invoked when a broadcast is received in the current session
