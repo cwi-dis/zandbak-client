@@ -226,7 +226,7 @@ namespace Orchestrator.App
                 Action<Data.Session> fn = null;
                 fn = (session) =>
                 {
-                    sessionToJoin.Update(session);
+                    sessionToJoin.SessionData = session;
                     CurrentSession = sessionToJoin;
                     Self.Session = CurrentSession;
 

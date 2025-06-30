@@ -12,6 +12,10 @@ namespace Orchestrator.App
         private readonly Orchestrator _orchestrator;
         private Data.Session _sessionData;
 
+        public Data.Session SessionData {
+            set => _sessionData = value;
+        }
+
         public string Id => _sessionData.Id;
         public string Name => _sessionData.Name;
         public string Status => _sessionData.Status;
@@ -79,11 +83,6 @@ namespace Orchestrator.App
             OrchestratorController.Instance.OnSessionPresentationChangedEvent += PresentationChanged;
             OrchestratorController.Instance.OnSessionPresentationSlideChangedEvent += PresentationSlideChanged;
             OrchestratorController.Instance.OnSessionStatusChangedEvent += SessionStatusChanged;
-        }
-
-        public void Update(Data.Session sessionData)
-        {
-            _sessionData = sessionData;
         }
 
         /// <summary>
