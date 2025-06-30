@@ -61,5 +61,7 @@ namespace Orchestrator.Data
 
         void OnGoToNextPresentationResponse(ResponseStatus status, Presentation presentation);
         void OnChangeSlideResponse(ResponseStatus status, Presentation presentation);
+
+        void OnChangeStatusResponse(ResponseStatus status, string sessionStatus);
     }
 }

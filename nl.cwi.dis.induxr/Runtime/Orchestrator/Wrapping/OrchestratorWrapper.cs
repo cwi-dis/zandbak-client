@@ -365,6 +365,21 @@ namespace Orchestrator.Wrapping {
             }
         }
 
+        public void SetSessionStatus(string status)
+        {
+            lock (this)
+            {
+                _socket.Emit("ChangeSlide", (response) =>
+                {
+                    var data = response.GetValue<OrchestratorResponse<StatusResponse>>();
+
+                    UnityThread.executeInUpdate(() => {
+                        _responsesListener?.OnChangeStatusResponse(data.ResponseStatus, data.Body.Status);
+                    });
+                }, new { status });
+            }
+        }
+
         #endregion
 
         #region broadcasts

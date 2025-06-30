@@ -599,6 +599,22 @@ namespace Orchestrator.Wrapping
             }
         }
 
+        /// <summary>
+        /// Updates the current session's status using the specified status string.
+        /// </summary>
+        /// <param name="status">The new status to be applied to the session.</param>
+        public void ChangeSessionStatus(string status)
+        {
+            _orchestratorWrapper.SetSessionStatus(status);
+        }
+
+        void IOrchestratorResponsesListener.OnChangeStatusResponse(ResponseStatus status, string sessionStatus)
+        {
+            if (status.Error != 0) {
+                OnErrorEvent?.Invoke(status);
+            }
+        }
+
         void IOrchestratorResponsesListener.OnLeaveSessionResponse(ResponseStatus status) {
             if (status.Error != 0) {
                 OnErrorEvent?.Invoke(status);
