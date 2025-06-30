@@ -397,34 +397,93 @@ namespace Orchestrator.Wrapping {
 
         private void OnSessionUpdated(SocketIOResponse response) {
             lock (this) {
-                var data = response.GetValue<SessionUpdate>();
-
-                if (data.EventData.UserId == _myUserID) {
-                    return;
-                }
+                var data = response.GetValue<SessionUpdate<SessionUpdateEmptyData>>();
 
                 switch (data.EventId) {
                     case "USER_JOINED_SESSION":
-                        UnityThread.executeInUpdate(() => {
-                            _userSessionEventListener?.OnUserJoinedSession(data.EventData.UserId, data.EventData.UserData);
-                        });
-                        break;
                     case "USER_LEFT_SESSION":
-                        UnityThread.executeInUpdate(() => {
-                            _userSessionEventListener?.OnUserLeftSession(data.EventData.UserId);
-                        });
-                        break;
                     case "USER_RAISED_HAND":
-                        UnityThread.executeInUpdate(() => {
-                            _userSessionEventListener?.OnUserRaisedHand(data.EventData.UserId);
-                        });
-                        break;
                     case "USER_CLEARED_RAISED_HAND":
-                        UnityThread.executeInUpdate(() => {
-                            _userSessionEventListener?.OnUserClearedRaisedHand(data.EventData.UserId);
-                        });
+                        OnSessionUpdatedWithUserData(response);
+                        break;
+                    case "PRESENTATION_CHANGED":
+                    case "SLIDE_CHANGED":
+                        OnSessionUpdatedWithPresentationData(response);
+                        break;
+                    case "SESSION_STATUS_CHANGED":
+                        OnSessionUpdatedWithStatusData(response);
                         break;
                 }
+            }
+        }
+
+        private void OnSessionUpdatedWithStatusData(SocketIOResponse response)
+        {
+            var data = response.GetValue<SessionUpdate<SessionUpdateStatusData>>();
+
+            UnityThread.executeInUpdate(() =>
+            {
+                _userSessionEventListener?.OnSessionStatusChanged(data.EventData.Status);
+            });
+        }
+
+        private void OnSessionUpdatedWithPresentationData(SocketIOResponse response)
+        {
+            var data = response.GetValue<SessionUpdate<SessionUpdatePresentationData>>();
+
+            switch (data.EventId)
+            {
+                case "PRESENTATION_CHANGED":
+                    UnityThread.executeInUpdate(() =>
+                    {
+                        _userSessionEventListener?.OnPresentationChanged(data.EventData.Presentation);
+                    });
+                    break;
+                case "SLIDE_CHANGED":
+                    UnityThread.executeInUpdate(() =>
+                    {
+                        _userSessionEventListener?.OnSlideChanged(data.EventData.Presentation);
+                    });
+                    break;
+            }
+        }
+
+        private void OnSessionUpdatedWithUserData(SocketIOResponse response)
+        {
+            var data = response.GetValue<SessionUpdate<SessionUpdateUserData>>();
+            var eventData = data.EventData;
+
+            if (eventData.UserId == _myUserID) {
+                return;
+            }
+
+            switch (data.EventId)
+            {
+                case "USER_JOINED_SESSION":
+                    UnityThread.executeInUpdate(() =>
+                    {
+                        _userSessionEventListener?.OnUserJoinedSession(eventData.UserId,
+                            data.EventData.UserData);
+                    });
+                    break;
+                case "USER_LEFT_SESSION":
+                    UnityThread.executeInUpdate(() =>
+                    {
+                        _userSessionEventListener?.OnUserLeftSession(eventData.UserId);
+                    });
+                    break;
+                case "USER_RAISED_HAND":
+                    UnityThread.executeInUpdate(() =>
+                    {
+                        _userSessionEventListener?.OnUserRaisedHand(eventData.UserId);
+                    });
+                    break;
+                case "USER_CLEARED_RAISED_HAND":
+                    UnityThread.executeInUpdate(() =>
+                    {
+                        _userSessionEventListener?.OnUserClearedRaisedHand(eventData.UserId);
+                    });
+                    break;
             }
         }
 
