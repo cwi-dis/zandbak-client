@@ -122,6 +122,15 @@ namespace Orchestrator.Data
         [JsonProperty("timestamp")] public string Timestamp;
     }
 
+    public class Presentation : OrchestratorElement
+    {
+        [JsonProperty("name")] public string Name;
+        [JsonProperty("description")] public string Description;
+        [JsonProperty("presenter")] public string Presenter;
+        [JsonProperty("slidesUrl")] public string SlidesURL;
+        [JsonProperty("currentSlide")] public int CurrentSlide;
+    }
+
     public class Session : OrchestratorElement
     {
         [JsonProperty("sessionId")] public string Id;
