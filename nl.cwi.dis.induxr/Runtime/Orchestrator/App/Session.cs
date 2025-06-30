@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 using Orchestrator.Data;
 using Orchestrator.Wrapping;
@@ -15,7 +16,7 @@ namespace Orchestrator.App
         public string Name => _sessionData.Name;
         public string Status => _sessionData.Status;
 
-        public List<Presentation> Presentations { get; } = new();
+        public List<Presentation> Presentations => _sessionData.Presentations.ToList();
         public Presentation CurrentPresentation;
 
         public List<User> Users { get; } = new();

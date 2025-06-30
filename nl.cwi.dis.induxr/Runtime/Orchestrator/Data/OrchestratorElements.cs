@@ -146,6 +146,7 @@ namespace Orchestrator.Data
         [JsonProperty("sessionChat")] public ChatMessage[] Chat;
         [JsonProperty("sessionRaisedHands")] public User[] RaisedHands;
         [JsonProperty("sessionCurrentPresentation")] public Presentation CurrentPresentation;
+        [JsonProperty("sessionPresentations")] public Presentation[] Presentations;
         [JsonProperty("sessionStatus")] public string Status;
 
         public override string GetId()
