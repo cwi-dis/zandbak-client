@@ -37,14 +37,28 @@ namespace Orchestrator.Data {
         [JsonProperty("userId")] public string UserId;
     }
 
-    public class SessionUpdateEventData {
+    public class SessionUpdateUserData {
         [JsonProperty("userId")] public string UserId;
         [JsonProperty("userData")] public User UserData;
     }
 
-    public class SessionUpdate {
+    public class SessionUpdatePresentationData {
+        [JsonProperty("currentPresentation")] public Presentation Presentation;
+    }
+
+    public class SessionUpdateStatusData
+    {
+        [JsonProperty("status")] public string Status;
+    }
+
+    public class SessionUpdateEmptyData
+    {
+
+    }
+
+    public class SessionUpdate<T> {
         [JsonProperty("eventId")] public string EventId;
-        [JsonProperty("eventData")] public SessionUpdateEventData EventData;
+        [JsonProperty("eventData")] public T EventData;
     }
 
     public class SceneEvent {
