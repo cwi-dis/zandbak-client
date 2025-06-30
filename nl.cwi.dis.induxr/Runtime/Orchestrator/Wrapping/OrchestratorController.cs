@@ -121,6 +121,18 @@ namespace Orchestrator.Wrapping
         /// </summary>
         public event Action<string> OnUserClearedRaisedHandEvent;
         /// <summary>
+        /// Invoked when the status of the current session changes
+        /// </summary>
+        public event Action<string> OnSessionStatusChangedEvent;
+        /// <summary>
+        /// Invoked when the current presentation of the current session changes
+        /// </summary>
+        public event Action<Presentation> OnSessionPresentationChangedEvent;
+        /// <summary>
+        /// Invoked when the current presentation's slide of the current session changes
+        /// </summary>
+        public event Action<Presentation> OnSessionPresentationSlideChangedEvent;
+        /// <summary>
         /// Invoked when a message is received in the current session
         /// </summary>
         public event Action<UserMessage> OnUserMessageReceivedEvent;
@@ -628,6 +640,24 @@ namespace Orchestrator.Wrapping
         {
             _orchestratorWrapper.GetSessionInfo();
             OnUserClearedRaisedHandEvent?.Invoke(userID);
+        }
+
+        void IUserSessionEventsListener.OnSessionStatusChanged(string status)
+        {
+            _orchestratorWrapper.GetSessionInfo();
+            OnSessionStatusChangedEvent?.Invoke(status);
+        }
+
+        void IUserSessionEventsListener.OnPresentationChanged(Presentation presentation)
+        {
+            _orchestratorWrapper.GetSessionInfo();
+            OnSessionPresentationChangedEvent?.Invoke(presentation);
+        }
+
+        void IUserSessionEventsListener.OnSlideChanged(Presentation presentation)
+        {
+            _orchestratorWrapper.GetSessionInfo();
+            OnSessionPresentationSlideChangedEvent?.Invoke(presentation);
         }
 
         #endregion
