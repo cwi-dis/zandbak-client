@@ -567,6 +567,38 @@ namespace Orchestrator.Wrapping
             _orchestratorWrapper.LeaveSession();
         }
 
+        /// <summary>
+        /// Advances the current presentation to the next slide.
+        /// This method triggers the associated functionality in the OrchestratorWrapper.
+        /// </summary>
+        public void GoToNextPresentation()
+        {
+            _orchestratorWrapper.GoToNextPresentation();
+        }
+
+        void IOrchestratorResponsesListener.OnGoToNextPresentationResponse(ResponseStatus status, Presentation presentation)
+        {
+            if (status.Error != 0) {
+                OnErrorEvent?.Invoke(status);
+            }
+        }
+
+        /// <summary>
+        /// Changes the current slide in the current session presentation by the specified offset.
+        /// </summary>
+        /// <param name="slideOffset">The offset to apply to the current slide. A positive value moves forward, a negative value moves backward.</param>
+        public void ChangeSlide(int slideOffset)
+        {
+            _orchestratorWrapper.ChangeSlide(slideOffset);
+        }
+
+        void IOrchestratorResponsesListener.OnChangeSlideResponse(ResponseStatus status, Presentation presentation)
+        {
+            if (status.Error != 0) {
+                OnErrorEvent?.Invoke(status);
+            }
+        }
+
         void IOrchestratorResponsesListener.OnLeaveSessionResponse(ResponseStatus status) {
             if (status.Error != 0) {
                 OnErrorEvent?.Invoke(status);
