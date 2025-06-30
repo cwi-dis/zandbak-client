@@ -29,7 +29,7 @@ namespace Orchestrator.Data
         void OnUserClearedRaisedHand(string userId);
         void OnSessionStatusChanged(string status);
         void OnPresentationChanged(Presentation presentation);
-        void OnSlideChanged(int slideIndex);
+        void OnSlideChanged(Presentation presentation);
     }
 
     // Interface for clients that will use the orchestrator wrapper
