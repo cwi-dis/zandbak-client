@@ -37,6 +37,12 @@ namespace Orchestrator.Data {
         [JsonProperty("userId")] public string UserId;
     }
 
+    public class PresentationResponse : IOrchestratorResponseBody
+    {
+        [JsonProperty("sessionId")] public string SessionId;
+        [JsonProperty("sessionCurrentPresentation")] public Presentation Presentation;
+    }
+
     public class SessionUpdateUserData {
         [JsonProperty("userId")] public string UserId;
         [JsonProperty("userData")] public User UserData;
@@ -53,7 +59,6 @@ namespace Orchestrator.Data {
 
     public class SessionUpdateEmptyData
     {
-
     }
 
     public class SessionUpdate<T> {
