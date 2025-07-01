@@ -236,7 +236,7 @@ namespace Orchestrator.App
         /// Joins the session with the specified ID asynchronously.
         /// </summary>
         /// <param name="sessionId">The ID of the session to be joined.</param>
-        /// <returns>A task that represents the asynchronous operation. The task result contains the an object representing the joined session.</returns>
+        /// <returns>A task that represents the asynchronous operation. The task result contains an object representing the joined session.</returns>
         public Task<Session> JoinSession(string sessionId)
         {
             var tcs = new TaskCompletionSource<Session>();

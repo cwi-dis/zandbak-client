@@ -349,6 +349,21 @@ namespace Orchestrator.Wrapping {
             }
         }
 
+        public void ClearRaisedHand(string userId)
+        {
+            lock (this)
+            {
+                _socket.Emit("ClearRaisedHand", (response) =>
+                {
+                    var data = response.GetValue<OrchestratorResponse<EmptyResponse>>();
+
+                    UnityThread.executeInUpdate(() => {
+                        _responsesListener?.OnClearRaisedHandResponse(data.ResponseStatus);
+                    });
+                }, new { userId });
+            }
+        }
+
         public void GoToNextPresentation()
         {
             lock (this)

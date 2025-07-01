@@ -193,19 +193,43 @@ namespace Orchestrator.App
         /// Initiates a "raise hand" action for the current user and waits for the Orchestrator's acknowledgement.
         /// </summary>
         /// <returns>A task that represents the asynchronous operation. The task result contains the user ID of the user who raised their hand.</returns>
-        public Task<string> RaiseHand()
+        public Task<bool> RaiseHand()
         {
-            var tcs = new TaskCompletionSource<string>();
+            var tcs = new TaskCompletionSource<bool>();
 
-            Action<string> fn = null;
-            fn = (userId) =>
+            Action fn = null;
+            fn = () =>
             {
-                tcs.SetResult(userId);
-                OrchestratorController.Instance.OnUserRaisedHandEvent -= fn;
+                tcs.SetResult(true);
+                OrchestratorController.Instance.OnRaisedHandEvent -= fn;
             };
 
-            OrchestratorController.Instance.OnUserRaisedHandEvent += fn;
+            OrchestratorController.Instance.OnRaisedHandEvent += fn;
             OrchestratorController.Instance.RaiseHand();
+
+            return tcs.Task;
+        }
+
+
+        /// <summary>
+        /// Clears the raised hand status of a user in the session. This will trigger an event
+        /// when the operation is completed.
+        /// </summary>
+        /// <param name="userId">The unique identifier of the user whose raised hand status is to be cleared.</param>
+        /// <returns>A task that represents the asynchronous operation. The task result indicates whether the operation was successful.</returns>
+        public Task<bool> ClearRaisedHand(string userId)
+        {
+            var tcs = new TaskCompletionSource<bool>();
+
+            Action fn = null;
+            fn = () =>
+            {
+                tcs.SetResult(true);
+                OrchestratorController.Instance.OnClearRaisedHandEvent -= fn;
+            };
+
+            OrchestratorController.Instance.OnClearRaisedHandEvent += fn;
+            OrchestratorController.Instance.ClearRaisedHand(userId);
 
             return tcs.Task;
         }

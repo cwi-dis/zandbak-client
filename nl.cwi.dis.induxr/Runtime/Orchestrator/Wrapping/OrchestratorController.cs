@@ -116,6 +116,16 @@ namespace Orchestrator.Wrapping
         public event Action<Session> OnJoinSessionEvent;
 
         /// <summary>
+        /// Invoked in response to the current user in the session raising their hand
+        /// </summary>
+        public event Action OnRaisedHandEvent;
+
+        /// <summary>
+        /// Invoked in response to the current user clearing a raised hand
+        /// </summary>
+        public event Action OnClearRaisedHandEvent;
+
+        /// <summary>
         /// Invoked when a new user joins the current session, with the user ID as argument
         /// </summary>
         public event Action<string, User> OnUserJoinSessionEvent;
@@ -126,7 +136,7 @@ namespace Orchestrator.Wrapping
         public event Action<string> OnUserLeaveSessionEvent;
 
         /// <summary>
-        /// Invoked when a user raises their hand in the current session, with the user ID as argument
+        /// Invoked when a user in the session raises their hand, with the user ID as argument
         /// </summary>
         public event Action<string> OnUserRaisedHandEvent;
 
@@ -755,7 +765,30 @@ namespace Orchestrator.Wrapping
         {
             if (status.Error != 0) {
                 OnErrorEvent?.Invoke(status);
+                return;
             }
+
+            OnRaisedHandEvent?.Invoke();
+        }
+
+        /// <summary>
+        /// Clears a user's raised hand, identified by the given user ID. Users can only clear their own raised hand.
+        /// Admins and presenters can clear anyone's raised hands.
+        /// </summary>
+        /// <param name="userId">The ID of the user whose raised hand shall be cleared</param>
+        public void ClearRaisedHand(string userId)
+        {
+            _orchestratorWrapper.ClearRaisedHand(userId);
+        }
+
+        void IOrchestratorResponsesListener.OnClearRaisedHandResponse(ResponseStatus status)
+        {
+            if (status.Error != 0) {
+                OnErrorEvent?.Invoke(status);
+                return;
+            }
+
+            OnClearRaisedHandEvent?.Invoke();
         }
 
         /// <summary>

@@ -57,6 +57,7 @@ namespace Orchestrator.Data
 
         void OnSendMessageResponse(ResponseStatus status);
         void OnRaiseHandResponse(ResponseStatus status);
+        void OnClearRaisedHandResponse(ResponseStatus status);
         void OnSendMessageToAllResponse(ResponseStatus status);
 
         void OnGoToNextPresentationResponse(ResponseStatus status, Presentation presentation);
