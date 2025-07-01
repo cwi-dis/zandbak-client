@@ -222,6 +222,20 @@ namespace Orchestrator.Wrapping {
             }
         }
 
+        public void ScheduleSession(string sessionId) {
+            lock (this) {
+                _socket.Emit("ScheduleSession", (response) => {
+                    var data = response.GetValue<OrchestratorResponse<Session>>();
+
+                    UnityThread.executeInUpdate(() => {
+                        _responsesListener?.OnAddSessionResponse(data.ResponseStatus, data.Body);
+                    });
+                }, new {
+                    sessionId
+                });
+            }
+        }
+
         public void GetSessions() {
             lock (this) {
                 _socket.Emit("GetSessions", (response) => {
