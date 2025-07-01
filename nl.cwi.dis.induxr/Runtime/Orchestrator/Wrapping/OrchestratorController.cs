@@ -126,9 +126,14 @@ namespace Orchestrator.Wrapping
         public event Action OnClearRaisedHandEvent;
 
         /// <summary>
-        /// Invoked in response to the current user requesting the list of raised hands. Receives a list of users as argument
+        /// Invoked in response to the current user requesting the list of raised hands. Receives a list of users as an argument
         /// </summary>
         public event Action<List<User>> OnGetRaisedHandsEvent;
+
+        /// <summary>
+        /// Invoked in response to the current user requesting the list of chat messages. Receives a list of chat messages as an argument
+        /// </summary>
+        public event Action<List<ChatMessage>> OnGetMessagesEvent;
 
         /// <summary>
         /// Invoked when a new user joins the current session, with the user ID as argument
@@ -846,6 +851,28 @@ namespace Orchestrator.Wrapping
 
         void IUserMessagesListener.OnUserMessageReceived(ChatMessage userMessage) {
             OnUserMessageReceivedEvent?.Invoke(userMessage);
+        }
+
+        /// <summary>
+        /// Retrieves the recent chat messages from the orchestrator.
+        /// </summary>
+        /// <param name="count">The number of messages to retrieve.</param>
+        public void GetMessages(int count)
+        {
+            _orchestratorWrapper.GetMessages(count);
+        }
+
+        /// <summary>
+        /// Retrieves all chat messages from the orchestrator.
+        /// </summary>
+        public void GetMessages()
+        {
+            _orchestratorWrapper.GetMessages();
+        }
+
+        void IOrchestratorResponsesListener.OnGetMessagesResponse(ResponseStatus status, List<ChatMessage> messages)
+        {
+            OnGetMessagesEvent?.Invoke(messages);
         }
 
         #endregion

@@ -329,11 +329,23 @@ namespace Orchestrator.App
             return tcs.Task;
         }
 
-        public Task<List<ChatMessage>> GetChat()
+        /// <summary>
+        /// Retrieves the chat messages for the current session.
+        /// </summary>
+        /// <returns>A task that represents the asynchronous operation. The task result contains a list of chat messages.</returns>
+        public Task<List<ChatMessage>> GetChatMessages()
         {
             var tcs = new TaskCompletionSource<List<ChatMessage>>();
 
-            /// XXX IMPLEMENT ME
+            Action<List<ChatMessage>> fn = null;
+            fn = (messages) =>
+            {
+                tcs.SetResult(messages);
+                OrchestratorController.Instance.OnGetMessagesEvent -= fn;
+            };
+
+            OrchestratorController.Instance.OnGetMessagesEvent += fn;
+            OrchestratorController.Instance.GetMessages();
 
             return tcs.Task;
         }

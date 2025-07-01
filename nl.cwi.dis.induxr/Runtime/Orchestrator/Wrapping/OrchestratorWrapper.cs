@@ -334,6 +334,34 @@ namespace Orchestrator.Wrapping {
             }
         }
 
+        public void GetMessages()
+        {
+            lock (this) {
+                _socket.Emit("GetMessages", (response) => {
+                    var data = response.GetValue<OrchestratorResponse<List<ChatMessage>>>();
+
+                    UnityThread.executeInUpdate(() => {
+                        _responsesListener?.OnGetMessagesResponse(data.ResponseStatus, data.Body);
+                    });
+                }, new {});
+            }
+        }
+
+        public void GetMessages(int count)
+        {
+            lock (this) {
+                _socket.Emit("GetMessages", (response) => {
+                    var data = response.GetValue<OrchestratorResponse<List<ChatMessage>>>();
+
+                    UnityThread.executeInUpdate(() => {
+                        _responsesListener?.OnGetMessagesResponse(data.ResponseStatus, data.Body);
+                    });
+                }, new {
+                    count
+                });
+            }
+        }
+
         public void RaiseHand()
         {
             lock (this)
