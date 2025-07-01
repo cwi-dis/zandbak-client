@@ -23,7 +23,8 @@ namespace Orchestrator.App
         public List<Presentation> Presentations => _sessionData.Presentations.ToList();
         public Presentation CurrentPresentation;
 
-        public List<User> Users { get; } = new();
+        public List<User> RaisedHands { get; private set; }
+        public List<User> Users { get; private set; }
         public User Self => _orchestrator.Self;
 
         /// <summary>
@@ -73,16 +74,42 @@ namespace Orchestrator.App
         /// </remarks>
         public event Action<string> OnSessionStatusChanged;
 
+        /// <summary>
+        /// Occurs when a user raised their hand
+        /// </summary>
+        /// <remarks>
+        /// This event is triggered whenever a user in the session raises their hand. The event provides the user that
+        /// raised their hand as an argument.
+        /// </remarks>
+        public event Action<User> OnUserRaisedHand;
+
+        /// <summary>
+        /// Occurs when a raised hand has been cleared.
+        /// </summary>
+        /// <remarks>
+        /// This event is triggered whenever a user's raised hand in the session is cleared. The event provides the
+        /// user that raised their hand as an argument.
+        /// </remarks>
+        public event Action<User> OnUserClearedRaisedHand;
+
         public Session(Orchestrator orchestrator, Data.Session sessionData)
         {
             _sessionData = sessionData;
             _orchestrator = orchestrator;
 
+            Users = _sessionData.UserDefinitions.Select(u => new User(u)).ToList();
+            RaisedHands = _sessionData.RaisedHands.Select(u => new User(u)).ToList();
+
             OrchestratorController.Instance.OnUserJoinSessionEvent += UserJoined;
             OrchestratorController.Instance.OnUserLeaveSessionEvent += UserLeft;
+
             OrchestratorController.Instance.OnSessionPresentationChangedEvent += PresentationChanged;
             OrchestratorController.Instance.OnSessionPresentationSlideChangedEvent += PresentationSlideChanged;
+
             OrchestratorController.Instance.OnSessionStatusChangedEvent += SessionStatusChanged;
+
+            OrchestratorController.Instance.OnUserRaisedHandEvent += UserRaisedHand;
+            OrchestratorController.Instance.OnUserClearedRaisedHandEvent += UserClearedRaisedHand;
         }
 
         /// <summary>
@@ -201,6 +228,7 @@ namespace Orchestrator.App
             fn = () =>
             {
                 tcs.SetResult(true);
+                GetRaisedHands();
                 OrchestratorController.Instance.OnRaisedHandEvent -= fn;
             };
 
@@ -221,7 +249,9 @@ namespace Orchestrator.App
             Action<List<Data.User>> fn = null;
             fn = (users) =>
             {
-                tcs.SetResult(users.Select((u) => new User(u)).ToList());
+                RaisedHands = users.Select((u) => new User(u)).ToList();
+                tcs.SetResult(RaisedHands);
+
                 OrchestratorController.Instance.OnGetRaisedHandsEvent -= fn;
             };
 
@@ -245,6 +275,7 @@ namespace Orchestrator.App
             fn = () =>
             {
                 tcs.SetResult(true);
+                GetRaisedHands();
                 OrchestratorController.Instance.OnClearRaisedHandEvent -= fn;
             };
 
@@ -257,7 +288,11 @@ namespace Orchestrator.App
         private void UserJoined(string userId, Data.User userData)
         {
             var joinedUser = new User(userData);
-            Users.Add(joinedUser);
+
+            if (Users.Find(u => u.Id == userId) == null)
+            {
+                Users.Add(joinedUser);
+            }
 
             OnUserJoined?.Invoke(joinedUser);
         }
@@ -289,6 +324,21 @@ namespace Orchestrator.App
         {
             _sessionData.Status = status;
             OnSessionStatusChanged?.Invoke(status);
+        }
+
+        private async void UserRaisedHand(string userId)
+        {
+            var users = await GetRaisedHands();
+            var raisedHandUser = users.Find(u => u.Id == userId);
+            OnUserRaisedHand?.Invoke(raisedHandUser);
+        }
+
+        private void UserClearedRaisedHand(string userId)
+        {
+            GetRaisedHands();
+
+            var clearedRaisedHandUser = Users.Find(u => u.Id == userId);
+            OnUserClearedRaisedHand?.Invoke(clearedRaisedHandUser);
         }
     }
 }
