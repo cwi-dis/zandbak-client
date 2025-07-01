@@ -19,9 +19,12 @@ namespace Orchestrator.App
         public string Id => _sessionData.Id;
         public string Name => _sessionData.Name;
         public string Status => _sessionData.Status;
+        public string Description => _sessionData.Description;
 
         public List<Presentation> Presentations => _sessionData.Presentations.ToList();
         public Presentation CurrentPresentation;
+
+        public List<ChatMessage> Chat => _sessionData.Chat.ToList();
 
         public List<User> RaisedHands { get; private set; }
         public List<User> Users { get; private set; }
@@ -92,6 +95,15 @@ namespace Orchestrator.App
         /// </remarks>
         public event Action<User> OnUserClearedRaisedHand;
 
+        /// <summary>
+        /// Triggered when a new message is received in the session.
+        /// </summary>
+        /// <remarks>
+        /// This event is invoked whenever a user in the session sends a message. The event provides the message
+        /// content as a parameter, allowing subscribed methods to access the message details for processing or display.
+        /// </remarks>
+        public event Action<UserMessage> OnMessageReceived;
+
         public Session(Orchestrator orchestrator, Data.Session sessionData)
         {
             _sessionData = sessionData;
@@ -110,6 +122,8 @@ namespace Orchestrator.App
 
             OrchestratorController.Instance.OnUserRaisedHandEvent += UserRaisedHand;
             OrchestratorController.Instance.OnUserClearedRaisedHandEvent += UserClearedRaisedHand;
+
+            OrchestratorController.Instance.OnUserMessageReceivedEvent += UserMessageReceived;
         }
 
         /// <summary>
@@ -285,6 +299,47 @@ namespace Orchestrator.App
             return tcs.Task;
         }
 
+        /// <summary>
+        /// Sends a given chat message to all users in the current session.
+        /// </summary>
+        /// <param name="message">Message to be send</param>
+        public Task<bool> SendMessage(string message)
+        {
+            var tcs = new TaskCompletionSource<bool>();
+
+            OrchestratorController.Instance.SendMessageToAll(message);
+            tcs.SetResult(true);
+
+            return tcs.Task;
+        }
+
+        /// <summary>
+        /// Sends a given chat message to a given recipient. The recipient must be in the same session as the current
+        /// user.
+        /// </summary>
+        /// <param name="recipient">Recipient of the message</param>
+        /// <param name="message">Message to be send</param>
+        public Task<bool> SendMessage(User recipient, string message)
+        {
+            var tcs = new TaskCompletionSource<bool>();
+
+            OrchestratorController.Instance.SendMessage(message, recipient.Id);
+            tcs.SetResult(true);
+
+            return tcs.Task;
+        }
+
+        public Task<List<ChatMessage>> GetChat()
+        {
+            var tcs = new TaskCompletionSource<List<ChatMessage>>();
+
+            /// XXX IMPLEMENT ME
+
+            return tcs.Task;
+        }
+
+        #region events
+
         private void UserJoined(string userId, Data.User userData)
         {
             var joinedUser = new User(userData);
@@ -340,5 +395,12 @@ namespace Orchestrator.App
             var clearedRaisedHandUser = Users.Find(u => u.Id == userId);
             OnUserClearedRaisedHand?.Invoke(clearedRaisedHandUser);
         }
+
+        private void UserMessageReceived(UserMessage message)
+        {
+            OnMessageReceived?.Invoke(message);
+        }
+
+        #endregion
     }
 }
