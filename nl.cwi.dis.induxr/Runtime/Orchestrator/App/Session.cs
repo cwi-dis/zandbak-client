@@ -24,7 +24,7 @@ namespace Orchestrator.App
         public List<Presentation> Presentations => _sessionData.Presentations.ToList();
         public Presentation CurrentPresentation;
 
-        public List<ChatMessage> Chat => _sessionData.Chat.ToList();
+        public List<ChatMessage> Chat { get; private set; }
 
         public List<User> RaisedHands { get; private set; }
         public List<User> Users { get; private set; }
@@ -111,6 +111,7 @@ namespace Orchestrator.App
 
             Users = _sessionData.UserDefinitions.Select(u => new User(u)).ToList();
             RaisedHands = _sessionData.RaisedHands.Select(u => new User(u)).ToList();
+            Chat = _sessionData.Chat.ToList();
 
             OrchestratorController.Instance.OnUserJoinSessionEvent += UserJoined;
             OrchestratorController.Instance.OnUserLeaveSessionEvent += UserLeft;
@@ -302,7 +303,7 @@ namespace Orchestrator.App
         /// <summary>
         /// Sends a given chat message to all users in the current session.
         /// </summary>
-        /// <param name="message">Message to be send</param>
+        /// <param name="message">Message to be sent</param>
         public Task<bool> SendMessage(string message)
         {
             var tcs = new TaskCompletionSource<bool>();
@@ -318,7 +319,7 @@ namespace Orchestrator.App
         /// user.
         /// </summary>
         /// <param name="recipient">Recipient of the message</param>
-        /// <param name="message">Message to be send</param>
+        /// <param name="message">Message to be sent</param>
         public Task<bool> SendMessage(User recipient, string message)
         {
             var tcs = new TaskCompletionSource<bool>();
@@ -340,7 +341,9 @@ namespace Orchestrator.App
             Action<List<ChatMessage>> fn = null;
             fn = (messages) =>
             {
-                tcs.SetResult(messages);
+                Chat = messages;
+                tcs.SetResult(Chat);
+
                 OrchestratorController.Instance.OnGetMessagesEvent -= fn;
             };
 
