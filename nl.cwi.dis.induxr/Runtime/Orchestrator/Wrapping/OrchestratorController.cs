@@ -126,6 +126,11 @@ namespace Orchestrator.Wrapping
         public event Action OnClearRaisedHandEvent;
 
         /// <summary>
+        /// Invoked in response to the current user requesting the list of raised hands. Receives a list of users as argument
+        /// </summary>
+        public event Action<List<User>> OnGetRaisedHandsEvent;
+
+        /// <summary>
         /// Invoked when a new user joins the current session, with the user ID as argument
         /// </summary>
         public event Action<string, User> OnUserJoinSessionEvent;
@@ -789,6 +794,25 @@ namespace Orchestrator.Wrapping
             }
 
             OnClearRaisedHandEvent?.Invoke();
+        }
+
+        /// <summary>
+        /// Retrieves the list of users who have raised their hands in the session.
+        /// Invokes the <c>OnGetRaisedHandsEvent</c> event upon completion with the list of users.
+        /// </summary>
+        public void GetRaisedHands()
+        {
+            _orchestratorWrapper.GetRaisedHands();
+        }
+
+        void IOrchestratorResponsesListener.OnGetRaisedHandsResponse(ResponseStatus status, List<User> users)
+        {
+            if (status.Error != 0) {
+                OnErrorEvent?.Invoke(status);
+                return;
+            }
+
+            OnGetRaisedHandsEvent?.Invoke(users);
         }
 
         /// <summary>

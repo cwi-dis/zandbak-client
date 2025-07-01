@@ -364,6 +364,21 @@ namespace Orchestrator.Wrapping {
             }
         }
 
+        public void GetRaisedHands()
+        {
+            lock (this)
+            {
+                _socket.Emit("GetRaisedHands", (response) =>
+                {
+                    var data = response.GetValue<OrchestratorResponse<List<User>>>();
+
+                    UnityThread.executeInUpdate(() => {
+                        _responsesListener?.OnGetRaisedHandsResponse(data.ResponseStatus, data.Body);
+                    });
+                }, new {});
+            }
+        }
+
         public void GoToNextPresentation()
         {
             lock (this)

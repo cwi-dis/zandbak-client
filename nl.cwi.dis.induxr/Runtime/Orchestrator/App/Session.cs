@@ -210,6 +210,26 @@ namespace Orchestrator.App
             return tcs.Task;
         }
 
+        /// <summary>
+        /// Retrieves a list of users who have currently raised their hands in the session.
+        /// </summary>
+        /// <returns>A task that represents the asynchronous operation. The task result contains a list of users with raised hands.</returns>
+        public Task<List<User>> GetRaisedHands()
+        {
+            var tcs = new TaskCompletionSource<List<User>>();
+
+            Action<List<Data.User>> fn = null;
+            fn = (users) =>
+            {
+                tcs.SetResult(users.Select((u) => new User(u)).ToList());
+                OrchestratorController.Instance.OnGetRaisedHandsEvent -= fn;
+            };
+
+            OrchestratorController.Instance.OnGetRaisedHandsEvent += fn;
+            OrchestratorController.Instance.GetRaisedHands();
+
+            return tcs.Task;
+        }
 
         /// <summary>
         /// Clears the raised hand status of a user in the session. This will trigger an event
