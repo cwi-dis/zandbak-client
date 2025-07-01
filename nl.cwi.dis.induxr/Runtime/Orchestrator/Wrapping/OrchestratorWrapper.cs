@@ -443,7 +443,7 @@ namespace Orchestrator.Wrapping {
 
         private void OnMessageSentFromOrchestrator(SocketIOResponse response) {
             lock (this) {
-                var message = response.GetValue<UserMessage>();
+                var message = response.GetValue<ChatMessage>();
                 UnityThread.executeInUpdate(() => {
                     _userMessagesListener?.OnUserMessageReceived(message);
                 });

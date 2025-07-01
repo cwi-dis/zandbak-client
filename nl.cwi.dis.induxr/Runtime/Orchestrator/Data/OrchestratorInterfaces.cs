@@ -15,7 +15,7 @@ namespace Orchestrator.Data
     // by the orchestrator
     public interface IUserMessagesListener
     {
-        void OnUserMessageReceived(UserMessage userMessage);
+        void OnUserMessageReceived(ChatMessage userMessage);
         void OnBroadcastReceived(BroadcastData broadcastData);
     }
 

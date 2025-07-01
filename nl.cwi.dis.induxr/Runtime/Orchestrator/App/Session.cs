@@ -102,7 +102,7 @@ namespace Orchestrator.App
         /// This event is invoked whenever a user in the session sends a message. The event provides the message
         /// content as a parameter, allowing subscribed methods to access the message details for processing or display.
         /// </remarks>
-        public event Action<UserMessage> OnMessageReceived;
+        public event Action<ChatMessage> OnMessageReceived;
 
         public Session(Orchestrator orchestrator, Data.Session sessionData)
         {
@@ -396,7 +396,7 @@ namespace Orchestrator.App
             OnUserClearedRaisedHand?.Invoke(clearedRaisedHandUser);
         }
 
-        private void UserMessageReceived(UserMessage message)
+        private void UserMessageReceived(ChatMessage message)
         {
             OnMessageReceived?.Invoke(message);
         }

@@ -97,23 +97,6 @@ namespace Orchestrator.Data {
         }
     }
 
-    // class that stores a user message incoming from the orchestrator
-    public class UserMessage
-    {
-        [JsonProperty("messageFrom")] public string FromId;
-        [JsonProperty("messageFromName")] public string FromName;
-        [JsonProperty("message")] public string Message;
-
-        public UserMessage() { }
-
-        public UserMessage(string fromId, string fromName, string message)
-        {
-            FromId = fromId;
-            FromName = fromName;
-            Message = message;
-        }
-    }
-
     // class that stores a user event incoming from the orchestrator
     // necessary new parameters welcomed
     public class UserEvent

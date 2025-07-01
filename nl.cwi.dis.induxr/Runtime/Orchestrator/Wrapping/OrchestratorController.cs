@@ -168,7 +168,7 @@ namespace Orchestrator.Wrapping
         /// <summary>
         /// Invoked when a message is received in the current session
         /// </summary>
-        public event Action<UserMessage> OnUserMessageReceivedEvent;
+        public event Action<ChatMessage> OnUserMessageReceivedEvent;
 
         // Orchestrator User Messages Events
         /// <summary>
@@ -844,7 +844,7 @@ namespace Orchestrator.Wrapping
             }
         }
 
-        void IUserMessagesListener.OnUserMessageReceived(UserMessage userMessage) {
+        void IUserMessagesListener.OnUserMessageReceived(ChatMessage userMessage) {
             OnUserMessageReceivedEvent?.Invoke(userMessage);
         }
 
