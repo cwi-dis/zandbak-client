@@ -207,6 +207,32 @@ namespace Orchestrator.App
         }
 
         /// <summary>
+        /// Creates a new session asynchronously from a session stored in the Orchestrator's database using its session
+        /// ID. The new session will contain the presentation schedule as stored in the database.
+        /// </summary>
+        /// <param name="sessionId">The ID of the session to be created.</param>
+        /// <returns>A task that represents the asynchronous operation. The task result contains the created session object.</returns>
+        public Task<Session> ScheduleSession(string sessionId)
+        {
+            var tcs = new TaskCompletionSource<Session>();
+
+            Action<Data.Session> fn = null;
+            fn = (session) =>
+            {
+                CurrentSession = new Session(this, session);
+                Self.Session = CurrentSession;
+
+                tcs.SetResult(CurrentSession);
+                OrchestratorController.Instance.OnAddSessionEvent -= fn;
+            };
+
+            OrchestratorController.Instance.OnAddSessionEvent += fn;
+            OrchestratorController.Instance.ScheduleSession(sessionId);
+
+            return tcs.Task;
+        }
+
+        /// <summary>
         /// Joins the session with the specified ID asynchronously.
         /// </summary>
         /// <param name="sessionId">The ID of the session to be joined.</param>

@@ -466,6 +466,18 @@ namespace Orchestrator.Wrapping
             _orchestratorWrapper.AddSession(sessionName, sessionDescription, "socketio", new[] { "transform" });
         }
 
+        /// <summary>
+        /// Creates a new session from a session stored in the Orchestrator's database identified by a session ID.
+        /// Invokes <c>OnAddSessionEvent</c> upon completion with all information about the created session. The session
+        /// with the given ID must exist in the Orchestrator's database, if no such session is found, an error is
+        /// triggered.
+        /// </summary>
+        /// <param name="sessionId">The ID of the session to be created</param>
+        public void ScheduleSession(string sessionId)
+        {
+            _orchestratorWrapper.ScheduleSession(sessionId);
+        }
+
         void IOrchestratorResponsesListener.OnAddSessionResponse(ResponseStatus status, Session session) {
             if (status.Error != 0) {
                 _session = null;
