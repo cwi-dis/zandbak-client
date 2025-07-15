@@ -181,6 +181,11 @@ namespace Orchestrator.Wrapping
         public event Action<ChatMessage> OnUserMessageReceivedEvent;
 
         /// <summary>
+        /// Invoked when a user changes their `isSpeaking` property
+        /// </summary>
+        public event Action<User, bool> OnSessionIsSpeakingEvent;
+
+        /// <summary>
         /// Invoked when a broadcast is received in the current session
         /// </summary>
         public event Action<BroadcastData> OnBroadcastReceivedEvent;
@@ -786,11 +791,10 @@ namespace Orchestrator.Wrapping
         void IUserSessionEventsListener.OnSessionIsSpeakingChanged(string userId, bool isSpeaking)
         {
             var user = _session.UserDefinitions.Find((u) => u.Id == userId);
+            if (user == null) return;
 
-            if (user != null)
-            {
-                user.IsSpeaking = isSpeaking;
-            }
+            user.IsSpeaking = isSpeaking;
+            OnSessionIsSpeakingEvent?.Invoke(user, isSpeaking);
         }
 
         #endregion
