@@ -7,6 +7,7 @@ namespace Orchestrator.App
         public Session Session { get; set; }
         public string Id => _userData.Id;
         public string Name => _userData.Username;
+        public bool IsSpeaking => _userData.IsSpeaking;
 
         public User(Data.User userData)
         {
