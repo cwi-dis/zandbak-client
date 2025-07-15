@@ -785,7 +785,12 @@ namespace Orchestrator.Wrapping
 
         void IUserSessionEventsListener.OnSessionIsSpeakingChanged(string userId, bool isSpeaking)
         {
-            // XXX IMPLEMENT ME
+            var user = _session.UserDefinitions.Find((u) => u.Id == userId);
+
+            if (user != null)
+            {
+                user.IsSpeaking = isSpeaking;
+            }
         }
 
         #endregion
