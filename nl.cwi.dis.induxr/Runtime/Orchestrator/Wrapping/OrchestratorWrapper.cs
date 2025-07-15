@@ -305,6 +305,21 @@ namespace Orchestrator.Wrapping {
             }
         }
 
+        public void IsSpeaking(bool isSpeaking)
+        {
+            lock (this) {
+                _socket.Emit("IsSpeaking", (response) => {
+                    var data = response.GetValue<OrchestratorResponse<EmptyResponse>>();
+
+                    UnityThread.executeInUpdate(() => {
+                        _responsesListener?.OnIsSpeakingResponse(data.ResponseStatus);
+                    });
+                }, new {
+                    isSpeaking
+                });
+            }
+        }
+
         public void SendMessage(string message, string userId) {
             lock (this) {
                 _socket.Emit("SendMessage", (response) => {
