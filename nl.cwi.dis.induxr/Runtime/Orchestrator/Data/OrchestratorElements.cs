@@ -70,6 +70,7 @@ namespace Orchestrator.Data
         [JsonProperty("transform")] public UserTransform Transform;
         [JsonProperty("deviceType")] public string DeviceType;
         [JsonProperty("hasHandRaised")] public bool HasHandRaised;
+        [JsonProperty("isSpeaking")] public bool IsSpeaking;
 
         public override string GetId()
         {
