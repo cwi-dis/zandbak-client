@@ -29,6 +29,7 @@ namespace Orchestrator.App
         public List<User> RaisedHands { get; private set; }
         public List<User> Users { get; private set; }
         public User Self => _orchestrator.Self;
+        public List<User> Speakers => Users.Where(u => u.IsSpeaking).ToList();
 
         /// <summary>
         /// Occurs when a user joins the current session.
