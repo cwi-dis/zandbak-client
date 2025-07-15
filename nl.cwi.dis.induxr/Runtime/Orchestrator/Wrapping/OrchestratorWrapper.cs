@@ -222,6 +222,20 @@ namespace Orchestrator.Wrapping {
             }
         }
 
+        public void ScheduleSession(string sessionId) {
+            lock (this) {
+                _socket.Emit("ScheduleSession", (response) => {
+                    var data = response.GetValue<OrchestratorResponse<Session>>();
+
+                    UnityThread.executeInUpdate(() => {
+                        _responsesListener?.OnAddSessionResponse(data.ResponseStatus, data.Body);
+                    });
+                }, new {
+                    sessionId
+                });
+            }
+        }
+
         public void GetSessions() {
             lock (this) {
                 _socket.Emit("GetSessions", (response) => {
@@ -320,6 +334,34 @@ namespace Orchestrator.Wrapping {
             }
         }
 
+        public void GetMessages()
+        {
+            lock (this) {
+                _socket.Emit("GetMessages", (response) => {
+                    var data = response.GetValue<OrchestratorResponse<List<ChatMessage>>>();
+
+                    UnityThread.executeInUpdate(() => {
+                        _responsesListener?.OnGetMessagesResponse(data.ResponseStatus, data.Body);
+                    });
+                }, new {});
+            }
+        }
+
+        public void GetMessages(int count)
+        {
+            lock (this) {
+                _socket.Emit("GetMessages", (response) => {
+                    var data = response.GetValue<OrchestratorResponse<List<ChatMessage>>>();
+
+                    UnityThread.executeInUpdate(() => {
+                        _responsesListener?.OnGetMessagesResponse(data.ResponseStatus, data.Body);
+                    });
+                }, new {
+                    count
+                });
+            }
+        }
+
         public void RaiseHand()
         {
             lock (this)
@@ -332,6 +374,81 @@ namespace Orchestrator.Wrapping {
                         _responsesListener?.OnRaiseHandResponse(data.ResponseStatus);
                     });
                 }, new {});
+            }
+        }
+
+        public void ClearRaisedHand(string userId)
+        {
+            lock (this)
+            {
+                _socket.Emit("ClearRaisedHand", (response) =>
+                {
+                    var data = response.GetValue<OrchestratorResponse<EmptyResponse>>();
+
+                    UnityThread.executeInUpdate(() => {
+                        _responsesListener?.OnClearRaisedHandResponse(data.ResponseStatus);
+                    });
+                }, new { userId });
+            }
+        }
+
+        public void GetRaisedHands()
+        {
+            lock (this)
+            {
+                _socket.Emit("GetRaisedHands", (response) =>
+                {
+                    var data = response.GetValue<OrchestratorResponse<List<User>>>();
+
+                    UnityThread.executeInUpdate(() => {
+                        _responsesListener?.OnGetRaisedHandsResponse(data.ResponseStatus, data.Body);
+                    });
+                }, new {});
+            }
+        }
+
+        public void GoToNextPresentation()
+        {
+            lock (this)
+            {
+                _socket.Emit("SetSessionPresentation", (response) =>
+                {
+                    var data = response.GetValue<OrchestratorResponse<PresentationResponse>>();
+
+                    UnityThread.executeInUpdate(() => {
+                        _responsesListener?.OnGoToNextPresentationResponse(data.ResponseStatus, data.Body.Presentation);
+                    });
+                }, new {});
+            }
+        }
+
+        public void ChangeSlide(int slideOffset)
+        {
+            lock (this)
+            {
+                _socket.Emit("ChangeSlide", (response) =>
+                {
+                    var data = response.GetValue<OrchestratorResponse<PresentationResponse>>();
+
+                    UnityThread.executeInUpdate(() => {
+                        _responsesListener?.OnChangeSlideResponse(data.ResponseStatus, data.Body.Presentation);
+                    });
+                }, new { slideOffset });
+            }
+        }
+
+        public void SetSessionStatus(string status)
+        {
+            lock (this)
+            {
+                _socket.Emit("ChangeSlide", (response) =>
+                {
+                    var data = response.GetValue<OrchestratorResponse<StatusResponse>>();
+
+                    UnityThread.executeInUpdate(() => {
+                        _responsesListener?.OnChangeStatusResponse(data.ResponseStatus, data.Body.Status);
+                    });
+                }, new { status });
             }
         }
 
@@ -354,7 +471,7 @@ namespace Orchestrator.Wrapping {
 
         private void OnMessageSentFromOrchestrator(SocketIOResponse response) {
             lock (this) {
-                var message = response.GetValue<UserMessage>();
+                var message = response.GetValue<ChatMessage>();
                 UnityThread.executeInUpdate(() => {
                     _userMessagesListener?.OnUserMessageReceived(message);
                 });
@@ -397,34 +514,93 @@ namespace Orchestrator.Wrapping {
 
         private void OnSessionUpdated(SocketIOResponse response) {
             lock (this) {
-                var data = response.GetValue<SessionUpdate>();
-
-                if (data.EventData.UserId == _myUserID) {
-                    return;
-                }
+                var data = response.GetValue<SessionUpdate<SessionUpdateEmptyData>>();
 
                 switch (data.EventId) {
                     case "USER_JOINED_SESSION":
-                        UnityThread.executeInUpdate(() => {
-                            _userSessionEventListener?.OnUserJoinedSession(data.EventData.UserId, data.EventData.UserData);
-                        });
-                        break;
                     case "USER_LEFT_SESSION":
-                        UnityThread.executeInUpdate(() => {
-                            _userSessionEventListener?.OnUserLeftSession(data.EventData.UserId);
-                        });
-                        break;
                     case "USER_RAISED_HAND":
-                        UnityThread.executeInUpdate(() => {
-                            _userSessionEventListener?.OnUserRaisedHand(data.EventData.UserId);
-                        });
-                        break;
                     case "USER_CLEARED_RAISED_HAND":
-                        UnityThread.executeInUpdate(() => {
-                            _userSessionEventListener?.OnUserClearedRaisedHand(data.EventData.UserId);
-                        });
+                        OnSessionUpdatedWithUserData(response);
+                        break;
+                    case "PRESENTATION_CHANGED":
+                    case "SLIDE_CHANGED":
+                        OnSessionUpdatedWithPresentationData(response);
+                        break;
+                    case "SESSION_STATUS_CHANGED":
+                        OnSessionUpdatedWithStatusData(response);
                         break;
                 }
+            }
+        }
+
+        private void OnSessionUpdatedWithStatusData(SocketIOResponse response)
+        {
+            var data = response.GetValue<SessionUpdate<SessionUpdateStatusData>>();
+
+            UnityThread.executeInUpdate(() =>
+            {
+                _userSessionEventListener?.OnSessionStatusChanged(data.EventData.Status);
+            });
+        }
+
+        private void OnSessionUpdatedWithPresentationData(SocketIOResponse response)
+        {
+            var data = response.GetValue<SessionUpdate<SessionUpdatePresentationData>>();
+
+            switch (data.EventId)
+            {
+                case "PRESENTATION_CHANGED":
+                    UnityThread.executeInUpdate(() =>
+                    {
+                        _userSessionEventListener?.OnPresentationChanged(data.EventData.Presentation);
+                    });
+                    break;
+                case "SLIDE_CHANGED":
+                    UnityThread.executeInUpdate(() =>
+                    {
+                        _userSessionEventListener?.OnSlideChanged(data.EventData.Presentation);
+                    });
+                    break;
+            }
+        }
+
+        private void OnSessionUpdatedWithUserData(SocketIOResponse response)
+        {
+            var data = response.GetValue<SessionUpdate<SessionUpdateUserData>>();
+            var eventData = data.EventData;
+
+            if (eventData.UserId == _myUserID) {
+                return;
+            }
+
+            switch (data.EventId)
+            {
+                case "USER_JOINED_SESSION":
+                    UnityThread.executeInUpdate(() =>
+                    {
+                        _userSessionEventListener?.OnUserJoinedSession(eventData.UserId,
+                            data.EventData.UserData);
+                    });
+                    break;
+                case "USER_LEFT_SESSION":
+                    UnityThread.executeInUpdate(() =>
+                    {
+                        _userSessionEventListener?.OnUserLeftSession(eventData.UserId);
+                    });
+                    break;
+                case "USER_RAISED_HAND":
+                    UnityThread.executeInUpdate(() =>
+                    {
+                        _userSessionEventListener?.OnUserRaisedHand(eventData.UserId);
+                    });
+                    break;
+                case "USER_CLEARED_RAISED_HAND":
+                    UnityThread.executeInUpdate(() =>
+                    {
+                        _userSessionEventListener?.OnUserClearedRaisedHand(eventData.UserId);
+                    });
+                    break;
             }
         }
 

@@ -1,6 +1,8 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
+using Orchestrator.Data;
 using Orchestrator.Wrapping;
 
 namespace Orchestrator.App
@@ -10,9 +12,22 @@ namespace Orchestrator.App
         private readonly Orchestrator _orchestrator;
         private Data.Session _sessionData;
 
+        public Data.Session SessionData {
+            set => _sessionData = value;
+        }
+
         public string Id => _sessionData.Id;
         public string Name => _sessionData.Name;
-        public List<User> Users { get; } = new();
+        public string Status => _sessionData.Status;
+        public string Description => _sessionData.Description;
+
+        public List<Presentation> Presentations => _sessionData.Presentations.ToList();
+        public Presentation CurrentPresentation;
+
+        public List<ChatMessage> Chat { get; private set; }
+
+        public List<User> RaisedHands { get; private set; }
+        public List<User> Users { get; private set; }
         public User Self => _orchestrator.Self;
 
         /// <summary>
@@ -23,6 +38,7 @@ namespace Orchestrator.App
         /// the user who joined as an argument, allowing subscriber methods to access the user's data.
         /// </remarks>
         public event Action<User> OnUserJoined;
+
         /// <summary>
         /// Occurs when a user leaves the current session.
         /// </summary>
@@ -32,18 +48,83 @@ namespace Orchestrator.App
         /// </remarks>
         public event Action<User> OnUserLeft;
 
+        /// <summary>
+        /// Occurs when the current presentation in the session is updated or changed.
+        /// </summary>
+        /// <remarks>
+        /// This event is triggered whenever the active presentation for a session is modified.
+        /// Subscriber methods receive the updated presentation object as an argument,
+        /// allowing them to respond to changes in the active presentation.
+        /// </remarks>
+        public event Action<Presentation> OnPresentationChanged;
+
+        /// <summary>
+        /// Occurs when the current presentation's slide in the session is updated or changed.
+        /// </summary>
+        /// <remarks>
+        /// This event is triggered whenever the slide of the current presentation for a session is modified.
+        /// Subscriber methods receive the updated presentation object as an argument,
+        /// allowing them to respond to changes in the active presentation.
+        /// </remarks>
+        public event Action<Presentation> OnPresentationSlideChanged;
+
+        /// <summary>
+        /// Occurs when the status of the session changes.
+        /// </summary>
+        /// <remarks>
+        /// This event is triggered whenever the session's status is updated. The event provides the new
+        /// session status as a string argument, enabling subscriber methods to respond to status changes.
+        /// </remarks>
+        public event Action<string> OnSessionStatusChanged;
+
+        /// <summary>
+        /// Occurs when a user raised their hand
+        /// </summary>
+        /// <remarks>
+        /// This event is triggered whenever a user in the session raises their hand. The event provides the user that
+        /// raised their hand as an argument.
+        /// </remarks>
+        public event Action<User> OnUserRaisedHand;
+
+        /// <summary>
+        /// Occurs when a raised hand has been cleared.
+        /// </summary>
+        /// <remarks>
+        /// This event is triggered whenever a user's raised hand in the session is cleared. The event provides the
+        /// user that raised their hand as an argument.
+        /// </remarks>
+        public event Action<User> OnUserClearedRaisedHand;
+
+        /// <summary>
+        /// Triggered when a new message is received in the session.
+        /// </summary>
+        /// <remarks>
+        /// This event is invoked whenever a user in the session sends a message. The event provides the message
+        /// content as a parameter, allowing subscribed methods to access the message details for processing or display.
+        /// </remarks>
+        public event Action<ChatMessage> OnMessageReceived;
+
         public Session(Orchestrator orchestrator, Data.Session sessionData)
         {
             _sessionData = sessionData;
             _orchestrator = orchestrator;
 
+            Users = _sessionData.UserDefinitions.Select(u => new User(u)).ToList();
+            RaisedHands = _sessionData.RaisedHands.Select(u => new User(u)).ToList();
+            Chat = _sessionData.Chat.ToList();
+
             OrchestratorController.Instance.OnUserJoinSessionEvent += UserJoined;
             OrchestratorController.Instance.OnUserLeaveSessionEvent += UserLeft;
-        }
 
-        public void Update(Data.Session sessionData)
-        {
-            _sessionData = sessionData;
+            OrchestratorController.Instance.OnSessionPresentationChangedEvent += PresentationChanged;
+            OrchestratorController.Instance.OnSessionPresentationSlideChangedEvent += PresentationSlideChanged;
+
+            OrchestratorController.Instance.OnSessionStatusChangedEvent += SessionStatusChanged;
+
+            OrchestratorController.Instance.OnUserRaisedHandEvent += UserRaisedHand;
+            OrchestratorController.Instance.OnUserClearedRaisedHandEvent += UserClearedRaisedHand;
+
+            OrchestratorController.Instance.OnUserMessageReceivedEvent += UserMessageReceived;
         }
 
         /// <summary>
@@ -84,10 +165,204 @@ namespace Orchestrator.App
             return tcs.Task;
         }
 
+        /// <summary>
+        /// Advances the current session to the next presentation, if available.
+        /// </summary>
+        /// <returns>A task that represents the asynchronous operation. The task result is the next presentation object.</returns>
+        public Task<Presentation> GoToNextPresentation()
+        {
+            var tcs = new TaskCompletionSource<Presentation>();
+
+            Action<Presentation> fn = null;
+            fn = (presentation) =>
+            {
+                tcs.SetResult(presentation);
+                CurrentPresentation = presentation;
+                OrchestratorController.Instance.OnSessionPresentationChangedEvent -= fn;
+            };
+
+            OrchestratorController.Instance.OnSessionPresentationChangedEvent += fn;
+            OrchestratorController.Instance.GoToNextPresentation();
+
+            return tcs.Task;
+        }
+
+        /// <summary>
+        /// Changes the current slide in the presentation by a specified offset.
+        /// </summary>
+        /// <param name="slideOffset">The number of slides to move forward or backward. Positive values move forward, while negative values move backward.</param>
+        /// <returns>A task that represents the asynchronous operation. The task result is the updated presentation object after the slide has been changed.</returns>
+        public Task<Presentation> ChangePresentationSlide(int slideOffset)
+        {
+            var tcs = new TaskCompletionSource<Presentation>();
+
+            Action<Presentation> fn = null;
+            fn = (presentation) =>
+            {
+                tcs.SetResult(presentation);
+                OrchestratorController.Instance.OnSessionPresentationSlideChangedEvent -= fn;
+            };
+
+            OrchestratorController.Instance.OnSessionPresentationSlideChangedEvent += fn;
+            OrchestratorController.Instance.ChangeSlide(slideOffset);
+
+            return tcs.Task;
+        }
+
+        /// <summary>
+        /// Updates the current session status in the Orchestrator.
+        /// </summary>
+        /// <param name="sessionStatus">The new status to set for the current session.</param>
+        /// <returns>A task that represents the asynchronous operation. The task result contains the updated session status as a string.</returns>
+        public Task<string> SetSessionStatus(string sessionStatus)
+        {
+            var tcs = new TaskCompletionSource<string>();
+
+            Action<string> fn = null;
+            fn = (status) =>
+            {
+                tcs.SetResult(status);
+                OrchestratorController.Instance.OnSessionStatusChangedEvent -= fn;
+            };
+
+            OrchestratorController.Instance.OnSessionStatusChangedEvent += fn;
+            OrchestratorController.Instance.ChangeSessionStatus(sessionStatus);
+
+            return tcs.Task;
+        }
+
+        /// <summary>
+        /// Initiates a "raise hand" action for the current user and waits for the Orchestrator's acknowledgement.
+        /// </summary>
+        /// <returns>A task that represents the asynchronous operation. The task result contains the user ID of the user who raised their hand.</returns>
+        public Task<bool> RaiseHand()
+        {
+            var tcs = new TaskCompletionSource<bool>();
+
+            Action fn = null;
+            fn = () =>
+            {
+                tcs.SetResult(true);
+                GetRaisedHands();
+                OrchestratorController.Instance.OnRaisedHandEvent -= fn;
+            };
+
+            OrchestratorController.Instance.OnRaisedHandEvent += fn;
+            OrchestratorController.Instance.RaiseHand();
+
+            return tcs.Task;
+        }
+
+        /// <summary>
+        /// Retrieves a list of users who have currently raised their hands in the session.
+        /// </summary>
+        /// <returns>A task that represents the asynchronous operation. The task result contains a list of users with raised hands.</returns>
+        public Task<List<User>> GetRaisedHands()
+        {
+            var tcs = new TaskCompletionSource<List<User>>();
+
+            Action<List<Data.User>> fn = null;
+            fn = (users) =>
+            {
+                RaisedHands = users.Select((u) => new User(u)).ToList();
+                tcs.SetResult(RaisedHands);
+
+                OrchestratorController.Instance.OnGetRaisedHandsEvent -= fn;
+            };
+
+            OrchestratorController.Instance.OnGetRaisedHandsEvent += fn;
+            OrchestratorController.Instance.GetRaisedHands();
+
+            return tcs.Task;
+        }
+
+        /// <summary>
+        /// Clears the raised hand status of a user in the session. This will trigger an event
+        /// when the operation is completed.
+        /// </summary>
+        /// <param name="userId">The unique identifier of the user whose raised hand status is to be cleared.</param>
+        /// <returns>A task that represents the asynchronous operation. The task result indicates whether the operation was successful.</returns>
+        public Task<bool> ClearRaisedHand(string userId)
+        {
+            var tcs = new TaskCompletionSource<bool>();
+
+            Action fn = null;
+            fn = () =>
+            {
+                tcs.SetResult(true);
+                GetRaisedHands();
+                OrchestratorController.Instance.OnClearRaisedHandEvent -= fn;
+            };
+
+            OrchestratorController.Instance.OnClearRaisedHandEvent += fn;
+            OrchestratorController.Instance.ClearRaisedHand(userId);
+
+            return tcs.Task;
+        }
+
+        /// <summary>
+        /// Sends a given chat message to all users in the current session.
+        /// </summary>
+        /// <param name="message">Message to be sent</param>
+        public Task<bool> SendMessage(string message)
+        {
+            var tcs = new TaskCompletionSource<bool>();
+
+            OrchestratorController.Instance.SendMessageToAll(message);
+            tcs.SetResult(true);
+
+            return tcs.Task;
+        }
+
+        /// <summary>
+        /// Sends a given chat message to a given recipient. The recipient must be in the same session as the current
+        /// user.
+        /// </summary>
+        /// <param name="recipient">Recipient of the message</param>
+        /// <param name="message">Message to be sent</param>
+        public Task<bool> SendMessage(User recipient, string message)
+        {
+            var tcs = new TaskCompletionSource<bool>();
+
+            OrchestratorController.Instance.SendMessage(message, recipient.Id);
+            tcs.SetResult(true);
+
+            return tcs.Task;
+        }
+
+        /// <summary>
+        /// Retrieves the chat messages for the current session.
+        /// </summary>
+        /// <returns>A task that represents the asynchronous operation. The task result contains a list of chat messages.</returns>
+        public Task<List<ChatMessage>> GetChatMessages()
+        {
+            var tcs = new TaskCompletionSource<List<ChatMessage>>();
+
+            Action<List<ChatMessage>> fn = null;
+            fn = (messages) =>
+            {
+                Chat = messages;
+                tcs.SetResult(Chat);
+
+                OrchestratorController.Instance.OnGetMessagesEvent -= fn;
+            };
+
+            OrchestratorController.Instance.OnGetMessagesEvent += fn;
+            OrchestratorController.Instance.GetMessages();
+
+            return tcs.Task;
+        }
+
+        #region events
+
         private void UserJoined(string userId, Data.User userData)
         {
             var joinedUser = new User(userData);
-            Users.Add(joinedUser);
+
+            if (Users.Find(u => u.Id == userId) == null)
+            {
+                Users.Add(joinedUser);
+            }
 
             OnUserJoined?.Invoke(joinedUser);
         }
@@ -102,5 +377,45 @@ namespace Orchestrator.App
                 OnUserLeft?.Invoke(userToRemove);
             }
         }
+
+        private void PresentationChanged(Presentation presentation)
+        {
+            CurrentPresentation = presentation;
+            OnPresentationChanged?.Invoke(presentation);
+        }
+
+        private void PresentationSlideChanged(Presentation presentation)
+        {
+            CurrentPresentation.CurrentSlide = presentation.CurrentSlide;
+            OnPresentationSlideChanged?.Invoke(presentation);
+        }
+
+        private void SessionStatusChanged(string status)
+        {
+            _sessionData.Status = status;
+            OnSessionStatusChanged?.Invoke(status);
+        }
+
+        private async void UserRaisedHand(string userId)
+        {
+            var users = await GetRaisedHands();
+            var raisedHandUser = users.Find(u => u.Id == userId);
+            OnUserRaisedHand?.Invoke(raisedHandUser);
+        }
+
+        private void UserClearedRaisedHand(string userId)
+        {
+            GetRaisedHands();
+
+            var clearedRaisedHandUser = Users.Find(u => u.Id == userId);
+            OnUserClearedRaisedHand?.Invoke(clearedRaisedHandUser);
+        }
+
+        private void UserMessageReceived(ChatMessage message)
+        {
+            OnMessageReceived?.Invoke(message);
+        }
+
+        #endregion
     }
 }

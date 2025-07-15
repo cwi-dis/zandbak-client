@@ -64,66 +64,117 @@ namespace Orchestrator.Wrapping
         /// Invoked when an error occurs, with the error object as an argument
         /// </summary>
         public event Action<ResponseStatus> OnErrorEvent;
+
         /// <summary>
         /// Invoked whenever a new connection is attempted
         /// </summary>
         public event Action OnConnectingEvent;
+
         /// <summary>
         /// Invoked whenever a new connection is established
         /// </summary>
         public event Action<bool> OnConnectionEvent;
+
         /// <summary>
         /// Invoked when the Orchestrator's current version is requested, with the version as an argument
         /// </summary>
         public event Action<string> OnGetOrchestratorVersionEvent;
+
         /// <summary>
         /// Invoked when the current user logs into the Orchestrator, with a boolean indicating success and the user's ID as arguments
         /// </summary>
         public event Action<bool, string> OnLoginEvent;
+
         /// <summary>
         /// Invoked when the current user logs out of the Orchestrator, with a boolean indicating success as argument
         /// </summary>
         public event Action<bool> OnLogoutEvent;
+
         /// <summary>
         /// Invoked when the current NTP time is received, with the NTP time as argument
         /// </summary>
         public event Action<NtpClock> OnGetNtpTimeEvent;
+
         /// <summary>
         /// Invoked when a list of sessions has been requested with the list of sessions as argument
         /// </summary>
         public event Action<Session[]> OnSessionsEvent;
+
         /// <summary>
         /// Invoked when information about the current session has been requested, with the session information as argument
         /// </summary>
         public event Action<Session> OnSessionInfoEvent;
+
         /// <summary>
         /// Invoked when a new session has been created, with the session information as argument
         /// </summary>
         public event Action<Session> OnAddSessionEvent;
+
         /// <summary>
         /// Invoked when a given session has been joined successfully, with the session information as argument
         /// </summary>
         public event Action<Session> OnJoinSessionEvent;
+
+        /// <summary>
+        /// Invoked in response to the current user in the session raising their hand
+        /// </summary>
+        public event Action OnRaisedHandEvent;
+
+        /// <summary>
+        /// Invoked in response to the current user clearing a raised hand
+        /// </summary>
+        public event Action OnClearRaisedHandEvent;
+
+        /// <summary>
+        /// Invoked in response to the current user requesting the list of raised hands. Receives a list of users as an argument
+        /// </summary>
+        public event Action<List<User>> OnGetRaisedHandsEvent;
+
+        /// <summary>
+        /// Invoked in response to the current user requesting the list of chat messages. Receives a list of chat messages as an argument
+        /// </summary>
+        public event Action<List<ChatMessage>> OnGetMessagesEvent;
+
         /// <summary>
         /// Invoked when a new user joins the current session, with the user ID as argument
         /// </summary>
         public event Action<string, User> OnUserJoinSessionEvent;
+
         /// <summary>
         /// Invoked when a user leaves the current session, with the user ID as argument
         /// </summary>
         public event Action<string> OnUserLeaveSessionEvent;
+
         /// <summary>
-        /// Invoked when a user raises their hand in the current session, with the user ID as argument
+        /// Invoked when a user in the session raises their hand, with the user ID as argument
         /// </summary>
         public event Action<string> OnUserRaisedHandEvent;
+
         /// <summary>
         /// Invoked when a user's raised hand is cleared in the current session, with the user ID as argument
         /// </summary>
         public event Action<string> OnUserClearedRaisedHandEvent;
+
+        /// <summary>
+        /// Invoked when the status of the current session changes
+        /// </summary>
+        public event Action<string> OnSessionStatusChangedEvent;
+
+        /// <summary>
+        /// Invoked when the current presentation of the current session changes
+        /// </summary>
+        public event Action<Presentation> OnSessionPresentationChangedEvent;
+
+        /// <summary>
+        /// Invoked when the current presentation's slide of the current session changes
+        /// </summary>
+        public event Action<Presentation> OnSessionPresentationSlideChangedEvent;
+
         /// <summary>
         /// Invoked when a message is received in the current session
         /// </summary>
-        public event Action<UserMessage> OnUserMessageReceivedEvent;
+        public event Action<ChatMessage> OnUserMessageReceivedEvent;
+
         // Orchestrator User Messages Events
         /// <summary>
         /// Invoked when a broadcast is received in the current session
@@ -435,6 +486,18 @@ namespace Orchestrator.Wrapping
             _orchestratorWrapper.AddSession(sessionName, sessionDescription, "socketio", new[] { "transform" });
         }
 
+        /// <summary>
+        /// Creates a new session from a session stored in the Orchestrator's database identified by a session ID.
+        /// Invokes <c>OnAddSessionEvent</c> upon completion with all information about the created session. The session
+        /// with the given ID must exist in the Orchestrator's database, if no such session is found, an error is
+        /// triggered.
+        /// </summary>
+        /// <param name="sessionId">The ID of the session to be created</param>
+        public void ScheduleSession(string sessionId)
+        {
+            _orchestratorWrapper.ScheduleSession(sessionId);
+        }
+
         void IOrchestratorResponsesListener.OnAddSessionResponse(ResponseStatus status, Session session) {
             if (status.Error != 0) {
                 _session = null;
@@ -555,6 +618,54 @@ namespace Orchestrator.Wrapping
             _orchestratorWrapper.LeaveSession();
         }
 
+        /// <summary>
+        /// Advances the current presentation to the next slide.
+        /// This method triggers the associated functionality in the OrchestratorWrapper.
+        /// </summary>
+        public void GoToNextPresentation()
+        {
+            _orchestratorWrapper.GoToNextPresentation();
+        }
+
+        void IOrchestratorResponsesListener.OnGoToNextPresentationResponse(ResponseStatus status, Presentation presentation)
+        {
+            if (status.Error != 0) {
+                OnErrorEvent?.Invoke(status);
+            }
+        }
+
+        /// <summary>
+        /// Changes the current slide in the current session presentation by the specified offset.
+        /// </summary>
+        /// <param name="slideOffset">The offset to apply to the current slide. A positive value moves forward, a negative value moves backward.</param>
+        public void ChangeSlide(int slideOffset)
+        {
+            _orchestratorWrapper.ChangeSlide(slideOffset);
+        }
+
+        void IOrchestratorResponsesListener.OnChangeSlideResponse(ResponseStatus status, Presentation presentation)
+        {
+            if (status.Error != 0) {
+                OnErrorEvent?.Invoke(status);
+            }
+        }
+
+        /// <summary>
+        /// Updates the current session's status using the specified status string.
+        /// </summary>
+        /// <param name="status">The new status to be applied to the session.</param>
+        public void ChangeSessionStatus(string status)
+        {
+            _orchestratorWrapper.SetSessionStatus(status);
+        }
+
+        void IOrchestratorResponsesListener.OnChangeStatusResponse(ResponseStatus status, string sessionStatus)
+        {
+            if (status.Error != 0) {
+                OnErrorEvent?.Invoke(status);
+            }
+        }
+
         void IOrchestratorResponsesListener.OnLeaveSessionResponse(ResponseStatus status) {
             if (status.Error != 0) {
                 OnErrorEvent?.Invoke(status);
@@ -630,6 +741,24 @@ namespace Orchestrator.Wrapping
             OnUserClearedRaisedHandEvent?.Invoke(userID);
         }
 
+        void IUserSessionEventsListener.OnSessionStatusChanged(string status)
+        {
+            _orchestratorWrapper.GetSessionInfo();
+            OnSessionStatusChangedEvent?.Invoke(status);
+        }
+
+        void IUserSessionEventsListener.OnPresentationChanged(Presentation presentation)
+        {
+            _orchestratorWrapper.GetSessionInfo();
+            OnSessionPresentationChangedEvent?.Invoke(presentation);
+        }
+
+        void IUserSessionEventsListener.OnSlideChanged(Presentation presentation)
+        {
+            _orchestratorWrapper.GetSessionInfo();
+            OnSessionPresentationSlideChangedEvent?.Invoke(presentation);
+        }
+
         #endregion
 
         #region Messages
@@ -646,7 +775,49 @@ namespace Orchestrator.Wrapping
         {
             if (status.Error != 0) {
                 OnErrorEvent?.Invoke(status);
+                return;
             }
+
+            OnRaisedHandEvent?.Invoke();
+        }
+
+        /// <summary>
+        /// Clears a user's raised hand, identified by the given user ID. Users can only clear their own raised hand.
+        /// Admins and presenters can clear anyone's raised hands.
+        /// </summary>
+        /// <param name="userId">The ID of the user whose raised hand shall be cleared</param>
+        public void ClearRaisedHand(string userId)
+        {
+            _orchestratorWrapper.ClearRaisedHand(userId);
+        }
+
+        void IOrchestratorResponsesListener.OnClearRaisedHandResponse(ResponseStatus status)
+        {
+            if (status.Error != 0) {
+                OnErrorEvent?.Invoke(status);
+                return;
+            }
+
+            OnClearRaisedHandEvent?.Invoke();
+        }
+
+        /// <summary>
+        /// Retrieves the list of users who have raised their hands in the session.
+        /// Invokes the <c>OnGetRaisedHandsEvent</c> event upon completion with the list of users.
+        /// </summary>
+        public void GetRaisedHands()
+        {
+            _orchestratorWrapper.GetRaisedHands();
+        }
+
+        void IOrchestratorResponsesListener.OnGetRaisedHandsResponse(ResponseStatus status, List<User> users)
+        {
+            if (status.Error != 0) {
+                OnErrorEvent?.Invoke(status);
+                return;
+            }
+
+            OnGetRaisedHandsEvent?.Invoke(users);
         }
 
         /// <summary>
@@ -678,8 +849,30 @@ namespace Orchestrator.Wrapping
             }
         }
 
-        void IUserMessagesListener.OnUserMessageReceived(UserMessage userMessage) {
+        void IUserMessagesListener.OnUserMessageReceived(ChatMessage userMessage) {
             OnUserMessageReceivedEvent?.Invoke(userMessage);
+        }
+
+        /// <summary>
+        /// Retrieves the recent chat messages from the orchestrator.
+        /// </summary>
+        /// <param name="count">The number of messages to retrieve.</param>
+        public void GetMessages(int count)
+        {
+            _orchestratorWrapper.GetMessages(count);
+        }
+
+        /// <summary>
+        /// Retrieves all chat messages from the orchestrator.
+        /// </summary>
+        public void GetMessages()
+        {
+            _orchestratorWrapper.GetMessages();
+        }
+
+        void IOrchestratorResponsesListener.OnGetMessagesResponse(ResponseStatus status, List<ChatMessage> messages)
+        {
+            OnGetMessagesEvent?.Invoke(messages);
         }
 
         #endregion

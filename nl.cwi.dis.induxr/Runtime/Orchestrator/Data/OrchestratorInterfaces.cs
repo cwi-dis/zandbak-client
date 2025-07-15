@@ -15,7 +15,7 @@ namespace Orchestrator.Data
     // by the orchestrator
     public interface IUserMessagesListener
     {
-        void OnUserMessageReceived(UserMessage userMessage);
+        void OnUserMessageReceived(ChatMessage userMessage);
         void OnBroadcastReceived(BroadcastData broadcastData);
     }
 
@@ -27,6 +27,9 @@ namespace Orchestrator.Data
         void OnUserLeftSession(string userID);
         void OnUserRaisedHand(string userId);
         void OnUserClearedRaisedHand(string userId);
+        void OnSessionStatusChanged(string status);
+        void OnPresentationChanged(Presentation presentation);
+        void OnSlideChanged(Presentation presentation);
     }
 
     // Interface for clients that will use the orchestrator wrapper
@@ -54,7 +57,14 @@ namespace Orchestrator.Data
 
         void OnSendMessageResponse(ResponseStatus status);
         void OnRaiseHandResponse(ResponseStatus status);
+        void OnClearRaisedHandResponse(ResponseStatus status);
+        void OnGetRaisedHandsResponse(ResponseStatus status, List<User> raisedHands);
         void OnSendMessageToAllResponse(ResponseStatus status);
+        void OnGetMessagesResponse(ResponseStatus status, List<ChatMessage> messages);
 
+        void OnGoToNextPresentationResponse(ResponseStatus status, Presentation presentation);
+        void OnChangeSlideResponse(ResponseStatus status, Presentation presentation);
+
+        void OnChangeStatusResponse(ResponseStatus status, string sessionStatus);
     }
 }

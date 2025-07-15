@@ -37,14 +37,39 @@ namespace Orchestrator.Data {
         [JsonProperty("userId")] public string UserId;
     }
 
-    public class SessionUpdateEventData {
+    public class PresentationResponse : IOrchestratorResponseBody
+    {
+        [JsonProperty("sessionId")] public string SessionId;
+        [JsonProperty("sessionCurrentPresentation")] public Presentation Presentation;
+    }
+
+    public class StatusResponse : IOrchestratorResponseBody
+    {
+        [JsonProperty("sessionId")] public string SessionId;
+        [JsonProperty("sessionStatus")] public string Status;
+    }
+
+    public class SessionUpdateUserData {
         [JsonProperty("userId")] public string UserId;
         [JsonProperty("userData")] public User UserData;
     }
 
-    public class SessionUpdate {
+    public class SessionUpdatePresentationData {
+        [JsonProperty("currentPresentation")] public Presentation Presentation;
+    }
+
+    public class SessionUpdateStatusData
+    {
+        [JsonProperty("status")] public string Status;
+    }
+
+    public class SessionUpdateEmptyData
+    {
+    }
+
+    public class SessionUpdate<T> {
         [JsonProperty("eventId")] public string EventId;
-        [JsonProperty("eventData")] public SessionUpdateEventData EventData;
+        [JsonProperty("eventData")] public T EventData;
     }
 
     public class SceneEvent {
@@ -69,23 +94,6 @@ namespace Orchestrator.Data {
             Type = type;
             Description = description;
             Packet = packet;
-        }
-    }
-
-    // class that stores a user message incoming from the orchestrator
-    public class UserMessage
-    {
-        [JsonProperty("messageFrom")] public string FromId;
-        [JsonProperty("messageFromName")] public string FromName;
-        [JsonProperty("message")] public string Message;
-
-        public UserMessage() { }
-
-        public UserMessage(string fromId, string fromName, string message)
-        {
-            FromId = fromId;
-            FromName = fromName;
-            Message = message;
         }
     }
 
