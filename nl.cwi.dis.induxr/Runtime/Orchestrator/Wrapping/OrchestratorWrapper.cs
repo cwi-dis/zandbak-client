@@ -545,8 +545,21 @@ namespace Orchestrator.Wrapping {
                     case "SESSION_STATUS_CHANGED":
                         OnSessionUpdatedWithStatusData(response);
                         break;
+                    case "USER_IS_SPEAKING":
+                        OnSessionUpdatedWithIsSpeakingData(response);
+                        break;
                 }
             }
+        }
+
+        private void OnSessionUpdatedWithIsSpeakingData(SocketIOResponse response)
+        {
+            var data = response.GetValue<SessionUpdate<SessionUpdateIsSpeakingData>>();
+
+            UnityThread.executeInUpdate(() =>
+            {
+                _userSessionEventListener?.OnSessionIsSpeakingChanged(data.EventData.UserId, data.EventData.IsSpeaking);
+            });
         }
 
         private void OnSessionUpdatedWithStatusData(SocketIOResponse response)

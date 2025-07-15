@@ -783,6 +783,11 @@ namespace Orchestrator.Wrapping
             OnSessionPresentationSlideChangedEvent?.Invoke(presentation);
         }
 
+        void IUserSessionEventsListener.OnSessionIsSpeakingChanged(string userId, bool isSpeaking)
+        {
+            // XXX IMPLEMENT ME
+        }
+
         #endregion
 
         #region Messages

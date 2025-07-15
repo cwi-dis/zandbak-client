@@ -58,7 +58,7 @@ namespace Orchestrator.Data {
         [JsonProperty("currentPresentation")] public Presentation Presentation;
     }
 
-    public class SessionIsSpeakingData
+    public class SessionUpdateIsSpeakingData
     {
         [JsonProperty("isSpeaking")] public bool IsSpeaking;
         [JsonProperty("userId")] public string UserId;
