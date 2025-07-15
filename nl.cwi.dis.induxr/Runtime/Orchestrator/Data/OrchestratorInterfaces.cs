@@ -61,6 +61,7 @@ namespace Orchestrator.Data
         void OnGetRaisedHandsResponse(ResponseStatus status, List<User> raisedHands);
         void OnSendMessageToAllResponse(ResponseStatus status);
         void OnGetMessagesResponse(ResponseStatus status, List<ChatMessage> messages);
+        void OnIsSpeakingResponse(ResponseStatus status);
 
         void OnGoToNextPresentationResponse(ResponseStatus status, Presentation presentation);
         void OnChangeSlideResponse(ResponseStatus status, Presentation presentation);
