@@ -305,6 +305,21 @@ namespace Orchestrator.Wrapping {
             }
         }
 
+        public void IsSpeaking(bool isSpeaking)
+        {
+            lock (this) {
+                _socket.Emit("IsSpeaking", (response) => {
+                    var data = response.GetValue<OrchestratorResponse<EmptyResponse>>();
+
+                    UnityThread.executeInUpdate(() => {
+                        _responsesListener?.OnIsSpeakingResponse(data.ResponseStatus);
+                    });
+                }, new {
+                    isSpeaking
+                });
+            }
+        }
+
         public void SendMessage(string message, string userId) {
             lock (this) {
                 _socket.Emit("SendMessage", (response) => {
@@ -530,8 +545,21 @@ namespace Orchestrator.Wrapping {
                     case "SESSION_STATUS_CHANGED":
                         OnSessionUpdatedWithStatusData(response);
                         break;
+                    case "USER_IS_SPEAKING":
+                        OnSessionUpdatedWithIsSpeakingData(response);
+                        break;
                 }
             }
+        }
+
+        private void OnSessionUpdatedWithIsSpeakingData(SocketIOResponse response)
+        {
+            var data = response.GetValue<SessionUpdate<SessionUpdateIsSpeakingData>>();
+
+            UnityThread.executeInUpdate(() =>
+            {
+                _userSessionEventListener?.OnSessionIsSpeakingChanged(data.EventData.UserId, data.EventData.IsSpeaking);
+            });
         }
 
         private void OnSessionUpdatedWithStatusData(SocketIOResponse response)

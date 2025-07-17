@@ -30,6 +30,7 @@ namespace Orchestrator.Data
         void OnSessionStatusChanged(string status);
         void OnPresentationChanged(Presentation presentation);
         void OnSlideChanged(Presentation presentation);
+        void OnSessionIsSpeakingChanged(string userId, bool isSpeaking);
     }
 
     // Interface for clients that will use the orchestrator wrapper
@@ -61,6 +62,7 @@ namespace Orchestrator.Data
         void OnGetRaisedHandsResponse(ResponseStatus status, List<User> raisedHands);
         void OnSendMessageToAllResponse(ResponseStatus status);
         void OnGetMessagesResponse(ResponseStatus status, List<ChatMessage> messages);
+        void OnIsSpeakingResponse(ResponseStatus status);
 
         void OnGoToNextPresentationResponse(ResponseStatus status, Presentation presentation);
         void OnChangeSlideResponse(ResponseStatus status, Presentation presentation);

@@ -136,6 +136,11 @@ namespace Orchestrator.Wrapping
         public event Action<List<ChatMessage>> OnGetMessagesEvent;
 
         /// <summary>
+        /// Invoked in response to the current user setting their isSpeaking flag
+        /// </summary>
+        public event Action<bool> OnIsSpeakingEvent;
+
+        /// <summary>
         /// Invoked when a new user joins the current session, with the user ID as argument
         /// </summary>
         public event Action<string, User> OnUserJoinSessionEvent;
@@ -175,7 +180,11 @@ namespace Orchestrator.Wrapping
         /// </summary>
         public event Action<ChatMessage> OnUserMessageReceivedEvent;
 
-        // Orchestrator User Messages Events
+        /// <summary>
+        /// Invoked when a user changes their `isSpeaking` property
+        /// </summary>
+        public event Action<User, bool> OnSessionIsSpeakingEvent;
+
         /// <summary>
         /// Invoked when a broadcast is received in the current session
         /// </summary>
@@ -612,6 +621,26 @@ namespace Orchestrator.Wrapping
         }
 
         /// <summary>
+        /// Sets the current user's <c>isSpeaking</c> flag to the given value.
+        /// Invokes <c>OnIsSpeakingEvent</c> upon completion.
+        /// </summary>
+        /// <param name="isSpeaking">The value to set the flag to</param>
+        public void IsSpeaking(bool isSpeaking)
+        {
+            _orchestratorWrapper.IsSpeaking(isSpeaking);
+        }
+
+        void IOrchestratorResponsesListener.OnIsSpeakingResponse(ResponseStatus status)
+        {
+            if (status.Error != 0) {
+                OnErrorEvent?.Invoke(status);
+                return;
+            }
+
+            OnIsSpeakingEvent?.Invoke(true);
+        }
+
+        /// <summary>
         /// Leaves the current session.
         /// </summary>
         public void LeaveSession() {
@@ -757,6 +786,15 @@ namespace Orchestrator.Wrapping
         {
             _orchestratorWrapper.GetSessionInfo();
             OnSessionPresentationSlideChangedEvent?.Invoke(presentation);
+        }
+
+        void IUserSessionEventsListener.OnSessionIsSpeakingChanged(string userId, bool isSpeaking)
+        {
+            var user = _session.UserDefinitions.Find((u) => u.Id == userId);
+            if (user == null) return;
+
+            user.IsSpeaking = isSpeaking;
+            OnSessionIsSpeakingEvent?.Invoke(user, isSpeaking);
         }
 
         #endregion

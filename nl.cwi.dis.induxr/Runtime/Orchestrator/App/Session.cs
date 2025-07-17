@@ -29,6 +29,7 @@ namespace Orchestrator.App
         public List<User> RaisedHands { get; private set; }
         public List<User> Users { get; private set; }
         public User Self => _orchestrator.Self;
+        public List<User> Speakers => Users.Where(u => u.IsSpeaking).ToList();
 
         /// <summary>
         /// Occurs when a user joins the current session.
@@ -104,6 +105,15 @@ namespace Orchestrator.App
         /// </remarks>
         public event Action<ChatMessage> OnMessageReceived;
 
+        /// <summary>
+        /// Triggered when a user changes their <c>isSpeaking</c> status
+        /// </summary>
+        /// <remarks>
+        /// This event is invoked whenever a user changes their isSpeaking flag. The event provides the user and the
+        /// new value of the flag.
+        /// </remarks>
+        public event Action<User, bool> OnIsSpeakingChanged;
+
         public Session(Orchestrator orchestrator, Data.Session sessionData)
         {
             _sessionData = sessionData;
@@ -125,6 +135,8 @@ namespace Orchestrator.App
             OrchestratorController.Instance.OnUserClearedRaisedHandEvent += UserClearedRaisedHand;
 
             OrchestratorController.Instance.OnUserMessageReceivedEvent += UserMessageReceived;
+
+            OrchestratorController.Instance.OnSessionIsSpeakingEvent += IsSpeakingChanged;
         }
 
         /// <summary>
@@ -227,6 +239,28 @@ namespace Orchestrator.App
 
             OrchestratorController.Instance.OnSessionStatusChangedEvent += fn;
             OrchestratorController.Instance.ChangeSessionStatus(sessionStatus);
+
+            return tcs.Task;
+        }
+
+        /// <summary>
+        /// Updates the speaking status for the current user
+        /// </summary>
+        /// <param name="isSpeaking">The new speaking status to set for the current user.</param>
+        /// <returns>A task that represents the asynchronous operation.</returns>
+        public Task<bool> SetIsSpeaking(bool isSpeaking)
+        {
+            var tcs = new TaskCompletionSource<bool>();
+
+            Action<bool> fn = null;
+            fn = (result) =>
+            {
+                tcs.SetResult(result);
+                OrchestratorController.Instance.OnIsSpeakingEvent -= fn;
+            };
+
+            OrchestratorController.Instance.OnIsSpeakingEvent += fn;
+            OrchestratorController.Instance.IsSpeaking(isSpeaking);
 
             return tcs.Task;
         }
@@ -414,6 +448,14 @@ namespace Orchestrator.App
         private void UserMessageReceived(ChatMessage message)
         {
             OnMessageReceived?.Invoke(message);
+        }
+
+        private void IsSpeakingChanged(Data.User user, bool isSpeaking)
+        {
+            var foundUser = Users.Find(u => u.Id == user.Id);
+            if (foundUser == null) return;
+
+            OnIsSpeakingChanged?.Invoke(foundUser, isSpeaking);
         }
 
         #endregion
