@@ -69,9 +69,10 @@ namespace Orchestrator.App
         }
 
         /// <summary>
-        /// Authenticates the user with the provided username and an optional password. If no password is given, a
-        /// passwordless login is attempted. If a password is provided and the server could not verify the user's
-        /// identity, an exception is raised.
+        /// Authenticates the user with the provided username and an optional password. If no password is given (or it
+        /// is set to null), a passwordless login is attempted. If a password is provided and the server could not
+        /// verify the user's identity, an exception is raised. The method also accepts a third parameter, allowing the
+        /// caller to specify the user's device type. If not set, the parameter defaults to 'unknown'.
         /// </summary>
         /// <param name="username">The username of the user attempting to log in.</param>
         /// <param name="password">The password of the user, if required. Defaults to null for passwordless login.</param>

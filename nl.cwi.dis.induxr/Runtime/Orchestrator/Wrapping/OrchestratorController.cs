@@ -321,32 +321,34 @@ namespace Orchestrator.Wrapping
         #region Login/Logout
 
         /// <summary>
-        /// Logs in a user to the Orchestrator with the specified username.
+        /// Logs in a user to the Orchestrator with the specified username and the given device type.
         ///
         /// Invokes <c>OnLoginEvent</c> upon completion with a boolean parameter indicating whether the login was
         /// successful and if so, also a string parameter with the user's ID.
         /// </summary>
-        /// <param name="pName">The username of the user to log in.</param>
-        public void Login(string pName, string deviceType)
+        /// <param name="username">The username of the user to log in.</param>
+        /// <param name="deviceType">The type of device that the user uses to log in</param>
+        public void Login(string username, string deviceType)
         {
             SelfUser = new User
             {
-                Username = pName,
+                Username = username,
                 DeviceType = deviceType,
             };
 
-            _orchestratorWrapper.Login(pName, deviceType);
+            _orchestratorWrapper.Login(username, deviceType);
         }
 
         /// <summary>
-        /// Logs in a user to the Orchestrator with the specified username and password. The given username and password
-        /// combination is checked against the Orchestrator's database.
+        /// Logs in a user to the Orchestrator with the specified username, password and device type. The given
+        /// username and password combination is checked against the Orchestrator's database.
         ///
         /// Invokes <c>OnLoginEvent</c> upon completion with a boolean parameter indicating whether the login was
         /// successful and if so, also a string parameter with the user's ID.
         /// </summary>
         /// <param name="username">The username of the user to log in.</param>
         /// <param name="password">The password of the user to log in</param>
+        /// <param name="deviceType">The deviceType that the user uses to log in</param>
         public void Login(string username, string password, string deviceType)
         {
             SelfUser = new User
