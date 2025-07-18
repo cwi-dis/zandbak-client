@@ -449,7 +449,7 @@ namespace Orchestrator.App
 
         private void UserLeft(string userId)
         {
-            var userToRemove = Users.Find(user => user.Id == Id);
+            var userToRemove = Users.Find(user => user.Id == userId);
 
             if (userToRemove != null)
             {
