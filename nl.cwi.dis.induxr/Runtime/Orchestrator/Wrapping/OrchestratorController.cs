@@ -327,14 +327,15 @@ namespace Orchestrator.Wrapping
         /// successful and if so, also a string parameter with the user's ID.
         /// </summary>
         /// <param name="pName">The username of the user to log in.</param>
-        public void Login(string pName)
+        public void Login(string pName, string deviceType)
         {
             SelfUser = new User
             {
-                Username = pName
+                Username = pName,
+                DeviceType = deviceType,
             };
 
-            _orchestratorWrapper.Login(pName);
+            _orchestratorWrapper.Login(pName, deviceType);
         }
 
         /// <summary>
@@ -346,15 +347,16 @@ namespace Orchestrator.Wrapping
         /// </summary>
         /// <param name="username">The username of the user to log in.</param>
         /// <param name="password">The password of the user to log in</param>
-        public void Login(string username, string password)
+        public void Login(string username, string password, string deviceType)
         {
             SelfUser = new User
             {
                 Username = username,
-                Password = password
+                Password = password,
+                DeviceType = deviceType,
             };
 
-            _orchestratorWrapper.Login(username, password);
+            _orchestratorWrapper.Login(username, password, deviceType);
         }
 
         void IOrchestratorResponsesListener.OnLoginResponse(ResponseStatus status, string userId) {

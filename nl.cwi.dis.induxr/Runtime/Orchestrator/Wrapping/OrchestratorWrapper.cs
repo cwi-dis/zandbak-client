@@ -156,7 +156,7 @@ namespace Orchestrator.Wrapping {
 
         #region login/logout
 
-        public void Login(string username) {
+        public void Login(string userName, string deviceType) {
             lock (this) {
                 _socket.Emit("Login", (response) => {
                     var data = response.GetValue<OrchestratorResponse<LoginResponse>>();
@@ -166,12 +166,12 @@ namespace Orchestrator.Wrapping {
                         _responsesListener?.OnLoginResponse(data.ResponseStatus, data.Body.UserId);
                     });
                 }, new {
-                    userName = username
+                    userName, deviceType
                 });
             }
         }
 
-        public void Login(string username, string password) {
+        public void Login(string userName, string password, string deviceType) {
             lock (this) {
                 _socket.Emit("Login", (response) => {
                     var data = response.GetValue<OrchestratorResponse<LoginResponse>>();
@@ -181,8 +181,7 @@ namespace Orchestrator.Wrapping {
                         _responsesListener?.OnLoginResponse(data.ResponseStatus, data.Body.UserId);
                     });
                 }, new {
-                    userName = username,
-                    password
+                    userName, password, deviceType
                 });
             }
         }
