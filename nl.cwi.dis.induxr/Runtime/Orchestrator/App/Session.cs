@@ -223,11 +223,35 @@ namespace Orchestrator.App
             fn = (presentation) =>
             {
                 tcs.SetResult(presentation);
+                CurrentPresentation.CurrentSlide = presentation.CurrentSlide;
                 OrchestratorController.Instance.OnSessionPresentationSlideChangedEvent -= fn;
             };
 
             OrchestratorController.Instance.OnSessionPresentationSlideChangedEvent += fn;
             OrchestratorController.Instance.ChangeSlide(slideOffset);
+
+            return tcs.Task;
+        }
+
+        /// <summary>
+        /// Toggles the sharing state of the current presentation in the session.
+        /// </summary>
+        /// <param name="isSharing">A boolean indicating whether to start (true) or stop (false) sharing the current presentation.</param>
+        /// <returns>A task representing the asynchronous operation. The task result is the updated presentation object that reflects the new sharing state.</returns>
+        public Task<Presentation> SharePresentation(bool isSharing)
+        {
+            var tcs = new TaskCompletionSource<Presentation>();
+
+            Action<Presentation> fn = null;
+            fn = (presentation) =>
+            {
+                tcs.SetResult(presentation);
+                CurrentPresentation.IsSharing = presentation.IsSharing;
+                OrchestratorController.Instance.OnSessionPresentationIsSharingEvent -= fn;
+            };
+
+            OrchestratorController.Instance.OnSessionPresentationIsSharingEvent += fn;
+            OrchestratorController.Instance.SetCurrentPresentationIsSharing(isSharing);
 
             return tcs.Task;
         }
