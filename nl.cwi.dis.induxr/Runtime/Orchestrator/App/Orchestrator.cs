@@ -75,8 +75,9 @@ namespace Orchestrator.App
         /// </summary>
         /// <param name="username">The username of the user attempting to log in.</param>
         /// <param name="password">The password of the user, if required. Defaults to null for passwordless login.</param>
+        /// <param name="deviceType">The type of the device that the user uses to log in. Defaults to "unknown".</param>
         /// <returns>A task representing the asynchronous operation. The task result contains the user ID as a string if the login was successful.</returns>
-        public Task<string> Login(string username, string password = null)
+        public Task<string> Login(string username, string password = null, string deviceType = "unknown")
         {
             var tcs = new TaskCompletionSource<string>();
 
@@ -107,11 +108,11 @@ namespace Orchestrator.App
 
             if (password == null)
             {
-                OrchestratorController.Instance.Login(username);
+                OrchestratorController.Instance.Login(username, deviceType);
             }
             else
             {
-                OrchestratorController.Instance.Login(username, password);
+                OrchestratorController.Instance.Login(username, password, deviceType);
             }
 
             return tcs.Task;
