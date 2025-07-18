@@ -60,6 +60,16 @@ namespace Orchestrator.App
         public event Action<Presentation> OnPresentationChanged;
 
         /// <summary>
+        /// Occurs when the current presentation in the session changes it's <c>isSharing</c> flag.
+        /// </summary>
+        /// <remarks>
+        /// This event is triggered whenever the active presentation for a session is modified.
+        /// Subscriber methods receive the updated presentation object as an argument,
+        /// allowing them to respond to changes in the active presentation.
+        /// </remarks>
+        public event Action<Presentation> OnPresentationIsSharingChanged;
+
+        /// <summary>
         /// Occurs when the current presentation's slide in the session is updated or changed.
         /// </summary>
         /// <remarks>
@@ -128,6 +138,7 @@ namespace Orchestrator.App
 
             OrchestratorController.Instance.OnSessionPresentationChangedEvent += PresentationChanged;
             OrchestratorController.Instance.OnSessionPresentationSlideChangedEvent += PresentationSlideChanged;
+            OrchestratorController.Instance.OnSessionPresentationIsSharingEvent += PresentationIsSharingChanged;
 
             OrchestratorController.Instance.OnSessionStatusChangedEvent += SessionStatusChanged;
 
@@ -422,6 +433,12 @@ namespace Orchestrator.App
         {
             CurrentPresentation.CurrentSlide = presentation.CurrentSlide;
             OnPresentationSlideChanged?.Invoke(presentation);
+        }
+
+        private void PresentationIsSharingChanged(Presentation presentation)
+        {
+            CurrentPresentation.IsSharing = presentation.IsSharing;
+            OnPresentationIsSharingChanged?.Invoke(presentation);
         }
 
         private void SessionStatusChanged(string status)
