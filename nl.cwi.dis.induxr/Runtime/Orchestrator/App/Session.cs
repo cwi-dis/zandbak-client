@@ -371,6 +371,16 @@ namespace Orchestrator.App
         }
 
         /// <summary>
+        /// Clears the raised hand status of the current user in the session. This will trigger an event
+        /// when the operation is completed.
+        /// </summary>
+        /// <returns>A task that represents the asynchronous operation. The task result indicates whether the operation was successful.</returns>
+        public Task<bool> ClearRaisedHand()
+        {
+            return this.ClearRaisedHand(Self.Id);
+        }
+
+        /// <summary>
         /// Sends a given chat message to all users in the current session.
         /// </summary>
         /// <param name="message">Message to be sent</param>
