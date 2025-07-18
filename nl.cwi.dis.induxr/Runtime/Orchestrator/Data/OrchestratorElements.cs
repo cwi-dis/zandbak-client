@@ -130,7 +130,7 @@ namespace Orchestrator.Data
         [JsonProperty("presenter")] public string Presenter;
         [JsonProperty("slidesUrl")] public string SlidesURL;
         [JsonProperty("currentSlide")] public int CurrentSlide;
-        [JsonProperty("isSharing")] public int IsSharing;
+        [JsonProperty("isSharing")] public bool IsSharing;
     }
 
     public class Session : OrchestratorElement
