@@ -23,6 +23,7 @@ namespace Orchestrator.App
 
         public List<Presentation> Presentations => _sessionData.Presentations.ToList();
         public Presentation CurrentPresentation;
+        public bool IsSharing => CurrentPresentation.IsSharing;
 
         public List<ChatMessage> Chat { get; private set; }
 
@@ -58,6 +59,16 @@ namespace Orchestrator.App
         /// allowing them to respond to changes in the active presentation.
         /// </remarks>
         public event Action<Presentation> OnPresentationChanged;
+
+        /// <summary>
+        /// Occurs when the current presentation in the session changes it's <c>isSharing</c> flag.
+        /// </summary>
+        /// <remarks>
+        /// This event is triggered whenever the active presentation for a session is modified.
+        /// Subscriber methods receive the updated presentation object as an argument,
+        /// allowing them to respond to changes in the active presentation.
+        /// </remarks>
+        public event Action<Presentation> OnPresentationIsSharingChanged;
 
         /// <summary>
         /// Occurs when the current presentation's slide in the session is updated or changed.
@@ -128,6 +139,7 @@ namespace Orchestrator.App
 
             OrchestratorController.Instance.OnSessionPresentationChangedEvent += PresentationChanged;
             OrchestratorController.Instance.OnSessionPresentationSlideChangedEvent += PresentationSlideChanged;
+            OrchestratorController.Instance.OnSessionPresentationIsSharingEvent += PresentationIsSharingChanged;
 
             OrchestratorController.Instance.OnSessionStatusChangedEvent += SessionStatusChanged;
 
@@ -212,11 +224,35 @@ namespace Orchestrator.App
             fn = (presentation) =>
             {
                 tcs.SetResult(presentation);
+                CurrentPresentation.CurrentSlide = presentation.CurrentSlide;
                 OrchestratorController.Instance.OnSessionPresentationSlideChangedEvent -= fn;
             };
 
             OrchestratorController.Instance.OnSessionPresentationSlideChangedEvent += fn;
             OrchestratorController.Instance.ChangeSlide(slideOffset);
+
+            return tcs.Task;
+        }
+
+        /// <summary>
+        /// Toggles the sharing state of the current presentation in the session.
+        /// </summary>
+        /// <param name="isSharing">A boolean indicating whether to start (true) or stop (false) sharing the current presentation.</param>
+        /// <returns>A task representing the asynchronous operation. The task result is the updated presentation object that reflects the new sharing state.</returns>
+        public Task<Presentation> SharePresentation(bool isSharing)
+        {
+            var tcs = new TaskCompletionSource<Presentation>();
+
+            Action<Presentation> fn = null;
+            fn = (presentation) =>
+            {
+                tcs.SetResult(presentation);
+                CurrentPresentation.IsSharing = presentation.IsSharing;
+                OrchestratorController.Instance.OnSessionPresentationIsSharingEvent -= fn;
+            };
+
+            OrchestratorController.Instance.OnSessionPresentationIsSharingEvent += fn;
+            OrchestratorController.Instance.SetCurrentPresentationIsSharing(isSharing);
 
             return tcs.Task;
         }
@@ -422,6 +458,12 @@ namespace Orchestrator.App
         {
             CurrentPresentation.CurrentSlide = presentation.CurrentSlide;
             OnPresentationSlideChanged?.Invoke(presentation);
+        }
+
+        private void PresentationIsSharingChanged(Presentation presentation)
+        {
+            CurrentPresentation.IsSharing = presentation.IsSharing;
+            OnPresentationIsSharingChanged?.Invoke(presentation);
         }
 
         private void SessionStatusChanged(string status)

@@ -176,6 +176,11 @@ namespace Orchestrator.Wrapping
         public event Action<Presentation> OnSessionPresentationSlideChangedEvent;
 
         /// <summary>
+        /// Invoked when the current presentation's sharing status changes
+        /// </summary>
+        public event Action<Presentation> OnSessionPresentationIsSharingEvent;
+
+        /// <summary>
         /// Invoked when a message is received in the current session
         /// </summary>
         public event Action<ChatMessage> OnUserMessageReceivedEvent;
@@ -684,6 +689,25 @@ namespace Orchestrator.Wrapping
         }
 
         /// <summary>
+        /// Sets whether the current presentation is being shared.
+        /// Updates the orchestrator with the sharing status. If the invoking user is not a presenter or administrator,
+        /// an error is issued. If there is no current presentation, an error is issued as well. Upon success, all
+        /// users will receive a session update with the updated presentation.
+        /// </summary>
+        /// <param name="isSharing">A boolean indicating if the current presentation should be marked as sharing.</param>
+        public void SetCurrentPresentationIsSharing(bool isSharing)
+        {
+            _orchestratorWrapper.CurrentPresentationIsSharing(isSharing);
+        }
+
+        void IOrchestratorResponsesListener.OnCurrentPresentationIsSharingResponse(ResponseStatus status, Presentation presentation)
+        {
+            if (status.Error != 0) {
+                OnErrorEvent?.Invoke(status);
+            }
+        }
+
+        /// <summary>
         /// Updates the current session's status using the specified status string.
         /// </summary>
         /// <param name="status">The new status to be applied to the session.</param>
@@ -784,6 +808,12 @@ namespace Orchestrator.Wrapping
         {
             _orchestratorWrapper.GetSessionInfo();
             OnSessionPresentationChangedEvent?.Invoke(presentation);
+        }
+
+        void IUserSessionEventsListener.OnPresentationIsSharingChanged(Presentation presentation)
+        {
+            _orchestratorWrapper.GetSessionInfo();
+            OnSessionPresentationIsSharingEvent?.Invoke(presentation);
         }
 
         void IUserSessionEventsListener.OnSlideChanged(Presentation presentation)

@@ -451,6 +451,21 @@ namespace Orchestrator.Wrapping {
             }
         }
 
+        public void CurrentPresentationIsSharing(bool isSharing)
+        {
+            lock (this)
+            {
+                _socket.Emit("IsSharing", (response) =>
+                {
+                    var data = response.GetValue<OrchestratorResponse<PresentationResponse>>();
+
+                    UnityThread.executeInUpdate(() => {
+                        _responsesListener?.OnCurrentPresentationIsSharingResponse(data.ResponseStatus, data.Body.Presentation);
+                    });
+                }, new { isSharing });
+            }
+        }
+
         public void SetSessionStatus(string status)
         {
             lock (this)
@@ -539,6 +554,7 @@ namespace Orchestrator.Wrapping {
                         break;
                     case "PRESENTATION_CHANGED":
                     case "SLIDE_CHANGED":
+                    case "PRESENTATION_IS_SHARING":
                         OnSessionUpdatedWithPresentationData(response);
                         break;
                     case "SESSION_STATUS_CHANGED":
@@ -581,6 +597,12 @@ namespace Orchestrator.Wrapping {
                     UnityThread.executeInUpdate(() =>
                     {
                         _userSessionEventListener?.OnPresentationChanged(data.EventData.Presentation);
+                    });
+                    break;
+                case "PRESENTATION_IS_SHARING":
+                    UnityThread.executeInUpdate(() =>
+                    {
+                        _userSessionEventListener?.OnPresentationIsSharingChanged(data.EventData.Presentation);
                     });
                     break;
                 case "SLIDE_CHANGED":
