@@ -29,6 +29,7 @@ namespace Orchestrator.Data
         void OnUserClearedRaisedHand(string userId);
         void OnSessionStatusChanged(string status);
         void OnPresentationChanged(Presentation presentation);
+        void OnPresentationIsSharingChanged(Presentation presentation);
         void OnSlideChanged(Presentation presentation);
         void OnSessionIsSpeakingChanged(string userId, bool isSpeaking);
     }

@@ -176,6 +176,11 @@ namespace Orchestrator.Wrapping
         public event Action<Presentation> OnSessionPresentationSlideChangedEvent;
 
         /// <summary>
+        /// Invoked when the current presentation's sharing status changes
+        /// </summary>
+        public event Action<Presentation> OnSessionPresentationIsSharingEvent;
+
+        /// <summary>
         /// Invoked when a message is received in the current session
         /// </summary>
         public event Action<ChatMessage> OnUserMessageReceivedEvent;
@@ -803,6 +808,12 @@ namespace Orchestrator.Wrapping
         {
             _orchestratorWrapper.GetSessionInfo();
             OnSessionPresentationChangedEvent?.Invoke(presentation);
+        }
+
+        void IUserSessionEventsListener.OnPresentationIsSharingChanged(Presentation presentation)
+        {
+            _orchestratorWrapper.GetSessionInfo();
+            OnSessionPresentationIsSharingEvent?.Invoke(presentation);
         }
 
         void IUserSessionEventsListener.OnSlideChanged(Presentation presentation)

@@ -554,6 +554,7 @@ namespace Orchestrator.Wrapping {
                         break;
                     case "PRESENTATION_CHANGED":
                     case "SLIDE_CHANGED":
+                    case "PRESENTATION_IS_SHARING":
                         OnSessionUpdatedWithPresentationData(response);
                         break;
                     case "SESSION_STATUS_CHANGED":
@@ -596,6 +597,12 @@ namespace Orchestrator.Wrapping {
                     UnityThread.executeInUpdate(() =>
                     {
                         _userSessionEventListener?.OnPresentationChanged(data.EventData.Presentation);
+                    });
+                    break;
+                case "PRESENTATION_IS_SHARING":
+                    UnityThread.executeInUpdate(() =>
+                    {
+                        _userSessionEventListener?.OnPresentationIsSharingChanged(data.EventData.Presentation);
                     });
                     break;
                 case "SLIDE_CHANGED":
