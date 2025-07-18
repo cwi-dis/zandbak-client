@@ -92,7 +92,8 @@ namespace Orchestrator.App
                         new Data.User
                         {
                             Username = username,
-                            Id = userId
+                            Id = userId,
+                            DeviceType = deviceType
                         }
                     );
                 }
