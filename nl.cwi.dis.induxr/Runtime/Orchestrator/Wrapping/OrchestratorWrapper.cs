@@ -451,6 +451,21 @@ namespace Orchestrator.Wrapping {
             }
         }
 
+        public void CurrentPresentationIsSharing(bool isSharing)
+        {
+            lock (this)
+            {
+                _socket.Emit("IsSharing", (response) =>
+                {
+                    var data = response.GetValue<OrchestratorResponse<PresentationResponse>>();
+
+                    UnityThread.executeInUpdate(() => {
+                        _responsesListener?.OnCurrentPresentationIsSharingResponse(data.ResponseStatus, data.Body.Presentation);
+                    });
+                }, new { isSharing });
+            }
+        }
+
         public void SetSessionStatus(string status)
         {
             lock (this)
