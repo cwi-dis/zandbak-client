@@ -23,6 +23,7 @@ namespace Orchestrator.App
 
         public List<Presentation> Presentations => _sessionData.Presentations.ToList();
         public Presentation CurrentPresentation;
+        public bool IsSharing => CurrentPresentation.IsSharing;
 
         public List<ChatMessage> Chat { get; private set; }
 
