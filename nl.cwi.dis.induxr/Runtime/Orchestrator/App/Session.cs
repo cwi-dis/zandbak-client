@@ -130,8 +130,8 @@ namespace Orchestrator.App
             _sessionData = sessionData;
             _orchestrator = orchestrator;
 
-            Users = _sessionData.UserDefinitions.Select(u => new User(u)).ToList();
-            RaisedHands = _sessionData.RaisedHands.Select(u => new User(u)).ToList();
+            Users = _sessionData.UserDefinitions.Select(u => new User(orchestrator, u)).ToList();
+            RaisedHands = _sessionData.RaisedHands.Select(u => new User(orchestrator, u)).ToList();
             Chat = _sessionData.Chat.ToList();
 
             OrchestratorController.Instance.OnUserJoinSessionEvent += UserJoined;
@@ -334,7 +334,7 @@ namespace Orchestrator.App
             Action<List<Data.User>> fn = null;
             fn = (users) =>
             {
-                RaisedHands = users.Select((u) => new User(u)).ToList();
+                RaisedHands = users.Select((u) => new User(_orchestrator, u)).ToList();
                 tcs.SetResult(RaisedHands);
 
                 OrchestratorController.Instance.OnGetRaisedHandsEvent -= fn;
@@ -437,7 +437,7 @@ namespace Orchestrator.App
 
         private void UserJoined(string userId, Data.User userData)
         {
-            var joinedUser = new User(userData);
+            var joinedUser = new User(_orchestrator, userData);
 
             if (Users.Find(u => u.Id == userId) == null)
             {

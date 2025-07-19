@@ -1,8 +1,11 @@
+using Orchestrator.Data;
+
 namespace Orchestrator.App
 {
     public class User
     {
         private Data.User _userData;
+        private Orchestrator _orchestrator;
 
         public Session Session { get; set; }
         public string Id => _userData.Id;
@@ -24,9 +27,10 @@ namespace Orchestrator.App
         /// </summary>
         public string DeviceType => _userData.DeviceType;
 
-        public User(Data.User userData)
+        public User(Orchestrator orchestrator, Data.User userData)
         {
             _userData = userData;
+            _orchestrator = orchestrator;
         }
     }
 }

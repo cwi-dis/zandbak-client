@@ -90,6 +90,7 @@ namespace Orchestrator.App
                     tcs.SetResult(userId);
 
                     Self = new User(
+                        this,
                         new Data.User
                         {
                             Username = username,
