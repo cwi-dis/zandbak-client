@@ -481,8 +481,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 2bba69e48be504a85878db96b4848e4c, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  playerPrefab: {fileID: 5171808935100316256, guid: 0580b64174c674f51865390454364378, type: 3}
-  avatarPrefab: {fileID: 7824380122346958402, guid: c0ba0d6e2247c4415981391ac888c588, type: 3}
+  localPlayerPrefab: {fileID: 4720975125625051107, guid: 39867c4e3dd9c4fa0a3068fa9b32e0b6, type: 3}
+  remotePlayerPrefab: {fileID: 6845995891581318185, guid: 345fa6eb72b9e456aa9f9f0e3573fb0d, type: 3}
   notificationField: {fileID: 7343296706086159897}
 --- !u!1 &7416109794562929871
 GameObject:
