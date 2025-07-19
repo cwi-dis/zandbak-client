@@ -1,10 +1,10 @@
 using UnityEngine;
 using System.Collections.Generic;
 using Orchestrator.Wrapping;
-using Orchestrator.Data;
 using Orchestrator.Behaviour;
+using Orchestrator.Data;
 using TMPro;
-using UnityEngine.Rendering;
+using User = Orchestrator.App.User;
 
 public class SessionController : MonoBehaviour
 {
@@ -12,18 +12,23 @@ public class SessionController : MonoBehaviour
     public GameObject avatarPrefab;
     public TMP_Text notificationField;
 
-    private Dictionary<string, GameObject> _activeUsers = new Dictionary<string, GameObject>();
+    private Dictionary<string, GameObject> _activeUsers = new();
 
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     private void Start()
     {
-        OrchestratorController.Instance.OnUserJoinSessionEvent += OnUserJoined;
-        OrchestratorController.Instance.OnUserLeaveSessionEvent += OnUserLeft;
+        var session = OrchestratorController.Instance.Orchestrator.CurrentSession;
 
-        var user = OrchestratorController.Instance.SelfUser;
-        Debug.Log("Building session for user: " + user.Username + " " + user.UserType);
+        session.OnUserJoined += OnUserJoined;
+        session.OnUserLeft += OnUserLeft;
+        session.OnMessageReceived += OnMessageReceived;
+        session.OnUserRaisedHand += OnUserRaisedHand;
+        session.OnUserClearedRaisedHand += OnUserClearedRaisedHand;
 
-        if (user.UserType == "presenter")
+        var user = session.Self;
+        Debug.Log("Building session for user: " + user.Name + " " + user.Type);
+
+        if (user.Type == "presenter")
         {
             var self = Instantiate(avatarPrefab, new Vector3(8, 0, 8), Quaternion.identity);
             var avatar = self.GetComponentInChildren<AvatarNetworkBehaviour>();
@@ -47,35 +52,51 @@ public class SessionController : MonoBehaviour
         }
     }
 
-    void OnUserJoined(string userId, User user)
+    void OnUserClearedRaisedHand(User user)
+    {
+        notificationField.text += user.Name + " lowered their hand!\n";
+    }
+
+    void OnUserRaisedHand(User user)
+    {
+        notificationField.text += user.Name + " raised their hand!\n";
+    }
+
+    void OnMessageReceived(ChatMessage message)
+    {
+        notificationField.text += message.Sender.Username + ": " + message.Message + "\n";
+    }
+
+    void OnUserJoined(User user)
     {
         var spawnPosition = new Vector3(
             Random.Range(-8, 8),
             0,
             Random.Range(-8, 8)
         );
-        var newPlayer = (user.UserType == "presenter") ? Instantiate(avatarPrefab) : Instantiate(playerPrefab, spawnPosition, Quaternion.identity);
+        var newPlayer = (user.Type == "presenter") ? Instantiate(avatarPrefab) : Instantiate(playerPrefab, spawnPosition, Quaternion.identity);
         var networkBehaviour = newPlayer.GetComponent<NetworkBehaviour>();
-        networkBehaviour.id = userId;
+        networkBehaviour.id = user.Id;
 
-        Debug.Log("Spawning new user with id " + userId);
-        notificationField.text += user.Username + " joined the session!\n";
-        _activeUsers.Add(userId, newPlayer);
+        Debug.Log("Spawning new user with id " + user.Id);
+        notificationField.text += user.Name + " joined the session!\n";
+        _activeUsers.Add(user.Id, newPlayer);
     }
 
-    void OnUserLeft(string userId) {
-        Debug.Log("User " + userId + "left session");
+    void OnUserLeft(User user) {
+        Debug.Log("User " + user.Id + "left session");
 
-        if (_activeUsers.TryGetValue(userId, out var obj))
+        if (_activeUsers.TryGetValue(user.Id, out var obj))
         {
             Debug.Log("User found, removing and destroying player object");
 
-            _activeUsers.Remove(userId);
+            _activeUsers.Remove(user.Id);
+            notificationField.text += user.Name + " left the session!\n";
             Destroy(obj);
         }
         else
         {
-            Debug.LogWarning("Could not find object for user with id " + userId);
+            Debug.LogWarning("Could not find object for user with id " + user.Id);
         }
     }
 }
