@@ -455,6 +455,16 @@ namespace Orchestrator.App
             OrchestratorController.Instance.Broadcast("transform", JsonConvert.SerializeObject(data));
         }
 
+        /// <summary>
+        /// Retrieves a user from the session's user list based on the provided user ID.
+        /// </summary>
+        /// <param name="userId">The unique identifier of the user to retrieve.</param>
+        /// <returns>The user object matching the specified ID, or null if no matching user is found.</returns>
+        public User GetUserById(string userId)
+        {
+            return Users.Find(u => u.Id == userId);
+        }
+
         #region events
 
         private void UserJoined(string userId, Data.User userData)
