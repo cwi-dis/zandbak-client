@@ -1,8 +1,10 @@
+using System;
 using UnityEngine;
 using Orchestrator.Data;
 
 namespace Orchestrator.Behaviour
 {
+    [Obsolete]
     public class PlayerNetworkBehaviour : NetworkBehaviour
     {
         private CharacterController _controller;

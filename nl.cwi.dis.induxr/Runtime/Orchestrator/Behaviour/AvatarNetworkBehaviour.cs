@@ -1,10 +1,12 @@
-﻿using UnityEngine;
+﻿using System;
+using UnityEngine;
 using System.Collections.Generic;
 using Newtonsoft.Json;
 using Orchestrator.Data;
 
 namespace Orchestrator.Behaviour
 {
+    [Obsolete]
     public class AvatarNetworkBehaviour : NetworkBehaviour
     {
         private SkinnedMeshRenderer _mesh;

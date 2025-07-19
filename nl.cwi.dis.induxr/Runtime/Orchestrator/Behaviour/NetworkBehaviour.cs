@@ -1,9 +1,12 @@
+using System;
 using UnityEngine;
 using Orchestrator.Data;
 using Orchestrator.Wrapping;
 using Newtonsoft.Json;
 
-namespace Orchestrator.Behaviour {
+namespace Orchestrator.Behaviour
+{
+    [Obsolete]
     public abstract class NetworkBehaviour : MonoBehaviour
     {
         public string id;
@@ -41,7 +44,7 @@ namespace Orchestrator.Behaviour {
             }
         }
 
-        private void Broadcast(object data) { 
+        private void Broadcast(object data) {
             if (OrchestratorController.Instance.CurrentSession != null)
             {
                 OrchestratorController.Instance.Broadcast("transform", JsonConvert.SerializeObject(data));
