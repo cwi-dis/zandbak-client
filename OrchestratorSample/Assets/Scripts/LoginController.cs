@@ -5,7 +5,6 @@ using UnityEngine.UI;
 
 public class LoginController : MonoBehaviour
 {
-    public string orchestratorURL;
     public GameObject sessionSelector;
     public TMP_InputField usernameField;
     public TMP_InputField passwordField;
@@ -21,8 +20,9 @@ public class LoginController : MonoBehaviour
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     private async void Start()
     {
-        Debug.Log("Connecting to orchestrator at: " + orchestratorURL);
-        _orchestrator = await OrchestratorController.Instance.SocketConnectAsync(orchestratorURL);
+        var orchestratorUrl = ConfigLoader.Config.orchestratorUrl;
+        Debug.Log("Connecting to orchestrator at: " + orchestratorUrl);
+        _orchestrator = await OrchestratorController.Instance.SocketConnectAsync(orchestratorUrl);
 
         Debug.Log("Connected to orchestrator.");
         loginButton.interactable = true;
