@@ -8,11 +8,11 @@ using User = Orchestrator.App.User;
 
 public class SessionController : MonoBehaviour
 {
-    public GameObject playerPrefab;
-    public GameObject avatarPrefab;
+    public GameObject localPlayerPrefab;
+    public GameObject remotePlayerPrefab;
     public TMP_Text notificationField;
 
-    private Dictionary<string, GameObject> _activeUsers = new();
+    private readonly Dictionary<string, GameObject> _activeUsers = new();
 
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     private void Start()
@@ -28,28 +28,8 @@ public class SessionController : MonoBehaviour
         var user = session.Self;
         Debug.Log("Building session for user: " + user.Name + " " + user.Type);
 
-        if (user.Type == "presenter")
-        {
-            var self = Instantiate(avatarPrefab, new Vector3(8, 0, 8), Quaternion.identity);
-            var avatar = self.GetComponentInChildren<AvatarNetworkBehaviour>();
-
-            avatar.id = user.Id;
-            avatar.isLocal = true;
-
-            var controller = self.GetComponent<PlayerWalk>();
-            controller.enabled = true;
-        }
-        else
-        {
-            var self = Instantiate(playerPrefab);
-
-            var player = self.GetComponent<PlayerNetworkBehaviour>();
-            player.id = user.Id;
-            player.isLocal = true;
-
-            var controller = self.GetComponent<PlayerController>();
-            controller.enabled = true;
-        }
+        var localAvatar = Instantiate(localPlayerPrefab, new Vector3(8, 0, 8), Quaternion.identity).GetComponent<LocalAvatar>();
+        localAvatar.Initialize(user);
     }
 
     void OnUserClearedRaisedHand(User user)
@@ -74,13 +54,13 @@ public class SessionController : MonoBehaviour
             0,
             Random.Range(-8, 8)
         );
-        var newPlayer = (user.Type == "presenter") ? Instantiate(avatarPrefab) : Instantiate(playerPrefab, spawnPosition, Quaternion.identity);
-        var networkBehaviour = newPlayer.GetComponent<NetworkBehaviour>();
-        networkBehaviour.id = user.Id;
+
+        var remoteAvatar = Instantiate(remotePlayerPrefab, spawnPosition, Quaternion.identity).GetComponent<RemoteAvatar>();
+        remoteAvatar.Initialize(user);
 
         Debug.Log("Spawning new user with id " + user.Id);
         notificationField.text += user.Name + " joined the session!\n";
-        _activeUsers.Add(user.Id, newPlayer);
+        _activeUsers.Add(user.Id, remoteAvatar.gameObject);
     }
 
     void OnUserLeft(User user) {
