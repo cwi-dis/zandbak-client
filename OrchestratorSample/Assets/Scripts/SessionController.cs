@@ -26,7 +26,16 @@ public class SessionController : MonoBehaviour
         session.OnUserClearedRaisedHand += OnUserClearedRaisedHand;
 
         var user = session.Self;
-        Debug.Log("Building session for user: " + user.Name + " " + user.Type);
+        Debug.Log($"Building session for user: {user.Name} ({user.Type}). Session has {session.Users.Count} users already.");
+
+        foreach (var remoteUser in session.Users)
+        {
+            Debug.Log($"Adding remote user {remoteUser.Name} ({remoteUser.Type}) to session.");
+
+            var remoteAvatar = Instantiate(remotePlayerPrefab).GetComponent<RemoteAvatar>();
+            remoteAvatar.Initialize(remoteUser);
+            _activeUsers.Add(remoteUser.Id, remoteAvatar.gameObject);
+        }
 
         var localAvatar = Instantiate(localPlayerPrefab, new Vector3(8, 0, 8), Quaternion.identity).GetComponent<LocalAvatar>();
         localAvatar.Initialize(user);
@@ -55,7 +64,7 @@ public class SessionController : MonoBehaviour
             Random.Range(-8, 8)
         );
 
-        var remoteAvatar = Instantiate(remotePlayerPrefab, spawnPosition, Quaternion.identity).GetComponent<RemoteAvatar>();
+        var remoteAvatar = Instantiate(remotePlayerPrefab).GetComponent<RemoteAvatar>();
         remoteAvatar.Initialize(user);
 
         Debug.Log("Spawning new user with id " + user.Id);
