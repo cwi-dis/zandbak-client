@@ -29,7 +29,7 @@ namespace Orchestrator.Behaviour
                 return;
             }
 
-            _mesh = GetComponent<SkinnedMeshRenderer>();
+            _mesh = GetComponentInChildren<SkinnedMeshRenderer>();
         }
 
         private void Update()

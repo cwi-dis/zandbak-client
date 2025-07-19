@@ -25,7 +25,7 @@ namespace Orchestrator.Behaviour
                 return;
             }
 
-            _mesh = GetComponent<SkinnedMeshRenderer>();
+            _mesh = GetComponentInChildren<SkinnedMeshRenderer>();
             _user.OnAvatarMovementReceived += MovementReceived;
         }
 
