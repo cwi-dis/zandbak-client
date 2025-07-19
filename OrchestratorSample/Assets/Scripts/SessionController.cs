@@ -30,11 +30,14 @@ public class SessionController : MonoBehaviour
 
         foreach (var remoteUser in session.Users)
         {
-            Debug.Log($"Adding remote user {remoteUser.Name} ({remoteUser.Type}) to session.");
+            if (remoteUser.Id != user.Id)
+            {
+                Debug.Log($"Adding remote user {remoteUser.Name} ({remoteUser.Type}) to session.");
 
-            var remoteAvatar = Instantiate(remotePlayerPrefab).GetComponent<RemoteAvatar>();
-            remoteAvatar.Initialize(remoteUser);
-            _activeUsers.Add(remoteUser.Id, remoteAvatar.gameObject);
+                var remoteAvatar = Instantiate(remotePlayerPrefab).GetComponent<RemoteAvatar>();
+                remoteAvatar.Initialize(remoteUser);
+                _activeUsers.Add(remoteUser.Id, remoteAvatar.gameObject);
+            }
         }
 
         var localAvatar = Instantiate(localPlayerPrefab, new Vector3(8, 0, 8), Quaternion.identity).GetComponent<LocalAvatar>();
