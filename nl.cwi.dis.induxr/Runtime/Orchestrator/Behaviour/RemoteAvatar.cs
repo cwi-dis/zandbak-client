@@ -1,5 +1,6 @@
-using Orchestrator.App;
+using Orchestrator.Data;
 using UnityEngine;
+using User = Orchestrator.App.User;
 
 namespace Orchestrator.Behaviour
 {

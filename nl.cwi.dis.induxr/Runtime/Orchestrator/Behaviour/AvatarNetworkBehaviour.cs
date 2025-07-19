@@ -5,20 +5,6 @@ using Orchestrator.Data;
 
 namespace Orchestrator.Behaviour
 {
-    [System.Serializable]
-    public class AvatarMovementData
-    {
-        public string userId;
-        public Dictionary<string, BoneData> bones;
-        public float timestamp;
-    }
-
-    [System.Serializable]
-    public class BoneData {
-        public PositionData pos;
-        public RotationData rot;
-    }
-
     public class AvatarNetworkBehaviour : NetworkBehaviour
     {
         private SkinnedMeshRenderer _mesh;

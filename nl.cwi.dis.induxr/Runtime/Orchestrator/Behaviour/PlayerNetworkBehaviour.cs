@@ -3,32 +3,6 @@ using Orchestrator.Data;
 
 namespace Orchestrator.Behaviour
 {
-    [System.Serializable]
-    public class MovementData
-    {
-        public string userId;
-        public PositionData position;
-        public RotationData rotation;
-        public float timestamp;
-    }
-
-    [System.Serializable]
-    public class PositionData
-    {
-        public float x;
-        public float y;
-        public float z;
-    }
-
-    [System.Serializable]
-    public class RotationData
-    {
-        public float x;
-        public float y;
-        public float z;
-        public float w;
-    }
-
     public class PlayerNetworkBehaviour : NetworkBehaviour
     {
         private CharacterController _controller;
