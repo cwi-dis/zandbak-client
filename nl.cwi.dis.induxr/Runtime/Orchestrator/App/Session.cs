@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Newtonsoft.Json;
 using Orchestrator.Data;
 using Orchestrator.Wrapping;
 
@@ -442,6 +443,16 @@ namespace Orchestrator.App
             OrchestratorController.Instance.GetMessages();
 
             return tcs.Task;
+        }
+
+        /// <summary>
+        /// Broadcasts an object containing transform data to all users in the current session.
+        /// </summary>
+        /// <param name="data">The transform data object to be broadcast to the session.</param>
+        /// <typeparam name="T">The type of the data object being broadcast.</typeparam>
+        public void BroadcastTransform<T>(T data)
+        {
+            OrchestratorController.Instance.Broadcast("transform", JsonConvert.SerializeObject(data));
         }
 
         #region events
