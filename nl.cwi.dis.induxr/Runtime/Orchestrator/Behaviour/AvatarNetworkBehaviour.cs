@@ -1,5 +1,6 @@
 ﻿using UnityEngine;
 using System.Collections.Generic;
+using Newtonsoft.Json;
 using Orchestrator.Data;
 
 namespace Orchestrator.Behaviour
@@ -29,7 +30,7 @@ namespace Orchestrator.Behaviour
             Initialize();
             _mesh = GetComponent<SkinnedMeshRenderer>();
 
-            if (!isLocal) { 
+            if (!isLocal) {
                 _parentRigidbody = GetComponentInParent<Rigidbody>();
 
                 if (_parentRigidbody) {
@@ -71,7 +72,7 @@ namespace Orchestrator.Behaviour
         {
             if (data.Channel == "transform")
             {
-                var movement = JsonUtility.FromJson<AvatarMovementData>(data.Data);
+                var movement = JsonConvert.DeserializeObject<AvatarMovementData>(data.Data);
 
                 if (movement.userId == id) {
                     foreach (var bone in _mesh.bones) {

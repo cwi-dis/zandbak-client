@@ -1,4 +1,5 @@
 using System;
+using Newtonsoft.Json;
 using Orchestrator.Behaviour;
 using Orchestrator.Data;
 using UnityEngine;
@@ -59,7 +60,7 @@ namespace Orchestrator.App
         private void BroadcastReceived(BroadcastData data)
         {
             if (data.Channel != "transform") return;
-            var movement = JsonUtility.FromJson<AvatarMovementData>(data.Data);
+            var movement = JsonConvert.DeserializeObject<AvatarMovementData>(data.Data);
 
             if (movement.userId != Id) return;
             OnAvatarMovementReceived?.Invoke(movement);
