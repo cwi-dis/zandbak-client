@@ -125,6 +125,15 @@ namespace Orchestrator.App
         /// </remarks>
         public event Action<User, bool> OnIsSpeakingChanged;
 
+        /// <summary>
+        /// Occurs when broadcast data is received in the session.
+        /// </summary>
+        /// <remarks>
+        /// This event is triggered whenever new broadcast data is received. The event provides the
+        /// broadcast data as an argument, allowing subscriber methods to access and process the transmitted data.
+        /// </remarks>
+        public event Action<BroadcastData> OnBroadcastDataReceived;
+
         public Session(Orchestrator orchestrator, Data.Session sessionData)
         {
             _sessionData = sessionData;
@@ -149,6 +158,8 @@ namespace Orchestrator.App
             OrchestratorController.Instance.OnUserMessageReceivedEvent += UserMessageReceived;
 
             OrchestratorController.Instance.OnSessionIsSpeakingEvent += IsSpeakingChanged;
+
+            OrchestratorController.Instance.OnBroadcastReceivedEvent += BroadcastReceived;
         }
 
         /// <summary>
@@ -508,6 +519,11 @@ namespace Orchestrator.App
             if (foundUser == null) return;
 
             OnIsSpeakingChanged?.Invoke(foundUser, isSpeaking);
+        }
+
+        private void BroadcastReceived(BroadcastData data)
+        {
+            OnBroadcastDataReceived?.Invoke(data);
         }
 
         #endregion
