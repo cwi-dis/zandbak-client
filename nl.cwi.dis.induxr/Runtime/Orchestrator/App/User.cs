@@ -8,6 +8,7 @@ namespace Orchestrator.App
     public class User
     {
         private readonly Data.User _userData;
+        private readonly Orchestrator _orchestrator;
 
         public Session Session { get; set; }
         public string Id => _userData.Id;
@@ -37,12 +38,22 @@ namespace Orchestrator.App
         public User(Orchestrator orchestrator, Data.User userData)
         {
             _userData = userData;
+            _orchestrator = orchestrator;
 
-            var session = orchestrator.CurrentSession;
+            var session = _orchestrator.CurrentSession;
             if (session != null)
             {
                 session.OnBroadcastDataReceived += BroadcastReceived;
             }
+        }
+
+        /// <summary>
+        /// Broadcasts avatar movement data to all users in the current session.
+        /// </summary>
+        /// <param name="data">The movement data of the avatar, including user ID, bone data, and timestamp.</param>
+        public void BroadcastAvatarMovement(AvatarMovementData data)
+        {
+            _orchestrator.CurrentSession?.BroadcastTransform(data);
         }
 
         private void BroadcastReceived(BroadcastData data)
