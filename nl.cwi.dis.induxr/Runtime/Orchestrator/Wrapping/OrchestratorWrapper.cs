@@ -51,14 +51,6 @@ namespace Orchestrator.Wrapping {
                 OnSocketError(null);
             };
 
-            _socket.OnPing += (_, _) => {
-                Debug.Log("PING");
-            };
-
-            _socket.OnPong += (_, _) => {
-                Debug.Log("PONG");
-            };
-
             _socket.On("Broadcast", OnBroadcastReceived);
             _socket.On("MessageSent", OnMessageSentFromOrchestrator);
             _socket.On("DataReceived", OnUserDataReceived);
