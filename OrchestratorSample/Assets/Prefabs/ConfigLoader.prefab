@@ -11,7 +11,7 @@ GameObject:
   - component: {fileID: 6184613042921258056}
   - component: {fileID: 7684026187246086442}
   m_Layer: 0
-  m_Name: Config
+  m_Name: ConfigLoader
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0

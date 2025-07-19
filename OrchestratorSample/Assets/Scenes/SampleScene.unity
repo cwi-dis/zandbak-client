@@ -566,7 +566,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 7372551029268534576, guid: 9d78d38c119aa42c094d9500db74115b, type: 3}
       propertyPath: m_Name
-      value: Config
+      value: ConfigLoader
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []

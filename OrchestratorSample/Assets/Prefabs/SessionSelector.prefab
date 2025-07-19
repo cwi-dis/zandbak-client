@@ -1705,7 +1705,7 @@ GameObject:
   - component: {fileID: 1771244780200518170}
   - component: {fileID: 4343030074431716866}
   m_Layer: 5
-  m_Name: SessionUI
+  m_Name: SessionSelector
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
