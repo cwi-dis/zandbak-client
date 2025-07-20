@@ -199,7 +199,10 @@ namespace Orchestrator.App
 
             foreach (var user in Users)
             {
-                user.EnableMovementBroadcastListener();
+                if (user.Id != Self.Id)
+                {
+                    user.EnableMovementBroadcastListener();
+                }
             }
         }
 
