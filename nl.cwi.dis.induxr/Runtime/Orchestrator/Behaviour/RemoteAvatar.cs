@@ -34,6 +34,11 @@ namespace Orchestrator.Behaviour
             }
 
             _mesh = GetComponentInChildren<SkinnedMeshRenderer>();
+
+            if (_user.Transform != null)
+            {
+                UpdateBones(_user.Transform);
+            }
             _user.OnAvatarMovementReceived += MovementReceived;
         }
 
