@@ -5,30 +5,33 @@ using Orchestrator.Behaviour;
 using Orchestrator.Data;
 using TMPro;
 using User = Orchestrator.App.User;
+using Session = Orchestrator.App.Session;
 
 public class SessionController : MonoBehaviour
 {
     public GameObject localPlayerPrefab;
     public GameObject remotePlayerPrefab;
     public TMP_Text notificationField;
+    public TMP_Text raisedHandsField;
 
     private readonly Dictionary<string, GameObject> _activeUsers = new();
+    private Session _session;
 
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     private void Start()
     {
-        var session = OrchestratorController.Instance.Orchestrator.CurrentSession;
+        _session = OrchestratorController.Instance.Orchestrator.CurrentSession;
 
-        session.OnUserJoined += OnUserJoined;
-        session.OnUserLeft += OnUserLeft;
-        session.OnMessageReceived += OnMessageReceived;
-        session.OnUserRaisedHand += OnUserRaisedHand;
-        session.OnUserClearedRaisedHand += OnUserClearedRaisedHand;
+        _session.OnUserJoined += OnUserJoined;
+        _session.OnUserLeft += OnUserLeft;
+        _session.OnMessageReceived += OnMessageReceived;
+        _session.OnUserRaisedHand += OnUserRaisedHand;
+        _session.OnUserClearedRaisedHand += OnUserClearedRaisedHand;
 
-        var user = session.Self;
-        Debug.Log($"Building session for user: {user.Name} ({user.Type}). Session has {session.Users.Count} users already.");
+        var user = _session.Self;
+        Debug.Log($"Building session for user: {user.Name} ({user.Type}). Session has {_session.Users.Count} users already.");
 
-        foreach (var remoteUser in session.Users)
+        foreach (var remoteUser in _session.Users)
         {
             if (remoteUser.Id != user.Id)
             {
@@ -49,34 +52,46 @@ public class SessionController : MonoBehaviour
         Debug.Log($"Spawning local player at {spawnPosition}");
         var localAvatar = Instantiate(localPlayerPrefab, spawnPosition, Quaternion.identity).GetComponent<LocalAvatar>();
         localAvatar.Initialize(user);
+
+        notificationField.text += $"Welcome to <i>{_session.Name}</i>\n\n";
     }
 
-    void OnUserClearedRaisedHand(User user)
+    private void OnUserClearedRaisedHand(User user)
     {
-        notificationField.text += user.Name + " lowered their hand!\n";
+        notificationField.text += $"<i>{user.Name} lowered their hand!</i>\n";
+        RenderRaisedHands();
     }
 
-    void OnUserRaisedHand(User user)
+    private void OnUserRaisedHand(User user)
     {
-        notificationField.text += user.Name + " raised their hand!\n";
+        notificationField.text += $"<i>{user.Name} raised their hand!</i>\n";
+        RenderRaisedHands();
     }
 
-    void OnMessageReceived(ChatMessage message)
+    private void RenderRaisedHands()
     {
-        notificationField.text += message.Sender.Username + ": " + message.Message + "\n";
+        foreach (var raisedHandUser in _session.RaisedHands)
+        {
+            raisedHandsField.text += raisedHandUser.Name + "\n";
+        }
     }
 
-    void OnUserJoined(User user)
+    private void OnMessageReceived(ChatMessage message)
+    {
+        notificationField.text += $"{message.Sender.Username}: {message.Message}\n";
+    }
+
+    private void OnUserJoined(User user)
     {
         var remoteAvatar = Instantiate(remotePlayerPrefab).GetComponent<RemoteAvatar>();
         remoteAvatar.Initialize(user);
 
         Debug.Log("Spawning new user with id " + user.Id);
-        notificationField.text += user.Name + " joined the session!\n";
+        notificationField.text += $"<i>{user.Name} joined the session!</i>\n";
         _activeUsers.Add(user.Id, remoteAvatar.gameObject);
     }
 
-    void OnUserLeft(User user) {
+    private void OnUserLeft(User user) {
         Debug.Log("User " + user.Id + "left session");
 
         if (_activeUsers.TryGetValue(user.Id, out var obj))
@@ -84,7 +99,7 @@ public class SessionController : MonoBehaviour
             Debug.Log("User found, removing and destroying player object");
 
             _activeUsers.Remove(user.Id);
-            notificationField.text += user.Name + " left the session!\n";
+            notificationField.text += $"<i>{user.Name} left the session!</i>\n";
             Destroy(obj);
         }
         else
