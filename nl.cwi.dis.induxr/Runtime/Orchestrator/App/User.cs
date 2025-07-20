@@ -40,11 +40,6 @@ namespace Orchestrator.App
             _userData = userData;
             _orchestrator = orchestrator;
             Session = _orchestrator.CurrentSession;
-
-            if (Id != _orchestrator.Self.Id)
-            {
-                EnableMovementBroadcastListener();
-            }
         }
 
         /// <summary>
