@@ -1,57 +1,59 @@
 ﻿using UnityEngine;
-using System.Collections;
 
-public class PlayerWalk : MonoBehaviour {
+namespace Orchestrator.Behaviour
+{
+	public class PlayerWalk : MonoBehaviour {
+		private static readonly int Jump = Animator.StringToHash("Jump");
+		private static readonly int Crouch = Animator.StringToHash("Crouch");
+		private static readonly int Speed = Animator.StringToHash("Speed");
+		private static readonly int Direction = Animator.StringToHash("Direction");
 
-	Animator anim;
+		private Animator _anim;
 
-	// Use this for initialization
-	void Start() 
-	{
-		anim = GetComponent<Animator>();
-	}
-
-	// Update is called once per frame
-	void Update() 
-	{
-		if (anim) 
+		private void Start()
 		{
-			AnimatorStateInfo animState = anim.GetCurrentAnimatorStateInfo(0);
+			_anim = GetComponent<Animator>();
+		}
 
-			// Jump when SPACE key is pressed
-			if (animState.IsName("Base.WalkForward")) 
+		private void Update()
+		{
+			if (!_anim) return;
+			var animState = _anim.GetCurrentAnimatorStateInfo(0);
+
+			// Jump when the SPACE key is pressed
+			if (animState.IsName("Base.WalkForward"))
 			{
 				if (Input.GetButton("Jump")) {
-					anim.SetBool("Jump", true);		
-                }
+					_anim.SetBool(Jump, true);
+				}
 			}
-			else 
+			else
 			{
-				anim.SetBool("Jump", false);
+				_anim.SetBool(Jump, false);
 			}
 
-			// Crouch when CTRL key is pressed
-			if (animState.IsName("Base.Idle")) 
+			// Crouch when the CTRL key is pressed
+			if (animState.IsName("Base.Idle"))
 			{
 				if (Input.GetButtonDown("Fire1")) {
-					anim.SetBool("Crouch", true);		
-                }
+					_anim.SetBool(Crouch, true);
+				}
 			}
 
-			// Go back to idle when CTRL key is released
-			if (animState.IsName("Base.Crouch")) 
+			// Go back to idle when the CTRL key is released
+			if (animState.IsName("Base.Crouch"))
 			{
 				if (Input.GetButtonUp("Fire1")) {
-					anim.SetBool("Crouch", false);		
-                }
+					_anim.SetBool(Crouch, false);
+				}
 			}
 
-			float h = Input.GetAxis("Horizontal");
-			float v = Input.GetAxis("Vertical");
+			var h = Input.GetAxis("Horizontal");
+			var v = Input.GetAxis("Vertical");
 
-			anim.SetFloat("Speed", v);
-			anim.SetFloat("Direction", h);
-			anim.speed = 2f;
+			_anim.SetFloat(Speed, v);
+			_anim.SetFloat(Direction, h);
+			_anim.speed = 2f;
 		}
 	}
 }
