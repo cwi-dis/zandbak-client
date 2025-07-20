@@ -88,7 +88,7 @@ public class SessionController : MonoBehaviour
 
         foreach (var raisedHandUser in raisedHands)
         {
-            raisedHandsField.text += raisedHandUser.Username + "\n";
+            raisedHandsField.text += raisedHandUser.Name + "\n";
         }
     }
 

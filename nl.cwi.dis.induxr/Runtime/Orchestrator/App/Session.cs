@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 using Newtonsoft.Json;
 using Orchestrator.Data;
 using Orchestrator.Wrapping;
+using UnityEngine;
 
 namespace Orchestrator.App
 {
@@ -29,7 +30,7 @@ namespace Orchestrator.App
 
         public List<ChatMessage> Chat { get; private set; }
 
-        public List<Data.User> RaisedHands { get; private set; }
+        public List<User> RaisedHands { get; private set; }
         public List<User> Users { get; private set; }
         public User Self => _orchestrator.Self;
         public List<User> Speakers => Users.Where(u => u.IsSpeaking).ToList();
@@ -142,7 +143,7 @@ namespace Orchestrator.App
             _orchestrator = orchestrator;
 
             Users = _sessionData.UserDefinitions.Select(u => new User(orchestrator, u)).ToList();
-            RaisedHands = _sessionData.RaisedHands.ToList();
+            RaisedHands = _sessionData.RaisedHands.Select(u => FindUserById(u.Id)).ToList();
             Chat = _sessionData.Chat.ToList();
 
             OrchestratorController.Instance.OnUserJoinSessionEvent += UserJoined;
@@ -195,6 +196,12 @@ namespace Orchestrator.App
         {
             _orchestrator.CurrentSession = this;
             IsJoined = true;
+
+            // Add self to session users if not present
+            if (FindUserById(Self.Id) == null)
+            {
+                Users.Add(Self);
+            }
 
             foreach (var user in Users)
             {
@@ -364,14 +371,14 @@ namespace Orchestrator.App
         /// Retrieves a list of users who have currently raised their hands in the session.
         /// </summary>
         /// <returns>A task that represents the asynchronous operation. The task result contains a list of users with raised hands.</returns>
-        public Task<List<Data.User>> GetRaisedHands()
+        public Task<List<User>> GetRaisedHands()
         {
-            var tcs = new TaskCompletionSource<List<Data.User>>();
+            var tcs = new TaskCompletionSource<List<User>>();
 
             Action<List<Data.User>> fn = null;
             fn = (users) =>
             {
-                RaisedHands = users;
+                RaisedHands = users.Select(u => FindUserById(u.Id)).ToList();
                 tcs.SetResult(RaisedHands);
 
                 OrchestratorController.Instance.OnGetRaisedHandsEvent -= fn;
