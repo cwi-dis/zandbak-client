@@ -198,7 +198,7 @@ namespace Orchestrator.App
             fn = (session) =>
             {
                 CurrentSession = new Session(this, session);
-                Self.Session = CurrentSession;
+                CurrentSession.Join();
 
                 tcs.SetResult(CurrentSession);
                 OrchestratorController.Instance.OnAddSessionEvent -= fn;
@@ -224,7 +224,7 @@ namespace Orchestrator.App
             fn = (session) =>
             {
                 CurrentSession = new Session(this, session);
-                Self.Session = CurrentSession;
+                CurrentSession.Join();
 
                 tcs.SetResult(CurrentSession);
                 OrchestratorController.Instance.OnAddSessionEvent -= fn;
