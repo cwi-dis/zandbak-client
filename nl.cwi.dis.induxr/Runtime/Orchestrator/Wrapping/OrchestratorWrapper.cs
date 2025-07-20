@@ -207,7 +207,6 @@ namespace Orchestrator.Wrapping {
                     sessionName,
                     sessionDescription,
                     sessionProtocol,
-                    scenarioDefinition = new { scenarioId="", scenarioName="", scenarioDescription="" },
                     channels
                 });
             }
