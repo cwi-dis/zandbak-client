@@ -1,6 +1,5 @@
 using System;
 using Newtonsoft.Json;
-using Orchestrator.Behaviour;
 using Orchestrator.Data;
 using UnityEngine;
 
@@ -40,11 +39,15 @@ namespace Orchestrator.App
         {
             _userData = userData;
             _orchestrator = orchestrator;
+            Session = _orchestrator.CurrentSession;
 
-            var session = _orchestrator.CurrentSession;
-            if (session != null)
+            if (Session != null)
             {
-                session.OnBroadcastDataReceived += BroadcastReceived;
+                Session.OnBroadcastDataReceived += BroadcastReceived;
+            }
+            else
+            {
+                Debug.LogWarning($"Session for user {Name} is not set. Broadcasts will not be received");
             }
         }
 
