@@ -141,7 +141,7 @@ namespace Orchestrator.App
             _orchestrator = orchestrator;
 
             Users = _sessionData.UserDefinitions.Select(u => new User(orchestrator, u)).ToList();
-            RaisedHands = _sessionData.RaisedHands.Select(u => new User(orchestrator, u)).ToList();
+            RaisedHands = _sessionData.RaisedHands.Select(u => FindUserById(u.Id)).ToList();
             Chat = _sessionData.Chat.ToList();
 
             OrchestratorController.Instance.OnUserJoinSessionEvent += UserJoined;
@@ -460,7 +460,7 @@ namespace Orchestrator.App
         /// </summary>
         /// <param name="userId">The unique identifier of the user to retrieve.</param>
         /// <returns>The user object matching the specified ID, or null if no matching user is found.</returns>
-        public User GetUserById(string userId)
+        public User FindUserById(string userId)
         {
             return Users.Find(u => u.Id == userId);
         }

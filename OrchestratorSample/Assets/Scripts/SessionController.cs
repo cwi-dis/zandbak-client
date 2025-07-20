@@ -61,12 +61,6 @@ public class SessionController : MonoBehaviour
 
     void OnUserJoined(User user)
     {
-        var spawnPosition = new Vector3(
-            Random.Range(-8, 8),
-            0,
-            Random.Range(-8, 8)
-        );
-
         var remoteAvatar = Instantiate(remotePlayerPrefab).GetComponent<RemoteAvatar>();
         remoteAvatar.Initialize(user);
 
