@@ -1,4 +1,5 @@
 using System;
+using System.Linq;
 using Newtonsoft.Json;
 using Orchestrator.Data;
 using UnityEngine;
@@ -29,6 +30,17 @@ namespace Orchestrator.App
         /// Returns the type of device that the user has used to connect
         /// </summary>
         public string DeviceType => _userData.DeviceType;
+
+        public AvatarMovementData Transform => new ()
+        {
+            UserId = _userData.Id,
+            Timestamp = _userData.Transform.Timestamp,
+            Bones = _userData.Transform.Bones.Select((pair) => new { pair.Key, Value = new BoneData()
+            {
+                Pos = new PositionData() { X = pair.Value.Pos.X, Y = pair.Value.Pos.Y, Z = pair.Value.Pos.Z },
+                Rot = new RotationData() { X = pair.Value.Rot.X, Y = pair.Value.Rot.Y, Z = pair.Value.Rot.Z, W = pair.Value.Rot.W }
+            }}).ToDictionary(x => x.Key, x => x.Value)
+        };
 
         /// <summary>
         /// Event triggered when avatar movement data is received for this user.
