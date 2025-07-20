@@ -347,10 +347,10 @@ namespace Orchestrator.App
             var tcs = new TaskCompletionSource<bool>();
 
             Action fn = null;
-            fn = () =>
+            fn = async () =>
             {
+                await GetRaisedHands();
                 tcs.SetResult(true);
-                GetRaisedHands();
                 OrchestratorController.Instance.OnRaisedHandEvent -= fn;
             };
 
@@ -394,10 +394,10 @@ namespace Orchestrator.App
             var tcs = new TaskCompletionSource<bool>();
 
             Action fn = null;
-            fn = () =>
+            fn = async () =>
             {
+                await GetRaisedHands();
                 tcs.SetResult(true);
-                GetRaisedHands();
                 OrchestratorController.Instance.OnClearRaisedHandEvent -= fn;
             };
 
