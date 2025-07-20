@@ -863,6 +863,14 @@ namespace Orchestrator.Wrapping
             _orchestratorWrapper.ClearRaisedHand(userId);
         }
 
+        /// <summary>
+        /// Clears the current user's raised hand.
+        /// </summary>
+        public void ClearRaisedHand()
+        {
+            _orchestratorWrapper.ClearRaisedHand();
+        }
+
         void IOrchestratorResponsesListener.OnClearRaisedHandResponse(ResponseStatus status)
         {
             if (status.Error != 0) {

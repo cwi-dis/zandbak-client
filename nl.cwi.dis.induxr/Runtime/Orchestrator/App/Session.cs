@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using JetBrains.Annotations;
 using Newtonsoft.Json;
 using Orchestrator.Data;
 using Orchestrator.Wrapping;
@@ -416,7 +417,20 @@ namespace Orchestrator.App
         /// <returns>A task that represents the asynchronous operation. The task result indicates whether the operation was successful.</returns>
         public Task<bool> ClearRaisedHand()
         {
-            return this.ClearRaisedHand(Self.Id);
+            var tcs = new TaskCompletionSource<bool>();
+
+            Action fn = null;
+            fn = () =>
+            {
+                tcs.SetResult(true);
+                GetRaisedHands();
+                OrchestratorController.Instance.OnClearRaisedHandEvent -= fn;
+            };
+
+            OrchestratorController.Instance.OnClearRaisedHandEvent += fn;
+            OrchestratorController.Instance.ClearRaisedHand();
+
+            return tcs.Task;
         }
 
         /// <summary>
