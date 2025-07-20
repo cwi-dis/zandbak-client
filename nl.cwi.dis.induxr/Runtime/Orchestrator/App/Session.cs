@@ -2,7 +2,6 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using JetBrains.Annotations;
 using Newtonsoft.Json;
 using Orchestrator.Data;
 using Orchestrator.Wrapping;
@@ -195,7 +194,6 @@ namespace Orchestrator.App
         public void Join()
         {
             _orchestrator.CurrentSession = this;
-            _orchestrator.Self.Session = this;
             IsJoined = true;
 
             foreach (var user in Users)
@@ -221,7 +219,6 @@ namespace Orchestrator.App
                 user.DisableMovementBroadcastListener();
             }
 
-            Self.Session = null;
             _orchestrator.CurrentSession = null;
             IsJoined = false;
 

@@ -53,7 +53,7 @@ namespace Orchestrator.Data
 
     public class UserTransform : OrchestratorElement
     {
-        [JsonProperty("timestamp")] public string Timestamp;
+        [JsonProperty("timestamp")] public float Timestamp;
         [JsonProperty("position")] public UserPosition Position;
         [JsonProperty("rotation")] public UserQuaternion Rotation;
         [JsonProperty("bones")] public Dictionary<string, UserBoneData> Bones;

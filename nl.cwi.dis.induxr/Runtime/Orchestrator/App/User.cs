@@ -1,4 +1,5 @@
 using System;
+using System.Linq;
 using Newtonsoft.Json;
 using Orchestrator.Data;
 using UnityEngine;
@@ -10,7 +11,7 @@ namespace Orchestrator.App
         private readonly Data.User _userData;
         private readonly Orchestrator _orchestrator;
 
-        public Session Session { get; set; }
+        public Session Session => _orchestrator.CurrentSession;
         public string Id => _userData.Id;
         public string Name => _userData.Username;
         /// <summary>
@@ -30,6 +31,17 @@ namespace Orchestrator.App
         /// </summary>
         public string DeviceType => _userData.DeviceType;
 
+        public AvatarMovementData Transform => (_userData.Transform == null) ? null : new AvatarMovementData()
+        {
+            UserId = _userData.Id,
+            Timestamp = _userData.Transform.Timestamp,
+            Bones = _userData.Transform.Bones.Select((pair) => new { pair.Key, Value = new BoneData()
+            {
+                Pos = new PositionData() { X = pair.Value.Pos.X, Y = pair.Value.Pos.Y, Z = pair.Value.Pos.Z },
+                Rot = new RotationData() { X = pair.Value.Rot.X, Y = pair.Value.Rot.Y, Z = pair.Value.Rot.Z, W = pair.Value.Rot.W }
+            }}).ToDictionary(x => x.Key, x => x.Value)
+        };
+
         /// <summary>
         /// Event triggered when avatar movement data is received for this user.
         /// </summary>
@@ -39,18 +51,17 @@ namespace Orchestrator.App
         {
             _userData = userData;
             _orchestrator = orchestrator;
-            Session = _orchestrator.CurrentSession;
         }
 
         /// <summary>
         /// Enables the reception of avatar movement broadcasts for the user in the current session. If the user is not
-        /// in any session broadcasts will not be enabled and a warning is logged.
+        /// in any session, broadcasts will not be enabled and a warning is logged.
         /// </summary>
         public void EnableMovementBroadcastListener()
         {
-            if (Session != null)
+            if (_orchestrator.CurrentSession != null)
             {
-                Session.OnBroadcastDataReceived += BroadcastReceived;
+                _orchestrator.CurrentSession.OnBroadcastDataReceived += BroadcastReceived;
             }
             else
             {
@@ -64,8 +75,8 @@ namespace Orchestrator.App
         /// </summary>
         public void DisableMovementBroadcastListener()
         {
-            if (Session == null) return;
-            Session.OnBroadcastDataReceived -= BroadcastReceived;
+            if (_orchestrator.CurrentSession == null) return;
+            _orchestrator.CurrentSession.OnBroadcastDataReceived -= BroadcastReceived;
         }
 
         /// <summary>
@@ -82,7 +93,7 @@ namespace Orchestrator.App
             if (data.Channel != "transform") return;
             var movement = JsonConvert.DeserializeObject<AvatarMovementData>(data.Data);
 
-            if (movement.userId != Id) return;
+            if (movement.UserId != Id) return;
             OnAvatarMovementReceived?.Invoke(movement);
         }
     }

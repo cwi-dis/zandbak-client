@@ -32,7 +32,7 @@ public class SessionController : MonoBehaviour
         {
             if (remoteUser.Id != user.Id)
             {
-                Debug.Log($"Adding remote user {remoteUser.Name} ({remoteUser.Type}) to session.");
+                Debug.Log($"Adding remote user {remoteUser.Name} ({remoteUser.Type}) with {remoteUser.Transform.Bones.Count} bones to session.");
 
                 var remoteAvatar = Instantiate(remotePlayerPrefab).GetComponent<RemoteAvatar>();
                 remoteAvatar.Initialize(remoteUser);
@@ -40,7 +40,14 @@ public class SessionController : MonoBehaviour
             }
         }
 
-        var localAvatar = Instantiate(localPlayerPrefab, new Vector3(8, 0, 8), Quaternion.identity).GetComponent<LocalAvatar>();
+        var spawnPosition = new Vector3(
+            Random.Range(-8, 8),
+            0,
+            Random.Range(-8, 8)
+        );
+
+        Debug.Log($"Spawning local player at {spawnPosition}");
+        var localAvatar = Instantiate(localPlayerPrefab, spawnPosition, Quaternion.identity).GetComponent<LocalAvatar>();
         localAvatar.Initialize(user);
     }
 
