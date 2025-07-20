@@ -41,6 +41,15 @@ namespace Orchestrator.App
             _orchestrator = orchestrator;
             Session = _orchestrator.CurrentSession;
 
+            EnableMovementBroadcasts();
+        }
+
+        /// <summary>
+        /// Enables the reception of avatar movement broadcasts for the user in the current session. If the user is not
+        /// in any session broadcasts will not be enabled and a warning is logged.
+        /// </summary>
+        public void EnableMovementBroadcasts()
+        {
             if (Session != null)
             {
                 Session.OnBroadcastDataReceived += BroadcastReceived;
