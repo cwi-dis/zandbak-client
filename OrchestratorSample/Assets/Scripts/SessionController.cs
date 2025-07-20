@@ -85,6 +85,7 @@ public class SessionController : MonoBehaviour
     private async void RenderRaisedHands()
     {
         var raisedHands = await _session.GetRaisedHands();
+        raisedHandsField.text = "";
 
         foreach (var raisedHandUser in raisedHands)
         {
