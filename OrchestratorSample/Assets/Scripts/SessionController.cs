@@ -62,10 +62,13 @@ public class SessionController : MonoBehaviour
         notificationField.text += $"Welcome to <i>{_session.Name}</i>\n\n";
     }
 
-    private void RaiseHand()
+    private async void RaiseHand()
     {
         Debug.Log("Raising hand");
-        _session.RaiseHand();
+        await _session.RaiseHand();
+
+        await _session.GetRaisedHands();
+        RenderRaisedHands();
     }
 
     private void OnUserClearedRaisedHand(User user)
