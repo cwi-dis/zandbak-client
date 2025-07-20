@@ -10,7 +10,7 @@ namespace Orchestrator.App
         private readonly Data.User _userData;
         private readonly Orchestrator _orchestrator;
 
-        public Session Session { get; set; }
+        public Session Session => _orchestrator.CurrentSession;
         public string Id => _userData.Id;
         public string Name => _userData.Username;
         /// <summary>
@@ -39,7 +39,6 @@ namespace Orchestrator.App
         {
             _userData = userData;
             _orchestrator = orchestrator;
-            Session = _orchestrator.CurrentSession;
         }
 
         /// <summary>
