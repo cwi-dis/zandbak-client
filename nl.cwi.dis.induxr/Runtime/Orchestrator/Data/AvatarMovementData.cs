@@ -1,44 +1,40 @@
 using System.Collections.Generic;
+using Newtonsoft.Json;
 
 namespace Orchestrator.Data
 {
-    [System.Serializable]
     public class AvatarMovementData
     {
-        public string userId;
-        public Dictionary<string, BoneData> bones;
-        public float timestamp;
+        [JsonProperty("userId")] public string UserId;
+        [JsonProperty("bones")] public Dictionary<string, BoneData> Bones;
+        [JsonProperty("timestamp")] public float Timestamp;
     }
 
-    [System.Serializable]
     public class MovementData
     {
-        public string userId;
-        public PositionData position;
-        public RotationData rotation;
-        public float timestamp;
+        [JsonProperty("userId")] public string UserId;
+        [JsonProperty("position")] public PositionData Position;
+        [JsonProperty("rotation")] public RotationData Rotation;
+        [JsonProperty("timestamp")] public float Timestamp;
     }
 
-    [System.Serializable]
     public class PositionData
     {
-        public float x;
-        public float y;
-        public float z;
+        [JsonProperty("x")] public float X;
+        [JsonProperty("y")] public float Y;
+        [JsonProperty("z")] public float Z;
     }
 
-    [System.Serializable]
     public class RotationData
     {
-        public float x;
-        public float y;
-        public float z;
-        public float w;
+        [JsonProperty("x")] public float X;
+        [JsonProperty("y")] public float Y;
+        [JsonProperty("z")] public float Z;
+        [JsonProperty("w")] public float W;
     }
 
-    [System.Serializable]
     public class BoneData {
-        public PositionData pos;
-        public RotationData rot;
+        [JsonProperty("pos")] public PositionData Pos;
+        [JsonProperty("rot")] public RotationData Rot;
     }
 }

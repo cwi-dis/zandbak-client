@@ -33,16 +33,16 @@ namespace Orchestrator.Behaviour
         private void MovementReceived(AvatarMovementData movement)
         {
             foreach (var bone in _mesh.bones) {
-                if (movement.bones.TryGetValue(bone.name, out var foundBone)) {
+                if (movement.Bones.TryGetValue(bone.name, out var foundBone)) {
                     bone.SetPositionAndRotation(new Vector3(
-                        foundBone.pos.x,
-                        foundBone.pos.y,
-                        foundBone.pos.z
+                        foundBone.Pos.X,
+                        foundBone.Pos.Y,
+                        foundBone.Pos.Z
                     ), new Quaternion(
-                        foundBone.rot.x,
-                        foundBone.rot.y,
-                        foundBone.rot.z,
-                        foundBone.rot.w
+                        foundBone.Rot.X,
+                        foundBone.Rot.Y,
+                        foundBone.Rot.Z,
+                        foundBone.Rot.W
                     ));
                 }
             }

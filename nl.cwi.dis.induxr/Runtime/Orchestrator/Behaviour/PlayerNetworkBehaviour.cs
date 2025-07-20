@@ -27,20 +27,20 @@ namespace Orchestrator.Behaviour
 
             return new MovementData()
             {
-                userId = id,
-                timestamp = Time.time,
-                position = new PositionData()
+                UserId = id,
+                Timestamp = Time.time,
+                Position = new PositionData()
                 {
-                    x = position.x,
-                    y = position.y,
-                    z = position.z,
+                    X = position.x,
+                    Y = position.y,
+                    Z = position.z,
                 },
-                rotation = new RotationData()
+                Rotation = new RotationData()
                 {
-                    x = rotation.x,
-                    y = rotation.y,
-                    z = rotation.z,
-                    w = rotation.w
+                    X = rotation.x,
+                    Y = rotation.y,
+                    Z = rotation.z,
+                    W = rotation.w
                 }
             };
         }
@@ -51,7 +51,7 @@ namespace Orchestrator.Behaviour
             {
                 var movement = JsonUtility.FromJson<MovementData>(data.Data);
 
-                if (movement.userId == id)
+                if (movement.UserId == id)
                 {
                     _previousReceivedData = _lastReceivedData;
                     _lastReceivedData = movement;
@@ -62,12 +62,12 @@ namespace Orchestrator.Behaviour
                         float t = Mathf.Clamp01((Time.realtimeSinceStartup - _lastReceiveTime) / (1.0f / updateRate));
 
                         _controller.transform.SetPositionAndRotation(Vector3.Lerp(
-                            new Vector3(_previousReceivedData.position.x, _previousReceivedData.position.y, _previousReceivedData.position.z),
-                            new Vector3(_lastReceivedData.position.x, _lastReceivedData.position.y, _lastReceivedData.position.z),
+                            new Vector3(_previousReceivedData.Position.X, _previousReceivedData.Position.Y, _previousReceivedData.Position.Z),
+                            new Vector3(_lastReceivedData.Position.X, _lastReceivedData.Position.Y, _lastReceivedData.Position.Z),
                             t
                         ), Quaternion.Slerp(
-                            new Quaternion(_previousReceivedData.rotation.x, _previousReceivedData.rotation.y, _previousReceivedData.rotation.z, _previousReceivedData.rotation.w),
-                            new Quaternion(_lastReceivedData.rotation.x, _lastReceivedData.rotation.y, _lastReceivedData.rotation.z, _lastReceivedData.rotation.w),
+                            new Quaternion(_previousReceivedData.Rotation.X, _previousReceivedData.Rotation.Y, _previousReceivedData.Rotation.Z, _previousReceivedData.Rotation.W),
+                            new Quaternion(_lastReceivedData.Rotation.X, _lastReceivedData.Rotation.Y, _lastReceivedData.Rotation.Z, _lastReceivedData.Rotation.W),
                             t
                         ));
                     }

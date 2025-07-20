@@ -81,7 +81,7 @@ namespace Orchestrator.App
             if (data.Channel != "transform") return;
             var movement = JsonConvert.DeserializeObject<AvatarMovementData>(data.Data);
 
-            if (movement.userId != Id) return;
+            if (movement.UserId != Id) return;
             OnAvatarMovementReceived?.Invoke(movement);
         }
     }

@@ -52,26 +52,26 @@ namespace Orchestrator.Behaviour
 
             foreach (var bone in _mesh.bones) {
                 boneData.Add(bone.name, new BoneData {
-                    pos = new PositionData
+                    Pos = new PositionData
                     {
-                        x = bone.position.x,
-                        y = bone.position.y,
-                        z = bone.position.z
+                        X = bone.position.x,
+                        Y = bone.position.y,
+                        Z = bone.position.z
                     },
-                    rot = new RotationData
+                    Rot = new RotationData
                     {
-                        x = bone.rotation.x,
-                        y = bone.rotation.y,
-                        z = bone.rotation.z,
-                        w = bone.rotation.w
+                        X = bone.rotation.x,
+                        Y = bone.rotation.y,
+                        Z = bone.rotation.z,
+                        W = bone.rotation.w
                     },
                 });
             }
 
             return new AvatarMovementData {
-                userId = _user.Id,
-                timestamp = Time.time,
-                bones = boneData
+                UserId = _user.Id,
+                Timestamp = Time.time,
+                Bones = boneData
             };
         }
     }

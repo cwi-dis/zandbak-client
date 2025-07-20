@@ -33,26 +33,26 @@ namespace Orchestrator.Behaviour
 
             foreach (var bone in _mesh.bones) {
                 boneData.Add(bone.name, new BoneData {
-                    pos = new PositionData
+                    Pos = new PositionData
                     {
-                        x = bone.position.x,
-                        y = bone.position.y,
-                        z = bone.position.z
+                        X = bone.position.x,
+                        Y = bone.position.y,
+                        Z = bone.position.z
                     },
-                    rot = new RotationData
+                    Rot = new RotationData
                     {
-                        x = bone.rotation.x,
-                        y = bone.rotation.y,
-                        z = bone.rotation.z,
-                        w = bone.rotation.w
+                        X = bone.rotation.x,
+                        Y = bone.rotation.y,
+                        Z = bone.rotation.z,
+                        W = bone.rotation.w
                     },
                 });
             }
 
             return new AvatarMovementData {
-                userId = id,
-                timestamp = Time.time,
-                bones = boneData
+                UserId = id,
+                Timestamp = Time.time,
+                Bones = boneData
             };
         }
 
@@ -62,18 +62,18 @@ namespace Orchestrator.Behaviour
             {
                 var movement = JsonConvert.DeserializeObject<AvatarMovementData>(data.Data);
 
-                if (movement.userId == id) {
+                if (movement.UserId == id) {
                     foreach (var bone in _mesh.bones) {
-                        if (movement.bones.TryGetValue(bone.name, out var foundBone)) {
+                        if (movement.Bones.TryGetValue(bone.name, out var foundBone)) {
                             bone.SetPositionAndRotation(new Vector3(
-                                foundBone.pos.x,
-                                foundBone.pos.y,
-                                foundBone.pos.z
+                                foundBone.Pos.X,
+                                foundBone.Pos.Y,
+                                foundBone.Pos.Z
                             ), new Quaternion(
-                                foundBone.rot.x,
-                                foundBone.rot.y,
-                                foundBone.rot.z,
-                                foundBone.rot.w
+                                foundBone.Rot.X,
+                                foundBone.Rot.Y,
+                                foundBone.Rot.Z,
+                                foundBone.Rot.W
                             ));
                         }
                     }
