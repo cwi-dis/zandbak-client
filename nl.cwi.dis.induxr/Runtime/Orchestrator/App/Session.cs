@@ -497,6 +497,7 @@ namespace Orchestrator.App
         private void UserJoined(string userId, Data.User userData)
         {
             var joinedUser = new User(_orchestrator, userData);
+            joinedUser.EnableMovementBroadcastListener();
 
             if (Users.Find(u => u.Id == userId) == null)
             {
@@ -512,6 +513,7 @@ namespace Orchestrator.App
 
             if (userToRemove != null)
             {
+                userToRemove.DisableMovementBroadcastListener();
                 Users.Remove(userToRemove);
                 OnUserLeft?.Invoke(userToRemove);
             }
