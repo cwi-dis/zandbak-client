@@ -625,10 +625,6 @@ namespace Orchestrator.Wrapping {
             var data = response.GetValue<SessionUpdate<SessionUpdateUserData>>();
             var eventData = data.EventData;
 
-            if (eventData.UserId == _myUserID) {
-                return;
-            }
-
             switch (data.EventId)
             {
                 case "USER_JOINED_SESSION":
