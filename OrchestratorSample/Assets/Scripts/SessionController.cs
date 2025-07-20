@@ -20,6 +20,7 @@ public class SessionController : MonoBehaviour
 
     private readonly Dictionary<string, GameObject> _activeUsers = new();
     private Session _session;
+    private bool _isHandRaised = false;
 
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     private void Start()
@@ -32,7 +33,7 @@ public class SessionController : MonoBehaviour
         _session.OnUserRaisedHand += OnUserRaisedHand;
         _session.OnUserClearedRaisedHand += OnUserClearedRaisedHand;
 
-        raiseHandButton.onClick.AddListener(RaiseHand);
+        raiseHandButton.onClick.AddListener(RaiseOrLowerHand);
 
         var user = _session.Self;
         Debug.Log($"Building session for user: {user.Name} ({user.Type}). Session has {_session.Users.Count} users already.");
@@ -62,11 +63,25 @@ public class SessionController : MonoBehaviour
         notificationField.text += $"Welcome to <i>{_session.Name}</i>\n\n";
     }
 
-    private async void RaiseHand()
+    private async void RaiseOrLowerHand()
     {
-        Debug.Log("Raising hand");
+        if (!_isHandRaised)
+        {
+            Debug.Log("Raising hand");
+            await _session.RaiseHand();
 
-        await _session.RaiseHand();
+            _isHandRaised = true;
+            raiseHandButton.GetComponentInChildren<TextMeshProUGUI>().text = "Lower hand";
+        }
+        else
+        {
+            Debug.Log("Raising hand");
+            await _session.ClearRaisedHand();
+            _isHandRaised = false;
+
+            raiseHandButton.GetComponentInChildren<TextMeshProUGUI>().text = "Raise hand";
+        }
+
         await _session.GetRaisedHands();
     }
 
