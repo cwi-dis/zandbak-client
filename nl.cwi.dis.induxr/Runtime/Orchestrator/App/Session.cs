@@ -213,8 +213,13 @@ namespace Orchestrator.App
         public Task<bool> Leave()
         {
             var tcs = new TaskCompletionSource<bool>();
-
             OrchestratorController.Instance.LeaveSession();
+
+            foreach (var user in Users)
+            {
+                user.DisableMovementBroadcastListener();
+            }
+
             Self.Session = null;
             _orchestrator.CurrentSession = null;
             IsJoined = false;

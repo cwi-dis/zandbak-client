@@ -59,6 +59,16 @@ namespace Orchestrator.App
         }
 
         /// <summary>
+        /// Disables the reception of avatar movement broadcasts for the user in the current session.
+        /// This stops the session from raising broadcast-related events for the user.
+        /// </summary>
+        public void DisableMovementBroadcastListener()
+        {
+            if (Session == null) return;
+            Session.OnBroadcastDataReceived -= BroadcastReceived;
+        }
+
+        /// <summary>
         /// Broadcasts avatar movement data to all users in the current session.
         /// </summary>
         /// <param name="data">The movement data of the avatar, including user ID, bone data, and timestamp.</param>
