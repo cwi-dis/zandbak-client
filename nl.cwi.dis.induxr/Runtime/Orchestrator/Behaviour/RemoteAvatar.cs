@@ -6,8 +6,15 @@ namespace Orchestrator.Behaviour
 {
     public class RemoteAvatar : MonoBehaviour
     {
+        public bool withSmoothing = false;
+        public int updateRate = 10;
+
         private User _user;
         private SkinnedMeshRenderer _mesh;
+
+        private AvatarMovementData _previousReceivedData;
+        private AvatarMovementData _lastReceivedData;
+        private float _lastReceiveTime;
 
         /// <summary>
         /// Initializes the RemoteAvatar instance with a specified user.
@@ -32,7 +39,50 @@ namespace Orchestrator.Behaviour
 
         private void MovementReceived(AvatarMovementData movement)
         {
-            foreach (var bone in _mesh.bones) {
+            if (withSmoothing)
+            {
+                UpdateBonesWithSmoothing(movement);
+            }
+            else
+            {
+                UpdateBones(movement);
+            }
+        }
+
+        private void UpdateBonesWithSmoothing(AvatarMovementData movement)
+        {
+            _previousReceivedData = _lastReceivedData;
+            _lastReceivedData = movement;
+            _lastReceiveTime = Time.realtimeSinceStartup;
+
+            if (_previousReceivedData == null) return;
+
+            var t = Mathf.Clamp01((Time.realtimeSinceStartup - _lastReceiveTime) / (1.0f / updateRate));
+
+            foreach (var bone in _mesh.bones)
+            {
+                if (_lastReceivedData.Bones.TryGetValue(bone.name, out var lastFoundBone) && _previousReceivedData.Bones.TryGetValue(bone.name, out var prevFoundBone))
+                {
+                    bone.SetPositionAndRotation(
+                        Vector3.Lerp(
+                            new Vector3(prevFoundBone.Pos.X, prevFoundBone.Pos.Y, prevFoundBone.Pos.Z),
+                            new Vector3(lastFoundBone.Pos.X, lastFoundBone.Pos.Y, lastFoundBone.Pos.Z),
+                            t
+                        ),
+                        Quaternion.Slerp(
+                            new Quaternion(prevFoundBone.Rot.X, prevFoundBone.Rot.Y, prevFoundBone.Rot.Z, prevFoundBone.Rot.W),
+                            new Quaternion(lastFoundBone.Rot.X, lastFoundBone.Rot.Y, lastFoundBone.Rot.Z, lastFoundBone.Rot.W),
+                            t
+                        )
+                    );
+                }
+            }
+        }
+
+        private void UpdateBones(AvatarMovementData movement)
+        {
+            foreach (var bone in _mesh.bones)
+            {
                 if (movement.Bones.TryGetValue(bone.name, out var foundBone)) {
                     bone.SetPositionAndRotation(new Vector3(
                         foundBone.Pos.X,
