@@ -31,7 +31,7 @@ namespace Orchestrator.App
         /// </summary>
         public string DeviceType => _userData.DeviceType;
 
-        public AvatarMovementData Transform => new ()
+        public AvatarMovementData Transform => (_userData.Transform == null) ? null : new AvatarMovementData()
         {
             UserId = _userData.Id,
             Timestamp = _userData.Transform.Timestamp,
