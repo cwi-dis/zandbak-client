@@ -216,6 +216,8 @@ namespace Orchestrator.App
 
             OrchestratorController.Instance.LeaveSession();
             Self.Session = null;
+            _orchestrator.CurrentSession = null;
+            IsJoined = false;
 
             tcs.SetResult(true);
             return tcs.Task;
