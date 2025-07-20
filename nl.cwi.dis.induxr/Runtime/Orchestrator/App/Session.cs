@@ -373,7 +373,7 @@ namespace Orchestrator.App
             Action<List<Data.User>> fn = null;
             fn = (users) =>
             {
-                RaisedHands = users.Select((u) => new User(_orchestrator, u)).ToList();
+                RaisedHands = users.Select((u) => FindUserById(u.Id)).ToList();
                 tcs.SetResult(RaisedHands);
 
                 OrchestratorController.Instance.OnGetRaisedHandsEvent -= fn;
