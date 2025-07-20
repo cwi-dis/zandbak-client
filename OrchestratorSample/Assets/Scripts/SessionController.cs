@@ -65,10 +65,9 @@ public class SessionController : MonoBehaviour
     private async void RaiseHand()
     {
         Debug.Log("Raising hand");
-        await _session.RaiseHand();
 
+        await _session.RaiseHand();
         await _session.GetRaisedHands();
-        RenderRaisedHands();
     }
 
     private void OnUserClearedRaisedHand(User user)
