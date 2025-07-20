@@ -4,6 +4,7 @@ using Orchestrator.Wrapping;
 using Orchestrator.Behaviour;
 using Orchestrator.Data;
 using TMPro;
+using UnityEngine.UI;
 using User = Orchestrator.App.User;
 using Session = Orchestrator.App.Session;
 
@@ -11,8 +12,11 @@ public class SessionController : MonoBehaviour
 {
     public GameObject localPlayerPrefab;
     public GameObject remotePlayerPrefab;
+
     public TMP_Text notificationField;
     public TMP_Text raisedHandsField;
+
+    public Button raiseHandButton;
 
     private readonly Dictionary<string, GameObject> _activeUsers = new();
     private Session _session;
@@ -27,6 +31,8 @@ public class SessionController : MonoBehaviour
         _session.OnMessageReceived += OnMessageReceived;
         _session.OnUserRaisedHand += OnUserRaisedHand;
         _session.OnUserClearedRaisedHand += OnUserClearedRaisedHand;
+
+        raiseHandButton.onClick.AddListener(RaiseHand);
 
         var user = _session.Self;
         Debug.Log($"Building session for user: {user.Name} ({user.Type}). Session has {_session.Users.Count} users already.");
@@ -56,6 +62,12 @@ public class SessionController : MonoBehaviour
         notificationField.text += $"Welcome to <i>{_session.Name}</i>\n\n";
     }
 
+    private void RaiseHand()
+    {
+        Debug.Log("Raising hand");
+        _session.RaiseHand();
+    }
+
     private void OnUserClearedRaisedHand(User user)
     {
         notificationField.text += $"<i>{user.Name} lowered their hand!</i>\n";
@@ -68,9 +80,11 @@ public class SessionController : MonoBehaviour
         RenderRaisedHands();
     }
 
-    private void RenderRaisedHands()
+    private async void RenderRaisedHands()
     {
-        foreach (var raisedHandUser in _session.RaisedHands)
+        var raisedHands = await _session.GetRaisedHands();
+
+        foreach (var raisedHandUser in raisedHands)
         {
             raisedHandsField.text += raisedHandUser.Name + "\n";
         }
