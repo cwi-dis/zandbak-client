@@ -33,7 +33,7 @@ namespace Orchestrator.App
         /// - The <c>CurrentSession</c> provides access to session-specific details such as its ID, name, users,
         /// and events like user joining or leaving.
         /// </remarks>
-        public Session CurrentSession { get; private set; }
+        public Session CurrentSession { get; set; }
 
         /// <summary>
         /// Represents the currently logged-in user in the Orchestrator.
@@ -257,10 +257,9 @@ namespace Orchestrator.App
                 fn = (session) =>
                 {
                     sessionToJoin.SessionData = session;
-                    CurrentSession = sessionToJoin;
-                    Self.Session = CurrentSession;
+                    sessionToJoin.Join();
 
-                    tcs.SetResult(CurrentSession);
+                    tcs.SetResult(sessionToJoin);
                     OrchestratorController.Instance.OnJoinSessionEvent -= fn;
                 };
 

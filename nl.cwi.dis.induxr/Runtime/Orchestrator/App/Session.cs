@@ -21,6 +21,7 @@ namespace Orchestrator.App
         public string Name => _sessionData.Name;
         public string Status => _sessionData.Status;
         public string Description => _sessionData.Description;
+        public bool IsJoined { get; private set; }  = false;
 
         public List<Presentation> Presentations => _sessionData.Presentations.ToList();
         public Presentation CurrentPresentation;
@@ -184,6 +185,22 @@ namespace Orchestrator.App
             OrchestratorController.Instance.GetSessionInfo();
 
             return tcs.Task;
+        }
+
+        /// <summary>
+        /// Joins the current session by associating the calling user and the orchestrator with the session.
+        /// Updates the session state and enables movement broadcast listeners for all users within the session.
+        /// </summary>
+        public void Join()
+        {
+            _orchestrator.CurrentSession = this;
+            _orchestrator.Self.Session = this;
+            IsJoined = true;
+
+            foreach (var user in Users)
+            {
+                user.EnableMovementBroadcastListener();
+            }
         }
 
         /// <summary>
