@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Orchestrator.Data;
 using Orchestrator.Wrapping;
 using UnityEngine;
 
@@ -150,7 +151,7 @@ namespace Orchestrator.App
         {
             var tcs = new TaskCompletionSource<double>();
 
-            Action<Data.NtpClock> fn = null;
+            Action<NtpClock> fn = null;
             fn = (ntpTime) =>
             {
                 tcs.SetResult(ntpTime.Timestamp);

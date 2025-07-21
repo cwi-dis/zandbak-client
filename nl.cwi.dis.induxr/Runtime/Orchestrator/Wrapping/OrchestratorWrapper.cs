@@ -1,10 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
-using SocketIOClient;
-using SocketIOClient.Newtonsoft.Json;
-using UnityEngine;
 using System.Text;
 using Orchestrator.Data;
+using SocketIOClient;
+using SocketIOClient.Newtonsoft.Json;
+using SocketIOClient.Transport;
+using UnityEngine;
 
 namespace Orchestrator.Wrapping {
     public class OrchestratorWrapper : IOrchestratorConnectionListener
@@ -34,7 +35,7 @@ namespace Orchestrator.Wrapping {
             _userSessionEventListener = userSessionEventsListener;
 
             _socket = new SocketIOUnity(new Uri(orchestratorSocketUrl), new SocketIOOptions {
-                Transport = SocketIOClient.Transport.TransportProtocol.WebSocket,
+                Transport = TransportProtocol.WebSocket,
                 Reconnection = false,
                 EIO = EngineIO.V4
             });
