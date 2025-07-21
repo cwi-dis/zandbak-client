@@ -11,6 +11,7 @@ public class LoginController : MonoBehaviour
     public Button loginButton;
 
     private Orchestrator.App.Orchestrator _orchestrator;
+    private bool _isConnected = false;
 
     private void Awake()
     {
@@ -25,7 +26,9 @@ public class LoginController : MonoBehaviour
         _orchestrator = await OrchestratorController.Instance.SocketConnectAsync(orchestratorUrl);
 
         Debug.Log("Connected to orchestrator.");
-        loginButton.interactable = true;
+        _isConnected = true;
+
+        usernameField.onValueChanged.AddListener(delegate { loginButton.interactable = _isConnected && usernameField.text.Length > 0; });
 
         var version = await _orchestrator.GetOrchestratorVersion();
         Debug.Log("Version " + version);
@@ -35,6 +38,11 @@ public class LoginController : MonoBehaviour
     {
         var username = usernameField.text;
         var password = passwordField.text;
+
+        if (username.Length == 0)
+        {
+            return;
+        }
 
         Debug.Log("Performing login using: " + username + " " + password);
 
