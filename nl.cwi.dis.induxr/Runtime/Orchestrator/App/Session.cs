@@ -194,6 +194,8 @@ namespace Orchestrator.App
         /// </summary>
         public void Join()
         {
+            // XXX Should call GetSessionInfo and update _sessionData upon joining
+
             _orchestrator.CurrentSession = this;
             IsJoined = true;
 

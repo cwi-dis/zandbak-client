@@ -14,8 +14,9 @@ public class SessionController : MonoBehaviour
     public GameObject remotePlayerPrefab;
 
     public TMP_Text notificationField;
+    public TMP_InputField chatInputField;
+    public Button chatSendButton;
     public TMP_Text raisedHandsField;
-
     public Button raiseHandButton;
 
     private readonly Dictionary<string, GameObject> _activeUsers = new();
@@ -34,6 +35,8 @@ public class SessionController : MonoBehaviour
         _session.OnUserClearedRaisedHand += OnUserClearedRaisedHand;
 
         raiseHandButton.onClick.AddListener(RaiseOrLowerHand);
+        chatSendButton.onClick.AddListener(SendChatMessage);
+        chatInputField.onValueChanged.AddListener(delegate { chatSendButton.interactable = chatInputField.text.Length > 0; });
 
         var user = _session.Self;
         Debug.Log($"Building session for user: {user.Name} ({user.Type}). Session has {_session.Users.Count} users already.");
@@ -61,6 +64,17 @@ public class SessionController : MonoBehaviour
         localAvatar.Initialize(user);
 
         notificationField.text += $"Welcome to <i>{_session.Name}</i>\n\n";
+    }
+
+    private async void SendChatMessage()
+    {
+        var message = chatInputField.text;
+        chatInputField.text = "";
+
+        if (message.Length > 0)
+        {
+            await _session.SendMessage(message);
+        }
     }
 
     private async void RaiseOrLowerHand()
