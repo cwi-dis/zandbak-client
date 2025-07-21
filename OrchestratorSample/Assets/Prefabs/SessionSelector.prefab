@@ -113,8 +113,8 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 0, y: 0}
-  m_SizeDelta: {x: 600, y: 30}
+  m_AnchoredPosition: {x: 0, y: 76}
+  m_SizeDelta: {x: 500, y: 30}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!222 &4831797357408377408
 CanvasRenderer:
@@ -531,7 +531,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 0, y: -123.9}
+  m_AnchoredPosition: {x: 0, y: -28}
   m_SizeDelta: {x: 160, y: 30}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!222 &3181459375005762004
@@ -615,19 +615,7 @@ MonoBehaviour:
   m_TargetGraphic: {fileID: 1505422398673808640}
   m_OnClick:
     m_PersistentCalls:
-      m_Calls:
-      - m_Target: {fileID: 4343030074431716866}
-        m_TargetAssemblyTypeName: SessionSelector, Assembly-CSharp
-        m_MethodName: OnCreateSession
-        m_Mode: 1
-        m_Arguments:
-          m_ObjectArgument: {fileID: 0}
-          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
-          m_IntArgument: 0
-          m_FloatArgument: 0
-          m_StringArgument: 
-          m_BoolArgument: 0
-        m_CallState: 2
+      m_Calls: []
 --- !u!1 &4217364152593439821
 GameObject:
   m_ObjectHideFlags: 0
@@ -1134,7 +1122,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 0, y: -43.6}
+  m_AnchoredPosition: {x: 0, y: 32.4}
   m_SizeDelta: {x: 160, y: 30}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!222 &1940322120585416989
@@ -1218,19 +1206,7 @@ MonoBehaviour:
   m_TargetGraphic: {fileID: 3252449259884644743}
   m_OnClick:
     m_PersistentCalls:
-      m_Calls:
-      - m_Target: {fileID: 4343030074431716866}
-        m_TargetAssemblyTypeName: SessionSelector, Assembly-CSharp
-        m_MethodName: OnJoinSession
-        m_Mode: 1
-        m_Arguments:
-          m_ObjectArgument: {fileID: 0}
-          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
-          m_IntArgument: 0
-          m_FloatArgument: 0
-          m_StringArgument: 
-          m_BoolArgument: 0
-        m_CallState: 2
+      m_Calls: []
 --- !u!1 &5680020525202275209
 GameObject:
   m_ObjectHideFlags: 0
@@ -1809,6 +1785,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   sessionDropdown: {fileID: 2793761738974563517}
+  joinButton: {fileID: 5814531889885472128}
+  createButton: {fileID: 1684778958955719184}
   sessionPrefab: {fileID: 6319405375226795595, guid: bb1a12149ce4343109c9e0721f5b1f59, type: 3}
 --- !u!1 &8106016454412842190
 GameObject:

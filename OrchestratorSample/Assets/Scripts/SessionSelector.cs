@@ -5,10 +5,13 @@ using Orchestrator.App;
 using Orchestrator.Wrapping;
 using TMPro;
 using UnityEngine;
+using UnityEngine.UI;
 
 public class SessionSelector : MonoBehaviour
 {
     public TMP_Dropdown sessionDropdown;
+    public Button joinButton;
+    public Button createButton;
     public GameObject sessionPrefab;
 
     private List<Session> _sessions;
@@ -23,6 +26,14 @@ public class SessionSelector : MonoBehaviour
     private async void Start()
     {
         var sessions = await _orchestrator.GetSessions();
+
+        if (sessions.Count == 0)
+        {
+            joinButton.interactable = false;
+        }
+
+        joinButton.onClick.AddListener(OnJoinSession);
+        createButton.onClick.AddListener(OnCreateSession);
 
         sessionDropdown.AddOptions(sessions.Select((s) => s.Name).ToList());
         _sessions = sessions;
