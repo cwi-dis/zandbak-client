@@ -1,4 +1,3 @@
-using System;
 using System.Collections.Generic;
 using System.Linq;
 using Orchestrator.App;
@@ -11,6 +10,7 @@ public class SessionSelector : MonoBehaviour
 {
     public TMP_Dropdown sessionDropdown;
     public Button joinButton;
+    public TMP_InputField sessionNameField;
     public Button createButton;
     public GameObject sessionPrefab;
 
@@ -32,10 +32,13 @@ public class SessionSelector : MonoBehaviour
             joinButton.interactable = false;
         }
 
+        sessionDropdown.AddOptions(sessions.Select((s) => s.Name).ToList());
         joinButton.onClick.AddListener(OnJoinSession);
+
+        createButton.interactable = false;
+        sessionNameField.onValueChanged.AddListener(delegate { createButton.interactable = sessionNameField.text.Length > 0; });
         createButton.onClick.AddListener(OnCreateSession);
 
-        sessionDropdown.AddOptions(sessions.Select((s) => s.Name).ToList());
         _sessions = sessions;
     }
 
@@ -48,7 +51,7 @@ public class SessionSelector : MonoBehaviour
 
     public async void OnCreateSession()
     {
-        var createdSession = await _orchestrator.CreateSession("test-" + Guid.NewGuid());
+        var createdSession = await _orchestrator.CreateSession(sessionNameField.text);
         OnSessionJoined(createdSession);
     }
 
