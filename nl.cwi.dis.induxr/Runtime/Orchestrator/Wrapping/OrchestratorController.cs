@@ -221,7 +221,7 @@ namespace Orchestrator.Wrapping
                 string oldName = SearchUtils.GetHierarchyPath(_instance.gameObject, false);
 #else
                 string newName = gameObject.name;
-                string oldName = instance.gameObject.name;
+                string oldName = _instance.gameObject.name;
 #endif
                 Debug.LogWarning($"OrchestratorController: attempt to create second instance from {newName}. Keep first one, from {oldName}.");
             }
