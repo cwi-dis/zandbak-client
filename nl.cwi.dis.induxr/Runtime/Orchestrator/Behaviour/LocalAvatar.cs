@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System.Linq;
 using Orchestrator.Data;
 using UnityEngine;
 using User = Orchestrator.App.User;
@@ -48,25 +49,11 @@ namespace Orchestrator.Behaviour
 
         private AvatarMovementData GetBoneData()
         {
-            var boneData = new Dictionary<string, BoneData>();
-
-            foreach (var bone in _mesh.bones) {
-                boneData.Add(bone.name, new BoneData {
-                    Pos = new PositionData
-                    {
-                        X = bone.position.x,
-                        Y = bone.position.y,
-                        Z = bone.position.z
-                    },
-                    Rot = new RotationData
-                    {
-                        X = bone.rotation.x,
-                        Y = bone.rotation.y,
-                        Z = bone.rotation.z,
-                        W = bone.rotation.w
-                    },
-                });
-            }
+            var boneData = _mesh.bones.ToDictionary(bone => bone.name, bone => new BoneData
+            {
+                Pos = new PositionData { X = bone.position.x, Y = bone.position.y, Z = bone.position.z },
+                Rot = new RotationData { X = bone.rotation.x, Y = bone.rotation.y, Z = bone.rotation.z, W = bone.rotation.w },
+            });
 
             return new AvatarMovementData {
                 UserId = _user.Id,
