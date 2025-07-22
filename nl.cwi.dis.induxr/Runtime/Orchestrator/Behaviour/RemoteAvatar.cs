@@ -7,7 +7,7 @@ namespace Orchestrator.Behaviour
     public class RemoteAvatar : MonoBehaviour
     {
         public bool withSmoothing = false;
-        public int updateRate = 10;
+        public int linearInterpolationRate = 10;
 
         private User _user;
         private SkinnedMeshRenderer _mesh;
@@ -62,7 +62,7 @@ namespace Orchestrator.Behaviour
 
             if (_previousReceivedData == null) return;
 
-            var t = Mathf.Clamp01((Time.realtimeSinceStartup - _lastReceiveTime) / (1.0f / updateRate));
+            var t = Mathf.Clamp01((Time.realtimeSinceStartup - _lastReceiveTime) / (1.0f / linearInterpolationRate));
 
             foreach (var bone in _mesh.bones)
             {
