@@ -25,6 +25,11 @@ namespace Orchestrator.Behaviour
             _user = user;
         }
 
+        private void Awake()
+        {
+            _lastReceiveTime = Time.realtimeSinceStartup;
+        }
+
         private void Start()
         {
             if (_user == null)
@@ -58,11 +63,11 @@ namespace Orchestrator.Behaviour
         {
             _previousReceivedData = _lastReceivedData;
             _lastReceivedData = movement;
-            _lastReceiveTime = Time.realtimeSinceStartup;
 
             if (_previousReceivedData == null) return;
 
             var t = Mathf.Clamp01((Time.realtimeSinceStartup - _lastReceiveTime) / (1.0f / linearInterpolationRate));
+            _lastReceiveTime = Time.realtimeSinceStartup;
 
             foreach (var bone in _mesh.bones)
             {
