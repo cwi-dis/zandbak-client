@@ -8,10 +8,19 @@ using UnityEngine.UI;
 
 public class SessionSelector : MonoBehaviour
 {
+    [Header("Join Session")]
     public TMP_Dropdown sessionDropdown;
     public Button joinButton;
+
+    [Header("Create Session")]
     public TMP_InputField sessionNameField;
     public Button createButton;
+
+    [Header("Create Session")]
+    public TMP_InputField scheduledSessionIdField;
+    public Button scheduleButton;
+
+    [Header("Session Prefab")]
     public GameObject sessionPrefab;
 
     private List<Session> _sessions;
@@ -39,20 +48,30 @@ public class SessionSelector : MonoBehaviour
         sessionNameField.onValueChanged.AddListener(delegate { createButton.interactable = sessionNameField.text.Length > 0; });
         createButton.onClick.AddListener(OnCreateSession);
 
+        scheduleButton.interactable = false;
+        scheduledSessionIdField.onValueChanged.AddListener(delegate { scheduleButton.interactable = scheduledSessionIdField.text.Length > 0; });
+        scheduleButton.onClick.AddListener(OnScheduleSession);
+
         _sessions = sessions;
     }
 
-    public async void OnJoinSession()
+    private async void OnJoinSession()
     {
         var selectedDropdownValue = sessionDropdown.value;
         var joinedSession = await _orchestrator.JoinSession(_sessions[selectedDropdownValue].Id);
         OnSessionJoined(joinedSession);
     }
 
-    public async void OnCreateSession()
+    private async void OnCreateSession()
     {
         var createdSession = await _orchestrator.CreateSession(sessionNameField.text);
         OnSessionJoined(createdSession);
+    }
+
+    private async void OnScheduleSession()
+    {
+        var scheduledSession = await _orchestrator.ScheduleSession(scheduledSessionIdField.text);
+        OnSessionJoined(scheduledSession);
     }
 
     private void OnSessionJoined(Session session)
