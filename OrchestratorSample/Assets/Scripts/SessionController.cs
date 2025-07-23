@@ -29,6 +29,7 @@ public class SessionController : MonoBehaviour
     public TMP_Text presentationInfo;
     public Button nextPresentationButton;
     public Button nextSlideButton;
+    public Button prevSlideButton;
 
     private readonly Dictionary<string, GameObject> _activeUsers = new();
     private Session _session;
@@ -55,7 +56,8 @@ public class SessionController : MonoBehaviour
         if (_session.Presentations.Count > 0)
         {
             nextPresentationButton.onClick.AddListener(NextPresentation);
-            nextSlideButton.onClick.AddListener(NextSlide);
+            nextSlideButton.onClick.AddListener(delegate { ChangeSlide(1); });;
+            prevSlideButton.onClick.AddListener(delegate { ChangeSlide(-1); });;
         }
         else
         {
@@ -63,6 +65,7 @@ public class SessionController : MonoBehaviour
         }
 
         nextSlideButton.gameObject.SetActive(false);
+        prevSlideButton.gameObject.SetActive(false);
 
         var user = _session.Self;
         Debug.Log($"Building session for user: {user.Name} ({user.Type}). Session has {_session.Users.Count} users already.");
@@ -110,20 +113,22 @@ public class SessionController : MonoBehaviour
 
             nextPresentationButton.interactable = false;
             nextSlideButton.interactable = false;
+            prevSlideButton.interactable = false;
 
             return;
         }
 
         nextSlideButton.gameObject.SetActive(true);
-        var presenterUser = _session.FindUserById(presentation.Presenter);
+        prevSlideButton.gameObject.SetActive(true);
 
+        var presenterUser = _session.FindUserById(presentation.Presenter);
         presentationInfo.text = $"<i>{presentation.Name}</i>\nby {presenterUser.Name}\n\n{presentation.CurrentSlide}";
         notificationField.text += $"<i>Upcoming presentation: {presentation.Name}</i>\n";
     }
 
-    private async void NextSlide()
+    private async void ChangeSlide(int offset)
     {
-        var presentation = await _session.ChangePresentationSlide(1);
+        var presentation = await _session.ChangePresentationSlide(offset);
         var presenterUser = _session.FindUserById(presentation.Presenter);
 
         presentationInfo.text = $"<i>{presentation.Name}</i>\nby {presenterUser.Name}\n\n{presentation.CurrentSlide}";
