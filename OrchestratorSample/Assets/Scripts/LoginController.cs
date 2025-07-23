@@ -24,7 +24,7 @@ public class LoginController : MonoBehaviour
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     private async void Start()
     {
-        var orchestratorUrl = ConfigLoader.Config.orchestratorUrl;
+        var orchestratorUrl = ConfigLoader.Config.OrchestratorUrl;
         Debug.Log("Connecting to orchestrator at: " + orchestratorUrl);
         _orchestrator = await OrchestratorController.Instance.SocketConnectAsync(orchestratorUrl);
 

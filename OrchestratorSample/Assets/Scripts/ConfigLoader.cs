@@ -3,10 +3,9 @@ using System.IO;
 using Newtonsoft.Json;
 using UnityEngine;
 
-[System.Serializable]
 public class AppConfig
 {
-    public string orchestratorUrl;
+    [JsonProperty("orchestratorUrl")] public string OrchestratorUrl;
 }
 
 public class ConfigLoader : MonoBehaviour
@@ -74,7 +73,7 @@ public class ConfigLoader : MonoBehaviour
     {
         Config = new AppConfig()
         {
-            orchestratorUrl = "http://localhost:8090",
+            OrchestratorUrl = "http://localhost:8090",
         };
 
         Debug.LogWarning("Using default config.");
