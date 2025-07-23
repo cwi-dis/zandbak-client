@@ -9,6 +9,7 @@ public class LoginController : MonoBehaviour
     public TMP_InputField usernameField;
     public TMP_InputField passwordField;
     public Button loginButton;
+    public TMP_Text connectionStatusText;
 
     private Orchestrator.App.Orchestrator _orchestrator;
     private bool _isConnected = false;
@@ -16,6 +17,8 @@ public class LoginController : MonoBehaviour
     private void Awake()
     {
         loginButton.interactable = false;
+        usernameField.interactable = false;
+        passwordField.interactable = false;
     }
 
     // Start is called once before the first execution of Update after the MonoBehaviour is created
@@ -31,7 +34,11 @@ public class LoginController : MonoBehaviour
         usernameField.onValueChanged.AddListener(delegate { loginButton.interactable = _isConnected && usernameField.text.Length > 0; });
 
         var version = await _orchestrator.GetOrchestratorVersion();
+        connectionStatusText.text = $"Connected to {orchestratorUrl}! Version: {version}";
         Debug.Log("Version " + version);
+
+        usernameField.interactable = true;
+        passwordField.interactable = true;
     }
 
     public async void OnLoginClicked()
