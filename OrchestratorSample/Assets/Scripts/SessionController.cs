@@ -10,14 +10,25 @@ using Session = Orchestrator.App.Session;
 
 public class SessionController : MonoBehaviour
 {
+    [Header("Prefabs")]
     public GameObject localPlayerPrefab;
     public GameObject remotePlayerPrefab;
 
+    [Header("Notifications")]
     public TMP_Text notificationField;
+
+    [Header("Chat")]
     public TMP_InputField chatInputField;
     public Button chatSendButton;
+
+    [Header("Raised Hands")]
     public TMP_Text raisedHandsField;
     public Button raiseHandButton;
+
+    [Header("Presentation")]
+    public TMP_Text presentationInfo;
+    public Button nextPresentationButton;
+    public Button nextSlideButton;
 
     private readonly Dictionary<string, GameObject> _activeUsers = new();
     private Session _session;
@@ -40,6 +51,17 @@ public class SessionController : MonoBehaviour
         raiseHandButton.onClick.AddListener(RaiseOrLowerHand);
         chatSendButton.onClick.AddListener(SendChatMessage);
         chatInputField.onValueChanged.AddListener(delegate { chatSendButton.interactable = chatInputField.text.Length > 0; });
+
+        if (_session.Presentations.Count > 0)
+        {
+            nextPresentationButton.onClick.AddListener(NextPresentation);
+            nextSlideButton.onClick.AddListener(NextSlide);
+        }
+        else
+        {
+            nextPresentationButton.gameObject.SetActive(false);
+            nextSlideButton.gameObject.SetActive(false);
+        }
 
         var user = _session.Self;
         Debug.Log($"Building session for user: {user.Name} ({user.Type}). Session has {_session.Users.Count} users already.");
@@ -74,6 +96,24 @@ public class SessionController : MonoBehaviour
 
         // Printing a welcome message
         notificationField.text += $"Welcome to <i>{_session.Name}</i>\n\n";
+    }
+
+    private async void NextPresentation()
+    {
+        var presentation = await _session.GoToNextPresentation();
+        var presenterUser = _session.FindUserById(presentation.Presenter);
+
+        presentationInfo.text = $"<i>{presentation.Name}</i>\nby {presenterUser.Name}\n\n{presentation.CurrentSlide}";
+        notificationField.text += $"<i>Upcoming presentation: {presentation.Name}</i>\n";
+    }
+
+    private async void NextSlide()
+    {
+        var presentation = await _session.ChangePresentationSlide(1);
+        var presenterUser = _session.FindUserById(presentation.Presenter);
+
+        presentationInfo.text = $"<i>{presentation.Name}</i>\nby {presenterUser.Name}\n\n{presentation.CurrentSlide}";
+        notificationField.text += $"<i>Presentation slide changed to {presentation.CurrentSlide}</i>\n";
     }
 
     private async void SendChatMessage()
