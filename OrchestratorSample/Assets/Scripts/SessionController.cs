@@ -60,8 +60,9 @@ public class SessionController : MonoBehaviour
         else
         {
             nextPresentationButton.gameObject.SetActive(false);
-            nextSlideButton.gameObject.SetActive(false);
         }
+
+        nextSlideButton.gameObject.SetActive(false);
 
         var user = _session.Self;
         Debug.Log($"Building session for user: {user.Name} ({user.Type}). Session has {_session.Users.Count} users already.");
@@ -101,6 +102,19 @@ public class SessionController : MonoBehaviour
     private async void NextPresentation()
     {
         var presentation = await _session.GoToNextPresentation();
+
+        if (presentation == null)
+        {
+            presentationInfo.text = "No more presentations";
+            notificationField.text += $"<i>No more presentations</i>\n";
+
+            nextPresentationButton.interactable = false;
+            nextSlideButton.interactable = false;
+
+            return;
+        }
+
+        nextSlideButton.gameObject.SetActive(true);
         var presenterUser = _session.FindUserById(presentation.Presenter);
 
         presentationInfo.text = $"<i>{presentation.Name}</i>\nby {presenterUser.Name}\n\n{presentation.CurrentSlide}";
