@@ -106,7 +106,6 @@ GameObject:
   - component: {fileID: 7472062122856444102}
   - component: {fileID: 1907120033468732950}
   - component: {fileID: 2156501786310359497}
-  - component: {fileID: 6002242747485101155}
   m_Layer: 0
   m_Name: m_avg
   m_TagString: Untagged
@@ -225,21 +224,6 @@ MonoBehaviour:
   jointRegressorJSON: {fileID: 4900000, guid: 542bba728e93d442a82ef6a5920127ed, type: 3}
   shapeParmsJSON: {fileID: 0}
   optimizePoseBlends: 0
---- !u!114 &6002242747485101155
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 625393253295353366}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 5e98cd886599c432c8645da65ed1559a, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  id: 
-  isLocal: 0
-  updateRate: 10
 --- !u!1 &1288670718124927848
 GameObject:
   m_ObjectHideFlags: 0
