@@ -58,7 +58,10 @@ public class SessionController : MonoBehaviour
         chatSendButton.onClick.AddListener(SendChatMessage);
         chatInputField.onValueChanged.AddListener(delegate { chatSendButton.interactable = chatInputField.text.Length > 0; });
 
-        if (_session.Presentations.Count > 0)
+        Debug.Log($"User type: {_session.Self.Type}");
+
+        // Only enable presentation control buttons if there is at least one presentation
+        if (_session.Presentations.Count > 0 && _session.Self.Type == "presenter")
         {
             nextPresentationButton.onClick.AddListener(NextPresentation);
             nextSlideButton.onClick.AddListener(delegate { ChangeSlide(1); });
@@ -246,10 +249,15 @@ public class SessionController : MonoBehaviour
             return;
         }
 
-        nextSlideButton.gameObject.SetActive(true);
-        prevSlideButton.gameObject.SetActive(true);
-        sharePresentationButton.gameObject.SetActive(true);
+        // Activate presentation control buttons if the current is a presenter
+        if (_session.Self.Type == "presenter")
+        {
+            nextSlideButton.gameObject.SetActive(true);
+            prevSlideButton.gameObject.SetActive(true);
+            sharePresentationButton.gameObject.SetActive(true);
+        }
 
+        // Find the user object for the presenter and update text fields
         var presenterUser = _session.FindUserById(presentation.Presenter);
         presentationInfo.text = $"<i>{presentation.Name}</i>\nby {presenterUser.Name}\n\n{presentation.CurrentSlide}\n{presentation.IsSharing}";
         notificationField.text += $"<i>Upcoming presentation: {presentation.Name}</i>\n";
