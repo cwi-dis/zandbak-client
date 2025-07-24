@@ -49,6 +49,9 @@ public class SessionController : MonoBehaviour
         _session.OnMessageReceived += OnMessageReceived;
         _session.OnUserRaisedHand += OnUserRaisedHand;
         _session.OnUserClearedRaisedHand += OnUserClearedRaisedHand;
+        _session.OnPresentationChanged += OnPresentationChanged;
+        _session.OnPresentationSlideChanged += OnSlideChanged;
+        _session.OnPresentationIsSharingChanged += OnPresentationShared;
 
         // Adding listeners for UI elements
         raiseHandButton.onClick.AddListener(RaiseOrLowerHand);
@@ -108,48 +111,17 @@ public class SessionController : MonoBehaviour
 
     private async void NextPresentation()
     {
-        var presentation = await _session.GoToNextPresentation();
-
-        if (presentation == null)
-        {
-            presentationInfo.text = "No more presentations";
-            notificationField.text += $"<i>No more presentations</i>\n";
-
-            nextPresentationButton.interactable = false;
-            nextSlideButton.interactable = false;
-            prevSlideButton.interactable = false;
-            sharePresentationButton.interactable = false;
-
-            return;
-        }
-
-        nextSlideButton.gameObject.SetActive(true);
-        prevSlideButton.gameObject.SetActive(true);
-        sharePresentationButton.gameObject.SetActive(true);
-
-        var presenterUser = _session.FindUserById(presentation.Presenter);
-        presentationInfo.text = $"<i>{presentation.Name}</i>\nby {presenterUser.Name}\n\n{presentation.CurrentSlide}\n{presentation.IsSharing}";
-        notificationField.text += $"<i>Upcoming presentation: {presentation.Name}</i>\n";
+        await _session.GoToNextPresentation();
     }
 
     private async void SharePresentation()
     {
-        _isSharingPresentation = !_isSharingPresentation;
-
-        var presentation = await _session.SharePresentation(_isSharingPresentation);
-        var presenterUser = _session.FindUserById(presentation.Presenter);
-
-        presentationInfo.text = $"<i>{presentation.Name}</i>\nby {presenterUser.Name}\n\n{presentation.CurrentSlide}\n{presentation.IsSharing}";
-        notificationField.text += $"<i>Started presentation sharing</i>\n";
+        await _session.SharePresentation(!_isSharingPresentation);
     }
 
     private async void ChangeSlide(int offset)
     {
-        var presentation = await _session.ChangePresentationSlide(offset);
-        var presenterUser = _session.FindUserById(presentation.Presenter);
-
-        presentationInfo.text = $"<i>{presentation.Name}</i>\nby {presenterUser.Name}\n\n{presentation.CurrentSlide}\n{presentation.IsSharing}";
-        notificationField.text += $"<i>Presentation slide changed to {presentation.CurrentSlide}</i>\n";
+        await _session.ChangePresentationSlide(offset);
     }
 
     private async void SendChatMessage()
@@ -254,5 +226,46 @@ public class SessionController : MonoBehaviour
         {
             Debug.LogWarning("Could not find object for user with id " + user.Id);
         }
+    }
+
+    private void OnPresentationChanged(Presentation presentation)
+    {
+        if (presentation == null)
+        {
+            presentationInfo.text = "No more presentations";
+            notificationField.text += $"<i>No more presentations</i>\n";
+
+            nextPresentationButton.interactable = false;
+            nextSlideButton.interactable = false;
+            prevSlideButton.interactable = false;
+            sharePresentationButton.interactable = false;
+
+            return;
+        }
+
+        nextSlideButton.gameObject.SetActive(true);
+        prevSlideButton.gameObject.SetActive(true);
+        sharePresentationButton.gameObject.SetActive(true);
+
+        var presenterUser = _session.FindUserById(presentation.Presenter);
+        presentationInfo.text = $"<i>{presentation.Name}</i>\nby {presenterUser.Name}\n\n{presentation.CurrentSlide}\n{presentation.IsSharing}";
+        notificationField.text += $"<i>Upcoming presentation: {presentation.Name}</i>\n";
+    }
+
+    private void OnSlideChanged(Presentation presentation)
+    {
+        var presenterUser = _session.FindUserById(presentation.Presenter);
+
+        presentationInfo.text = $"<i>{presentation.Name}</i>\nby {presenterUser.Name}\n\n{presentation.CurrentSlide}\n{presentation.IsSharing}";
+        notificationField.text += $"<i>Presentation slide changed to {presentation.CurrentSlide}</i>\n";
+    }
+
+    private void OnPresentationShared(Presentation presentation)
+    {
+        _isSharingPresentation = !_isSharingPresentation;
+        var presenterUser = _session.FindUserById(presentation.Presenter);
+
+        presentationInfo.text = $"<i>{presentation.Name}</i>\nby {presenterUser.Name}\n\n{presentation.CurrentSlide}\n{presentation.IsSharing}";
+        notificationField.text += $"<i>Started presentation sharing</i>\n";
     }
 }
