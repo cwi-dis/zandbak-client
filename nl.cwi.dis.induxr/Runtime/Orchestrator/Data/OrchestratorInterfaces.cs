@@ -45,7 +45,7 @@ namespace Orchestrator.Data
         void OnGetOrchestratorVersionResponse(ResponseStatus status, string version);
         void OnDisconnect();
 
-        void OnLoginResponse(ResponseStatus status, string userId);
+        void OnLoginResponse(ResponseStatus status, User user);
         void OnLogoutResponse(ResponseStatus status);
 
         void OnGetNTPTimeResponse(ResponseStatus status, NtpClock ntpTime);

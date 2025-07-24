@@ -35,6 +35,7 @@ namespace Orchestrator.Data {
 
     public class LoginResponse : IOrchestratorResponseBody {
         [JsonProperty("userId")] public string UserId;
+        [JsonProperty("userData")] public User UserData;
     }
 
     public class PresentationResponse : IOrchestratorResponseBody

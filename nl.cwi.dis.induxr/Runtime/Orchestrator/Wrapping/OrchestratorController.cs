@@ -82,7 +82,7 @@ namespace Orchestrator.Wrapping
         /// <summary>
         /// Invoked when the current user logs into the Orchestrator, with a boolean indicating success and the user's ID as arguments
         /// </summary>
-        public event Action<bool, string> OnLoginEvent;
+        public event Action<bool, User> OnLoginEvent;
 
         /// <summary>
         /// Invoked when the current user logs out of the Orchestrator, with a boolean indicating success as argument
@@ -365,7 +365,7 @@ namespace Orchestrator.Wrapping
             _orchestratorWrapper.Login(username, password, deviceType);
         }
 
-        void IOrchestratorResponsesListener.OnLoginResponse(ResponseStatus status, string userId) {
+        void IOrchestratorResponsesListener.OnLoginResponse(ResponseStatus status, User userData) {
             var userLoggedSuccessfully = (status.Error == 0);
 
             if (status.Error != 0) {
@@ -379,7 +379,7 @@ namespace Orchestrator.Wrapping
                     Log("OrchestratorController: OnLoginResponse: User logged in.");
 
                     _userIsLogged = true;
-                    SelfUser.Id = userId;
+                    SelfUser.Id = userData.Id;
                 } else {
                     _userIsLogged = false;
                 }
@@ -392,7 +392,7 @@ namespace Orchestrator.Wrapping
                 }
             }
 
-            OnLoginEvent?.Invoke(userLoggedSuccessfully, userId);
+            OnLoginEvent?.Invoke(userLoggedSuccessfully, userData);
         }
 
 

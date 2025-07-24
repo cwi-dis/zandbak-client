@@ -156,7 +156,7 @@ namespace Orchestrator.Wrapping {
                     _myUserID = data.Body.UserId;
 
                     UnityThread.executeInUpdate(() => {
-                        _responsesListener?.OnLoginResponse(data.ResponseStatus, data.Body.UserId);
+                        _responsesListener?.OnLoginResponse(data.ResponseStatus, data.Body.UserData);
                     });
                 }, new {
                     userName, deviceType
@@ -171,7 +171,7 @@ namespace Orchestrator.Wrapping {
                     _myUserID = data.Body.UserId;
 
                     UnityThread.executeInUpdate(() => {
-                        _responsesListener?.OnLoginResponse(data.ResponseStatus, data.Body.UserId);
+                        _responsesListener?.OnLoginResponse(data.ResponseStatus, data.Body.UserData);
                     });
                 }, new {
                     userName, password, deviceType
