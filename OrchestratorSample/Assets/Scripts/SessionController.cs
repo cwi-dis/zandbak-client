@@ -30,10 +30,12 @@ public class SessionController : MonoBehaviour
     public Button nextPresentationButton;
     public Button nextSlideButton;
     public Button prevSlideButton;
+    public Button sharePresentationButton;
 
     private readonly Dictionary<string, GameObject> _activeUsers = new();
     private Session _session;
     private bool _isHandRaised = false;
+    private bool _isSharingPresentation = false;
 
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     private void Start()
@@ -56,8 +58,9 @@ public class SessionController : MonoBehaviour
         if (_session.Presentations.Count > 0)
         {
             nextPresentationButton.onClick.AddListener(NextPresentation);
-            nextSlideButton.onClick.AddListener(delegate { ChangeSlide(1); });;
-            prevSlideButton.onClick.AddListener(delegate { ChangeSlide(-1); });;
+            nextSlideButton.onClick.AddListener(delegate { ChangeSlide(1); });
+            prevSlideButton.onClick.AddListener(delegate { ChangeSlide(-1); });
+            sharePresentationButton.onClick.AddListener(SharePresentation);
         }
         else
         {
@@ -66,6 +69,7 @@ public class SessionController : MonoBehaviour
 
         nextSlideButton.gameObject.SetActive(false);
         prevSlideButton.gameObject.SetActive(false);
+        sharePresentationButton.gameObject.SetActive(false);
 
         var user = _session.Self;
         Debug.Log($"Building session for user: {user.Name} ({user.Type}). Session has {_session.Users.Count} users already.");
@@ -114,16 +118,29 @@ public class SessionController : MonoBehaviour
             nextPresentationButton.interactable = false;
             nextSlideButton.interactable = false;
             prevSlideButton.interactable = false;
+            sharePresentationButton.interactable = false;
 
             return;
         }
 
         nextSlideButton.gameObject.SetActive(true);
         prevSlideButton.gameObject.SetActive(true);
+        sharePresentationButton.gameObject.SetActive(true);
 
         var presenterUser = _session.FindUserById(presentation.Presenter);
-        presentationInfo.text = $"<i>{presentation.Name}</i>\nby {presenterUser.Name}\n\n{presentation.CurrentSlide}";
+        presentationInfo.text = $"<i>{presentation.Name}</i>\nby {presenterUser.Name}\n\n{presentation.CurrentSlide}\n{presentation.IsSharing}";
         notificationField.text += $"<i>Upcoming presentation: {presentation.Name}</i>\n";
+    }
+
+    private async void SharePresentation()
+    {
+        _isSharingPresentation = !_isSharingPresentation;
+
+        var presentation = await _session.SharePresentation(_isSharingPresentation);
+        var presenterUser = _session.FindUserById(presentation.Presenter);
+
+        presentationInfo.text = $"<i>{presentation.Name}</i>\nby {presenterUser.Name}\n\n{presentation.CurrentSlide}\n{presentation.IsSharing}";
+        notificationField.text += $"<i>Started presentation sharing</i>\n";
     }
 
     private async void ChangeSlide(int offset)
@@ -131,7 +148,7 @@ public class SessionController : MonoBehaviour
         var presentation = await _session.ChangePresentationSlide(offset);
         var presenterUser = _session.FindUserById(presentation.Presenter);
 
-        presentationInfo.text = $"<i>{presentation.Name}</i>\nby {presenterUser.Name}\n\n{presentation.CurrentSlide}";
+        presentationInfo.text = $"<i>{presentation.Name}</i>\nby {presenterUser.Name}\n\n{presentation.CurrentSlide}\n{presentation.IsSharing}";
         notificationField.text += $"<i>Presentation slide changed to {presentation.CurrentSlide}</i>\n";
     }
 
