@@ -43,7 +43,7 @@ public class SessionController : MonoBehaviour
         // Getting the current session from Orchestrator singleton
         _session = OrchestratorController.Instance.Orchestrator.CurrentSession;
 
-        // Attaching callback functions to events
+        // Attaching callback functions to session update events
         _session.OnUserJoined += OnUserJoined;
         _session.OnUserLeft += OnUserLeft;
         _session.OnMessageReceived += OnMessageReceived;
@@ -70,6 +70,7 @@ public class SessionController : MonoBehaviour
             nextPresentationButton.gameObject.SetActive(false);
         }
 
+        // Disable slide control buttons until the first presentation is selected
         nextSlideButton.gameObject.SetActive(false);
         prevSlideButton.gameObject.SetActive(false);
         sharePresentationButton.gameObject.SetActive(false);
@@ -230,11 +231,13 @@ public class SessionController : MonoBehaviour
 
     private void OnPresentationChanged(Presentation presentation)
     {
+        // The variable 'presentation' is null if there are no more presentations
         if (presentation == null)
         {
             presentationInfo.text = "No more presentations";
             notificationField.text += $"<i>No more presentations</i>\n";
 
+            // Disable all presentation control buttons
             nextPresentationButton.interactable = false;
             nextSlideButton.interactable = false;
             prevSlideButton.interactable = false;
@@ -254,17 +257,19 @@ public class SessionController : MonoBehaviour
 
     private void OnSlideChanged(Presentation presentation)
     {
+        // Find the user object for the presenter and update text fields
         var presenterUser = _session.FindUserById(presentation.Presenter);
-
         presentationInfo.text = $"<i>{presentation.Name}</i>\nby {presenterUser.Name}\n\n{presentation.CurrentSlide}\n{presentation.IsSharing}";
         notificationField.text += $"<i>Presentation slide changed to {presentation.CurrentSlide}</i>\n";
     }
 
     private void OnPresentationShared(Presentation presentation)
     {
+        // Update isSharing flag
         _isSharingPresentation = !_isSharingPresentation;
-        var presenterUser = _session.FindUserById(presentation.Presenter);
 
+        // Find the user object for the presenter and update text fields
+        var presenterUser = _session.FindUserById(presentation.Presenter);
         presentationInfo.text = $"<i>{presentation.Name}</i>\nby {presenterUser.Name}\n\n{presentation.CurrentSlide}\n{presentation.IsSharing}";
         notificationField.text += $"<i>Started presentation sharing</i>\n";
     }
