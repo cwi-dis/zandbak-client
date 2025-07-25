@@ -570,10 +570,6 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 0}
     m_Modifications:
-    - target: {fileID: 5847136848107976214, guid: ca6362ea069d94cd191cf23222deb399, type: 3}
-      propertyPath: m_text
-      value: Waiting to connect to the Orchestrator...
-      objectReference: {fileID: 0}
     - target: {fileID: 7571488305789904799, guid: ca6362ea069d94cd191cf23222deb399, type: 3}
       propertyPath: m_Name
       value: LoginUI
