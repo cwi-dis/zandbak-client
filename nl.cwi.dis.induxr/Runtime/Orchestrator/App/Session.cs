@@ -190,18 +190,29 @@ namespace Orchestrator.App
         /// Joins the current session by associating the calling user and the orchestrator with the session.
         /// Updates the session state and enables movement broadcast listeners for all users within the session.
         /// </summary>
-        public void Join()
+        public async void Join()
         {
-            // XXX Should call GetSessionInfo and update _sessionData upon joining
+            await Info();
 
             _orchestrator.CurrentSession = this;
+            Self.Join();
             IsJoined = true;
 
-            // Add self to session users if not present
-            if (FindUserById(Self.Id) == null)
+            // Update user definitions from refreshed sessionData
+            var newUsers = _sessionData.UserDefinitions.Select(u =>
             {
-                Users.Add(Self);
-            }
+                var foundUser = FindUserById(u.Id);
+
+                if (foundUser != null)
+                {
+                    foundUser.UserData = u;
+                    return foundUser;
+                }
+
+                return new User(_orchestrator, u);
+            }).ToList();
+
+            Users = newUsers;
 
             foreach (var user in Users)
             {
