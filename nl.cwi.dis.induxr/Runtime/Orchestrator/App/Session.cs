@@ -575,7 +575,9 @@ namespace Orchestrator.App
         private async void UserRaisedHand(string userId)
         {
             await GetRaisedHands();
+
             var raisedHandUser = FindUserById(userId);
+            raisedHandUser.UserData.HasHandRaised = true;
 
             OnUserRaisedHand?.Invoke(raisedHandUser);
         }
@@ -585,6 +587,8 @@ namespace Orchestrator.App
             GetRaisedHands();
 
             var clearedRaisedHandUser = Users.Find(u => u.Id == userId);
+            clearedRaisedHandUser.UserData.HasHandRaised = false;
+
             OnUserClearedRaisedHand?.Invoke(clearedRaisedHandUser);
         }
 

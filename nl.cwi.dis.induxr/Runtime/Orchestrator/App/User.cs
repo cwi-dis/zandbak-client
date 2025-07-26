@@ -14,6 +14,7 @@ namespace Orchestrator.App
         public Data.User UserData
         {
             set => _userData = value;
+            get => _userData;
         }
 
         public Session Session => _orchestrator.CurrentSession;
@@ -80,32 +81,9 @@ namespace Orchestrator.App
 
             if (session != null)
             {
-                session.OnUserRaisedHand += (u) =>
-                {
-                    if (u.Id != Id)
-                        return;
-
-                    OnHandRaised?.Invoke(true);
-                    _userData.HasHandRaised = true;
-                };
-
-                session.OnUserClearedRaisedHand += (u) =>
-                {
-                    if (u.Id != Id)
-                        return;
-
-                    OnHandRaised?.Invoke(false);
-                    _userData.HasHandRaised = false;
-                };
-
-                session.OnIsSpeakingChanged += (u, isSpeaking) =>
-                {
-                    if (u.Id != Id)
-                        return;
-
-                    OnIsSpeaking?.Invoke(isSpeaking);
-                    _userData.IsSpeaking = isSpeaking;
-                };
+                session.OnUserRaisedHand += HandRaised;
+                session.OnUserClearedRaisedHand += HandRaised;
+                session.OnIsSpeakingChanged += IsSpeakingChanged;
 
                 if (Id != _orchestrator.Self.Id)
                 {
@@ -121,6 +99,15 @@ namespace Orchestrator.App
 
         public void Leave()
         {
+            var session = _orchestrator.CurrentSession;
+
+            if (session != null)
+            {
+                session.OnUserRaisedHand -= HandRaised;
+                session.OnUserClearedRaisedHand -= HandRaised;
+                session.OnIsSpeakingChanged -= IsSpeakingChanged;
+            }
+
             DisableMovementBroadcastListener();
         }
 
@@ -170,6 +157,23 @@ namespace Orchestrator.App
 
             if (movement.UserId != Id) return;
             OnAvatarMovementReceived?.Invoke(movement);
+        }
+
+        private void HandRaised(User user)
+        {
+            if (user.Id != Id)
+                return;
+
+            OnHandRaised?.Invoke(user.HasHandRaised);
+        }
+
+        private void IsSpeakingChanged(User user, bool isSpeaking)
+        {
+            if (user.Id != Id)
+                return;
+
+            OnIsSpeaking?.Invoke(isSpeaking);
+            _userData.IsSpeaking = isSpeaking;
         }
     }
 }
