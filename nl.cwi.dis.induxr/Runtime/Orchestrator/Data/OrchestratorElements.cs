@@ -140,8 +140,8 @@ namespace Orchestrator.Data
         [JsonProperty("description")] public string Description;
         [JsonProperty("presenter")] public string Presenter;
         [JsonProperty("slidesUrl")] public string SlidesURL;
-        [JsonProperty("createdAt")] public int CreatedAt;
-        [JsonProperty("updatedAt")] public bool UpdatedAt;
+        [JsonProperty("createdAt")] public DateTime CreatedAt;
+        [JsonProperty("updatedAt")] public DateTime UpdatedAt;
     }
 
     public class ScheduledSession : OrchestratorElement
