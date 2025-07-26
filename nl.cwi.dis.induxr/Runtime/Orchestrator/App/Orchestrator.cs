@@ -178,6 +178,27 @@ namespace Orchestrator.App
         }
 
         /// <summary>
+        /// Retrieves a list of scheduled sessions from the Orchestrator
+        /// </summary>
+        /// <returns>A task that represents the asynchronous operation. The task result contains a list of scheduled sessions.</returns>
+        public Task<List<ScheduledSession>> GetScheduledSessions()
+        {
+            var tcs = new TaskCompletionSource<List<ScheduledSession>>();
+
+            Action<List<ScheduledSession>> fn = null;
+            fn = (sessions) =>
+            {
+                tcs.SetResult(sessions);
+                OrchestratorController.Instance.OnScheduledSessionsEvent -= fn;
+            };
+
+            OrchestratorController.Instance.OnScheduledSessionsEvent += fn;
+            OrchestratorController.Instance.GetScheduledSessions();
+
+            return tcs.Task;
+        }
+
+        /// <summary>
         /// Creates a new session asynchronously with the specified session name.
         /// </summary>
         /// <param name="sessionName">The name of the session to be created.</param>
