@@ -64,6 +64,12 @@ namespace Orchestrator.App
             _orchestrator = orchestrator;
         }
 
+        /// <summary>
+        /// Configures the user to respond to hand raise events in the current session. If the session is null,
+        /// the method logs a warning and does not attach any event listeners. This method should be called after
+        /// joining a new session.
+        /// When the user raises or clears a raised hand, corresponding events are triggered.
+        /// </summary>
         public void Join()
         {
             if (Session != null)
@@ -74,6 +80,7 @@ namespace Orchestrator.App
                         return;
 
                     OnHandRaised?.Invoke(true);
+                    _userData.HasHandRaised = true;
                 };
 
                 Session.OnUserClearedRaisedHand += (u) =>
@@ -82,6 +89,7 @@ namespace Orchestrator.App
                         return;
 
                     OnHandRaised?.Invoke(false);
+                    _userData.HasHandRaised = false;
                 };
             }
             else
