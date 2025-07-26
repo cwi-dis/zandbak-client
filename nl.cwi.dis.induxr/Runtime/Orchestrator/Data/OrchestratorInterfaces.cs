@@ -51,6 +51,7 @@ namespace Orchestrator.Data
         void OnGetNTPTimeResponse(ResponseStatus status, NtpClock ntpTime);
 
         void OnGetSessionsResponse(ResponseStatus status, List<Session> sessions);
+        void OnGetScheduledSessionsResponse(ResponseStatus status, List<ScheduledSession> sessions);
         void OnAddSessionResponse(ResponseStatus status, Session session);
         void OnGetSessionInfoResponse(ResponseStatus status, Session session);
         void OnDeleteSessionResponse(ResponseStatus status);

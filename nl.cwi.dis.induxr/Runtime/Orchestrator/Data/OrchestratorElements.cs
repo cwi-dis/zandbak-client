@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using UnityEngine;
 using Newtonsoft.Json;
 
@@ -131,6 +132,30 @@ namespace Orchestrator.Data
         [JsonProperty("slidesUrl")] public string SlidesURL;
         [JsonProperty("currentSlide")] public int CurrentSlide;
         [JsonProperty("isSharing")] public bool IsSharing;
+    }
+
+    public class ScheduledPresentation : OrchestratorElement
+    {
+        [JsonProperty("name")] public string Name;
+        [JsonProperty("description")] public string Description;
+        [JsonProperty("presenter")] public string Presenter;
+        [JsonProperty("slidesUrl")] public string SlidesURL;
+        [JsonProperty("createdAt")] public DateTime CreatedAt;
+        [JsonProperty("updatedAt")] public DateTime UpdatedAt;
+    }
+
+    public class ScheduledSession : OrchestratorElement
+    {
+        [JsonProperty("id")] public string Id;
+        [JsonProperty("title")] public string Title;
+        [JsonProperty("description")] public string Description;
+        [JsonProperty("moderator")] public string Moderator;
+        [JsonProperty("status")] public string Status;
+        [JsonProperty("startTime")] public DateTime Start;
+        [JsonProperty("endTime")] public DateTime End;
+        [JsonProperty("createdAt")] public DateTime CreatedAt;
+        [JsonProperty("updatedAt")] public DateTime UpdatedAt;
+        [JsonProperty("presentations")] public ScheduledPresentation[] Presentations;
     }
 
     public class Session : OrchestratorElement
