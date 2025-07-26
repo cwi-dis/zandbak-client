@@ -119,6 +119,11 @@ namespace Orchestrator.App
             }
         }
 
+        public void Leave()
+        {
+            DisableMovementBroadcastListener();
+        }
+
         /// <summary>
         /// Enables the reception of avatar movement broadcasts for the user in the current session. If the user is not
         /// in any session, broadcasts will not be enabled and a warning is logged.
@@ -141,9 +146,11 @@ namespace Orchestrator.App
         /// Disables the reception of avatar movement broadcasts for the user in the current session.
         /// This stops the session from raising broadcast-related events for the user.
         /// </summary>
-        public void DisableMovementBroadcastListener()
+        private void DisableMovementBroadcastListener()
         {
-            if (_orchestrator.CurrentSession == null) return;
+            if (_orchestrator.CurrentSession == null)
+                return;
+
             _orchestrator.CurrentSession.OnBroadcastDataReceived -= BroadcastReceived;
         }
 

@@ -234,7 +234,7 @@ namespace Orchestrator.App
 
             foreach (var user in Users)
             {
-                user.DisableMovementBroadcastListener();
+                user.Leave();
             }
 
             _orchestrator.CurrentSession = null;
@@ -542,7 +542,7 @@ namespace Orchestrator.App
 
             if (userToRemove != null)
             {
-                userToRemove.DisableMovementBroadcastListener();
+                userToRemove.Leave();
                 Users.Remove(userToRemove);
                 OnUserLeft?.Invoke(userToRemove);
             }
