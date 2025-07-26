@@ -9,6 +9,7 @@ namespace Orchestrator.Behaviour
     public class LocalAvatar : MonoBehaviour
     {
         public int updateRate = 10;
+        public GameObject notification;
 
         private User _user;
         private SkinnedMeshRenderer _mesh;
@@ -32,6 +33,7 @@ namespace Orchestrator.Behaviour
             }
 
             _mesh = GetComponentInChildren<SkinnedMeshRenderer>();
+            _user.OnHandRaised += (isRaised) => notification.SetActive(isRaised);
         }
 
         private void Update()
