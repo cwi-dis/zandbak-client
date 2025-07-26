@@ -8,8 +8,13 @@ namespace Orchestrator.App
 {
     public class User
     {
-        private readonly Data.User _userData;
         private readonly Orchestrator _orchestrator;
+        private Data.User _userData;
+
+        public Data.User UserData
+        {
+            set => _userData = value;
+        }
 
         public Session Session => _orchestrator.CurrentSession;
         public string Id => _userData.Id;

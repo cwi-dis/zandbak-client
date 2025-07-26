@@ -13,7 +13,8 @@ namespace Orchestrator.App
         private readonly Orchestrator _orchestrator;
         private Data.Session _sessionData;
 
-        public Data.Session SessionData {
+        public Data.Session SessionData
+        {
             set => _sessionData = value;
         }
 
@@ -27,9 +28,9 @@ namespace Orchestrator.App
         public Presentation CurrentPresentation;
         public bool IsSharing => CurrentPresentation.IsSharing;
 
-        public List<ChatMessage> Chat { get; private set; }
+        public List<ChatMessage> Chat => _sessionData.Chat.ToList();
 
-        public List<User> RaisedHands { get; private set; }
+        public List<User> RaisedHands => _sessionData.RaisedHands.Select(u => FindUserById(u.Id)).ToList();
         public List<User> Users { get; private set; }
         public User Self => _orchestrator.Self;
         public List<User> Speakers => Users.Where(u => u.IsSpeaking).ToList();
@@ -142,8 +143,6 @@ namespace Orchestrator.App
             _orchestrator = orchestrator;
 
             Users = _sessionData.UserDefinitions.Select(u => new User(orchestrator, u)).ToList();
-            RaisedHands = _sessionData.RaisedHands.Select(u => FindUserById(u.Id)).ToList();
-            Chat = _sessionData.Chat.ToList();
 
             OrchestratorController.Instance.OnUserJoinSessionEvent += UserJoined;
             OrchestratorController.Instance.OnUserLeaveSessionEvent += UserLeft;
@@ -379,7 +378,7 @@ namespace Orchestrator.App
             Action<List<Data.User>> fn = null;
             fn = (users) =>
             {
-                RaisedHands = users.Select(u => FindUserById(u.Id)).ToList();
+                _sessionData.RaisedHands = users.ToArray();
                 tcs.SetResult(RaisedHands);
 
                 OrchestratorController.Instance.OnGetRaisedHandsEvent -= fn;
@@ -479,7 +478,7 @@ namespace Orchestrator.App
             Action<List<ChatMessage>> fn = null;
             fn = (messages) =>
             {
-                Chat = messages;
+                _sessionData.Chat = messages.ToArray();
                 tcs.SetResult(Chat);
 
                 OrchestratorController.Instance.OnGetMessagesEvent -= fn;
