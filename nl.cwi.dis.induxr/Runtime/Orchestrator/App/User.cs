@@ -52,10 +52,42 @@ namespace Orchestrator.App
         /// </summary>
         public event Action<AvatarMovementData> OnAvatarMovementReceived;
 
+        /// <summary>
+        /// Event triggered when the user raises or clears their raised hand. The boolean parameter indicates whether
+        /// the hand was raised (true) or cleared (false).
+        /// </summary>
+        public event Action<bool> OnHandRaised;
+
         public User(Orchestrator orchestrator, Data.User userData)
         {
             _userData = userData;
             _orchestrator = orchestrator;
+        }
+
+        public void Join()
+        {
+            if (Session != null)
+            {
+                Session.OnUserRaisedHand += (u) =>
+                {
+                    if (u.Id != Id)
+                        return;
+
+                    OnHandRaised?.Invoke(true);
+                };
+
+                Session.OnUserClearedRaisedHand += (u) =>
+                {
+                    if (u.Id != Id)
+                        return;
+
+                    OnHandRaised?.Invoke(false);
+                };
+            }
+            else
+            {
+                Debug.LogWarning("Session is null. Cannot setup hand raised listeners for user " + Name);
+            }
         }
 
         /// <summary>
