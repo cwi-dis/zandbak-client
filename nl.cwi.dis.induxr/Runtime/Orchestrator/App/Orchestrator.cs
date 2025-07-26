@@ -248,6 +248,7 @@ namespace Orchestrator.App
                 Action<Data.Session> fn = null;
                 fn = (session) =>
                 {
+                    CurrentSession = sessionToJoin;
                     sessionToJoin.SessionData = session;
                     sessionToJoin.Join();
 

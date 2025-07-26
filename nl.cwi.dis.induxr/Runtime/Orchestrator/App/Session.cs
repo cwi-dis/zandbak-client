@@ -218,7 +218,6 @@ namespace Orchestrator.App
             {
                 if (user.Id != Self.Id)
                 {
-                    user.EnableMovementBroadcastListener();
                     user.Join();
                 }
             }
@@ -527,7 +526,6 @@ namespace Orchestrator.App
         private void UserJoined(string userId, Data.User userData)
         {
             var joinedUser = new User(_orchestrator, userData);
-            joinedUser.EnableMovementBroadcastListener();
             joinedUser.Join();
 
             if (Users.Find(u => u.Id == userId) == null)

@@ -76,9 +76,11 @@ namespace Orchestrator.App
         /// </summary>
         public void Join()
         {
-            if (Session != null)
+            var session = _orchestrator.CurrentSession;
+
+            if (session != null)
             {
-                Session.OnUserRaisedHand += (u) =>
+                session.OnUserRaisedHand += (u) =>
                 {
                     if (u.Id != Id)
                         return;
@@ -87,7 +89,7 @@ namespace Orchestrator.App
                     _userData.HasHandRaised = true;
                 };
 
-                Session.OnUserClearedRaisedHand += (u) =>
+                session.OnUserClearedRaisedHand += (u) =>
                 {
                     if (u.Id != Id)
                         return;
@@ -96,7 +98,7 @@ namespace Orchestrator.App
                     _userData.HasHandRaised = false;
                 };
 
-                Session.OnIsSpeakingChanged += (u, isSpeaking) =>
+                session.OnIsSpeakingChanged += (u, isSpeaking) =>
                 {
                     if (u.Id != Id)
                         return;
@@ -104,6 +106,12 @@ namespace Orchestrator.App
                     OnIsSpeaking?.Invoke(isSpeaking);
                     _userData.IsSpeaking = isSpeaking;
                 };
+
+                if (Id != _orchestrator.Self.Id)
+                {
+                    Debug.Log($"Enabling broadcasts for {Name}");
+                    EnableMovementBroadcastListener();
+                }
             }
             else
             {
@@ -115,11 +123,13 @@ namespace Orchestrator.App
         /// Enables the reception of avatar movement broadcasts for the user in the current session. If the user is not
         /// in any session, broadcasts will not be enabled and a warning is logged.
         /// </summary>
-        public void EnableMovementBroadcastListener()
+        private void EnableMovementBroadcastListener()
         {
-            if (_orchestrator.CurrentSession != null)
+            var session = _orchestrator.CurrentSession;
+
+            if (session != null)
             {
-                _orchestrator.CurrentSession.OnBroadcastDataReceived += BroadcastReceived;
+                session.OnBroadcastDataReceived += BroadcastReceived;
             }
             else
             {
