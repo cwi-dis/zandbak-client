@@ -244,6 +244,18 @@ namespace Orchestrator.Wrapping {
             }
         }
 
+        public void GetScheduledSessions() {
+            lock (this) {
+                _socket.Emit("GetScheduledSessions", (response) => {
+                    var data = response.GetValue<OrchestratorResponse<List<ScheduledSession>>>();
+
+                    UnityThread.executeInUpdate(() => {
+                        _responsesListener?.OnGetScheduledSessionsResponse(data.ResponseStatus, data.Body);
+                    });
+                }, new { });
+            }
+        }
+
         public void GetSessionInfo() {
             lock (this) {
                 _socket.Emit("GetSessionInfo", (response) => {
