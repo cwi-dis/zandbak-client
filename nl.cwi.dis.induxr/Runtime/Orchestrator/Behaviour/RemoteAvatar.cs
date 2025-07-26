@@ -8,6 +8,7 @@ namespace Orchestrator.Behaviour
     {
         public bool withSmoothing = false;
         public int linearInterpolationRate = 10;
+        public GameObject notification;
 
         private User _user;
         private SkinnedMeshRenderer _mesh;
@@ -44,7 +45,9 @@ namespace Orchestrator.Behaviour
             {
                 UpdateBones(_user.Transform);
             }
+
             _user.OnAvatarMovementReceived += MovementReceived;
+            _user.OnHandRaised += (isRaised) => notification.SetActive(isRaised);
         }
 
         private void MovementReceived(AvatarMovementData movement)
