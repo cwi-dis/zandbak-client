@@ -100,6 +100,11 @@ namespace Orchestrator.Wrapping
         public event Action<Session[]> OnSessionsEvent;
 
         /// <summary>
+        /// Invoked when a list of scheduled sessions has been requested with the list of scheduled sessions as argument
+        /// </summary>
+        public event Action<List<ScheduledSession>> OnScheduledSessionsEvent;
+
+        /// <summary>
         /// Invoked when information about the current session has been requested, with the session information as argument
         /// </summary>
         public event Action<Session> OnSessionInfoEvent;
@@ -491,6 +496,25 @@ namespace Orchestrator.Wrapping
             _availableSessions = sessions;
 
             OnSessionsEvent?.Invoke(sessions.ToArray());
+        }
+
+        /// <summary>
+        /// Retrieves the list of scheduled sessions.
+        /// Invokes <c>OnScheduledSessionsEvent</c> upon completion with a list of sessions.
+        /// </summary>
+        public void GetScheduledSessions()
+        {
+            _orchestratorWrapper.GetScheduledSessions();
+        }
+
+        void IOrchestratorResponsesListener.OnGetScheduledSessionsResponse(ResponseStatus status, List<ScheduledSession> sessions)
+        {
+            if (status.Error != 0) {
+                OnErrorEvent?.Invoke(status);
+                return;
+            }
+
+            OnScheduledSessionsEvent?.Invoke(sessions);
         }
 
         /// <summary>
