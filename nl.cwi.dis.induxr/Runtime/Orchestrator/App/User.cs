@@ -58,6 +58,12 @@ namespace Orchestrator.App
         /// </summary>
         public event Action<bool> OnHandRaised;
 
+        /// <summary>
+        /// Event triggered when the isSpeaking flag for the user changes. The boolean parameter indicates whether
+        /// the user is speaking (true) or not (false).
+        /// </summary>
+        public event Action<bool> OnIsSpeaking;
+
         public User(Orchestrator orchestrator, Data.User userData)
         {
             _userData = userData;
@@ -65,10 +71,8 @@ namespace Orchestrator.App
         }
 
         /// <summary>
-        /// Configures the user to respond to hand raise events in the current session. If the session is null,
-        /// the method logs a warning and does not attach any event listeners. This method should be called after
-        /// joining a new session.
-        /// When the user raises or clears a raised hand, corresponding events are triggered.
+        /// Configures the user to respond to events in the current session. If the session is null, the method logs a
+        /// warning and does not attach any event listeners. This method should be called after joining a new session.
         /// </summary>
         public void Join()
         {
@@ -90,6 +94,15 @@ namespace Orchestrator.App
 
                     OnHandRaised?.Invoke(false);
                     _userData.HasHandRaised = false;
+                };
+
+                Session.OnIsSpeakingChanged += (u, isSpeaking) =>
+                {
+                    if (u.Id != Id)
+                        return;
+
+                    OnIsSpeaking?.Invoke(isSpeaking);
+                    _userData.IsSpeaking = isSpeaking;
                 };
             }
             else

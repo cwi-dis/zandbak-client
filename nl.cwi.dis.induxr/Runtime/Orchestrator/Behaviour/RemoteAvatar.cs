@@ -48,6 +48,7 @@ namespace Orchestrator.Behaviour
 
             _user.OnAvatarMovementReceived += MovementReceived;
             _user.OnHandRaised += (isRaised) => notification.SetActive(isRaised);
+            _user.OnIsSpeaking += (isSpeaking) => Debug.Log($"{_user.Name} is speaking: {isSpeaking}");
         }
 
         private void MovementReceived(AvatarMovementData movement)
