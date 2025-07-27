@@ -22,9 +22,6 @@ public class SessionSelectorController : MonoBehaviour
     public TMP_Dropdown scheduledSessionDropdown;
     public Button scheduleButton;
 
-    [Header("Session Prefab")]
-    public GameObject sessionPrefab;
-
     private List<Session> _sessions;
     private List<ScheduledSession> _scheduledSessions;
     private Orchestrator.App.Orchestrator _orchestrator;

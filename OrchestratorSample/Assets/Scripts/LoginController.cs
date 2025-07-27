@@ -6,7 +6,6 @@ using UnityEngine.UI;
 
 public class LoginController : MonoBehaviour
 {
-    public GameObject sessionSelector;
     public TMP_InputField usernameField;
     public TMP_InputField passwordField;
     public Button loginButton;
