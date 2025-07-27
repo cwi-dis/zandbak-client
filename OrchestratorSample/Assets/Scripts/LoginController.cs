@@ -66,6 +66,6 @@ public class LoginController : MonoBehaviour
         Debug.Log("Login successful. User ID: " + userId);
 
         // Upon success, destroy this object and instantiate the session selector prefab
-        SceneManager.LoadScene("Scenes/SessionSelector");
+        SceneManager.LoadScene("Scenes/SessionSelectorScene");
     }
 }
