@@ -56,6 +56,7 @@ namespace Orchestrator.Wrapping {
             _socket.On("MessageSent", OnMessageSentFromOrchestrator);
             _socket.On("DataReceived", OnUserDataReceived);
             _socket.On("SessionUpdated", OnSessionUpdated);
+            _socket.On("SessionClosed", OnSessionClosed);
         }
 
         public void Connect()
@@ -584,6 +585,14 @@ namespace Orchestrator.Wrapping {
                         break;
                 }
             }
+        }
+
+        private void OnSessionClosed(SocketIOResponse response)
+        {
+            UnityThread.executeInUpdate(() =>
+            {
+                _userSessionEventListener?.OnSessionClosed();
+            });
         }
 
         private void OnSessionUpdatedWithIsSpeakingData(SocketIOResponse response)
