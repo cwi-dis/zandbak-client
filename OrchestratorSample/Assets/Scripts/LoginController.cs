@@ -1,6 +1,7 @@
 using Orchestrator.Wrapping;
 using TMPro;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 
 public class LoginController : MonoBehaviour
@@ -65,7 +66,6 @@ public class LoginController : MonoBehaviour
         Debug.Log("Login successful. User ID: " + userId);
 
         // Upon success, destroy this object and instantiate the session selector prefab
-        Destroy(this.gameObject);
-        Instantiate(sessionSelector);
+        SceneManager.LoadScene("Scenes/SessionSelector");
     }
 }
