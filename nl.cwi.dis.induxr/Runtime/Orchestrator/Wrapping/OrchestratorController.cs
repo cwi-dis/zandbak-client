@@ -5,6 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 using Orchestrator.Data;
 using UnityEngine;
+
 #if UNITY_EDITOR
 using UnityEditor.Search;
 #endif
@@ -33,7 +34,7 @@ namespace Orchestrator.Wrapping
 
         //Session
         private Session _session;
-        private List<Session> _availableSessions = new List<Session>();
+        private List<Session> _availableSessions = new();
 
         // user Login state
         private bool _userIsLogged;
@@ -43,7 +44,6 @@ namespace Orchestrator.Wrapping
 
         // orchestrator connection state
         private bool _connectedToOrchestrator;
-        private bool _hasBeenConnectedToOrchestrator;
 
         private TaskCompletionSource<App.Orchestrator> _connectionTaskCompletionSource = new();
 
@@ -275,7 +275,6 @@ namespace Orchestrator.Wrapping
             Log($"OrchestratorController: connected to orchestrator");
 
             _connectedToOrchestrator = true;
-            _hasBeenConnectedToOrchestrator = true;
             _connectionStatus = OrchestratorConnectionStatus.Connected;
 
             Orchestrator = new App.Orchestrator();
@@ -286,11 +285,6 @@ namespace Orchestrator.Wrapping
 
         void IOrchestratorResponsesListener.OnConnecting() {
             Log($"OrchestratorController: connecting to orchestrator");
-
-            if (_hasBeenConnectedToOrchestrator)
-            {
-                Debug.LogWarning("OrchestratorController: attempting to reconnect to orchestrator");
-            }
 
             _connectionStatus = OrchestratorConnectionStatus.Connecting;
             OnConnectingEvent?.Invoke();
@@ -431,26 +425,8 @@ namespace Orchestrator.Wrapping
                 return;
             }
 
-            if (!_userIsLogged) {
-                //user was not logged before the request
-                if (!userLoggedOutSuccessfully) {
-                    // normal, was not logged, nothing to do
-                } else {
-                    // should not occur
-                }
-            } else {
-                //user was logged before the request
-                if (userLoggedOutSuccessfully) {
-                    Log("OrchestratorController: OnLogoutResponse: User logout.");
-
-                    //normal
-                    SelfUser = null;
-                    _userIsLogged = false;
-                } else {
-                    // problem while logout
-                    _userIsLogged = true;
-                }
-            }
+            SelfUser = null;
+            _userIsLogged = false;
 
             OnLogoutEvent?.Invoke(userLoggedOutSuccessfully);
         }
@@ -565,15 +541,6 @@ namespace Orchestrator.Wrapping
             // success
             _session = session;
 
-            // We may need to update our own user definition (because the sfuData may have been added)
-            User newMe = session.GetUser(SelfUser.Id);
-            if (newMe == null)
-            {
-                Debug.LogError($"OrchestratorController: OnAddSessionResponse: userId {SelfUser.Id} (which is me) not in session");
-                return;
-            }
-
-            SelfUser = newMe;
             _userIsMaster = session.MasterId == SelfUser.Id;
 
             _availableSessions.Add(session);
@@ -691,6 +658,7 @@ namespace Orchestrator.Wrapping
         /// </summary>
         public void LeaveSession() {
             _orchestratorWrapper.LeaveSession();
+            _session = null;
         }
 
         /// <summary>
@@ -766,7 +734,7 @@ namespace Orchestrator.Wrapping
                 return;
             }
 
-            Log("OrchestratorController: OnLeaveSessionResponse: Session " + _session.Name + " successfully left.");
+            Log("OrchestratorController: OnLeaveSessionResponse: Session successfully left.");
 
             if (_session != null && SelfUser != null) {
                 // As the session creator, the session should be deleted when leaving.
