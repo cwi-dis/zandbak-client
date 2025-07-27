@@ -56,6 +56,7 @@ public class SessionController : MonoBehaviour
         _session.OnPresentationChanged += OnPresentationChanged;
         _session.OnPresentationSlideChanged += OnSlideChanged;
         _session.OnPresentationIsSharingChanged += OnPresentationShared;
+        _session.OnClosed += OnSessionClosed;
 
         // Adding listeners for UI elements
         leaveButton.onClick.AddListener(LeaveSession);
@@ -209,6 +210,12 @@ public class SessionController : MonoBehaviour
         {
             raisedHandsField.text += raisedHandUser.Name + "\n";
         }
+    }
+
+    private void OnSessionClosed()
+    {
+        Debug.Log("Session closed, loading login scene.");
+        SceneManager.LoadScene("Scenes/LoginScene");
     }
 
     private void OnMessageReceived(ChatMessage message)
