@@ -36,6 +36,14 @@ namespace Orchestrator.App
         public List<User> Speakers => Users.Where(u => u.IsSpeaking).ToList();
 
         /// <summary>
+        /// Occurs when the session is being closed remotely
+        /// </summary>
+        /// <remarks>
+        /// This event is triggered whenever the current session is closed on the Orchestrator.
+        /// </remarks>
+        public event Action OnClosed;
+
+        /// <summary>
         /// Occurs when a user joins the current session.
         /// </summary>
         /// <remarks>
@@ -143,6 +151,8 @@ namespace Orchestrator.App
             _orchestrator = orchestrator;
 
             Users = _sessionData.UserDefinitions.Select(u => new User(orchestrator, u)).ToList();
+
+            OrchestratorController.Instance.OnSessionCloseEvent += SessionClosed;
 
             OrchestratorController.Instance.OnUserJoinSessionEvent += UserJoined;
             OrchestratorController.Instance.OnUserLeaveSessionEvent += UserLeft;
@@ -546,6 +556,12 @@ namespace Orchestrator.App
                 Users.Remove(userToRemove);
                 OnUserLeft?.Invoke(userToRemove);
             }
+        }
+
+        private async void SessionClosed()
+        {
+            await Leave();
+            OnClosed?.Invoke();
         }
 
         private void PresentationChanged(Presentation presentation)
