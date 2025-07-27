@@ -8,7 +8,7 @@ using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 using Session = Orchestrator.App.Session;
 
-public class SessionSelector : MonoBehaviour
+public class SessionSelectorController : MonoBehaviour
 {
     [Header("Join Session")]
     public TMP_Dropdown sessionDropdown;
