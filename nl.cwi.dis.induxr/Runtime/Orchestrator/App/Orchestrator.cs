@@ -135,6 +135,14 @@ namespace Orchestrator.App
         }
 
         /// <summary>
+        /// Disconnect from the Orchestrator
+        /// </summary>
+        public void Disconnect()
+        {
+            OrchestratorController.Instance.Disconnect();
+        }
+
+        /// <summary>
         /// Retrieves the current Network Time Protocol (NTP) time asynchronously.
         /// </summary>
         /// <returns>A task that represents the asynchronous operation. The task result contains the NTP time as a double.</returns>
