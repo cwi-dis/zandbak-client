@@ -125,6 +125,8 @@ namespace Orchestrator.App
             fn = (success) =>
             {
                 Self = null;
+                CurrentSession = null;
+
                 tcs.SetResult(success);
                 OrchestratorController.Instance.OnLogoutEvent -= fn;
             };

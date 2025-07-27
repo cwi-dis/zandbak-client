@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 using Newtonsoft.Json;
 using Orchestrator.Data;
 using Orchestrator.Wrapping;
+using UnityEngine;
 
 namespace Orchestrator.App
 {
@@ -246,6 +247,11 @@ namespace Orchestrator.App
             foreach (var user in Users)
             {
                 user.Leave();
+            }
+
+            if (_orchestrator.Sessions.Remove(_orchestrator.CurrentSession))
+            {
+                Debug.Log("Removed current session from session list");
             }
 
             _orchestrator.CurrentSession = null;
