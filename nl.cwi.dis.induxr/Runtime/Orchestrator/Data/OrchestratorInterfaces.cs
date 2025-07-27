@@ -23,6 +23,7 @@ namespace Orchestrator.Data
     // from the session updates by the orchestrator
     public interface IUserSessionEventsListener
     {
+        void OnSessionClosed();
         void OnUserJoinedSession(string userID, User user);
         void OnUserLeftSession(string userID);
         void OnUserRaisedHand(string userId);

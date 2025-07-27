@@ -114,6 +114,12 @@ namespace Orchestrator.Wrapping
         /// </summary>
         public event Action<Session> OnAddSessionEvent;
 
+
+        /// <summary>
+        /// Invoked when the current session is being closed remotely
+        /// </summary>
+        public event Action OnSessionCloseEvent;
+
         /// <summary>
         /// Invoked when a given session has been joined successfully, with the session information as argument
         /// </summary>
@@ -775,6 +781,17 @@ namespace Orchestrator.Wrapping
             _session = null;
         }
 
+        void IUserSessionEventsListener.OnSessionClosed()
+        {
+            // The session has been closed by the session creator.
+            Log("OrchestratorController: OnSessionClosed: Session " + _session.Name + " closed by session creator.");
+
+            OnSessionCloseEvent?.Invoke();
+
+            // Leave the session and disconnect
+            LeaveSession();
+        }
+
         void IUserSessionEventsListener.OnUserJoinedSession(string userID, User user) {
             // Someone has joined the session
             if (string.IsNullOrEmpty(userID))
@@ -801,19 +818,8 @@ namespace Orchestrator.Wrapping
 
         void IUserSessionEventsListener.OnUserLeftSession(string userID) {
             if (!string.IsNullOrEmpty(userID)) {
-                // If the session creator left, I need to leave also.
-                if (_session.AdministratorId == userID) {
-                    Debug.Log("OrchestratorController: OnUserLeftSession: Session creator " + _session.GetUser(userID).Username + " left the session. Also leaving.");
-                    LeaveSession();
-                }
-                // Otherwise, proceed to the common user left event.
-                else {
-                    Log("OrchestratorController: OnUserLeftSession: User " + _session.GetUser(userID).Username + " left the session. Getting new session info.");
-
-                    // Required to update the list of connected users.
-                    _orchestratorWrapper.GetSessionInfo();
-                    OnUserLeaveSessionEvent?.Invoke(userID);
-                }
+                _orchestratorWrapper.GetSessionInfo();
+                OnUserLeaveSessionEvent?.Invoke(userID);
             }
         }
 
