@@ -299,6 +299,14 @@ namespace Orchestrator.Wrapping
         }
 
         /// <summary>
+        /// Disconnect from the Orchestrator
+        /// </summary>
+        public void Disconnect()
+        {
+            Abort();
+        }
+
+        /// <summary>
         /// Retrieves the version of the Orchestrator by sending a request to the connected server.
         /// Invokes <c>OnGetOrchestratorVersionEvent</c> upon completion.
         /// </summary>
@@ -1002,20 +1010,21 @@ namespace Orchestrator.Wrapping
         #region Logic
 
         private IEnumerator WaitForEmptySessionToDelete() {
+            // TODO Implement this properly
             if (_session == null) {
                 yield break;
             }
 
             // Check frequently if there are users connected and ensure a null session (from the delete command) is escaped.
-            while (_session.UserIds.Length > 0) {
-                GetSessionInfo();
-                yield return new WaitForSeconds(1.0f);
-            }
+            // while (_session.UserIds.Length > 0) {
+                // GetSessionInfo();
+                // yield return new WaitForSeconds(1.0f);
+            // }
 
             // When the session is free of users, delete it.
-            if (_session.UserIds.Length == 0) {
-                DeleteSession(_session.Id);
-            }
+            // if (_session.UserIds.Length == 0) {
+                // DeleteSession(_session.Id);
+            // }
         }
 
         #endregion
