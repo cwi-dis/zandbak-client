@@ -16,6 +16,7 @@ namespace Orchestrator.App
         public Data.Session SessionData
         {
             set => _sessionData = value;
+            get => _sessionData;
         }
 
         public string Id => _sessionData.Id;

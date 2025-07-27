@@ -124,6 +124,7 @@ namespace Orchestrator.App
             Action<bool> fn = null;
             fn = (success) =>
             {
+                Self = null;
                 tcs.SetResult(success);
                 OrchestratorController.Instance.OnLogoutEvent -= fn;
             };
