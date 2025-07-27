@@ -36,22 +36,30 @@ public class SessionSelector : MonoBehaviour
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     private async void Start()
     {
+        // Get active sessions
         var sessions = await _orchestrator.GetSessions();
 
+        // Disable the join button if there are no active sessions
         if (sessions.Count == 0)
         {
             joinButton.interactable = false;
         }
 
+        // Add session names to dropdown
         sessionDropdown.AddOptions(sessions.Select((s) => s.Name).ToList());
         joinButton.onClick.AddListener(OnJoinSession);
 
+        // Add a listener to the session creation input field and only enable it if there is a value in the text input field
         createButton.interactable = false;
         sessionNameField.onValueChanged.AddListener(delegate { createButton.interactable = sessionNameField.text.Length > 0; });
         createButton.onClick.AddListener(OnCreateSession);
 
+        _sessions = sessions;
+
+        // Only show scheduled sessions dropdown if the user is a presenter
         if (_orchestrator.Self.Type == "presenter")
         {
+            // Get scheduled sessions
             var scheduledSessions = await _orchestrator.GetScheduledSessions();
 
             if (scheduledSessions.Count == 0)
@@ -59,6 +67,7 @@ public class SessionSelector : MonoBehaviour
                 scheduleButton.interactable = false;
             }
 
+            // Add scheduled sessions to the scheduled sessions dropdown
             scheduleButton.onClick.AddListener(OnScheduleSession);
             scheduledSessionDropdown.AddOptions(scheduledSessions.Select((s) => s.Title).ToList());
 
@@ -69,27 +78,30 @@ public class SessionSelector : MonoBehaviour
             scheduleButton.gameObject.SetActive(false);
             scheduledSessionDropdown.gameObject.SetActive(false);
         }
-
-        _sessions = sessions;
     }
 
     private async void OnJoinSession()
     {
+        // Get the selected value and join the session using its ID
         var selectedDropdownValue = sessionDropdown.value;
         var joinedSession = await _orchestrator.JoinSession(_sessions[selectedDropdownValue].Id);
+
         OnSessionJoined(joinedSession);
     }
 
     private async void OnCreateSession()
     {
+        // Get the chosen session name and create the session
         var createdSession = await _orchestrator.CreateSession(sessionNameField.text);
         OnSessionJoined(createdSession);
     }
 
     private async void OnScheduleSession()
     {
+        // Get the selected value and create the scheduled session using its ID
         var selectedDropdownValue = sessionDropdown.value;
         var scheduledSession = await _orchestrator.ScheduleSession(_scheduledSessions[selectedDropdownValue].Id);
+
         OnSessionJoined(scheduledSession);
     }
 
@@ -97,6 +109,7 @@ public class SessionSelector : MonoBehaviour
     {
         Debug.Log("Session joined: " + session.Name);
 
+        // Destroy this object and instantiate the session prefab
         Destroy(this.gameObject);
         Instantiate(sessionPrefab);
     }
