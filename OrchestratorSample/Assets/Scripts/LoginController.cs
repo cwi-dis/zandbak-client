@@ -28,8 +28,16 @@ public class LoginController : MonoBehaviour
         // Get the Orchestrator URL from the config
         var orchestratorUrl = ConfigLoader.Config.OrchestratorUrl;
         Debug.Log("Connecting to orchestrator at: " + orchestratorUrl);
-        // Attempt to connect to the Orchestrator
-        _orchestrator = await OrchestratorController.Instance.SocketConnectAsync(orchestratorUrl);
+
+        // Attempt to connect to the Orchestrator if not connected already
+        if (!OrchestratorController.Instance.ConnectedToOrchestrator)
+        {
+            _orchestrator = await OrchestratorController.Instance.SocketConnectAsync(orchestratorUrl);
+        }
+        else
+        {
+            _orchestrator = OrchestratorController.Instance.Orchestrator;
+        }
 
         Debug.Log("Connected to orchestrator.");
         _isConnected = true;
