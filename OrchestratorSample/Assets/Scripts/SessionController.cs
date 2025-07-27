@@ -4,6 +4,7 @@ using Orchestrator.Data;
 using Orchestrator.Wrapping;
 using TMPro;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 using User = Orchestrator.App.User;
 using Session = Orchestrator.App.Session;
@@ -32,6 +33,9 @@ public class SessionController : MonoBehaviour
     public Button prevSlideButton;
     public Button sharePresentationButton;
 
+    [Header("Session Management")]
+    public Button leaveButton;
+
     private readonly Dictionary<string, GameObject> _activeUsers = new();
     private Session _session;
     private bool _isHandRaised = false;
@@ -54,6 +58,7 @@ public class SessionController : MonoBehaviour
         _session.OnPresentationIsSharingChanged += OnPresentationShared;
 
         // Adding listeners for UI elements
+        leaveButton.onClick.AddListener(LeaveSession);
         raiseHandButton.onClick.AddListener(RaiseOrLowerHand);
         chatSendButton.onClick.AddListener(SendChatMessage);
         chatInputField.onValueChanged.AddListener(delegate { chatSendButton.interactable = chatInputField.text.Length > 0; });
@@ -142,6 +147,14 @@ public class SessionController : MonoBehaviour
         {
             await _session.SendMessage(message);
         }
+    }
+
+    private async void LeaveSession()
+    {
+        await _session.Leave();
+        await OrchestratorController.Instance.Orchestrator.Logout();
+
+        SceneManager.LoadScene("Scenes/LoginScene");
     }
 
     private async void RaiseOrLowerHand()
