@@ -1,10 +1,11 @@
 using System.Collections.Generic;
 using System.Linq;
-using Orchestrator.App;
+using Orchestrator.Data;
 using Orchestrator.Wrapping;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
+using Session = Orchestrator.App.Session;
 
 public class SessionSelector : MonoBehaviour
 {
@@ -17,13 +18,14 @@ public class SessionSelector : MonoBehaviour
     public Button createButton;
 
     [Header("Create Session")]
-    public TMP_InputField scheduledSessionIdField;
+    public TMP_Dropdown scheduledSessionDropdown;
     public Button scheduleButton;
 
     [Header("Session Prefab")]
     public GameObject sessionPrefab;
 
     private List<Session> _sessions;
+    private List<ScheduledSession> _scheduledSessions;
     private Orchestrator.App.Orchestrator _orchestrator;
 
     private void Awake()
@@ -48,9 +50,25 @@ public class SessionSelector : MonoBehaviour
         sessionNameField.onValueChanged.AddListener(delegate { createButton.interactable = sessionNameField.text.Length > 0; });
         createButton.onClick.AddListener(OnCreateSession);
 
-        scheduleButton.interactable = false;
-        scheduledSessionIdField.onValueChanged.AddListener(delegate { scheduleButton.interactable = scheduledSessionIdField.text.Length > 0; });
-        scheduleButton.onClick.AddListener(OnScheduleSession);
+        if (_orchestrator.Self.Type == "presenter")
+        {
+            var scheduledSessions = await _orchestrator.GetScheduledSessions();
+
+            if (scheduledSessions.Count == 0)
+            {
+                scheduleButton.interactable = false;
+            }
+
+            scheduleButton.onClick.AddListener(OnScheduleSession);
+            scheduledSessionDropdown.AddOptions(scheduledSessions.Select((s) => s.Title).ToList());
+
+            _scheduledSessions = scheduledSessions;
+        }
+        else
+        {
+            scheduleButton.gameObject.SetActive(false);
+            scheduledSessionDropdown.gameObject.SetActive(false);
+        }
 
         _sessions = sessions;
     }
@@ -70,7 +88,8 @@ public class SessionSelector : MonoBehaviour
 
     private async void OnScheduleSession()
     {
-        var scheduledSession = await _orchestrator.ScheduleSession(scheduledSessionIdField.text);
+        var selectedDropdownValue = sessionDropdown.value;
+        var scheduledSession = await _orchestrator.ScheduleSession(_scheduledSessions[selectedDropdownValue].Id);
         OnSessionJoined(scheduledSession);
     }
 
