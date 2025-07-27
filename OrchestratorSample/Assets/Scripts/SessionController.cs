@@ -58,6 +58,9 @@ public class SessionController : MonoBehaviour
         chatSendButton.onClick.AddListener(SendChatMessage);
         chatInputField.onValueChanged.AddListener(delegate { chatSendButton.interactable = chatInputField.text.Length > 0; });
 
+        // Disable the chat send button initially
+        chatSendButton.interactable = false;
+
         Debug.Log($"User type: {_session.Self.Type}");
 
         // Only enable presentation control buttons if there is at least one presentation
