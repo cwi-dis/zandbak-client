@@ -65,7 +65,7 @@ public class LoginController : MonoBehaviour
         var userId = await _orchestrator.Login(username, (password != "") ? password : null);
         Debug.Log("Login successful. User ID: " + userId);
 
-        // Upon success, destroy this object and instantiate the session selector prefab
+        // Upon success, destroy this object and load the session selector scene
         SceneManager.LoadScene("Scenes/SessionSelectorScene");
     }
 }

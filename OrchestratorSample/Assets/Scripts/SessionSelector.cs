@@ -4,6 +4,7 @@ using Orchestrator.Data;
 using Orchestrator.Wrapping;
 using TMPro;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 using Session = Orchestrator.App.Session;
 
@@ -109,8 +110,7 @@ public class SessionSelector : MonoBehaviour
     {
         Debug.Log("Session joined: " + session.Name);
 
-        // Destroy this object and instantiate the session prefab
-        Destroy(this.gameObject);
-        Instantiate(sessionPrefab);
+        // Destroy this object and load the session scene
+        SceneManager.LoadScene("Scenes/SessionScene");
     }
 }
