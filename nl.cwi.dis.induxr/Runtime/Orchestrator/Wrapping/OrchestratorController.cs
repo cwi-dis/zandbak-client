@@ -557,7 +557,7 @@ namespace Orchestrator.Wrapping
 
         void IOrchestratorResponsesListener.OnGetSessionInfoResponse(ResponseStatus status, Session session) {
             if (_session == null || string.IsNullOrEmpty(session.Id)) {
-                LogError("OrchestratorController: OnGetSessionInfoResponse: Aborted, current session is null.");
+                LogWarning("OrchestratorController: OnGetSessionInfoResponse: Aborted, current session is null.");
                 return;
             }
 
@@ -991,13 +991,13 @@ namespace Orchestrator.Wrapping
 
             // Check frequently if there are users connected and ensure a null session (from the delete command) is escaped.
             // while (_session.UserIds.Length > 0) {
-                // GetSessionInfo();
-                // yield return new WaitForSeconds(1.0f);
+            //     GetSessionInfo();
+            //     yield return new WaitForSeconds(1.0f);
             // }
 
             // When the session is free of users, delete it.
             // if (_session.UserIds.Length == 0) {
-                // DeleteSession(_session.Id);
+            //     DeleteSession(_session.Id);
             // }
         }
 
@@ -1026,6 +1026,14 @@ namespace Orchestrator.Wrapping
             if (enableLogging)
             {
                 Debug.LogError(message);
+            }
+        }
+
+        private void LogWarning(string message)
+        {
+            if (enableLogging)
+            {
+                Debug.LogWarning(message);
             }
         }
     }
