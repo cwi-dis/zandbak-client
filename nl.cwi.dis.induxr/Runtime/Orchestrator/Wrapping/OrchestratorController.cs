@@ -752,11 +752,11 @@ namespace Orchestrator.Wrapping
         void IUserSessionEventsListener.OnSessionClosed()
         {
             // The session has been closed by the session creator.
-            Log("OrchestratorController: OnSessionClosed: Session " + _session.Name + " closed by session creator.");
+            Log("OrchestratorController: OnSessionClosed: Current session closed by session creator.");
 
             OnSessionCloseEvent?.Invoke();
 
-            // Leave the session and disconnect
+            // Leave the session
             LeaveSession();
         }
 
