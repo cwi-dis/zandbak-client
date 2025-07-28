@@ -24,7 +24,7 @@ namespace Orchestrator.App
         public string Name => _sessionData.Name;
         public string Status => _sessionData.Status;
         public string Description => _sessionData.Description;
-        public bool IsJoined { get; private set; }  = false;
+        public bool IsJoined => _orchestrator.CurrentSession?.Id == Id;
 
         public List<Presentation> Presentations => _sessionData.Presentations.ToList();
         public Presentation CurrentPresentation;
@@ -208,7 +208,6 @@ namespace Orchestrator.App
 
             _orchestrator.CurrentSession = this;
             Self.Join();
-            IsJoined = true;
 
             // Update user definitions from refreshed sessionData
             var newUsers = _sessionData.UserDefinitions.Select(u =>
@@ -255,7 +254,6 @@ namespace Orchestrator.App
             }
 
             _orchestrator.CurrentSession = null;
-            IsJoined = false;
 
             tcs.SetResult(true);
             return tcs.Task;
