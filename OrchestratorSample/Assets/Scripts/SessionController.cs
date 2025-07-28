@@ -212,9 +212,10 @@ public class SessionController : MonoBehaviour
         }
     }
 
-    private void OnSessionClosed()
+    private async void OnSessionClosed()
     {
         Debug.Log("Session closed, loading login scene.");
+        await OrchestratorController.Instance.Orchestrator.Logout();
         SceneManager.LoadScene("Scenes/LoginScene");
     }
 
