@@ -284,7 +284,7 @@ public class SessionController : MonoBehaviour
 
         // Find the user object for the presenter and update text fields
         var presenterUser = _session.FindUserById(presentation.Presenter);
-        presentationInfo.text = $"<i>{presentation.Name}</i>\nby {presenterUser.Name}\n\n{presentation.CurrentSlide}\n{presentation.IsSharing}";
+        presentationInfo.text = $"<i>{presentation.Name}</i>\nby {presenterUser.Name}";
         notificationField.text += $"<i>Upcoming presentation: {presentation.Name}</i>\n";
     }
 

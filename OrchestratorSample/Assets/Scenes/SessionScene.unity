@@ -135,6 +135,10 @@ PrefabInstance:
       propertyPath: presentationCanvas
       value: 
       objectReference: {fileID: 1702443552}
+    - target: {fileID: 3010414972478806703, guid: bb1a12149ce4343109c9e0721f5b1f59, type: 3}
+      propertyPath: m_VerticalAlignment
+      value: 512
+      objectReference: {fileID: 0}
     - target: {fileID: 6319405375226795595, guid: bb1a12149ce4343109c9e0721f5b1f59, type: 3}
       propertyPath: m_Name
       value: Session
