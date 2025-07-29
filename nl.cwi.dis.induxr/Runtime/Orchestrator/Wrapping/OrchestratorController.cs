@@ -97,7 +97,7 @@ namespace Orchestrator.Wrapping
         /// <summary>
         /// Invoked when a list of sessions has been requested with the list of sessions as argument
         /// </summary>
-        public event Action<Session[]> OnSessionsEvent;
+        public event Action<List<Session>> OnSessionsEvent;
 
         /// <summary>
         /// Invoked when a list of scheduled sessions has been requested with the list of scheduled sessions as argument
@@ -485,7 +485,7 @@ namespace Orchestrator.Wrapping
             // update the list of available sessions
             _availableSessions = sessions;
 
-            OnSessionsEvent?.Invoke(sessions.ToArray());
+            OnSessionsEvent?.Invoke(sessions);
         }
 
         /// <summary>

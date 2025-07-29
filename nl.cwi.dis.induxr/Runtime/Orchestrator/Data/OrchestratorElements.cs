@@ -155,7 +155,7 @@ namespace Orchestrator.Data
         [JsonProperty("endTime")] public DateTime End;
         [JsonProperty("createdAt")] public DateTime CreatedAt;
         [JsonProperty("updatedAt")] public DateTime UpdatedAt;
-        [JsonProperty("presentations")] public ScheduledPresentation[] Presentations;
+        [JsonProperty("presentations")] public List<ScheduledPresentation> Presentations;
     }
 
     public class Session : OrchestratorElement
@@ -166,14 +166,14 @@ namespace Orchestrator.Data
         [JsonProperty("sessionAdministrator")] public string AdministratorId;
         [JsonProperty("sessionMaster")] public string MasterId;
         [JsonProperty("scenarioId")] public string ScenarioId;
-        [JsonProperty("sessionUsers")] public string[] UserIds;
+        [JsonProperty("sessionUsers")] public List<string> UserIds;
         [JsonProperty("sessionUserDefinitions")] public List<User> UserDefinitions;
         [JsonProperty("sessionProtocol")] public string Protocol;
-        [JsonProperty("sessionChannels")] public string[] Channels;
-        [JsonProperty("sessionChat")] public ChatMessage[] Chat;
-        [JsonProperty("sessionRaisedHands")] public User[] RaisedHands;
+        [JsonProperty("sessionChannels")] public List<string> Channels;
+        [JsonProperty("sessionChat")] public List<ChatMessage> Chat;
+        [JsonProperty("sessionRaisedHands")] public List<User> RaisedHands;
         [JsonProperty("sessionCurrentPresentation")] public Presentation CurrentPresentation;
-        [JsonProperty("sessionPresentations")] public Presentation[] Presentations;
+        [JsonProperty("sessionPresentations")] public List<Presentation> Presentations;
         [JsonProperty("sessionStatus")] public string Status;
 
         public override string GetId()
@@ -186,9 +186,9 @@ namespace Orchestrator.Data
             return Name + " (" + Description + ")";
         }
 
-        public User[] GetUsers()
+        public List<User> GetUsers()
         {
-            return UserDefinitions.ToArray();
+            return UserDefinitions;
         }
 
         public User GetUser(string userID)

@@ -174,7 +174,7 @@ namespace Orchestrator.App
         {
             var tcs = new TaskCompletionSource<List<Session>>();
 
-            Action<Data.Session[]> fn = null;
+            Action<List<Data.Session>> fn = null;
             fn = (sessions) =>
             {
                 Sessions = sessions.Select(session => new Session(this, session)).ToList();

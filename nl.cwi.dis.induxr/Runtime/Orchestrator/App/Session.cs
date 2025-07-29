@@ -403,7 +403,7 @@ namespace Orchestrator.App
             Action<List<Data.User>> fn = null;
             fn = (users) =>
             {
-                _sessionData.RaisedHands = users.ToArray();
+                _sessionData.RaisedHands = users;
                 tcs.SetResult(RaisedHands);
 
                 OrchestratorController.Instance.OnGetRaisedHandsEvent -= fn;
@@ -503,7 +503,7 @@ namespace Orchestrator.App
             Action<List<ChatMessage>> fn = null;
             fn = (messages) =>
             {
-                _sessionData.Chat = messages.ToArray();
+                _sessionData.Chat = messages;
                 tcs.SetResult(Chat);
 
                 OrchestratorController.Instance.OnGetMessagesEvent -= fn;
