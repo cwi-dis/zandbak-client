@@ -32,6 +32,7 @@ public class SessionController : MonoBehaviour
     public Button nextSlideButton;
     public Button prevSlideButton;
     public Button sharePresentationButton;
+    public MeshRenderer presentationCanvas;
 
     [Header("Session Management")]
     public Button leaveButton;
@@ -304,5 +305,7 @@ public class SessionController : MonoBehaviour
         var presenterUser = _session.FindUserById(presentation.Presenter);
         presentationInfo.text = $"<i>{presentation.Name}</i>\nby {presenterUser.Name}\n\n{presentation.CurrentSlide}\n{presentation.IsSharing}";
         notificationField.text += $"<i>Started presentation sharing</i>\n";
+
+        presentationCanvas.gameObject.SetActive(_isSharingPresentation);
     }
 }
