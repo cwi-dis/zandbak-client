@@ -259,7 +259,10 @@ public class SessionController : MonoBehaviour
 
     private async void OnPresentationChanged(Presentation presentation)
     {
-        await _session.SharePresentation(false);
+        if (_isSharingPresentation)
+        {
+            await _session.SharePresentation(false);
+        }
 
         // The variable 'presentation' is null if there are no more presentations
         if (presentation == null)
