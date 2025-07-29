@@ -289,7 +289,7 @@ public class SessionController : MonoBehaviour
 
         // Find the user object for the presenter and update text fields
         var presenterUser = _session.FindUserById(presentation.Presenter);
-        presentationInfo.text = $"<i>{presentation.Name}</i>\nby {presenterUser.Name}";
+        presentationInfo.text = $"<i>{presentation.Name}</i>\nby {presenterUser.Name}\n\n({presentation.NumSlides} slides)";
         notificationField.text += $"<i>Upcoming presentation: {presentation.Name}</i>\n";
     }
 
@@ -297,18 +297,18 @@ public class SessionController : MonoBehaviour
     {
         // Find the user object for the presenter and update text fields
         var presenterUser = _session.FindUserById(presentation.Presenter);
-        presentationInfo.text = $"<i>{presentation.Name}</i>\nby {presenterUser.Name}";
+        presentationInfo.text = $"<i>{presentation.Name}</i>\nby {presenterUser.Name}\n\n({presentation.NumSlides} slides)";
         notificationField.text += $"<i>Presentation slide changed to {presentation.CurrentSlide}</i>\n";
     }
 
     private void OnPresentationShared(Presentation presentation)
     {
         // Update isSharing flag
-        _isSharingPresentation = !_isSharingPresentation;
+        _isSharingPresentation = presentation.IsSharing;
 
         // Find the user object for the presenter and update text fields
         var presenterUser = _session.FindUserById(presentation.Presenter);
-        presentationInfo.text = $"<i>{presentation.Name}</i>\nby {presenterUser.Name}";
+        presentationInfo.text = $"<i>{presentation.Name}</i>\nby {presenterUser.Name}\n\n({presentation.NumSlides} slides)";
         notificationField.text += $"<i>Started presentation sharing</i>\n";
 
         presentationCanvas.gameObject.SetActive(_isSharingPresentation);
