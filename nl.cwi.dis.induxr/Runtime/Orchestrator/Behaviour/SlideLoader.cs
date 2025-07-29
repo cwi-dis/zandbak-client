@@ -18,17 +18,20 @@ namespace Orchestrator.Behaviour
         // Start is called once before the first execution of Update after the MonoBehaviour is created
         private void Start()
         {
+            // Get the renderer for the object this behavior is attached to
             _targetRenderer = GetComponent<MeshRenderer>();
 
             _orchestrator = OrchestratorController.Instance.Orchestrator;
             var currentSession = _orchestrator.CurrentSession;
 
+            // Attach handlers for presentation-related events
             currentSession.OnPresentationChanged += PresentationChanged;
             currentSession.OnPresentationIsSharingChanged += SharingChanged;
             currentSession.OnPresentationSlideChanged += SlideChanged;
 
             if (currentSession.CurrentPresentation != null)
             {
+                // Load current slide
                 _currentPresentation = currentSession.CurrentPresentation;
                 StartCoroutine(LoadSlide());
             }
@@ -36,6 +39,7 @@ namespace Orchestrator.Behaviour
 
         private void OnDestroy()
         {
+            // Destroy slide material if it exists
             if (_slideMaterial)
             {
                 Destroy(_slideMaterial);
@@ -44,6 +48,7 @@ namespace Orchestrator.Behaviour
 
         private void PresentationChanged(Presentation presentation)
         {
+            // Update current presentation
             _currentPresentation = presentation;
         }
 
@@ -51,11 +56,13 @@ namespace Orchestrator.Behaviour
         {
             _currentPresentation = presentation;
 
+            // Return if there is no presentation, or we're not sharing anymore
             if (presentation == null || presentation.IsSharing == false)
             {
                 return;
             }
 
+            // Load current slide
             StartCoroutine(LoadSlide());
         }
 
@@ -65,6 +72,7 @@ namespace Orchestrator.Behaviour
 
             if (presentation != null)
             {
+                // Load current slide
                 StopAllCoroutines();
                 StartCoroutine(LoadSlide());
             }
@@ -72,6 +80,7 @@ namespace Orchestrator.Behaviour
 
         private IEnumerator LoadSlide()
         {
+            // Build URL from base URL and current slide
             var baseUrl = new Uri(_currentPresentation.SlidesURL);
             var currentSlide = _currentPresentation.CurrentSlide;
 
@@ -79,6 +88,7 @@ namespace Orchestrator.Behaviour
 
             Debug.Log($"Loading current slide from {url}...");
 
+            // Make the request using built URL
             var request = UnityWebRequestTexture.GetTexture(url);
             yield return request.SendWebRequest();
 
@@ -96,14 +106,19 @@ namespace Orchestrator.Behaviour
                     // Apply the texture to the target Renderer's material
                     if (_targetRenderer)
                     {
+                        // Destroy existing slide material if it exists
                         if (_slideMaterial)
                         {
                             Destroy(_slideMaterial);
                         }
 
-                        _slideMaterial = new Material(Shader.Find("Unlit/Texture"));
+                        // Initialize a new material with the downloaded texture
+                        _slideMaterial = new Material(Shader.Find("Unlit/Texture"))
+                        {
+                            mainTexture = texture
+                        };
 
-                        _slideMaterial.mainTexture = texture;
+                        // Apply material to renderer
                         _targetRenderer.material = _slideMaterial;
                         Debug.Log("Image successfully loaded onto 3D surface.");
                     }
