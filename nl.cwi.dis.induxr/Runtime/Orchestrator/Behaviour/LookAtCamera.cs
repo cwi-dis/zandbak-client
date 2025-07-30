@@ -4,6 +4,7 @@ namespace Orchestrator.Behaviour
 {
     public class LookAtCamera : MonoBehaviour
     {
+        public float baseYRotation = 0;
         private Camera _camera;
 
         private void Start()
@@ -19,7 +20,7 @@ namespace Orchestrator.Behaviour
             }
 
             transform.LookAt(_camera.transform);
-            transform.Rotate(0, 180, 0);
+            transform.Rotate(0, baseYRotation, 0);
         }
     }
 }
