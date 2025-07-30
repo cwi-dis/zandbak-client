@@ -84,6 +84,7 @@ namespace Orchestrator.Behaviour
             var baseUrl = new Uri(_currentPresentation.SlidesURL);
             var currentSlide = _currentPresentation.CurrentSlide;
 
+            // Slides are loaded from the given url with the filename `presentation-[slideNum].png` (e.g. http://localhost:8090/slides/presentation-10.png)
             var url = new Uri(baseUrl, $"presentation-{currentSlide}.png");
 
             Debug.Log($"Loading current slide from {url}...");
