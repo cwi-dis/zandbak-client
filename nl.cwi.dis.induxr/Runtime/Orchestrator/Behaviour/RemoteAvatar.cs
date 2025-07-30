@@ -6,9 +6,13 @@ namespace Orchestrator.Behaviour
 {
     public class RemoteAvatar : MonoBehaviour
     {
+        [Header("Smoothing options")]
         public bool withSmoothing = false;
         public int linearInterpolationRate = 10;
+
+        [Header("References")]
         public GameObject notification;
+        public TextMesh usernamePlaque;
 
         private User _user;
         private SkinnedMeshRenderer _mesh;
@@ -45,6 +49,8 @@ namespace Orchestrator.Behaviour
             {
                 UpdateBones(_user.Transform);
             }
+
+            usernamePlaque.text = _user.Name;
 
             _user.OnAvatarMovementReceived += MovementReceived;
             _user.OnHandRaised += (isRaised) => notification.SetActive(isRaised);
