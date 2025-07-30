@@ -697,6 +697,7 @@ GameObject:
   - component: {fileID: 8539934522268687263}
   - component: {fileID: 6767599384365903401}
   - component: {fileID: 5668723076189390003}
+  - component: {fileID: 3183750488535002368}
   m_Layer: 0
   m_Name: LocalAvatar
   m_TagString: Untagged
@@ -793,6 +794,21 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   updateRate: 20
   notification: {fileID: 4169893567363472838}
+--- !u!114 &3183750488535002368
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4720975125625051107}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c13a1a23cc3c5437fb715607d972e5a8, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  smoothSpeed: 0.125
+  locationOffset: {x: 0, y: 3, z: -4}
+  rotationOffset: {x: 15, y: 0, z: 0}
 --- !u!1 &5318952492138798397
 GameObject:
   m_ObjectHideFlags: 0
