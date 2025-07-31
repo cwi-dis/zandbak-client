@@ -14,6 +14,10 @@ namespace Orchestrator.Behaviour
         public GameObject notification;
         public TextMesh usernamePlaque;
 
+        [Header("Settings")]
+        public bool enableNotification = true;
+        public bool enableNamePlaque = true;
+
         private User _user;
         private SkinnedMeshRenderer _mesh;
 
@@ -53,14 +57,21 @@ namespace Orchestrator.Behaviour
                 UpdateBones(_user.Transform);
             }
 
-            // Set username plaque
-            usernamePlaque.text = _user.Name;
+            // Set username plaque if enabled
+            if (enableNamePlaque)
+            {
+                usernamePlaque.text = _user.Name;
+            }
 
             // Add handler for receiving bone transforms
             _user.OnAvatarMovementReceived += MovementReceived;
-            // Add handlers for raising of hands and updates to isSpeaking property
-            _user.OnHandRaised += (isRaised) => notification.SetActive(isRaised);
+            // Add handler for updates to isSpeaking property
             _user.OnIsSpeaking += (isSpeaking) => Debug.Log($"{_user.Name} is speaking: {isSpeaking}");
+            // Add handler for raising of hands if enabled
+            if (enableNotification)
+            {
+                _user.OnHandRaised += (isRaised) => notification.SetActive(isRaised);
+            }
         }
 
         /// <summary>

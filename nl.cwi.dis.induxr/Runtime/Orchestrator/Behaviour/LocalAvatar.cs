@@ -8,7 +8,10 @@ namespace Orchestrator.Behaviour
     public class LocalAvatar : MonoBehaviour
     {
         public int updateRate = 10;
+
+        [Header("Notification Icon")]
         public GameObject notification;
+        public bool enableNotification = true;
 
         private User _user;
         private SkinnedMeshRenderer _mesh;
@@ -34,8 +37,12 @@ namespace Orchestrator.Behaviour
 
             // Get SkinnedMeshRenderer
             _mesh = GetComponentInChildren<SkinnedMeshRenderer>();
-            // Add handler for raising of hands
-            _user.OnHandRaised += (isRaised) => notification.SetActive(isRaised);
+
+            // Add handler for raising of hands if enabled
+            if (enableNotification)
+            {
+                _user.OnHandRaised += (isRaised) => notification.SetActive(isRaised);
+            }
         }
 
         private void Update()
