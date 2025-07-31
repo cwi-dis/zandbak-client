@@ -34,8 +34,8 @@ namespace Orchestrator.App
         public List<User> RaisedHands => _sessionData.RaisedHands.Select(u => FindUserById(u.Id)).ToList();
 
         public List<User> Users { get; private set; }
-        public List<User> VRUsers => Users.FindAll((u) => u.Type == "vr");
-        public List<User> ARUsers => Users.FindAll((u) => u.Type == "ar");
+        public List<User> VRUsers => Users.FindAll((u) => u.DeviceType == "vr");
+        public List<User> ARUsers => Users.FindAll((u) => u.DeviceType == "ar");
 
         public User Self => _orchestrator.Self;
         public List<User> Speakers => Users.Where(u => u.IsSpeaking).ToList();
