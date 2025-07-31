@@ -350,10 +350,10 @@ namespace Orchestrator.Wrapping
             SelfUser = new User
             {
                 Username = username,
-                DeviceType = deviceType,
+                DeviceType = deviceType.ToLower(),
             };
 
-            _orchestratorWrapper.Login(username, deviceType);
+            _orchestratorWrapper.Login(username, deviceType.ToLower());
         }
 
         /// <summary>
@@ -372,10 +372,10 @@ namespace Orchestrator.Wrapping
             {
                 Username = username,
                 Password = password,
-                DeviceType = deviceType,
+                DeviceType = deviceType.ToLower(),
             };
 
-            _orchestratorWrapper.Login(username, password, deviceType);
+            _orchestratorWrapper.Login(username, password, deviceType.ToLower());
         }
 
         void IOrchestratorResponsesListener.OnLoginResponse(ResponseStatus status, User userData) {
