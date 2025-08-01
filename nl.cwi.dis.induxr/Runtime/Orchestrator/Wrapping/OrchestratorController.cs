@@ -26,6 +26,13 @@ namespace Orchestrator.Wrapping
             Connected
         }
 
+        public enum DeviceType
+        {
+            VR,
+            AR,
+            Unknown
+        }
+
         // the wrapper for the orchestrator
         private OrchestratorWrapper _orchestratorWrapper;
         // the reference controller for singleton
