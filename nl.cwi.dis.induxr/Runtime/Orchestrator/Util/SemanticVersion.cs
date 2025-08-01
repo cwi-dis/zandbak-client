@@ -11,8 +11,6 @@ namespace Orchestrator.Util
         public int Patch { get; }
         public string Labels { get; }
 
-        private int AsNumber => Major * 100 + Minor * 10 + Patch;
-
         public SemanticVersion(string version)
         {
             var components = version.Replace("v", "").Split(".");
@@ -54,12 +52,24 @@ namespace Orchestrator.Util
 
         public static bool operator >(SemanticVersion a, SemanticVersion b)
         {
-            return a.AsNumber > b.AsNumber;
+            if (a.Major > b.Major)
+                return true;
+
+            if (a.Minor > b.Minor)
+                return true;
+
+            return a.Patch > b.Patch;
         }
 
         public static bool operator <(SemanticVersion a, SemanticVersion b)
         {
-            return a.AsNumber < b.AsNumber;
+            if (a.Major < b.Major)
+                return true;
+
+            if (a.Minor < b.Minor)
+                return true;
+
+            return a.Patch < b.Patch;
         }
 
         public override bool Equals(object obj)
