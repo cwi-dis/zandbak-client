@@ -360,15 +360,15 @@ namespace Orchestrator.Wrapping
         /// </summary>
         /// <param name="username">The username of the user to log in.</param>
         /// <param name="deviceType">The type of device that the user uses to log in</param>
-        public void Login(string username, string deviceType)
+        public void Login(string username, DeviceType deviceType)
         {
             SelfUser = new User
             {
                 Username = username,
-                DeviceType = deviceType.ToLower(),
+                DeviceType = DeviceTypeToString(deviceType)
             };
 
-            _orchestratorWrapper.Login(username, deviceType.ToLower());
+            _orchestratorWrapper.Login(username, DeviceTypeToString(deviceType));
         }
 
         /// <summary>
@@ -381,16 +381,16 @@ namespace Orchestrator.Wrapping
         /// <param name="username">The username of the user to log in.</param>
         /// <param name="password">The password of the user to log in</param>
         /// <param name="deviceType">The deviceType that the user uses to log in</param>
-        public void Login(string username, string password, string deviceType)
+        public void Login(string username, string password, DeviceType deviceType)
         {
             SelfUser = new User
             {
                 Username = username,
                 Password = password,
-                DeviceType = deviceType.ToLower(),
+                DeviceType = DeviceTypeToString(deviceType)
             };
 
-            _orchestratorWrapper.Login(username, password, deviceType.ToLower());
+            _orchestratorWrapper.Login(username, password, DeviceTypeToString(deviceType));
         }
 
         void IOrchestratorResponsesListener.OnLoginResponse(ResponseStatus status, User userData) {
@@ -422,6 +422,13 @@ namespace Orchestrator.Wrapping
 
             OnLoginEvent?.Invoke(userLoggedSuccessfully, userData);
         }
+
+        private static string DeviceTypeToString(DeviceType deviceType) => deviceType switch
+        {
+            DeviceType.VR => "vr",
+            DeviceType.AR => "ar",
+            _ => "unknown"
+        };
 
         /// <summary>
         /// Terminates an existing Orchestrator connection.
