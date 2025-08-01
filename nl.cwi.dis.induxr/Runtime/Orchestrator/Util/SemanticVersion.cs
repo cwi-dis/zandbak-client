@@ -20,14 +20,7 @@ namespace Orchestrator.Util
             var patchComponents = components[2].Split("-");
             Patch = int.Parse(patchComponents[0]);
 
-            if (patchComponents.Length > 1)
-            {
-                Labels = string.Join(",", patchComponents.Skip(1));
-            }
-            else
-            {
-                Labels = string.Empty;
-            }
+            Labels = patchComponents.Length > 1 ? string.Join(",", patchComponents.Skip(1)) : string.Empty;
         }
 
         public static bool operator ==(SemanticVersion a, SemanticVersion b)
