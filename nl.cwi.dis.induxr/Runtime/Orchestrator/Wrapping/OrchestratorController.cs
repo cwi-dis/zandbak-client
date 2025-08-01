@@ -19,7 +19,8 @@ namespace Orchestrator.Wrapping
         [Tooltip("Enable trace logging output")]
         [SerializeField] private bool enableLogging = true;
 
-        public enum OrchestratorConnectionStatus {
+        public enum OrchestratorConnectionStatus
+        {
             Disconnected,
             Connecting,
             Connected
@@ -415,7 +416,6 @@ namespace Orchestrator.Wrapping
             OnLoginEvent?.Invoke(userLoggedSuccessfully, userData);
         }
 
-
         /// <summary>
         /// Terminates an existing Orchestrator connection.
         /// Invokes <c>OnLogoutEvent</c> upon completion.
@@ -743,15 +743,6 @@ namespace Orchestrator.Wrapping
 
             Log("OrchestratorController: OnLeaveSessionResponse: Session successfully left.");
 
-            if (_session != null && SelfUser != null) {
-                // As the session creator, the session should be deleted when leaving.
-                if (_session.AdministratorId == SelfUser.Id) {
-                    Log("OrchestratorController: OnLeaveSessionResponse: As session creator, delete the current session when its empty.");
-                    StartCoroutine(WaitForEmptySessionToDelete());
-                    return;
-                }
-            }
-
             // Set this at the end and for the session creator, when the session has been deleted.
             _session = null;
         }
@@ -984,28 +975,6 @@ namespace Orchestrator.Wrapping
 
         void IUserMessagesListener.OnBroadcastReceived(BroadcastData broadcastData) {
             OnBroadcastReceivedEvent?.Invoke(broadcastData);
-        }
-
-        #endregion
-
-        #region Logic
-
-        private IEnumerator WaitForEmptySessionToDelete() {
-            // TODO Implement this properly
-            if (_session == null) {
-                yield break;
-            }
-
-            // Check frequently if there are users connected and ensure a null session (from the delete command) is escaped.
-            // while (_session.UserIds.Length > 0) {
-            //     GetSessionInfo();
-            //     yield return new WaitForSeconds(1.0f);
-            // }
-
-            // When the session is free of users, delete it.
-            // if (_session.UserIds.Length == 0) {
-            //     DeleteSession(_session.Id);
-            // }
         }
 
         #endregion
