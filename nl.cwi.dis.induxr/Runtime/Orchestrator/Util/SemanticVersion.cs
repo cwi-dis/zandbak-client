@@ -17,10 +17,9 @@ namespace Orchestrator.Util
             Major = int.Parse(components[0]);
             Minor = int.Parse(components[1]);
 
-            var patchComponents = components[2].Split("-");
+            var patchComponents = components[2].Split("-", 2);
             Patch = int.Parse(patchComponents[0]);
-
-            Labels = patchComponents.Length > 1 ? string.Join(",", patchComponents.Skip(1)) : string.Empty;
+            Labels = patchComponents.Length > 1 ? patchComponents[1] : string.Empty;
         }
 
         public static bool operator ==(SemanticVersion a, SemanticVersion b)
