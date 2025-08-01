@@ -4,6 +4,8 @@ using System.Collections.Generic;
 using System.Text;
 using System.Threading.Tasks;
 using Orchestrator.Data;
+using Orchestrator.Util;
+using UnityEditor.PackageManager;
 using UnityEngine;
 
 #if UNITY_EDITOR
@@ -273,6 +275,11 @@ namespace Orchestrator.Wrapping
         void IOrchestratorResponsesListener.OnConnect()
         {
             Log($"OrchestratorController: connected to orchestrator");
+
+            #if UNITY_EDITOR
+            // Verify that we're connected to a version of the Orchestrator that's compatible with this library
+            VerifyOrchestratorVersion();
+            #endif
 
             _connectedToOrchestrator = true;
             _connectionStatus = OrchestratorConnectionStatus.Connected;
@@ -1036,5 +1043,46 @@ namespace Orchestrator.Wrapping
                 Debug.LogWarning(message);
             }
         }
+
+        #if UNITY_EDITOR
+        private void VerifyOrchestratorVersion()
+        {
+            // Get package info for this package
+            var packageInfo = PackageInfo.FindForPackageName("nl.cwi.dis.induxr");
+
+            if (packageInfo != null)
+            {
+                // Lambda function to be called in response to the orchestrator version event
+                Action<string> fn = null;
+                fn = (version) =>
+                {
+                    // Create instances of SemanticVersion with the version strings, so they can be compared
+                    var packageVersion = new SemanticVersion(packageInfo.version);
+                    var orchestratorVersion = new SemanticVersion(version);
+
+                    // Log warning if versions do not match
+                    if (packageVersion != orchestratorVersion)
+                    {
+                        // Print different warning depending on which version is greater
+                        Debug.LogWarning(packageVersion > orchestratorVersion
+                            ? $"The OrchestratorWrapper package (v{packageVersion}) is newer than the connected Orchestrator (v{orchestratorVersion}). Compatibility is not guaranteed. Please update the Orchestrator!"
+                            : $"The OrchestratorWrapper package (v{packageVersion}) is older than the connected Orchestrator (v{orchestratorVersion}). Compatibility is not guaranteed. Please update this package!");
+                    }
+
+                    // Remove handler
+                    OnGetOrchestratorVersionEvent -= fn;
+                };
+
+                // Attach a handler to the orchestrator version response event
+                OnGetOrchestratorVersionEvent += fn;
+                // Get Orchestrator version
+                GetVersion();
+            }
+            else
+            {
+                Debug.LogWarning("Could not get version info from package");
+            }
+        }
+        #endif
     }
 }
