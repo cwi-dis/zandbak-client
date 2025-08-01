@@ -1,9 +1,12 @@
 using System;
-using System.Linq;
-using UnityEngine;
 
 namespace Orchestrator.Util
 {
+    public class SemanticVersionParseException : Exception
+    {
+        public SemanticVersionParseException(string message) : base(message) {}
+    }
+
     public class SemanticVersion : IEquatable<SemanticVersion>
     {
         public int Major { get; }
@@ -13,13 +16,20 @@ namespace Orchestrator.Util
 
         public SemanticVersion(string version)
         {
-            var components = version.Replace("v", "").Split(".");
-            Major = int.Parse(components[0]);
-            Minor = int.Parse(components[1]);
+            try
+            {
+                var components = version.Replace("v", "").Split(".");
+                Major = int.Parse(components[0]);
+                Minor = int.Parse(components[1]);
 
-            var patchComponents = components[2].Split("-", 2);
-            Patch = int.Parse(patchComponents[0]);
-            Labels = patchComponents.Length > 1 ? patchComponents[1] : string.Empty;
+                var patchComponents = components[2].Split("-", 2);
+                Patch = int.Parse(patchComponents[0]);
+                Labels = patchComponents.Length > 1 ? patchComponents[1] : string.Empty;
+            }
+            catch
+            {
+                throw new SemanticVersionParseException($"'{version}' is not a valid semver string");
+            }
         }
 
         public static bool operator ==(SemanticVersion a, SemanticVersion b)

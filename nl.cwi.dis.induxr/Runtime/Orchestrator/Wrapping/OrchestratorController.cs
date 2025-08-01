@@ -1056,17 +1056,24 @@ namespace Orchestrator.Wrapping
                 Action<string> fn = null;
                 fn = (version) =>
                 {
-                    // Create instances of SemanticVersion with the version strings, so they can be compared
-                    var packageVersion = new SemanticVersion(packageInfo.version);
-                    var orchestratorVersion = new SemanticVersion(version);
-
-                    // Log warning if versions do not match
-                    if (packageVersion != orchestratorVersion)
+                    try
                     {
-                        // Print different warning depending on which version is greater
-                        Debug.LogWarning(packageVersion > orchestratorVersion
-                            ? $"The OrchestratorWrapper package (v{packageVersion}) is newer than the connected Orchestrator (v{orchestratorVersion}). Compatibility is not guaranteed. Please update the Orchestrator!"
-                            : $"The OrchestratorWrapper package (v{packageVersion}) is older than the connected Orchestrator (v{orchestratorVersion}). Compatibility is not guaranteed. Please update this package!");
+                        // Create instances of SemanticVersion with the version strings, so they can be compared
+                        var packageVersion = new SemanticVersion(packageInfo.version);
+                        var orchestratorVersion = new SemanticVersion(version);
+
+                        // Log warning if versions do not match
+                        if (packageVersion != orchestratorVersion)
+                        {
+                            // Print different warning depending on which version is greater
+                            Debug.LogWarning(packageVersion > orchestratorVersion
+                                ? $"The OrchestratorWrapper package (v{packageVersion}) is newer than the connected Orchestrator (v{orchestratorVersion}). Compatibility is not guaranteed. Please update the Orchestrator!"
+                                : $"The OrchestratorWrapper package (v{packageVersion}) is older than the connected Orchestrator (v{orchestratorVersion}). Compatibility is not guaranteed. Please update this package!");
+                        }
+                    }
+                    catch (SemanticVersionParseException e)
+                    {
+                        Debug.LogError(e.Message);
                     }
 
                     // Remove handler
