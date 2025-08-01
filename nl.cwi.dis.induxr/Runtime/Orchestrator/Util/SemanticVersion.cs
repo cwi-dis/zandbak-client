@@ -72,6 +72,9 @@ namespace Orchestrator.Util
             return a.Patch < b.Patch;
         }
 
+        public static bool operator >=(SemanticVersion a, SemanticVersion b) => a == b || a > b;
+        public static bool operator <=(SemanticVersion a, SemanticVersion b) => a == b || a < b;
+
         public override bool Equals(object obj)
         {
             return obj != null && GetType() == obj.GetType() && Equals((SemanticVersion)obj);
