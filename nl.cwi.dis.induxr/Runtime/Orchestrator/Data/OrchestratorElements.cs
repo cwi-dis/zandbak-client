@@ -122,6 +122,7 @@ namespace Orchestrator.Data
         [JsonProperty("sender")] public User Sender;
         [JsonProperty("message")] public string Message;
         [JsonProperty("timestamp")] public string Timestamp;
+        [JsonProperty("private")] public bool Private;
     }
 
     public class Presentation : OrchestratorElement
