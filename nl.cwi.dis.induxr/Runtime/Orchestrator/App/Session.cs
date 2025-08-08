@@ -630,6 +630,10 @@ namespace Orchestrator.App
                     PrivateMessages.Add(message.Sender.Id, new List<ChatMessage> { message });
                 }
             }
+            else
+            {
+                _sessionData.Chat.Add(message);
+            }
 
             OnMessageReceived?.Invoke(message);
         }
