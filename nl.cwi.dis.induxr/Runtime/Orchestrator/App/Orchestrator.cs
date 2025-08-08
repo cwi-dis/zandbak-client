@@ -1,3 +1,5 @@
+#pragma warning disable CS0612
+
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -297,3 +299,5 @@ namespace Orchestrator.App
         }
     }
 }
+
+#pragma warning restore CS0612
