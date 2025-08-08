@@ -30,6 +30,7 @@ namespace Orchestrator.App
         public bool IsSharing => CurrentPresentation.IsSharing;
 
         public List<ChatMessage> Chat => _sessionData.Chat.ToList();
+        public Dictionary<string, List<ChatMessage>> PrivateMessages = new();
 
         public List<User> RaisedHands => _sessionData.RaisedHands.Select(u => FindUserById(u.Id)).ToList();
 
@@ -618,6 +619,22 @@ namespace Orchestrator.App
 
         private void UserMessageReceived(ChatMessage message)
         {
+            if (message.Private)
+            {
+                if (PrivateMessages.TryGetValue(message.Sender.Id, out var privateMessage))
+                {
+                    privateMessage.Add(message);
+                }
+                else
+                {
+                    PrivateMessages.Add(message.Sender.Id, new List<ChatMessage> { message });
+                }
+            }
+            else
+            {
+                _sessionData.Chat.Add(message);
+            }
+
             OnMessageReceived?.Invoke(message);
         }
 
