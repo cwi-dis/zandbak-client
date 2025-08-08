@@ -262,6 +262,7 @@ namespace Orchestrator.Wrapping
         /// Invokes <c>OnConnectionEvent</c> upon completion.
         /// </summary>
         /// <param name="url">The URL of the orchestrator to establish the connection to.</param>
+        [Obsolete("Direct usage of OrchestratorController is deprecated. Use the instance of App.Orchestrator returned by SocketConnectAsync() instead")]
         public void SocketConnect(string url) {
             Log($"OrchestratorController: connect to {url}");
 
@@ -308,6 +309,7 @@ namespace Orchestrator.Wrapping
         /// <summary>
         /// Abort connection to Orchestrator.
         /// </summary>
+        [Obsolete("Direct usage of OrchestratorController is deprecated. Use the instance of App.Orchestrator returned by SocketConnectAsync() instead")]
         public void Abort() {
             _orchestratorWrapper.Disconnect();
             ((IOrchestratorResponsesListener)this).OnDisconnect();
@@ -316,6 +318,7 @@ namespace Orchestrator.Wrapping
         /// <summary>
         /// Disconnect from the Orchestrator
         /// </summary>
+        [Obsolete("Direct usage of OrchestratorController is deprecated. Use the instance of App.Orchestrator returned by SocketConnectAsync() instead")]
         public void Disconnect()
         {
             Abort();
@@ -325,6 +328,7 @@ namespace Orchestrator.Wrapping
         /// Retrieves the version of the Orchestrator by sending a request to the connected server.
         /// Invokes <c>OnGetOrchestratorVersionEvent</c> upon completion.
         /// </summary>
+        [Obsolete("Direct usage of OrchestratorController is deprecated. Use the instance of App.Orchestrator returned by SocketConnectAsync() instead")]
         public void GetVersion()
         {
             _orchestratorWrapper.GetOrchestratorVersion();
@@ -360,6 +364,7 @@ namespace Orchestrator.Wrapping
         /// </summary>
         /// <param name="username">The username of the user to log in.</param>
         /// <param name="deviceType">The type of device that the user uses to log in</param>
+        [Obsolete("Direct usage of OrchestratorController is deprecated. Use the instance of App.Orchestrator returned by SocketConnectAsync() instead")]
         public void Login(string username, DeviceType deviceType)
         {
             SelfUser = new User
@@ -381,6 +386,7 @@ namespace Orchestrator.Wrapping
         /// <param name="username">The username of the user to log in.</param>
         /// <param name="password">The password of the user to log in</param>
         /// <param name="deviceType">The deviceType that the user uses to log in</param>
+        [Obsolete("Direct usage of OrchestratorController is deprecated. Use the instance of App.Orchestrator returned by SocketConnectAsync() instead")]
         public void Login(string username, string password, DeviceType deviceType)
         {
             SelfUser = new User
@@ -434,6 +440,7 @@ namespace Orchestrator.Wrapping
         /// Terminates an existing Orchestrator connection.
         /// Invokes <c>OnLogoutEvent</c> upon completion.
         /// </summary>
+        [Obsolete("Direct usage of OrchestratorController is deprecated. Use the instance of App.Orchestrator returned by SocketConnectAsync() instead")]
         public void Logout() {
             _orchestratorWrapper.Logout();
         }
@@ -460,6 +467,7 @@ namespace Orchestrator.Wrapping
         /// Gets the current NTP time from the Orchestrator.
         /// Invokes <c>OnGetNtpTimeEvent</c> upon completion with the current NTP time.
         /// </summary>
+        [Obsolete("Direct usage of OrchestratorController is deprecated. Use the instance of App.Orchestrator returned by SocketConnectAsync() instead")]
         public void GetNtpTime() {
             _orchestratorWrapper.GetNtpTime();
         }
@@ -484,6 +492,7 @@ namespace Orchestrator.Wrapping
         /// Retrieves the list of currently active sessions.
         /// Invokes <c>OnSessionsEvent</c> upon completion with a list of sessions.
         /// </summary>
+        [Obsolete("Direct usage of OrchestratorController is deprecated. Use the instance of App.Orchestrator returned by SocketConnectAsync() instead")]
         public void GetSessions() {
             _orchestratorWrapper.GetSessions();
         }
@@ -513,6 +522,7 @@ namespace Orchestrator.Wrapping
         /// Retrieves the list of scheduled sessions.
         /// Invokes <c>OnScheduledSessionsEvent</c> upon completion with a list of sessions.
         /// </summary>
+        [Obsolete("Direct usage of OrchestratorController is deprecated. Use the instance of App.Orchestrator returned by SocketConnectAsync() instead")]
         public void GetScheduledSessions()
         {
             _orchestratorWrapper.GetScheduledSessions();
@@ -534,6 +544,7 @@ namespace Orchestrator.Wrapping
         /// </summary>
         /// <param name="sessionName">The name of the session to be created</param>
         /// <param name="sessionDescription">The description of the session to be created. This parameter is optional and defaults to the empty string</param>
+        [Obsolete("Direct usage of OrchestratorController is deprecated. Use the instance of App.Orchestrator returned by SocketConnectAsync() instead")]
         public void AddSession(string sessionName, string sessionDescription = "") {
             _orchestratorWrapper.AddSession(sessionName, sessionDescription, "socketio", new[] { "transform" });
         }
@@ -545,6 +556,7 @@ namespace Orchestrator.Wrapping
         /// triggered.
         /// </summary>
         /// <param name="sessionId">The ID of the session to be created</param>
+        [Obsolete("Direct usage of OrchestratorController is deprecated. Use the instance of App.Orchestrator returned by SocketConnectAsync() instead")]
         public void ScheduleSession(string sessionId)
         {
             _orchestratorWrapper.ScheduleSession(sessionId);
@@ -572,6 +584,7 @@ namespace Orchestrator.Wrapping
         /// Retrieves information about the session that the user is currently a member of.
         /// Invokes <c>OnSessionInfoEvent</c> upon completion with all information about the current session.
         /// </summary>
+        [Obsolete("Direct usage of OrchestratorController is deprecated. Use the instance of App.Orchestrator returned by SocketConnectAsync() instead")]
         public void GetSessionInfo() {
             _orchestratorWrapper.GetSessionInfo();
         }
@@ -604,6 +617,7 @@ namespace Orchestrator.Wrapping
         /// to do this.
         /// </summary>
         /// <param name="pSessionID"></param>
+        [Obsolete("Direct usage of OrchestratorController is deprecated. Use the instance of App.Orchestrator returned by SocketConnectAsync() instead")]
         public void DeleteSession(string pSessionID) {
             _orchestratorWrapper.DeleteSession(pSessionID);
         }
@@ -627,6 +641,7 @@ namespace Orchestrator.Wrapping
         /// Invokes <c>OnJoinSessionEvent</c> upon completion with all information about the joined session.
         /// </summary>
         /// <param name="pSessionID">The ID of the session to be joined</param>
+        [Obsolete("Direct usage of OrchestratorController is deprecated. Use the instance of App.Orchestrator returned by SocketConnectAsync() instead")]
         public void JoinSession(string pSessionID) {
             _orchestratorWrapper.JoinSession(pSessionID);
         }
@@ -659,6 +674,7 @@ namespace Orchestrator.Wrapping
         /// Invokes <c>OnIsSpeakingEvent</c> upon completion.
         /// </summary>
         /// <param name="isSpeaking">The value to set the flag to</param>
+        [Obsolete("Direct usage of OrchestratorController is deprecated. Use the instance of App.Orchestrator returned by SocketConnectAsync() instead")]
         public void IsSpeaking(bool isSpeaking)
         {
             _orchestratorWrapper.IsSpeaking(isSpeaking);
@@ -677,6 +693,7 @@ namespace Orchestrator.Wrapping
         /// <summary>
         /// Leaves the current session.
         /// </summary>
+        [Obsolete("Direct usage of OrchestratorController is deprecated. Use the instance of App.Orchestrator returned by SocketConnectAsync() instead")]
         public void LeaveSession() {
             _orchestratorWrapper.LeaveSession();
             _session = null;
@@ -686,6 +703,7 @@ namespace Orchestrator.Wrapping
         /// Advances the current presentation to the next slide.
         /// This method triggers the associated functionality in the OrchestratorWrapper.
         /// </summary>
+        [Obsolete("Direct usage of OrchestratorController is deprecated. Use the instance of App.Orchestrator returned by SocketConnectAsync() instead")]
         public void GoToNextPresentation()
         {
             _orchestratorWrapper.GoToNextPresentation();
@@ -702,6 +720,7 @@ namespace Orchestrator.Wrapping
         /// Changes the current slide in the current session presentation by the specified offset.
         /// </summary>
         /// <param name="slideOffset">The offset to apply to the current slide. A positive value moves forward, a negative value moves backward.</param>
+        [Obsolete("Direct usage of OrchestratorController is deprecated. Use the instance of App.Orchestrator returned by SocketConnectAsync() instead")]
         public void ChangeSlide(int slideOffset)
         {
             _orchestratorWrapper.ChangeSlide(slideOffset);
@@ -721,6 +740,7 @@ namespace Orchestrator.Wrapping
         /// users will receive a session update with the updated presentation.
         /// </summary>
         /// <param name="isSharing">A boolean indicating if the current presentation should be marked as sharing.</param>
+        [Obsolete("Direct usage of OrchestratorController is deprecated. Use the instance of App.Orchestrator returned by SocketConnectAsync() instead")]
         public void SetCurrentPresentationIsSharing(bool isSharing)
         {
             _orchestratorWrapper.CurrentPresentationIsSharing(isSharing);
@@ -737,6 +757,7 @@ namespace Orchestrator.Wrapping
         /// Updates the current session's status using the specified status string.
         /// </summary>
         /// <param name="status">The new status to be applied to the session.</param>
+        [Obsolete("Direct usage of OrchestratorController is deprecated. Use the instance of App.Orchestrator returned by SocketConnectAsync() instead")]
         public void ChangeSessionStatus(string status)
         {
             _orchestratorWrapper.SetSessionStatus(status);
@@ -855,6 +876,7 @@ namespace Orchestrator.Wrapping
         /// <summary>
         /// Raises the current user's hand in the session.
         /// </summary>
+        [Obsolete("Direct usage of OrchestratorController is deprecated. Use the instance of App.Orchestrator returned by SocketConnectAsync() instead")]
         public void RaiseHand()
         {
             _orchestratorWrapper.RaiseHand();
@@ -875,6 +897,7 @@ namespace Orchestrator.Wrapping
         /// Admins and presenters can clear anyone's raised hands.
         /// </summary>
         /// <param name="userId">The ID of the user whose raised hand shall be cleared</param>
+        [Obsolete("Direct usage of OrchestratorController is deprecated. Use the instance of App.Orchestrator returned by SocketConnectAsync() instead")]
         public void ClearRaisedHand(string userId)
         {
             _orchestratorWrapper.ClearRaisedHand(userId);
@@ -883,6 +906,7 @@ namespace Orchestrator.Wrapping
         /// <summary>
         /// Clears the current user's raised hand.
         /// </summary>
+        [Obsolete("Direct usage of OrchestratorController is deprecated. Use the instance of App.Orchestrator returned by SocketConnectAsync() instead")]
         public void ClearRaisedHand()
         {
             _orchestratorWrapper.ClearRaisedHand();
@@ -902,6 +926,7 @@ namespace Orchestrator.Wrapping
         /// Retrieves the list of users who have raised their hands in the session.
         /// Invokes the <c>OnGetRaisedHandsEvent</c> event upon completion with the list of users.
         /// </summary>
+        [Obsolete("Direct usage of OrchestratorController is deprecated. Use the instance of App.Orchestrator returned by SocketConnectAsync() instead")]
         public void GetRaisedHands()
         {
             _orchestratorWrapper.GetRaisedHands();
@@ -922,6 +947,7 @@ namespace Orchestrator.Wrapping
         /// </summary>
         /// <param name="pMessage">The message to be delivered</param>
         /// <param name="pUserID">The ID of the user that the message should be delivered to</param>
+        [Obsolete("Direct usage of OrchestratorController is deprecated. Use the instance of App.Orchestrator returned by SocketConnectAsync() instead")]
         public void SendMessage(string pMessage, string pUserID) {
             _orchestratorWrapper.SendMessage(pMessage, pUserID);
         }
@@ -936,6 +962,7 @@ namespace Orchestrator.Wrapping
         /// Sends a message to all users in the current session.
         /// </summary>
         /// <param name="pMessage">The message to be delivered</param>
+        [Obsolete("Direct usage of OrchestratorController is deprecated. Use the instance of App.Orchestrator returned by SocketConnectAsync() instead")]
         public void SendMessageToAll(string pMessage) {
             _orchestratorWrapper.SendMessageToAll(pMessage);
         }
@@ -954,6 +981,7 @@ namespace Orchestrator.Wrapping
         /// Retrieves the recent chat messages from the orchestrator.
         /// </summary>
         /// <param name="count">The number of messages to retrieve.</param>
+        [Obsolete("Direct usage of OrchestratorController is deprecated. Use the instance of App.Orchestrator returned by SocketConnectAsync() instead")]
         public void GetMessages(int count)
         {
             _orchestratorWrapper.GetMessages(count);
@@ -962,6 +990,7 @@ namespace Orchestrator.Wrapping
         /// <summary>
         /// Retrieves all chat messages from the orchestrator.
         /// </summary>
+        [Obsolete("Direct usage of OrchestratorController is deprecated. Use the instance of App.Orchestrator returned by SocketConnectAsync() instead")]
         public void GetMessages()
         {
             _orchestratorWrapper.GetMessages();
