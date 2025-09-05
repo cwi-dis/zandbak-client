@@ -18,7 +18,7 @@ namespace Orchestrator.Behaviour
 
         private void FixedUpdate()
         {
-            // Return if there is not camera
+            // Return if there is no camera
             if (!_camera)
                 return;
 

@@ -14,10 +14,6 @@ namespace Orchestrator.Behaviour
         public GameObject notification;
         public TextMesh usernamePlaque;
 
-        [Header("Settings")]
-        public bool enableNotification = true;
-        public bool enableNamePlaque = true;
-
         private User _user;
         private SkinnedMeshRenderer _mesh;
 
@@ -57,18 +53,18 @@ namespace Orchestrator.Behaviour
                 UpdateBones(_user.Transform);
             }
 
-            // Set username plaque if enabled
-            if (enableNamePlaque)
+            // Set username plaque if a reference for the plaque is assigned
+            if (usernamePlaque != null)
             {
                 usernamePlaque.text = _user.Name;
             }
 
             // Add handler for receiving bone transforms
             _user.OnAvatarMovementReceived += MovementReceived;
-            // Add handler for updates to isSpeaking property
+            // Add a handler for updates to isSpeaking property
             _user.OnIsSpeaking += (isSpeaking) => Debug.Log($"{_user.Name} is speaking: {isSpeaking}");
-            // Add handler for raising of hands if enabled
-            if (enableNotification)
+            // Add a handler for hand raising event if a notification object is assigned
+            if (notification != null)
             {
                 _user.OnHandRaised += (isRaised) => notification.SetActive(isRaised);
             }
@@ -111,7 +107,7 @@ namespace Orchestrator.Behaviour
                 // Update bone if the received data and the previously received data contain a value for the given bone
                 if (_lastReceivedData.Bones.TryGetValue(bone.name, out var lastFoundBone) && _previousReceivedData.Bones.TryGetValue(bone.name, out var prevFoundBone))
                 {
-                    // Update position and rotation of the given bone using linear interpolation
+                    // Update the position and rotation of the given bone using linear interpolation
                     bone.SetPositionAndRotation(
                         Vector3.Lerp(
                             new Vector3(prevFoundBone.Pos.X, prevFoundBone.Pos.Y, prevFoundBone.Pos.Z),
@@ -135,7 +131,7 @@ namespace Orchestrator.Behaviour
             {
                 // Update bone if the received data contains a value for the given bone
                 if (movement.Bones.TryGetValue(bone.name, out var foundBone)) {
-                    // Update position and rotation of the given bone
+                    // Update the position and rotation of the given bone
                     bone.SetPositionAndRotation(new Vector3(
                         foundBone.Pos.X,
                         foundBone.Pos.Y,

@@ -11,7 +11,6 @@ namespace Orchestrator.Behaviour
 
         [Header("Notification Icon")]
         public GameObject notification;
-        public bool enableNotification = true;
 
         private User _user;
         private SkinnedMeshRenderer _mesh;
@@ -38,8 +37,8 @@ namespace Orchestrator.Behaviour
             // Get SkinnedMeshRenderer
             _mesh = GetComponentInChildren<SkinnedMeshRenderer>();
 
-            // Add handler for raising of hands if enabled
-            if (enableNotification)
+            // Add a handler for hand raising event if a reference to the notification object is given
+            if (notification != null)
             {
                 _user.OnHandRaised += (isRaised) => notification.SetActive(isRaised);
             }
@@ -49,7 +48,7 @@ namespace Orchestrator.Behaviour
         {
             _timer += Time.deltaTime;
 
-            // Only send bone transformation update if the interval given by updateRate has elapsed
+            // Only send the bone transformation update if the interval given by updateRate has elapsed
             if (_timer >= 1f / updateRate)
             {
                 _timer -= 1f / updateRate;
