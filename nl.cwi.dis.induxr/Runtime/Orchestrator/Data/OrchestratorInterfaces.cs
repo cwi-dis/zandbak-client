@@ -29,6 +29,7 @@ namespace Orchestrator.Data
         void OnUserRaisedHand(string userId);
         void OnUserClearedRaisedHand(string userId);
         void OnSessionStatusChanged(string status);
+        void OnUserStatusChanged(string userId, string status);
         void OnPresentationChanged(Presentation presentation);
         void OnPresentationIsSharingChanged(Presentation presentation);
         void OnSlideChanged(Presentation presentation);
@@ -66,6 +67,7 @@ namespace Orchestrator.Data
         void OnSendMessageToAllResponse(ResponseStatus status);
         void OnGetMessagesResponse(ResponseStatus status, List<ChatMessage> messages);
         void OnIsSpeakingResponse(ResponseStatus status);
+        void OnChangeUserStatusResponse(ResponseStatus status, string userStatus);
 
         void OnGoToNextPresentationResponse(ResponseStatus status, Presentation presentation);
         void OnChangeSlideResponse(ResponseStatus status, Presentation presentation);
