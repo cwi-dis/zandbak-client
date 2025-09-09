@@ -11,7 +11,10 @@ namespace Orchestrator.Behaviour
         public int linearInterpolationRate = 10;
 
         [Header("References")]
+
+        [Tooltip("A reference to the object to be used as notification icon. If given, the notification icon will be shown when the user's hand is raised.")]
         public GameObject notification;
+        [Tooltip("A reference to a text object to be used for displaying the user's username.")]
         public TextMesh usernamePlaque;
 
         private User _user;

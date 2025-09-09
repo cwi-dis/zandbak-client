@@ -7,9 +7,11 @@ namespace Orchestrator.Behaviour
 {
     public class LocalAvatar : MonoBehaviour
     {
+        [Tooltip("How many times a second the pose data should be broadcast to the server.")]
         public int updateRate = 10;
 
         [Header("Notification Icon")]
+        [Tooltip("A reference to the object to be used as notification icon. If given, the notification icon will be shown when the user's hand is raised.")]
         public GameObject notification;
 
         private User _user;
