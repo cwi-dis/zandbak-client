@@ -501,6 +501,21 @@ namespace Orchestrator.Wrapping {
             }
         }
 
+        public void SetUserStatus(string status)
+        {
+            lock (this)
+            {
+                _socket.Emit("SetUserStatus", (response) =>
+                {
+                    var data = response.GetValue<OrchestratorResponse<StatusResponse>>();
+
+                    UnityThread.executeInUpdate(() => {
+                        _responsesListener?.OnChangeUserStatusResponse(data.ResponseStatus, data.Body.Status);
+                    });
+                }, new { status });
+            }
+        }
+
         #endregion
 
         #region broadcasts
