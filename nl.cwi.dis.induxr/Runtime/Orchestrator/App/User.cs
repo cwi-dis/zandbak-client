@@ -1,7 +1,9 @@
 using System;
 using System.Linq;
+using System.Threading.Tasks;
 using Newtonsoft.Json;
 using Orchestrator.Data;
+using Orchestrator.Wrapping;
 using UnityEngine;
 
 namespace Orchestrator.App
@@ -139,6 +141,26 @@ namespace Orchestrator.App
                 return;
 
             _orchestrator.CurrentSession.OnBroadcastDataReceived -= BroadcastReceived;
+        }
+
+        public Task<User> SetStatus(string status)
+        {
+            var tcs = new TaskCompletionSource<User>();
+
+            Action<Data.User, string> fn = null;
+            fn = (u, newStatus) =>
+            {
+                if (u.Id != Id) return;
+
+                _userData.Status = newStatus;
+                tcs.SetResult(this);
+                OrchestratorController.Instance.OnUserStatusChangedEvent -= fn;
+            };
+
+            OrchestratorController.Instance.OnUserStatusChangedEvent += fn;
+            OrchestratorController.Instance.ChangeUserStatus(status);
+
+            return tcs.Task;
         }
 
         /// <summary>
