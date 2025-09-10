@@ -55,6 +55,11 @@ namespace Orchestrator.Data {
         [JsonProperty("userData")] public User UserData;
     }
 
+    public class SessionUpdateUserStatus {
+        [JsonProperty("userId")] public string UserId;
+        [JsonProperty("status")] public string Status;
+    }
+
     public class SessionUpdatePresentationData {
         [JsonProperty("currentPresentation")] public Presentation Presentation;
     }

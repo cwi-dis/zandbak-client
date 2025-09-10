@@ -587,6 +587,9 @@ namespace Orchestrator.Wrapping {
                     case "USER_CLEARED_RAISED_HAND":
                         OnSessionUpdatedWithUserData(response);
                         break;
+                    case "USER_STATUS_UPDATED":
+                        OnSessionUpdatedWithUserStatus(response);
+                        break;
                     case "PRESENTATION_CHANGED":
                     case "SLIDE_CHANGED":
                     case "PRESENTATION_IS_SHARING":
@@ -607,6 +610,16 @@ namespace Orchestrator.Wrapping {
             UnityThread.executeInUpdate(() =>
             {
                 _userSessionEventListener?.OnSessionClosed();
+            });
+        }
+
+        private void OnSessionUpdatedWithUserStatus(SocketIOResponse response)
+        {
+            var data = response.GetValue<SessionUpdate<SessionUpdateUserStatus>>();
+
+            UnityThread.executeInUpdate(() =>
+            {
+                _userSessionEventListener?.OnUserStatusChanged(data.EventData.UserId, data.EventData.Status);
             });
         }
 
@@ -667,8 +680,7 @@ namespace Orchestrator.Wrapping {
                 case "USER_JOINED_SESSION":
                     UnityThread.executeInUpdate(() =>
                     {
-                        _userSessionEventListener?.OnUserJoinedSession(eventData.UserId,
-                            data.EventData.UserData);
+                        _userSessionEventListener?.OnUserJoinedSession(eventData.UserId, data.EventData.UserData);
                     });
                     break;
                 case "USER_LEFT_SESSION":
