@@ -1,3 +1,5 @@
+#pragma warning disable CS0618
+
 using System;
 using System.Linq;
 using System.Threading.Tasks;
@@ -199,3 +201,5 @@ namespace Orchestrator.App
         }
     }
 }
+
+#pragma warning enable CS0618
