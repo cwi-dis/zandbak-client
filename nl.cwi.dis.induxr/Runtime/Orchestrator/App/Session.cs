@@ -365,50 +365,6 @@ namespace Orchestrator.App
         }
 
         /// <summary>
-        /// Updates the speaking status for the current user
-        /// </summary>
-        /// <param name="isSpeaking">The new speaking status to set for the current user.</param>
-        /// <returns>A task that represents the asynchronous operation.</returns>
-        public Task<bool> SetIsSpeaking(bool isSpeaking)
-        {
-            var tcs = new TaskCompletionSource<bool>();
-
-            Action<bool> fn = null;
-            fn = (result) =>
-            {
-                tcs.SetResult(result);
-                OrchestratorController.Instance.OnIsSpeakingEvent -= fn;
-            };
-
-            OrchestratorController.Instance.OnIsSpeakingEvent += fn;
-            OrchestratorController.Instance.IsSpeaking(isSpeaking);
-
-            return tcs.Task;
-        }
-
-        /// <summary>
-        /// Initiates a "raise hand" action for the current user and waits for the Orchestrator's acknowledgement.
-        /// </summary>
-        /// <returns>A task that represents the asynchronous operation. The task result contains the user ID of the user who raised their hand.</returns>
-        public Task<bool> RaiseHand()
-        {
-            var tcs = new TaskCompletionSource<bool>();
-
-            Action fn = null;
-            fn = async () =>
-            {
-                await GetRaisedHands();
-                tcs.SetResult(true);
-                OrchestratorController.Instance.OnRaisedHandEvent -= fn;
-            };
-
-            OrchestratorController.Instance.OnRaisedHandEvent += fn;
-            OrchestratorController.Instance.RaiseHand();
-
-            return tcs.Task;
-        }
-
-        /// <summary>
         /// Retrieves a list of users who have currently raised their hands in the session.
         /// </summary>
         /// <returns>A task that represents the asynchronous operation. The task result contains a list of users with raised hands.</returns>
@@ -451,29 +407,6 @@ namespace Orchestrator.App
 
             OrchestratorController.Instance.OnClearRaisedHandEvent += fn;
             OrchestratorController.Instance.ClearRaisedHand(userId);
-
-            return tcs.Task;
-        }
-
-        /// <summary>
-        /// Clears the raised hand status of the current user in the session. This will trigger an event
-        /// when the operation is completed.
-        /// </summary>
-        /// <returns>A task that represents the asynchronous operation. The task result indicates whether the operation was successful.</returns>
-        public Task<bool> ClearRaisedHand()
-        {
-            var tcs = new TaskCompletionSource<bool>();
-
-            Action fn = null;
-            fn = () =>
-            {
-                tcs.SetResult(true);
-                GetRaisedHands();
-                OrchestratorController.Instance.OnClearRaisedHandEvent -= fn;
-            };
-
-            OrchestratorController.Instance.OnClearRaisedHandEvent += fn;
-            OrchestratorController.Instance.ClearRaisedHand();
 
             return tcs.Task;
         }

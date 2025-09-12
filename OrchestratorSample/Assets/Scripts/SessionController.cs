@@ -166,7 +166,7 @@ public class SessionController : MonoBehaviour
         if (!_isHandRaised)
         {
             Debug.Log("Raising hand");
-            await _session.RaiseHand();
+            await _session.Self.RaiseHand();
 
             // Changing text of button and setting flag
             _isHandRaised = true;
@@ -176,7 +176,7 @@ public class SessionController : MonoBehaviour
         {
             // Lowering the current user's hand if it is already raised
             Debug.Log("Lowering hand");
-            await _session.ClearRaisedHand();
+            await _session.Self.ClearRaisedHand();
 
             // Changing text of button and clearing flag
             _isHandRaised = false;
