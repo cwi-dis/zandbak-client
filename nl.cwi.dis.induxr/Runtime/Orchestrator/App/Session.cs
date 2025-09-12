@@ -426,22 +426,6 @@ namespace Orchestrator.App
         }
 
         /// <summary>
-        /// Sends a given chat message to a given recipient. The recipient must be in the same session as the current
-        /// user.
-        /// </summary>
-        /// <param name="recipient">Recipient of the message</param>
-        /// <param name="message">Message to be sent</param>
-        public Task<bool> SendMessage(User recipient, string message)
-        {
-            var tcs = new TaskCompletionSource<bool>();
-
-            OrchestratorController.Instance.SendMessage(message, recipient.Id);
-            tcs.SetResult(true);
-
-            return tcs.Task;
-        }
-
-        /// <summary>
         /// Retrieves the chat messages for the current session.
         /// </summary>
         /// <returns>A task that represents the asynchronous operation. The task result contains a list of chat messages.</returns>

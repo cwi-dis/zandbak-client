@@ -116,6 +116,21 @@ namespace Orchestrator.App
         }
 
         /// <summary>
+        /// Sends a given chat message to this user as a recipient. The recipient must be in the same session as the current
+        /// user.
+        /// </summary>
+        /// <param name="message">Message to be sent</param>
+        public Task<bool> SendMessage(string message)
+        {
+            var tcs = new TaskCompletionSource<bool>();
+
+            OrchestratorController.Instance.SendMessage(message, Id);
+            tcs.SetResult(true);
+
+            return tcs.Task;
+        }
+
+        /// <summary>
         /// Enables the reception of avatar movement broadcasts for the user in the current session. If the user is not
         /// in any session, broadcasts will not be enabled and a warning is logged.
         /// </summary>
