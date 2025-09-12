@@ -41,6 +41,11 @@ namespace Orchestrator.App
         /// </summary>
         public string DeviceType => _userData.DeviceType;
 
+        /// <summary>
+        /// Returns the user's current status (e.g. 'available', 'in a meeting', ...)
+        /// </summary>
+        public string Status => _userData.Status;
+
         public AvatarMovementData Transform => (_userData.Transform == null) ? null : new AvatarMovementData()
         {
             UserId = _userData.Id,
