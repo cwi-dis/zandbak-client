@@ -186,6 +186,11 @@ namespace Orchestrator.Wrapping
         public event Action<string> OnSessionStatusChangedEvent;
 
         /// <summary>
+        /// Invoked when the status of a user changes
+        /// </summary>
+        public event Action<User, string> OnUserStatusChangedEvent;
+
+        /// <summary>
         /// Invoked when the current presentation of the current session changes
         /// </summary>
         public event Action<Presentation> OnSessionPresentationChangedEvent;
@@ -770,6 +775,23 @@ namespace Orchestrator.Wrapping
             }
         }
 
+        /// <summary>
+        /// Changes the user's status to the specified value.
+        /// </summary>
+        /// <param name="status">The new status to assign to the user.</param>
+        [Obsolete("Direct usage of OrchestratorController is deprecated. Use the instance of App.Orchestrator returned by SocketConnectAsync() instead")]
+        public void ChangeUserStatus(string status)
+        {
+            _orchestratorWrapper.SetUserStatus(status);
+        }
+
+        void IOrchestratorResponsesListener.OnChangeUserStatusResponse(ResponseStatus status, string userStatus)
+        {
+            if (status.Error != 0) {
+                OnErrorEvent?.Invoke(status);
+            }
+        }
+
         void IOrchestratorResponsesListener.OnLeaveSessionResponse(ResponseStatus status) {
             if (status.Error != 0) {
                 OnErrorEvent?.Invoke(status);
@@ -867,6 +889,15 @@ namespace Orchestrator.Wrapping
 
             user.IsSpeaking = isSpeaking;
             OnSessionIsSpeakingEvent?.Invoke(user, isSpeaking);
+        }
+
+        void IUserSessionEventsListener.OnUserStatusChanged(string userId, string status)
+        {
+            var user = _session.UserDefinitions.Find((u) => u.Id == userId);
+            if (user == null) return;
+
+            user.Status = status;
+            OnUserStatusChangedEvent?.Invoke(user, status);
         }
 
         #endregion

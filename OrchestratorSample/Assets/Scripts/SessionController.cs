@@ -58,6 +58,7 @@ public class SessionController : MonoBehaviour
         _session.OnPresentationSlideChanged += OnSlideChanged;
         _session.OnPresentationIsSharingChanged += OnPresentationShared;
         _session.OnClosed += OnSessionClosed;
+        _session.OnUserStatusChanged += OnUserStatusChanged;
 
         // Adding listeners for UI elements
         leaveButton.onClick.AddListener(LeaveSession);
@@ -279,13 +280,16 @@ public class SessionController : MonoBehaviour
             return;
         }
 
-        // Activate presentation control buttons if the current is a presenter
+        // Activate presentation control buttons if the current user is a presenter
         if (_session.Self.Type == "presenter")
         {
             nextSlideButton.gameObject.SetActive(true);
             prevSlideButton.gameObject.SetActive(true);
             sharePresentationButton.gameObject.SetActive(true);
         }
+
+        // Change status of current user to 'presenting'
+        await _session.Self.SetStatus("presenting");
 
         // Find the user object for the presenter and update text fields
         var presenterUser = _session.FindUserById(presentation.Presenter);
@@ -312,5 +316,12 @@ public class SessionController : MonoBehaviour
         notificationField.text += $"<i>Started presentation sharing</i>\n";
 
         presentationCanvas.gameObject.SetActive(_isSharingPresentation);
+    }
+
+    private void OnUserStatusChanged(User user)
+    {
+        // Post notification if a user in the session changes their status
+        Debug.Log("User " + user.Name + " changed their status to: " + user.Status);
+        notificationField.text += $"<i>{user.Name} changed their status to {user.Status}!</i>\n";
     }
 }

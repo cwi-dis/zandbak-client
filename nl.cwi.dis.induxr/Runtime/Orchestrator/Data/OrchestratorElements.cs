@@ -72,6 +72,7 @@ namespace Orchestrator.Data
         [JsonProperty("deviceType")] public string DeviceType;
         [JsonProperty("hasHandRaised")] public bool HasHandRaised;
         [JsonProperty("isSpeaking")] public bool IsSpeaking;
+        [JsonProperty("status")] public string Status;
 
         public override string GetId()
         {

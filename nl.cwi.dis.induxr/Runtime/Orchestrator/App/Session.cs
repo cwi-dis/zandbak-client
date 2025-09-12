@@ -70,6 +70,14 @@ namespace Orchestrator.App
         public event Action<User> OnUserLeft;
 
         /// <summary>
+        /// Occurs when a user's status changes within the session.
+        /// </summary>
+        /// <remarks>
+        /// This event is triggered whenever there is a change in a user's status.
+        /// </remarks>
+        public event Action<User> OnUserStatusChanged;
+
+        /// <summary>
         /// Occurs when the current presentation in the session is updated or changed.
         /// </summary>
         /// <remarks>
@@ -177,6 +185,7 @@ namespace Orchestrator.App
             OrchestratorController.Instance.OnUserMessageReceivedEvent += UserMessageReceived;
 
             OrchestratorController.Instance.OnSessionIsSpeakingEvent += IsSpeakingChanged;
+            OrchestratorController.Instance.OnUserStatusChangedEvent += UserStatusChanged;
 
             OrchestratorController.Instance.OnBroadcastReceivedEvent += BroadcastReceived;
         }
@@ -567,6 +576,14 @@ namespace Orchestrator.App
                 Users.Remove(userToRemove);
                 OnUserLeft?.Invoke(userToRemove);
             }
+        }
+
+        private void UserStatusChanged(Data.User user, string status)
+        {
+            var foundUser = Users.Find(u => u.Id == user.Id);
+            foundUser.UserData.Status = status;
+
+            OnUserStatusChanged?.Invoke(foundUser);
         }
 
         private async void SessionClosed()

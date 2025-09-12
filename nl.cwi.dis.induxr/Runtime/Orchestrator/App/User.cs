@@ -1,7 +1,11 @@
+#pragma warning disable CS0618
+
 using System;
 using System.Linq;
+using System.Threading.Tasks;
 using Newtonsoft.Json;
 using Orchestrator.Data;
+using Orchestrator.Wrapping;
 using UnityEngine;
 
 namespace Orchestrator.App
@@ -36,6 +40,11 @@ namespace Orchestrator.App
         /// Returns the type of device that the user has used to connect
         /// </summary>
         public string DeviceType => _userData.DeviceType;
+
+        /// <summary>
+        /// Returns the user's current status (e.g. 'available', 'in a meeting', ...)
+        /// </summary>
+        public string Status => _userData.Status;
 
         public AvatarMovementData Transform => (_userData.Transform == null) ? null : new AvatarMovementData()
         {
@@ -141,6 +150,26 @@ namespace Orchestrator.App
             _orchestrator.CurrentSession.OnBroadcastDataReceived -= BroadcastReceived;
         }
 
+        public Task<User> SetStatus(string status)
+        {
+            var tcs = new TaskCompletionSource<User>();
+
+            Action<Data.User, string> fn = null;
+            fn = (u, newStatus) =>
+            {
+                if (u.Id != Id) return;
+
+                _userData.Status = newStatus;
+                tcs.SetResult(this);
+                OrchestratorController.Instance.OnUserStatusChangedEvent -= fn;
+            };
+
+            OrchestratorController.Instance.OnUserStatusChangedEvent += fn;
+            OrchestratorController.Instance.ChangeUserStatus(status);
+
+            return tcs.Task;
+        }
+
         /// <summary>
         /// Broadcasts avatar movement data to all users in the current session.
         /// </summary>
@@ -177,3 +206,5 @@ namespace Orchestrator.App
         }
     }
 }
+
+#pragma warning enable CS0618
