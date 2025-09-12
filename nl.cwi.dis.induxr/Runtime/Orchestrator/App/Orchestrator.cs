@@ -49,7 +49,7 @@ namespace Orchestrator.App
         /// - It is essential for performing user-related operations within the Orchestrator, such as tracking the active session or user identity.
         /// - If no user is authenticated, <c>Self</c> will be null.
         /// </remarks>
-        public User Self { get; private set; }
+        public SelfUser Self { get; private set; }
 
         /// <summary>
         /// Retrieves the version of the Orchestrator asynchronously.
@@ -91,7 +91,7 @@ namespace Orchestrator.App
             {
                 if (success)
                 {
-                    Self = new User(this, userData);
+                    Self = new SelfUser(this, userData);
                     tcs.SetResult(Self);
                 }
                 else

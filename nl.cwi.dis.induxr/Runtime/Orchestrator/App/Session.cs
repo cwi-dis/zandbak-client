@@ -40,7 +40,7 @@ namespace Orchestrator.App
         public List<User> VRUsers => Users.FindAll((u) => u.DeviceType == "vr");
         public List<User> ARUsers => Users.FindAll((u) => u.DeviceType == "ar");
 
-        public User Self => _orchestrator.Self;
+        public SelfUser Self => _orchestrator.Self;
         public List<User> Speakers => Users.Where(u => u.IsSpeaking).ToList();
 
         /// <summary>

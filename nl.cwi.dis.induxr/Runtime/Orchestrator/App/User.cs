@@ -13,44 +13,39 @@ namespace Orchestrator.App
     public class User
     {
         private readonly Orchestrator _orchestrator;
-        private Data.User _userData;
 
-        public Data.User UserData
-        {
-            set => _userData = value;
-            get => _userData;
-        }
+        public Data.User UserData { set; get; }
 
         public Session Session => _orchestrator.CurrentSession;
-        public string Id => _userData.Id;
-        public string Name => _userData.Username;
+        public string Id => UserData.Id;
+        public string Name => UserData.Username;
         /// <summary>
         /// Indicates whether the user is currently speaking
         /// </summary>
-        public bool IsSpeaking => _userData.IsSpeaking;
+        public bool IsSpeaking => UserData.IsSpeaking;
         /// <summary>
         /// Returns the type of user (e.g. presenter, moderator, user)
         /// </summary>
-        public string Type => _userData.UserType;
+        public string Type => UserData.UserType;
         /// <summary>
         /// Indicates whether the user has their hand raised currently
         /// </summary>
-        public bool HasHandRaised => _userData.HasHandRaised;
+        public bool HasHandRaised => UserData.HasHandRaised;
         /// <summary>
         /// Returns the type of device that the user has used to connect
         /// </summary>
-        public string DeviceType => _userData.DeviceType;
+        public string DeviceType => UserData.DeviceType;
 
         /// <summary>
         /// Returns the user's current status (e.g. 'available', 'in a meeting', ...)
         /// </summary>
-        public string Status => _userData.Status;
+        public string Status => UserData.Status;
 
-        public AvatarMovementData Transform => (_userData.Transform == null) ? null : new AvatarMovementData()
+        public AvatarMovementData Transform => (UserData.Transform == null) ? null : new AvatarMovementData()
         {
-            UserId = _userData.Id,
-            Timestamp = _userData.Transform.Timestamp,
-            Bones = _userData.Transform.Bones.Select((pair) => new { pair.Key, Value = new BoneData()
+            UserId = UserData.Id,
+            Timestamp = UserData.Transform.Timestamp,
+            Bones = UserData.Transform.Bones.Select((pair) => new { pair.Key, Value = new BoneData()
             {
                 Pos = new PositionData() { X = pair.Value.Pos.X, Y = pair.Value.Pos.Y, Z = pair.Value.Pos.Z },
                 Rot = new RotationData() { X = pair.Value.Rot.X, Y = pair.Value.Rot.Y, Z = pair.Value.Rot.Z, W = pair.Value.Rot.W }
@@ -76,7 +71,7 @@ namespace Orchestrator.App
 
         public User(Orchestrator orchestrator, Data.User userData)
         {
-            _userData = userData;
+            UserData = userData;
             _orchestrator = orchestrator;
         }
 
@@ -150,26 +145,6 @@ namespace Orchestrator.App
             _orchestrator.CurrentSession.OnBroadcastDataReceived -= BroadcastReceived;
         }
 
-        public Task<User> SetStatus(string status)
-        {
-            var tcs = new TaskCompletionSource<User>();
-
-            Action<Data.User, string> fn = null;
-            fn = (u, newStatus) =>
-            {
-                if (u.Id != Id) return;
-
-                _userData.Status = newStatus;
-                tcs.SetResult(this);
-                OrchestratorController.Instance.OnUserStatusChangedEvent -= fn;
-            };
-
-            OrchestratorController.Instance.OnUserStatusChangedEvent += fn;
-            OrchestratorController.Instance.ChangeUserStatus(status);
-
-            return tcs.Task;
-        }
-
         /// <summary>
         /// Broadcasts avatar movement data to all users in the current session.
         /// </summary>
@@ -202,7 +177,38 @@ namespace Orchestrator.App
                 return;
 
             OnIsSpeaking?.Invoke(isSpeaking);
-            _userData.IsSpeaking = isSpeaking;
+            UserData.IsSpeaking = isSpeaking;
+        }
+    }
+
+    public class SelfUser : User
+    {
+        public SelfUser(Orchestrator orchestrator, Data.User userData) : base(orchestrator, userData) {}
+
+        /// <summary>
+        /// Updates the status of the current user asynchronously. This method listens for a status change
+        /// event and updates the user data upon receiving the event.
+        /// </summary>
+        /// <param name="status">The new status to set for the user.</param>
+        /// <returns>A task that resolves with the updated user when the status change is confirmed.</returns>
+        public Task<User> SetStatus(string status)
+        {
+            var tcs = new TaskCompletionSource<User>();
+
+            Action<Data.User, string> fn = null;
+            fn = (u, newStatus) =>
+            {
+                if (u.Id != Id) return;
+
+                UserData.Status = newStatus;
+                tcs.SetResult(this);
+                OrchestratorController.Instance.OnUserStatusChangedEvent -= fn;
+            };
+
+            OrchestratorController.Instance.OnUserStatusChangedEvent += fn;
+            OrchestratorController.Instance.ChangeUserStatus(status);
+
+            return tcs.Task;
         }
     }
 }
