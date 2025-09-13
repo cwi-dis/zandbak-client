@@ -297,6 +297,25 @@ namespace Orchestrator.App
 
             return tcs.Task;
         }
+
+        /// <summary>
+        /// Switches the current session to the specified session by its ID asynchronously.
+        /// If no session is currently joined, it joins the specified session. If there is an active session, it leaves
+        /// the current session before joining the new one. If a session with the specified ID is not found, an
+        /// exception is raised.
+        /// </summary>
+        /// <param name="sessionId">The unique identifier of the session to switch to.</param>
+        /// <returns>A task that represents the asynchronous operation. The task result contains the joined session.</returns>
+        public async Task<Session> SwitchSessions(string sessionId)
+        {
+            if (CurrentSession == null)
+                return await JoinSession(sessionId);
+
+            await CurrentSession.Leave();
+            CurrentSession = null;
+
+            return await JoinSession(sessionId);
+        }
     }
 }
 
