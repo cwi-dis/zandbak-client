@@ -296,4 +296,4 @@ namespace Orchestrator.App
     }
 }
 
-#pragma warning enable CS0618
+#pragma warning disable CS0618

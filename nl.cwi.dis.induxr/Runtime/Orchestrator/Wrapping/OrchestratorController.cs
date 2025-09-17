@@ -1,5 +1,6 @@
-﻿using System;
-using System.Collections;
+﻿#pragma warning disable CS0618
+
+using System;
 using System.Collections.Generic;
 using System.Text;
 using System.Threading.Tasks;
@@ -1136,3 +1137,5 @@ namespace Orchestrator.Wrapping
         #endif
     }
 }
+
+#pragma warning enable CS0618
