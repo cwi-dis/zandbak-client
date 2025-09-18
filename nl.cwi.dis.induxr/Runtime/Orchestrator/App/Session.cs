@@ -61,7 +61,10 @@ namespace Orchestrator.App
         public event Action<User> OnUserJoined;
 
         /// <summary>
-        /// Occurs when a user leaves the current session.
+        /// Occurs when a user leaves the current session. This event can also be triggered with the
+        /// current user as an argument. This means that the current user has been removed from the
+        /// session by an administrator. In this case, the current user is responsible for cleaning
+        /// up their local session and loading a different scene.
         /// </summary>
         /// <remarks>
         /// This event is triggered whenever a user is removed from the session. The event provides
