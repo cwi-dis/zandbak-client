@@ -297,15 +297,17 @@ namespace Orchestrator.Wrapping {
             }
         }
 
-        public void LeaveSession() {
+        public void LeaveSession(string userId = null) {
             lock (this) {
+                object requestParams = (userId == null) ? new { } : new { userId };
+
                 _socket.Emit("LeaveSession", (response) => {
                     var data = response.GetValue<OrchestratorResponse<EmptyResponse>>();
 
                     UnityThread.executeInUpdate(() => {
                         _responsesListener?.OnLeaveSessionResponse(data.ResponseStatus);
                     });
-                }, new { });
+                }, requestParams);
             }
         }
 
