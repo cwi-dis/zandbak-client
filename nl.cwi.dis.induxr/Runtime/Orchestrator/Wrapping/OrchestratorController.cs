@@ -1149,4 +1149,4 @@ namespace Orchestrator.Wrapping
     }
 }
 
-#pragma warning enable CS0618
+#pragma warning restore CS0618

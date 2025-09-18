@@ -507,6 +507,12 @@ namespace Orchestrator.App
             {
                 userToRemove.Leave();
                 Users.Remove(userToRemove);
+
+                if (userId == Self.Id)
+                {
+                    _orchestrator.CurrentSession = null;
+                }
+
                 OnUserLeft?.Invoke(userToRemove);
             }
         }
