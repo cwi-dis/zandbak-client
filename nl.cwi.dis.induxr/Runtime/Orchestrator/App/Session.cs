@@ -275,6 +275,22 @@ namespace Orchestrator.App
         }
 
         /// <summary>
+        /// Removes a user from the current session. This action can only be performed by the session creator.
+        /// </summary>
+        /// <param name="userToRemove">The user to be removed from the session.</param>
+        /// <returns>A task that represents the asynchronous operation. The task result indicates whether the user was successfully removed.</returns>
+        public Task<bool> RemoveUser(User userToRemove)
+        {
+            var tcs = new TaskCompletionSource<bool>();
+
+            OrchestratorController.Instance.RemoveUserFromSession(userToRemove.Id);
+            userToRemove.Leave();
+
+            tcs.SetResult(true);
+            return tcs.Task;
+        }
+
+        /// <summary>
         /// Advances the current session to the next presentation, if available.
         /// </summary>
         /// <returns>A task that represents the asynchronous operation. The task result is the next presentation object.</returns>
