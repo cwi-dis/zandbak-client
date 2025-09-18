@@ -242,6 +242,14 @@ public class SessionController : MonoBehaviour
     private void OnUserLeft(User user) {
         Debug.Log("User " + user.Id + "left session");
 
+        if (user.Id == _session.Self.Id)
+        {
+            Debug.Log("Self has been removed from session, logging out and loading login scene.");
+
+            OrchestratorController.Instance.Orchestrator.Logout();
+            SceneManager.LoadScene("Scenes/LoginScene");
+        }
+
         // Check if the user is in active user dictionary, if so, remove and destroy the player object
         if (_activeUsers.TryGetValue(user.Id, out var obj))
         {
