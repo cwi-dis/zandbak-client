@@ -61,7 +61,10 @@ namespace Orchestrator.App
         public event Action<User> OnUserJoined;
 
         /// <summary>
-        /// Occurs when a user leaves the current session.
+        /// Occurs when a user leaves the current session. This event can also be triggered with the
+        /// current user as an argument. This means that the current user has been removed from the
+        /// session by an administrator. In this case, the current user is responsible for cleaning
+        /// up their local session and loading a different scene.
         /// </summary>
         /// <remarks>
         /// This event is triggered whenever a user is removed from the session. The event provides
@@ -269,6 +272,22 @@ namespace Orchestrator.App
             }
 
             _orchestrator.CurrentSession = null;
+
+            tcs.SetResult(true);
+            return tcs.Task;
+        }
+
+        /// <summary>
+        /// Removes a user from the current session. This action can only be performed by the session creator.
+        /// </summary>
+        /// <param name="userToRemove">The user to be removed from the session.</param>
+        /// <returns>A task that represents the asynchronous operation. The task result indicates whether the user was successfully removed.</returns>
+        public Task<bool> RemoveUser(User userToRemove)
+        {
+            var tcs = new TaskCompletionSource<bool>();
+
+            OrchestratorController.Instance.RemoveUserFromSession(userToRemove.Id);
+            userToRemove.Leave();
 
             tcs.SetResult(true);
             return tcs.Task;
@@ -491,6 +510,12 @@ namespace Orchestrator.App
             {
                 userToRemove.Leave();
                 Users.Remove(userToRemove);
+
+                if (userId == Self.Id)
+                {
+                    _orchestrator.CurrentSession = null;
+                }
+
                 OnUserLeft?.Invoke(userToRemove);
             }
         }
