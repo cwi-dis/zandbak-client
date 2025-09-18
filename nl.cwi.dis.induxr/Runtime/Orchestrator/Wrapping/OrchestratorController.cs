@@ -706,6 +706,17 @@ namespace Orchestrator.Wrapping
         }
 
         /// <summary>
+        /// Removes the user with the given ID from the current session. This action can only be performed by the
+        /// session creator or its admin. Further, the given user must be in the same session as the current user.
+        /// </summary>
+        /// <param name="userId">ID of the user to remove from the session</param>
+        [Obsolete("Direct usage of OrchestratorController is deprecated. Use the instance of App.Orchestrator returned by SocketConnectAsync() instead")]
+        public void RemoveUserFromSession(string userId)
+        {
+            _orchestratorWrapper.LeaveSession(userId);
+        }
+
+        /// <summary>
         /// Advances the current presentation to the next slide.
         /// This method triggers the associated functionality in the OrchestratorWrapper.
         /// </summary>
