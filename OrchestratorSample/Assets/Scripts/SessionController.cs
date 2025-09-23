@@ -239,15 +239,24 @@ public class SessionController : MonoBehaviour
         _activeUsers.Add(user.Id, remoteAvatar.gameObject);
     }
 
-    private void OnUserLeft(User user) {
-        Debug.Log("User " + user.Id + "left session");
+    private void OnUserLeft(User user, bool force) {
+        Debug.Log("User " + user.Id + " left session");
 
-        if (user.Id == _session.Self.Id)
+        if (force)
         {
-            Debug.Log("Self has been removed from session, logging out and loading login scene.");
+            Debug.Log("User " + user.Id + " was removed by an admin");
 
-            OrchestratorController.Instance.Orchestrator.Logout();
-            SceneManager.LoadScene("Scenes/LoginScene");
+            // If the ID of the removed user is equal to Self and force is set to true, we were removed by an
+            // admin. In that case, log out and load login scene
+            if (user.Id == _session.Self.Id)
+            {
+                Debug.Log("Self has been removed from session, logging out and loading login scene.");
+
+                OrchestratorController.Instance.Orchestrator.Logout();
+                SceneManager.LoadScene("Scenes/LoginScene");
+
+                return;
+            }
         }
 
         // Check if the user is in active user dictionary, if so, remove and destroy the player object
