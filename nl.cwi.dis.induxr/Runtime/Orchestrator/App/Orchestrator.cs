@@ -341,6 +341,20 @@ namespace Orchestrator.App
 
             return await JoinSession(sessionId);
         }
+
+        /// <summary>
+        /// Searches for a session by its name in the current list of available sessions.
+        /// </summary>
+        /// <param name="name">The name of the session to find.</param>
+        /// <returns>The session object with the matching name, or null if no session is found.</returns>
+        /// <remarks>Refreshes the list of sessions before searching by calling GetSessions()</remarks>
+        public async Task<Session> FindSessionByName(string name)
+        {
+            // Refresh the list of sessions
+            await GetSessions();
+            // Find the session by name
+            return Sessions.Find((s) => s.Name == name);
+        }
     }
 }
 
