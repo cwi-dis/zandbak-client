@@ -25,6 +25,7 @@ namespace Orchestrator.App
         public string Name => _sessionData.Name;
         public string Status => _sessionData.Status;
         public string Description => _sessionData.Description;
+        public bool Persistent => _sessionData.Persistent;
         public bool IsJoined => _orchestrator.CurrentSession?.Id == Id;
 
         public List<Presentation> Presentations => _sessionData.Presentations.ToList();
