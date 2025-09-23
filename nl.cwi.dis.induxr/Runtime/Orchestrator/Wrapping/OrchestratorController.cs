@@ -550,9 +550,10 @@ namespace Orchestrator.Wrapping
         /// </summary>
         /// <param name="sessionName">The name of the session to be created</param>
         /// <param name="sessionDescription">The description of the session to be created. This parameter is optional and defaults to the empty string</param>
+        /// <param name="persistent">If true, the session will be marked as persistent, i.e. it can exist even without any users in it and defaults to false</param>
         [Obsolete("Direct usage of OrchestratorController is deprecated. Use the instance of App.Orchestrator returned by SocketConnectAsync() instead")]
-        public void AddSession(string sessionName, string sessionDescription = "") {
-            _orchestratorWrapper.AddSession(sessionName, sessionDescription, "socketio", new[] { "transform" });
+        public void AddSession(string sessionName, string sessionDescription = "", bool persistent = false) {
+            _orchestratorWrapper.AddSession(sessionName, sessionDescription, "socketio", new[] { "transform" }, persistent);
         }
 
         /// <summary>
