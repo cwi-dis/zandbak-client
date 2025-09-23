@@ -25,7 +25,7 @@ namespace Orchestrator.Data
     {
         void OnSessionClosed();
         void OnUserJoinedSession(string userID, User user);
-        void OnUserLeftSession(string userID);
+        void OnUserLeftSession(string userID, bool force);
         void OnUserRaisedHand(string userId);
         void OnUserClearedRaisedHand(string userId);
         void OnSessionStatusChanged(string status);

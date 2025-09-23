@@ -584,10 +584,12 @@ namespace Orchestrator.Wrapping {
 
                 switch (data.EventId) {
                     case "USER_JOINED_SESSION":
-                    case "USER_LEFT_SESSION":
                     case "USER_RAISED_HAND":
                     case "USER_CLEARED_RAISED_HAND":
                         OnSessionUpdatedWithUserData(response);
+                        break;
+                    case "USER_LEFT_SESSION":
+                        OnSessionUpdatedWithIsForcedData(response);
                         break;
                     case "USER_STATUS_UPDATED":
                         OnSessionUpdatedWithUserStatus(response);
@@ -622,6 +624,17 @@ namespace Orchestrator.Wrapping {
             UnityThread.executeInUpdate(() =>
             {
                 _userSessionEventListener?.OnUserStatusChanged(data.EventData.UserId, data.EventData.Status);
+            });
+        }
+
+        private void OnSessionUpdatedWithIsForcedData(SocketIOResponse response)
+        {
+            var data = response.GetValue<SessionUpdate<SessionUpdateIsForceData>>();
+            var eventData = data.EventData;
+
+            UnityThread.executeInUpdate(() =>
+            {
+                _userSessionEventListener?.OnUserLeftSession(eventData.UserId, eventData.Force);
             });
         }
 
@@ -682,13 +695,7 @@ namespace Orchestrator.Wrapping {
                 case "USER_JOINED_SESSION":
                     UnityThread.executeInUpdate(() =>
                     {
-                        _userSessionEventListener?.OnUserJoinedSession(eventData.UserId, data.EventData.UserData);
-                    });
-                    break;
-                case "USER_LEFT_SESSION":
-                    UnityThread.executeInUpdate(() =>
-                    {
-                        _userSessionEventListener?.OnUserLeftSession(eventData.UserId);
+                        _userSessionEventListener?.OnUserJoinedSession(eventData.UserId, eventData.UserData);
                     });
                     break;
                 case "USER_RAISED_HAND":

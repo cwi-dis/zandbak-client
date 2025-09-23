@@ -63,15 +63,18 @@ namespace Orchestrator.App
 
         /// <summary>
         /// Occurs when a user leaves the current session. This event can also be triggered with the
-        /// current user as an argument. This means that the current user has been removed from the
-        /// session by an administrator. In this case, the current user is responsible for cleaning
-        /// up their local session and loading a different scene.
+        /// current user as an argument. This has occurred if the second parameter is true. This means
+        /// that the current user has been removed from the session by an administrator. In this case,
+        /// the current user is responsible for cleaning up their local session and loading a different
+        /// scene.
         /// </summary>
         /// <remarks>
         /// This event is triggered whenever a user is removed from the session. The event provides
         /// the user who left as an argument, allowing subscriber methods to access the user's data.
+        /// The second parameter indicates whether the user left the session themselves (false) or
+        /// was removed by an admin (true).
         /// </remarks>
-        public event Action<User> OnUserLeft;
+        public event Action<User, bool> OnUserLeft;
 
         /// <summary>
         /// Occurs when a user's status changes within the session.
@@ -503,7 +506,7 @@ namespace Orchestrator.App
             OnUserJoined?.Invoke(joinedUser);
         }
 
-        private void UserLeft(string userId)
+        private void UserLeft(string userId, bool force)
         {
             var userToRemove = Users.Find(user => user.Id == userId);
 
@@ -517,7 +520,7 @@ namespace Orchestrator.App
                     _orchestrator.CurrentSession = null;
                 }
 
-                OnUserLeft?.Invoke(userToRemove);
+                OnUserLeft?.Invoke(userToRemove, force);
             }
         }
 

@@ -169,7 +169,7 @@ namespace Orchestrator.Wrapping
         /// <summary>
         /// Invoked when a user leaves the current session, with the user ID as argument
         /// </summary>
-        public event Action<string> OnUserLeaveSessionEvent;
+        public event Action<string, bool> OnUserLeaveSessionEvent;
 
         /// <summary>
         /// Invoked when a user in the session raises their hand, with the user ID as argument
@@ -851,10 +851,10 @@ namespace Orchestrator.Wrapping
             OnUserJoinSessionEvent?.Invoke(userID, user);
         }
 
-        void IUserSessionEventsListener.OnUserLeftSession(string userID) {
+        void IUserSessionEventsListener.OnUserLeftSession(string userID, bool force) {
             if (!string.IsNullOrEmpty(userID)) {
                 _orchestratorWrapper.GetSessionInfo();
-                OnUserLeaveSessionEvent?.Invoke(userID);
+                OnUserLeaveSessionEvent?.Invoke(userID, force);
             }
         }
 

@@ -70,6 +70,12 @@ namespace Orchestrator.Data {
         [JsonProperty("userId")] public string UserId;
     }
 
+    public class SessionUpdateIsForceData
+    {
+        [JsonProperty("force")] public bool Force;
+        [JsonProperty("userId")] public string UserId;
+    }
+
     public class SessionUpdateStatusData
     {
         [JsonProperty("status")] public string Status;
