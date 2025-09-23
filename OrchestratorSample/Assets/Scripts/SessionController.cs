@@ -36,6 +36,8 @@ public class SessionController : MonoBehaviour
 
     [Header("Session Management")]
     public Button leaveButton;
+    public Button switchButton;
+    public TMP_InputField sessionNameField;
 
     private readonly Dictionary<string, GameObject> _activeUsers = new();
     private Session _session;
@@ -62,6 +64,7 @@ public class SessionController : MonoBehaviour
 
         // Adding listeners for UI elements
         leaveButton.onClick.AddListener(LeaveSession);
+        switchButton.onClick.AddListener(SwitchSession);
         raiseHandButton.onClick.AddListener(RaiseOrLowerHand);
         chatSendButton.onClick.AddListener(SendChatMessage);
         chatInputField.onValueChanged.AddListener(delegate { chatSendButton.interactable = chatInputField.text.Length > 0; });
@@ -158,6 +161,35 @@ public class SessionController : MonoBehaviour
         await OrchestratorController.Instance.Orchestrator.Logout();
 
         SceneManager.LoadScene("Scenes/LoginScene");
+    }
+
+    private async void SwitchSession()
+    {
+        // Get the session name from the input field and trim it
+        var sessionName = sessionNameField.text.Trim();
+
+        // If the session name is empty, do nothing
+        if (string.IsNullOrEmpty(sessionName))
+        {
+            return;
+        }
+
+        // Find the session by name
+        var sessionToSwitchTo = await OrchestratorController.Instance.Orchestrator.FindSessionByName(sessionName);
+
+        // If the session was not found, log a warning and return
+        if (sessionToSwitchTo == null)
+        {
+            Debug.LogWarning($"Session with name {sessionName} not found.");
+            return;
+        }
+
+        // Switch to the found session
+        Debug.Log($"Switching to session {sessionToSwitchTo.Name} ({sessionToSwitchTo.Id})");
+        await OrchestratorController.Instance.Orchestrator.SwitchSessions(sessionToSwitchTo.Id);
+
+        // Reload current scene to update session information
+        SceneManager.LoadScene("Scenes/SessionScene");
     }
 
     private async void RaiseOrLowerHand()
