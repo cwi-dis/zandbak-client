@@ -238,6 +238,31 @@ namespace Orchestrator.App
         }
 
         /// <summary>
+        /// Creates a new persistent session asynchronously with the specified session name.
+        /// </summary>
+        /// <param name="sessionName">The name of the session to be created.</param>
+        /// <returns>A task that represents the asynchronous operation. The task result contains the created session object.</returns>
+        public Task<Session> CreatePersistentSession(string sessionName)
+        {
+            var tcs = new TaskCompletionSource<Session>();
+
+            Action<Data.Session> fn = null;
+            fn = (session) =>
+            {
+                CurrentSession = new Session(this, session);
+                CurrentSession.Join();
+
+                tcs.SetResult(CurrentSession);
+                OrchestratorController.Instance.OnAddSessionEvent -= fn;
+            };
+
+            OrchestratorController.Instance.OnAddSessionEvent += fn;
+            OrchestratorController.Instance.AddSession(sessionName, persistent: true);
+
+            return tcs.Task;
+        }
+
+        /// <summary>
         /// Creates a new session asynchronously from a session stored in the Orchestrator's database using its session
         /// ID. The new session will contain the presentation schedule as stored in the database.
         /// </summary>
