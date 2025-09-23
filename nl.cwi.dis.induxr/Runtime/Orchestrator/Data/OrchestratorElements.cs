@@ -178,6 +178,7 @@ namespace Orchestrator.Data
         [JsonProperty("sessionCurrentPresentation")] public Presentation CurrentPresentation;
         [JsonProperty("sessionPresentations")] public List<Presentation> Presentations;
         [JsonProperty("sessionStatus")] public string Status;
+        [JsonProperty("sessionPersistent")] public bool Persistent;
 
         public override string GetId()
         {
