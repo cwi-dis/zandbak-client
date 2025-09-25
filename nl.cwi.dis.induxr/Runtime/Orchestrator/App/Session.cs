@@ -472,11 +472,16 @@ namespace Orchestrator.App
             return tcs.Task;
         }
 
+        /// <summary>
+        /// Creates a new conversation bubble within the session.
+        /// </summary>
+        /// <param name="name">The name of the bubble to be created.</param>
+        /// <returns>A task representing the asynchronous operation. The task result contains the newly created bubble.</returns>
         public Task<Bubble> CreateBubble(string name)
         {
             var tcs = new TaskCompletionSource<Bubble>();
 
-            OrchestratorController.Instance.Wrapper.CreateBubble((_, body) =>
+            OrchestratorController.Instance.Wrapper.CreateBubble(name, (_, body) =>
             {
                 tcs.SetResult(new Bubble(_orchestrator, body));
             });

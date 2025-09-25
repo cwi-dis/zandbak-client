@@ -519,7 +519,7 @@ namespace Orchestrator.Wrapping {
             }
         }
 
-        public void CreateBubble(Action<ResponseStatus, Bubble> callback)
+        public void CreateBubble(string name, Action<ResponseStatus, Bubble> callback)
         {
             lock (this)
             {
@@ -530,7 +530,7 @@ namespace Orchestrator.Wrapping {
                     {
                         callback(data.ResponseStatus, data.Body);
                     });
-                });
+                }, new { name });
             }
         }
 
