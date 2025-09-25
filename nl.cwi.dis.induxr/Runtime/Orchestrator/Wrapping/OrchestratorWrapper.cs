@@ -534,6 +534,21 @@ namespace Orchestrator.Wrapping {
             }
         }
 
+        public void ListBubbles(Action<ResponseStatus, List<Bubble>> callback)
+        {
+            lock (this)
+            {
+                _socket.Emit("ListBubbles", (response) =>
+                {
+                    var data = response.GetValue<OrchestratorResponse<List<Bubble>>>();
+                    UnityThread.executeInUpdate(() =>
+                    {
+                        callback(data.ResponseStatus, data.Body);
+                    });
+                }, new { });
+            }
+        }
+
         #endregion
 
         #region broadcasts
