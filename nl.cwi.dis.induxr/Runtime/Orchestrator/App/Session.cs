@@ -496,6 +496,24 @@ namespace Orchestrator.App
         }
 
         /// <summary>
+        /// Retrieves the list of currently available bubbles within the session. Updates the local bubble list and
+        /// returns the fetched bubbles.
+        /// </summary>
+        /// <returns>A task that represents the asynchronous operation. The task result is the list of updated bubbles.</returns>
+        public Task<List<Bubble>> ListBubbles()
+        {
+            var tcs = new TaskCompletionSource<List<Bubble>>();
+
+            OrchestratorController.Instance.Wrapper.ListBubbles((_, body) =>
+            {
+                Bubbles = body.Select(b => new Bubble(_orchestrator, b)).ToList();
+                tcs.SetResult(Bubbles);
+            });
+
+            return tcs.Task;
+        }
+
+        /// <summary>
         /// Broadcasts an object containing transform data to all users in the current session.
         /// </summary>
         /// <param name="data">The transform data object to be broadcast to the session.</param>
