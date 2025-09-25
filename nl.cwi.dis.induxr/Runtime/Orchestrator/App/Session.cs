@@ -32,6 +32,8 @@ namespace Orchestrator.App
         public Presentation CurrentPresentation;
         public bool IsSharing => CurrentPresentation.IsSharing;
 
+        public List<Bubble> Bubbles { get; private set; }
+
         public List<ChatMessage> Chat => _sessionData.Chat.ToList();
         public Dictionary<string, List<ChatMessage>> PrivateMessages = new();
 
@@ -175,6 +177,7 @@ namespace Orchestrator.App
             _orchestrator = orchestrator;
 
             Users = _sessionData.UserDefinitions.Select(u => new User(orchestrator, u)).ToList();
+            Bubbles = _sessionData.Bubbles.Select(b => new Bubble(orchestrator, b)).ToList();
 
             OrchestratorController.Instance.OnSessionCloseEvent += SessionClosed;
 
@@ -483,7 +486,10 @@ namespace Orchestrator.App
 
             OrchestratorController.Instance.Wrapper.CreateBubble(name, (_, body) =>
             {
-                tcs.SetResult(new Bubble(_orchestrator, body));
+                var bubble = new Bubble(_orchestrator, body);
+                Bubbles.Add(bubble);
+
+                tcs.SetResult(bubble);
             });
 
             return tcs.Task;
