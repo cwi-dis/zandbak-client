@@ -472,6 +472,18 @@ namespace Orchestrator.App
             return tcs.Task;
         }
 
+        public Task<Bubble> CreateBubble(string name)
+        {
+            var tcs = new TaskCompletionSource<Bubble>();
+
+            OrchestratorController.Instance.Wrapper.CreateBubble((_, body) =>
+            {
+                tcs.SetResult(new Bubble(_orchestrator, body));
+            });
+
+            return tcs.Task;
+        }
+
         /// <summary>
         /// Broadcasts an object containing transform data to all users in the current session.
         /// </summary>

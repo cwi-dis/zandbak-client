@@ -278,8 +278,8 @@ public class SessionController : MonoBehaviour
         {
             Debug.Log("User " + user.Id + " was removed by an admin");
 
-            // If the ID of the removed user is equal to Self and force is set to true, we were removed by an
-            // admin. In that case, log out and load login scene
+            // If the ID of the removed user is equal to Self and force is set to true, the current user was removed by
+            // an admin. In that case, log out and load the login scene
             if (user.Id == _session.Self.Id)
             {
                 Debug.Log("Self has been removed from session, logging out and loading login scene.");

@@ -42,6 +42,7 @@ namespace Orchestrator.Wrapping
         private OrchestratorConnectionStatus _connectionStatus;
 
         public App.Orchestrator Orchestrator { get; private set; }
+        public OrchestratorWrapper Wrapper => _orchestratorWrapper;
 
         //Session
         private Session _session;
