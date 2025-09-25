@@ -185,6 +185,7 @@ namespace Orchestrator.Data
         [JsonProperty("sessionRaisedHands")] public List<User> RaisedHands;
         [JsonProperty("sessionCurrentPresentation")] public Presentation CurrentPresentation;
         [JsonProperty("sessionPresentations")] public List<Presentation> Presentations;
+        [JsonProperty("sessionBubbles")] public List<Bubble> Bubbles;
         [JsonProperty("sessionStatus")] public string Status;
         [JsonProperty("sessionPersistent")] public bool Persistent;
 
