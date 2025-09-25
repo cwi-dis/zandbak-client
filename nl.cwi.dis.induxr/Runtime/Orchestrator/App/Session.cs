@@ -32,6 +32,8 @@ namespace Orchestrator.App
         public Presentation CurrentPresentation;
         public bool IsSharing => CurrentPresentation.IsSharing;
 
+        public List<Bubble> Bubbles { get; private set; }
+
         public List<ChatMessage> Chat => _sessionData.Chat.ToList();
         public Dictionary<string, List<ChatMessage>> PrivateMessages = new();
 
@@ -175,6 +177,7 @@ namespace Orchestrator.App
             _orchestrator = orchestrator;
 
             Users = _sessionData.UserDefinitions.Select(u => new User(orchestrator, u)).ToList();
+            Bubbles = _sessionData.Bubbles.Select(b => new Bubble(orchestrator, b)).ToList();
 
             OrchestratorController.Instance.OnSessionCloseEvent += SessionClosed;
 
@@ -468,6 +471,26 @@ namespace Orchestrator.App
 
             OrchestratorController.Instance.OnGetMessagesEvent += fn;
             OrchestratorController.Instance.GetMessages();
+
+            return tcs.Task;
+        }
+
+        /// <summary>
+        /// Creates a new conversation bubble within the session.
+        /// </summary>
+        /// <param name="name">The name of the bubble to be created.</param>
+        /// <returns>A task representing the asynchronous operation. The task result contains the newly created bubble.</returns>
+        public Task<Bubble> CreateBubble(string name)
+        {
+            var tcs = new TaskCompletionSource<Bubble>();
+
+            OrchestratorController.Instance.Wrapper.CreateBubble(name, (_, body) =>
+            {
+                var bubble = new Bubble(_orchestrator, body);
+                Bubbles.Add(bubble);
+
+                tcs.SetResult(bubble);
+            });
 
             return tcs.Task;
         }

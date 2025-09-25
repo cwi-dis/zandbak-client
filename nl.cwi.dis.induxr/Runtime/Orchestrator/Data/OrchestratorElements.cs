@@ -147,6 +147,14 @@ namespace Orchestrator.Data
         [JsonProperty("updatedAt")] public DateTime UpdatedAt;
     }
 
+    public class Bubble : OrchestratorElement
+    {
+        [JsonProperty("id")] public string Id;
+        [JsonProperty("name")] public string Name;
+        [JsonProperty("owner")] public User Owner;
+        [JsonProperty("users")] public List<User> Users;
+    }
+
     public class ScheduledSession : OrchestratorElement
     {
         [JsonProperty("id")] public string Id;
@@ -177,6 +185,7 @@ namespace Orchestrator.Data
         [JsonProperty("sessionRaisedHands")] public List<User> RaisedHands;
         [JsonProperty("sessionCurrentPresentation")] public Presentation CurrentPresentation;
         [JsonProperty("sessionPresentations")] public List<Presentation> Presentations;
+        [JsonProperty("sessionBubbles")] public List<Bubble> Bubbles;
         [JsonProperty("sessionStatus")] public string Status;
         [JsonProperty("sessionPersistent")] public bool Persistent;
 
