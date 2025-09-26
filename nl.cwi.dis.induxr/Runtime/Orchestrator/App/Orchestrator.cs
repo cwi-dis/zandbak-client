@@ -14,6 +14,16 @@ namespace Orchestrator.App
     public class Orchestrator
     {
         /// <summary>
+        /// The URL that was used for establishing a Socket.IO connection to the Orchestrator backend. This property
+        /// will be null if we are currently not connected to the Orchestrator.
+        /// </summary>
+        /// <remarks>
+        /// - The WebSocket URL is managed by the singleton instance of <c>OrchestratorController</c>.
+        /// - This property is a direct reference to the <c>SocketUrl</c> of the <c>OrchestratorController</c>.
+        /// </remarks>
+        public Uri SocketUrl => OrchestratorController.Instance.SocketUrl;
+
+        /// <summary>
         /// A collection of available sessions within the Orchestrator. Keep in mind that this may not be up to date.
         /// To get the latest list of sessions, call <c>GetSessions()</c> instead.
         /// </summary>
