@@ -128,6 +128,7 @@ namespace Orchestrator.Data
 
     public class Presentation : OrchestratorElement
     {
+        [JsonProperty("id")] public string Id;
         [JsonProperty("name")] public string Name;
         [JsonProperty("description")] public string Description;
         [JsonProperty("presenter")] public string Presenter;
