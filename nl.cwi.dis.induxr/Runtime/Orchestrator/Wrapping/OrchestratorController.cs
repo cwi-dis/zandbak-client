@@ -43,6 +43,7 @@ namespace Orchestrator.Wrapping
 
         public App.Orchestrator Orchestrator { get; private set; }
         public OrchestratorWrapper Wrapper => _orchestratorWrapper;
+        public Uri SocketUrl { get; private set; }
 
         //Session
         private Session _session;
@@ -273,6 +274,7 @@ namespace Orchestrator.Wrapping
         public void SocketConnect(string url) {
             Log($"OrchestratorController: connect to {url}");
 
+            SocketUrl = new Uri(url);
             _orchestratorWrapper = new OrchestratorWrapper(url, this, this, this);
             _orchestratorWrapper.Connect();
         }
@@ -356,6 +358,7 @@ namespace Orchestrator.Wrapping
             _connectedToOrchestrator = false;
             _connectionStatus = OrchestratorConnectionStatus.Disconnected;
             _userIsLogged = false;
+            SocketUrl = null;
             OnConnectionEvent?.Invoke(false);
         }
 
