@@ -80,13 +80,20 @@ namespace Orchestrator.Behaviour
 
         private IEnumerator LoadSlide()
         {
-            // Build URL from base URL and current slide
-            var baseUrl = new Uri(_currentPresentation.SlidesURL);
+            // If the property SlidesURL is provided for the current presentation, use it as base URL, otherwise use
+            // the URL of the orchestrator socket at the path /slides.
+            var baseUrl = _currentPresentation.SlidesURL switch
+            {
+                null => new Uri(_orchestrator.SocketUrl, "/slides/"),
+                _ => new Uri(_currentPresentation.SlidesURL)
+            };
+
+            // Slides are loaded from the given url with the filename `presentation-[presentationId]-[slideNum].png`,
+            // e.g. http://localhost:8090/slides/presentation-6877ed4ad845d403392410b7-10.png
             var currentSlide = _currentPresentation.CurrentSlide;
+            var presentationId = _currentPresentation.Id;
 
-            // Slides are loaded from the given url with the filename `presentation-[slideNum].png` (e.g. http://localhost:8090/slides/presentation-10.png)
-            var url = new Uri(baseUrl, $"presentation-{currentSlide}.png");
-
+            var url = new Uri(baseUrl, $"presentation-{presentationId}-{currentSlide}.png");
             Debug.Log($"Loading current slide from {url}...");
 
             // Make the request using built URL
