@@ -92,8 +92,8 @@ namespace Orchestrator.Behaviour
             // e.g. http://localhost:8090/slides/presentation-6877ed4ad845d403392410b7-10.png
             var currentSlide = _currentPresentation.CurrentSlide;
             var presentationId = _currentPresentation.Id;
-
             var url = new Uri(baseUrl, $"presentation-{presentationId}-{currentSlide}.png");
+
             Debug.Log($"Loading current slide from {url}...");
 
             // Make the request using built URL
@@ -103,43 +103,39 @@ namespace Orchestrator.Behaviour
             if (request.result != UnityWebRequest.Result.Success)
             {
                 Debug.LogError($"Error downloading image: {request.error}");
+                yield break;
             }
-            else
+
+            // Get the downloaded texture
+            var texture = DownloadHandlerTexture.GetContent(request);
+
+            if (!texture)
             {
-                // Get the downloaded texture
-                var texture = DownloadHandlerTexture.GetContent(request);
-
-                if (texture)
-                {
-                    // Apply the texture to the target Renderer's material
-                    if (_targetRenderer)
-                    {
-                        // Destroy existing slide material if it exists
-                        if (_slideMaterial)
-                        {
-                            Destroy(_slideMaterial);
-                        }
-
-                        // Initialize a new material with the downloaded texture
-                        _slideMaterial = new Material(Shader.Find("Unlit/Texture"))
-                        {
-                            mainTexture = texture
-                        };
-
-                        // Apply material to renderer
-                        _targetRenderer.material = _slideMaterial;
-                        Debug.Log("Image successfully loaded onto 3D surface.");
-                    }
-                    else
-                    {
-                        Debug.LogWarning("No target Renderer or UI Image component assigned to display the image.");
-                    }
-                }
-                else
-                {
-                    Debug.LogError("Failed to get texture from downloaded data.");
-                }
+                Debug.LogError("Failed to get texture from downloaded data.");
+                yield break;
             }
+
+            if (!_targetRenderer)
+            {
+                Debug.LogWarning("No target Renderer or UI Image component assigned to display the image.");
+                yield break;
+            }
+
+            // Destroy existing slide material if it exists
+            if (_slideMaterial)
+            {
+                Destroy(_slideMaterial);
+            }
+
+            // Initialize a new material with the downloaded texture
+            _slideMaterial = new Material(Shader.Find("Unlit/Texture"))
+            {
+                mainTexture = texture
+            };
+
+            // Apply material to renderer
+            _targetRenderer.material = _slideMaterial;
+            Debug.Log("Image successfully loaded onto 3D surface.");
         }
     }
 }
