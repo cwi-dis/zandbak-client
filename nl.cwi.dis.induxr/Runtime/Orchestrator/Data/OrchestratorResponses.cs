@@ -90,6 +90,12 @@ namespace Orchestrator.Data {
         [JsonProperty("eventData")] public T EventData;
     }
 
+    public class OrchestratorUpdate<T>
+    {
+        [JsonProperty("eventId")] public string EventId;
+        [JsonProperty("eventData")] public T EventData;
+    }
+
     public class SceneEvent {
         [JsonProperty("sceneEventFrom")] public string SceneEventFrom;
     }
