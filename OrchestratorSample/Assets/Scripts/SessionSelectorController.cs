@@ -48,14 +48,22 @@ public class SessionSelectorController : MonoBehaviour
         joinButton.onClick.AddListener(OnJoinSession);
 
         // Refresh session dropdown when a session is created
-        _orchestrator.OnSessionCreated += (_) =>
+        _orchestrator.OnSessionCreated += (session) =>
         {
+            Debug.Log($"New session created: {session.Name} ({session.Id})");
+
+            // Enable the join button, because now we have at least one session
             joinButton.interactable = true;
 
-            sessionDropdown.ClearOptions();
-            sessionDropdown.AddOptions(_orchestrator.Sessions.Select((s) => s.Name).ToList());
+            // Get the updated sessions from the orchestrator object
+            var refreshedSessions = _orchestrator.Sessions;
 
-            _sessions = _orchestrator.Sessions;
+            // Clear the session dropdown and re-render the options with the updated session names
+            sessionDropdown.ClearOptions();
+            sessionDropdown.AddOptions(refreshedSessions.Select((s) => s.Name).ToList());
+
+            // Update the local session list
+            _sessions = refreshedSessions;
         };
 
         // Add a listener to the session creation input field and only enable it if there is a value in the text input field
