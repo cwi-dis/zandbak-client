@@ -62,6 +62,20 @@ namespace Orchestrator.App
         public SelfUser Self { get; private set; }
 
         /// <summary>
+        /// Occurs when a new session is created
+        /// </summary>
+        /// <remarks>
+        /// This event is triggered whenever a new session is created. The event provides the session as an
+        /// argument, allowing subscriber methods to access and process the data.
+        /// </remarks>
+        public event Action<Session> OnSessionCreated;
+
+        public Orchestrator()
+        {
+            OrchestratorController.Instance.OnSessionCreatedEvent += SessionCreated;
+        }
+
+        /// <summary>
         /// Retrieves the version of the Orchestrator asynchronously.
         /// </summary>
         /// <returns>A task that represents the asynchronous operation. The task result contains the orchestrator version as a string.</returns>
@@ -364,6 +378,17 @@ namespace Orchestrator.App
             await GetSessions();
             // Find the session by name
             return Sessions.Find((s) => s.Name == name);
+        }
+
+        private async void SessionCreated(Data.Session session)
+        {
+            var sessions = await GetSessions();
+            var createdSession = sessions.Find((s) => s.Id == session.Id);
+
+            if (createdSession != null)
+            {
+                OnSessionCreated?.Invoke(createdSession);
+            }
         }
     }
 }

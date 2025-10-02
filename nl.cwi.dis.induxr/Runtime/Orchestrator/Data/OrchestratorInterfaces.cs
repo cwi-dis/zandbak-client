@@ -19,6 +19,11 @@ namespace Orchestrator.Data
         void OnBroadcastReceived(BroadcastData broadcastData);
     }
 
+    public interface IOrchestratorEventsListener
+    {
+        void OnSessionCreated(Session session);
+    }
+
     // Interface to implement to listen for user events emitted spontaneously
     // from the session updates by the orchestrator
     public interface IUserSessionEventsListener

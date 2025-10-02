@@ -101,7 +101,7 @@ public class SessionController : MonoBehaviour
             // Not spawning an avatar for self
             if (remoteUser.Id != user.Id)
             {
-                Debug.Log($"Adding remote user {remoteUser.Name} ({remoteUser.Type}) with {remoteUser.Transform.Bones.Count} bones to session.");
+                Debug.Log($"Adding remote user {remoteUser.Name} ({remoteUser.Type}) with {remoteUser.Transform?.Bones?.Count} bones to session.");
 
                 // Spawning remote avatar prefab and injecting user object dependency
                 var remoteAvatar = Instantiate(remotePlayerPrefab).GetComponent<RemoteAvatar>();

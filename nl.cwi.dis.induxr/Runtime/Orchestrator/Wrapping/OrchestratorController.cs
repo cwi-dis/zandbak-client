@@ -15,7 +15,7 @@ using UnityEditor.Search;
 
 namespace Orchestrator.Wrapping
 {
-    public class OrchestratorController : MonoBehaviour, IOrchestratorResponsesListener, IUserMessagesListener, IUserSessionEventsListener
+    public class OrchestratorController : MonoBehaviour, IOrchestratorResponsesListener, IUserMessagesListener, IUserSessionEventsListener, IOrchestratorEventsListener
     {
         [Tooltip("Enable trace logging output")]
         [SerializeField] private bool enableLogging = true;
@@ -219,6 +219,11 @@ namespace Orchestrator.Wrapping
         public event Action<User, bool> OnSessionIsSpeakingEvent;
 
         /// <summary>
+        /// Invoked when a new session is created
+        /// </summary>
+        public event Action<Session> OnSessionCreatedEvent;
+
+        /// <summary>
         /// Invoked when a broadcast is received in the current session
         /// </summary>
         public event Action<BroadcastData> OnBroadcastReceivedEvent;
@@ -275,7 +280,7 @@ namespace Orchestrator.Wrapping
             Log($"OrchestratorController: connect to {url}");
 
             SocketUrl = new Uri(url);
-            _orchestratorWrapper = new OrchestratorWrapper(url, this, this, this);
+            _orchestratorWrapper = new OrchestratorWrapper(url, this, this, this, this);
             _orchestratorWrapper.Connect();
         }
 
@@ -915,6 +920,11 @@ namespace Orchestrator.Wrapping
 
             user.Status = status;
             OnUserStatusChangedEvent?.Invoke(user, status);
+        }
+
+        void IOrchestratorEventsListener.OnSessionCreated(Session session)
+        {
+            OnSessionCreatedEvent?.Invoke(session);
         }
 
         #endregion
