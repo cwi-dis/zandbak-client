@@ -15,24 +15,28 @@ namespace Orchestrator.Wrapping {
 
         private static OrchestratorWrapper _instance;
         // Listener for the responses of the orchestrator
-        private IOrchestratorResponsesListener _responsesListener;
+        private readonly IOrchestratorResponsesListener _responsesListener;
 
         // Listener for the messages emitted spontaneously by the orchestrator
-        private IUserMessagesListener _userMessagesListener;
+        private readonly IUserMessagesListener _userMessagesListener;
 
-        // Listeners for the user events emitted when a session is updated by the orchestrator
-        private IUserSessionEventsListener _userSessionEventListener;
+        // Listener for the user events emitted when a session is updated by the orchestrator
+        private readonly IUserSessionEventsListener _userSessionEventListener;
+
+        // Listener for the events emitted when an Orchestrator-wide event occurs
+        private readonly IOrchestratorEventsListener _orchestratorEventListener;
 
         public Action<UserDataStreamPacket> OnDataStreamReceived;
         private string _myUserID = "";
 
-        public OrchestratorWrapper(string orchestratorSocketUrl, IOrchestratorResponsesListener responsesListener, IUserMessagesListener userMessagesListener, IUserSessionEventsListener userSessionEventsListener)
+        public OrchestratorWrapper(string orchestratorSocketUrl, IOrchestratorResponsesListener responsesListener, IUserMessagesListener userMessagesListener, IUserSessionEventsListener userSessionEventsListener, IOrchestratorEventsListener orchestratorEventListener)
         {
             _instance ??= this;
 
             _responsesListener = responsesListener;
             _userMessagesListener = userMessagesListener;
             _userSessionEventListener = userSessionEventsListener;
+            _orchestratorEventListener = orchestratorEventListener;
 
             _socket = new SocketIOUnity(new Uri(orchestratorSocketUrl), new SocketIOOptions {
                 Transport = TransportProtocol.WebSocket,
@@ -57,6 +61,7 @@ namespace Orchestrator.Wrapping {
             _socket.On("DataReceived", OnUserDataReceived);
             _socket.On("SessionUpdated", OnSessionUpdated);
             _socket.On("SessionClosed", OnSessionClosed);
+            _socket.On("OrchestratorUpdated", OnOrchestratorUpdated);
         }
 
         public void Connect()
@@ -605,6 +610,25 @@ namespace Orchestrator.Wrapping {
                 else
                 {
                     Debug.LogWarning("No UserMessagesListener");
+                }
+            }
+        }
+
+        private void OnOrchestratorUpdated(SocketIOResponse response)
+        {
+            lock (this)
+            {
+                var data = response.GetValue<OrchestratorUpdate<SessionUpdateEmptyData>>();
+
+                switch (data.EventId)
+                {
+                    case "SESSION_CREATED":
+                        var sessionData = response.GetValue<OrchestratorUpdate<Session>>();
+                        UnityThread.executeInUpdate(() =>
+                        {
+                            _orchestratorEventListener?.OnSessionCreated(sessionData.EventData);
+                        });
+                        break;
                 }
             }
         }
