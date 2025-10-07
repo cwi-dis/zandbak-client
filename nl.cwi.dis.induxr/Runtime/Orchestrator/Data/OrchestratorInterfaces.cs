@@ -22,6 +22,7 @@ namespace Orchestrator.Data
     public interface IOrchestratorEventsListener
     {
         void OnSessionCreated(Session session);
+        void OnSessionDeleted(Session session);
     }
 
     // Interface to implement to listen for user events emitted spontaneously

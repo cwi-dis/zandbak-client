@@ -70,9 +70,19 @@ namespace Orchestrator.App
         /// </remarks>
         public event Action<Session> OnSessionCreated;
 
+        /// <summary>
+        /// Occurs when a new session is deleted
+        /// </summary>
+        /// <remarks>
+        /// This event is triggered whenever a session is deleted. The event provides the ID of the deleted session as
+        /// an argument.
+        /// </remarks>
+        public event Action<string> OnSessionDeleted;
+
         public Orchestrator()
         {
             OrchestratorController.Instance.OnSessionCreatedEvent += SessionCreated;
+            OrchestratorController.Instance.OnSessionDeletedEvent += SessionDeleted;
         }
 
         /// <summary>
@@ -389,6 +399,12 @@ namespace Orchestrator.App
             {
                 OnSessionCreated?.Invoke(createdSession);
             }
+        }
+
+        private async void SessionDeleted(Data.Session session)
+        {
+            var sessions = await GetSessions();
+            OnSessionDeleted?.Invoke(session.Id);
         }
     }
 }

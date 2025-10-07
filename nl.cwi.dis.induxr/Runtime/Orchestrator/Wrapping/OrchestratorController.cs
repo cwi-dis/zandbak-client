@@ -224,6 +224,11 @@ namespace Orchestrator.Wrapping
         public event Action<Session> OnSessionCreatedEvent;
 
         /// <summary>
+        /// Invoked when a new session is deleted
+        /// </summary>
+        public event Action<Session> OnSessionDeletedEvent;
+
+        /// <summary>
         /// Invoked when a broadcast is received in the current session
         /// </summary>
         public event Action<BroadcastData> OnBroadcastReceivedEvent;
@@ -925,6 +930,11 @@ namespace Orchestrator.Wrapping
         void IOrchestratorEventsListener.OnSessionCreated(Session session)
         {
             OnSessionCreatedEvent?.Invoke(session);
+        }
+
+        void IOrchestratorEventsListener.OnSessionDeleted(Session session)
+        {
+            OnSessionDeletedEvent?.Invoke(session);
         }
 
         #endregion

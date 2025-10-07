@@ -623,10 +623,17 @@ namespace Orchestrator.Wrapping {
                 switch (data.EventId)
                 {
                     case "SESSION_CREATED":
-                        var sessionData = response.GetValue<OrchestratorUpdate<Session>>();
                         UnityThread.executeInUpdate(() =>
                         {
+                            var sessionData = response.GetValue<OrchestratorUpdate<Session>>();
                             _orchestratorEventListener?.OnSessionCreated(sessionData.EventData);
+                        });
+                        break;
+                    case "SESSION_DELETED":
+                        UnityThread.executeInUpdate(() =>
+                        {
+                            var sessionData = response.GetValue<OrchestratorUpdate<Session>>();
+                            _orchestratorEventListener?.OnSessionDeleted(sessionData.EventData);
                         });
                         break;
                 }
