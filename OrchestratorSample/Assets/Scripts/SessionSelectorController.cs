@@ -66,6 +66,7 @@ public class SessionSelectorController : MonoBehaviour
             _sessions = refreshedSessions;
         };
 
+        // Refresh session dropdown when a session is deleted
         _orchestrator.OnSessionDeleted += (sessionId) =>
         {
             Debug.Log($"Session with ID {sessionId} was deleted");
