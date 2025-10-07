@@ -66,6 +66,27 @@ public class SessionSelectorController : MonoBehaviour
             _sessions = refreshedSessions;
         };
 
+        _orchestrator.OnSessionDeleted += (sessionId) =>
+        {
+            Debug.Log($"Session with ID {sessionId} was deleted");
+
+            // Disable the join button if the list of sessions has become empty
+            if (_orchestrator.Sessions.Count == 0)
+            {
+                joinButton.interactable = false;
+            }
+
+            // Get the updated sessions from the orchestrator object
+            var refreshedSessions = _orchestrator.Sessions;
+
+            // Clear the session dropdown and re-render the options with the updated session names
+            sessionDropdown.ClearOptions();
+            sessionDropdown.AddOptions(refreshedSessions.Select((s) => s.Name).ToList());
+
+            // Update the local session list
+            _sessions = refreshedSessions;
+        };
+
         // Add a listener to the session creation input field and only enable it if there is a value in the text input field
         createButton.interactable = false;
         sessionNameField.onValueChanged.AddListener(delegate { createButton.interactable = sessionNameField.text.Length > 0; });
