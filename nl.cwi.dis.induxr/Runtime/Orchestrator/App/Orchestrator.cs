@@ -403,7 +403,7 @@ namespace Orchestrator.App
 
         private async void SessionDeleted(Data.Session session)
         {
-            var sessions = await GetSessions();
+            await GetSessions();
             OnSessionDeleted?.Invoke(session.Id);
         }
     }
