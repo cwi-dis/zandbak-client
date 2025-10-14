@@ -6,8 +6,10 @@ namespace Orchestrator.Data {
     // class that describes the status for the response from the orchestrator
     public class ResponseStatus
     {
-        public int Error;
-        public string Message;
+        public static int Ok = 0;
+
+        public readonly int Error;
+        public readonly string Message;
 
         public ResponseStatus(int error, string message)
         {
