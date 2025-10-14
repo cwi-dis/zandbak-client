@@ -554,6 +554,21 @@ namespace Orchestrator.Wrapping {
             }
         }
 
+        public void LeaveBubble(string bubbleId, Action<ResponseStatus, Bubble> callback)
+        {
+            lock (this)
+            {
+                _socket.Emit("LeaveBubble", (response) =>
+                {
+                    var data = response.GetValue<OrchestratorResponse<Bubble>>();
+                    UnityThread.executeInUpdate(() =>
+                    {
+                        callback(data.ResponseStatus, data.Body);
+                    });
+                });
+            }
+        }
+
         #endregion
 
         #region broadcasts
