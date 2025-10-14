@@ -1,5 +1,9 @@
+using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
+using Orchestrator.Data;
+using Orchestrator.Wrapping;
 
 namespace Orchestrator.App
 {
@@ -19,6 +23,31 @@ namespace Orchestrator.App
         {
             _orchestrator = orchestrator;
             _bubbleData = bubbleData;
+        }
+
+        /// <summary>
+        /// Leaves the current bubble asynchronously by notifying the Orchestrator and processes the response.
+        /// </summary>
+        /// <returns>
+        /// A task that represents the asynchronous operation. The task result is true if the operation succeeds; otherwise, an exception is thrown in case of an error.
+        /// </returns>
+        public Task<bool> LeaveBubble()
+        {
+            var tcs = new TaskCompletionSource<bool>();
+
+            OrchestratorController.Instance.Wrapper.LeaveBubble(Id, (status, _) =>
+            {
+                if (status.Error == ResponseStatus.Ok)
+                {
+                    tcs.SetResult(true);
+                }
+                else
+                {
+                    tcs.SetException(new Exception(status.Message));
+                }
+            });
+
+            return tcs.Task;
         }
     }
 }
