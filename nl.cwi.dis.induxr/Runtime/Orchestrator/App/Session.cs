@@ -347,6 +347,29 @@ namespace Orchestrator.App
         }
 
         /// <summary>
+        /// Sets the current slide in the presentation to the given index.
+        /// </summary>
+        /// <param name="slideIndex">The index of the slide to set the current slide to</param>
+        /// <returns>A task that represents the asynchronous operation. The task result is the updated presentation object after the slide has been changed.</returns>
+        public Task<Presentation> SetPresentationSlide(int slideIndex)
+        {
+            var tcs = new TaskCompletionSource<Presentation>();
+
+            Action<Presentation> fn = null;
+            fn = (presentation) =>
+            {
+                tcs.SetResult(presentation);
+                CurrentPresentation.CurrentSlide = presentation.CurrentSlide;
+                OrchestratorController.Instance.OnSessionPresentationSlideChangedEvent -= fn;
+            };
+
+            OrchestratorController.Instance.OnSessionPresentationSlideChangedEvent += fn;
+            OrchestratorController.Instance.SetSlide(slideIndex);
+
+            return tcs.Task;
+        }
+
+        /// <summary>
         /// Toggles the sharing state of the current presentation in the session.
         /// </summary>
         /// <param name="isSharing">A boolean indicating whether to start (true) or stop (false) sharing the current presentation.</param>
