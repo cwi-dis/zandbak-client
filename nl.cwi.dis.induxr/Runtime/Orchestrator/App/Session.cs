@@ -324,6 +324,28 @@ namespace Orchestrator.App
         }
 
         /// <summary>
+        /// Sets the current presentation to the given index, if available.
+        /// </summary>
+        /// <returns>A task that represents the asynchronous operation. The task result is the new current presentation object.</returns>
+        public Task<Presentation> GoToPresentation(int index)
+        {
+            var tcs = new TaskCompletionSource<Presentation>();
+
+            Action<Presentation> fn = null;
+            fn = (presentation) =>
+            {
+                tcs.SetResult(presentation);
+                CurrentPresentation = presentation;
+                OrchestratorController.Instance.OnSessionPresentationChangedEvent -= fn;
+            };
+
+            OrchestratorController.Instance.OnSessionPresentationChangedEvent += fn;
+            OrchestratorController.Instance.GoToPresentation(index);
+
+            return tcs.Task;
+        }
+
+        /// <summary>
         /// Changes the current slide in the presentation by a specified offset.
         /// </summary>
         /// <param name="slideOffset">The number of slides to move forward or backward. Positive values move forward, while negative values move backward.</param>
