@@ -758,6 +758,16 @@ namespace Orchestrator.Wrapping
             _orchestratorWrapper.ChangeSlide(slideOffset);
         }
 
+        /// <summary>
+        /// Changes the current slide in the current session presentation to the given index.
+        /// </summary>
+        /// <param name="slideIndex">The index of the slide to display.</param>
+        [Obsolete("Direct usage of OrchestratorController is deprecated. Use the instance of App.Orchestrator returned by SocketConnectAsync() instead")]
+        public void SetSlide(int slideIndex)
+        {
+            _orchestratorWrapper.SetSlide(slideIndex);
+        }
+
         void IOrchestratorResponsesListener.OnChangeSlideResponse(ResponseStatus status, Presentation presentation)
         {
             if (status.Error != 0) {
