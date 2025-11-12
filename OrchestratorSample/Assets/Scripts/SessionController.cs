@@ -31,6 +31,7 @@ public class SessionController : MonoBehaviour
     public Button nextPresentationButton;
     public Button nextSlideButton;
     public Button prevSlideButton;
+    public Button resetPresentationButton;
     public Button sharePresentationButton;
     public MeshRenderer presentationCanvas;
 
@@ -78,9 +79,14 @@ public class SessionController : MonoBehaviour
         if (_session.Presentations.Count > 0 && _session.Self.Type == "presenter")
         {
             nextPresentationButton.onClick.AddListener(NextPresentation);
-            nextSlideButton.onClick.AddListener(delegate { ChangeSlide(1); });
-            prevSlideButton.onClick.AddListener(delegate { ChangeSlide(-1); });
             sharePresentationButton.onClick.AddListener(SharePresentation);
+
+            // Go to the next slide
+            nextSlideButton.onClick.AddListener(delegate { ChangeSlide(1); });
+            // Go to the previous slide
+            prevSlideButton.onClick.AddListener(delegate { ChangeSlide(-1); });
+            // Reset presentation to the first slide
+            resetPresentationButton.onClick.AddListener(delegate { SetSlide(0); });
         }
         else
         {
@@ -90,6 +96,7 @@ public class SessionController : MonoBehaviour
         // Disable slide control buttons until the first presentation is selected
         nextSlideButton.gameObject.SetActive(false);
         prevSlideButton.gameObject.SetActive(false);
+        resetPresentationButton.gameObject.SetActive(false);
         sharePresentationButton.gameObject.SetActive(false);
 
         var user = _session.Self;
@@ -139,7 +146,14 @@ public class SessionController : MonoBehaviour
 
     private async void ChangeSlide(int offset)
     {
+        // Change current slide using offset
         await _session.ChangePresentationSlide(offset);
+    }
+
+    private async void SetSlide(int index)
+    {
+        // Set presentation slide to given index
+        await _session.SetPresentationSlide(index);
     }
 
     private async void SendChatMessage()
@@ -334,6 +348,7 @@ public class SessionController : MonoBehaviour
         {
             nextSlideButton.gameObject.SetActive(true);
             prevSlideButton.gameObject.SetActive(true);
+            resetPresentationButton.gameObject.SetActive(true);
             sharePresentationButton.gameObject.SetActive(true);
         }
 
