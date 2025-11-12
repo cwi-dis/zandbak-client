@@ -741,6 +741,16 @@ namespace Orchestrator.Wrapping
             _orchestratorWrapper.GoToNextPresentation();
         }
 
+        /// <summary>
+        /// Sets the current presentation to the given index.
+        /// This method triggers the associated functionality in the OrchestratorWrapper.
+        /// </summary>
+        [Obsolete("Direct usage of OrchestratorController is deprecated. Use the instance of App.Orchestrator returned by SocketConnectAsync() instead")]
+        public void GoToPresentation(int index)
+        {
+            _orchestratorWrapper.GoToPresentation(index);
+        }
+
         void IOrchestratorResponsesListener.OnGoToNextPresentationResponse(ResponseStatus status, Presentation presentation)
         {
             if (status.Error != 0) {
