@@ -49,5 +49,31 @@ namespace Orchestrator.App
 
             return tcs.Task;
         }
+
+        /// <summary>
+        /// Invites a user to the current bubble asynchronously by communicating with the Orchestrator.
+        /// </summary>
+        /// <param name="u">The user to be invited to the bubble.</param>
+        /// <returns>
+        /// A task that represents the asynchronous operation. The task result is true if the invitation succeeds; otherwise, an exception is thrown in case of an error.
+        /// </returns>
+        public Task<bool> InviteUser(User u)
+        {
+            var tcs = new TaskCompletionSource<bool>();
+
+            OrchestratorController.Instance.Wrapper.InviteToBubble(u.Id, (status) =>
+            {
+                if (status.Error == ResponseStatus.Ok)
+                {
+                    tcs.SetResult(true);
+                }
+                else
+                {
+                    tcs.SetException(new Exception(status.Message));
+                }
+            });
+
+            return tcs.Task;
+        }
     }
 }
