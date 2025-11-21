@@ -62,6 +62,7 @@ namespace Orchestrator.Wrapping {
             _socket.On("SessionUpdated", OnSessionUpdated);
             _socket.On("SessionClosed", OnSessionClosed);
             _socket.On("OrchestratorUpdated", OnOrchestratorUpdated);
+            _socket.On("BubbleUpdated", OnBubbleUpdated);
         }
 
         public void Connect()
@@ -670,6 +671,22 @@ namespace Orchestrator.Wrapping {
                 else
                 {
                     Debug.LogWarning("No UserMessagesListener");
+                }
+            }
+        }
+
+        private void OnBubbleUpdated(SocketIOResponse response)
+        {
+            lock (this)
+            {
+                var data = response.GetValue<BubbleUpdate<EmptyUpdate>>();
+
+                switch (data.EventId)
+                {
+                    case "BUBBLE_JOIN_INVITED":
+                        Debug.Log("Bubble join invited");
+                        break;
+
                 }
             }
         }
