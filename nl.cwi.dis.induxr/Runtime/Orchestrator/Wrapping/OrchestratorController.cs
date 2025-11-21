@@ -233,6 +233,11 @@ namespace Orchestrator.Wrapping
         /// </summary>
         public event Action<BroadcastData> OnBroadcastReceivedEvent;
 
+        /// <summary>
+        /// Invoked when the current user is invited to a bubble
+        /// </summary>
+        public event Action<Bubble> OnBubbleInvited;
+
         #endregion
 
         #region public properties
@@ -959,27 +964,35 @@ namespace Orchestrator.Wrapping
 
         void IBubbleEventsListener.OnBubbleInvited(string bubbleId)
         {
+            Wrapper.ListBubbles((_, bubbles) =>
+            {
+                var bubble = bubbles.Find((b) => b.Id == bubbleId);
 
+                if (bubble != null)
+                {
+                    OnBubbleInvited?.Invoke(bubble);
+                }
+            });
         }
 
         void IBubbleEventsListener.OnBubbleJoinRequested(string bubbleId)
         {
-
+            // TODO: Implement me
         }
 
         void IBubbleEventsListener.OnBubbleJoinRequestApproved(string bubbleId, bool approved)
         {
-
+            // TODO: Implement me
         }
 
         void IBubbleEventsListener.OnBubbleJoined(string userId)
         {
-
+            // TODO: Implement me
         }
 
         void IBubbleEventsListener.OnBubbleLeft(string userId)
         {
-
+            // TODO: Implement me
         }
 
         #endregion
