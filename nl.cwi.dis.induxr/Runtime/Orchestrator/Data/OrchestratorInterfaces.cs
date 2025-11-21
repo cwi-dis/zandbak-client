@@ -19,6 +19,15 @@ namespace Orchestrator.Data
         void OnBroadcastReceived(BroadcastData broadcastData);
     }
 
+    public interface IBubbleEventsListener
+    {
+        void OnBubbleJoinRequested(string bubbleId);
+        void OnBubbleJoinRequestApproved(string bubbleId);
+        void OnBubbleInvited(string bubbleId);
+        void OnBubbleLeft(string userId);
+        void OnBubbleJoined(string userId);
+    }
+
     public interface IOrchestratorEventsListener
     {
         void OnSessionCreated(Session session);
