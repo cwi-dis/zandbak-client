@@ -683,10 +683,21 @@ namespace Orchestrator.Wrapping {
 
                 switch (data.EventId)
                 {
+                    case "BUBBLE_JOIN_REQUESTED":
+                        Debug.Log("Bubble join requested");
+                        break;
+                    case "BUBBLE_JOIN_REQUEST_APPROVED":
+                        Debug.Log("Bubble join request approved");
+                        break;
                     case "BUBBLE_JOIN_INVITED":
                         Debug.Log("Bubble join invited");
                         break;
-
+                    case "USER_JOINED_BUBBLE":
+                        Debug.Log("User joined bubble");
+                        break;
+                    case "USER_LEFT_BUBBLE":
+                        Debug.Log("User left bubble");
+                        break;
                 }
             }
         }
