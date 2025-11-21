@@ -22,7 +22,7 @@ namespace Orchestrator.Data
     public interface IBubbleEventsListener
     {
         void OnBubbleJoinRequested(string bubbleId);
-        void OnBubbleJoinRequestApproved(string bubbleId);
+        void OnBubbleJoinRequestApproved(string bubbleId, bool approved);
         void OnBubbleInvited(string bubbleId);
         void OnBubbleLeft(string userId);
         void OnBubbleJoined(string userId);

@@ -23,13 +23,16 @@ namespace Orchestrator.Wrapping {
         // Listener for the user events emitted when a session is updated by the orchestrator
         private readonly IUserSessionEventsListener _userSessionEventListener;
 
+        // Listener for the events emitted when an event on a conversation bubble occurs
+        private readonly IBubbleEventsListener _bubbleEventListener;
+
         // Listener for the events emitted when an Orchestrator-wide event occurs
         private readonly IOrchestratorEventsListener _orchestratorEventListener;
 
         public Action<UserDataStreamPacket> OnDataStreamReceived;
         private string _myUserID = "";
 
-        public OrchestratorWrapper(string orchestratorSocketUrl, IOrchestratorResponsesListener responsesListener, IUserMessagesListener userMessagesListener, IUserSessionEventsListener userSessionEventsListener, IOrchestratorEventsListener orchestratorEventListener)
+        public OrchestratorWrapper(string orchestratorSocketUrl, IOrchestratorResponsesListener responsesListener, IUserMessagesListener userMessagesListener, IUserSessionEventsListener userSessionEventsListener, IOrchestratorEventsListener orchestratorEventListener, IBubbleEventsListener bubbleEventListener)
         {
             _instance ??= this;
 
@@ -37,6 +40,7 @@ namespace Orchestrator.Wrapping {
             _userMessagesListener = userMessagesListener;
             _userSessionEventListener = userSessionEventsListener;
             _orchestratorEventListener = orchestratorEventListener;
+            _bubbleEventListener = bubbleEventListener;
 
             _socket = new SocketIOUnity(new Uri(orchestratorSocketUrl), new SocketIOOptions {
                 Transport = TransportProtocol.WebSocket,

@@ -15,7 +15,7 @@ using UnityEditor.Search;
 
 namespace Orchestrator.Wrapping
 {
-    public class OrchestratorController : MonoBehaviour, IOrchestratorResponsesListener, IUserMessagesListener, IUserSessionEventsListener, IOrchestratorEventsListener
+    public class OrchestratorController : MonoBehaviour, IOrchestratorResponsesListener, IUserMessagesListener, IUserSessionEventsListener, IOrchestratorEventsListener, IBubbleEventsListener
     {
         [Tooltip("Enable trace logging output")]
         [SerializeField] private bool enableLogging = true;
@@ -285,7 +285,7 @@ namespace Orchestrator.Wrapping
             Log($"OrchestratorController: connect to {url}");
 
             SocketUrl = new Uri(url);
-            _orchestratorWrapper = new OrchestratorWrapper(url, this, this, this, this);
+            _orchestratorWrapper = new OrchestratorWrapper(url, this, this, this, this, this);
             _orchestratorWrapper.Connect();
         }
 
@@ -955,6 +955,31 @@ namespace Orchestrator.Wrapping
         void IOrchestratorEventsListener.OnSessionDeleted(Session session)
         {
             OnSessionDeletedEvent?.Invoke(session);
+        }
+
+        void IBubbleEventsListener.OnBubbleInvited(string bubbleId)
+        {
+
+        }
+
+        void IBubbleEventsListener.OnBubbleJoinRequested(string bubbleId)
+        {
+
+        }
+
+        void IBubbleEventsListener.OnBubbleJoinRequestApproved(string bubbleId, bool approved)
+        {
+
+        }
+
+        void IBubbleEventsListener.OnBubbleJoined(string userId)
+        {
+
+        }
+
+        void IBubbleEventsListener.OnBubbleLeft(string userId)
+        {
+
         }
 
         #endregion
