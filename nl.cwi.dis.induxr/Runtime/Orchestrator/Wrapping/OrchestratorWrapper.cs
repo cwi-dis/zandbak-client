@@ -678,7 +678,7 @@ namespace Orchestrator.Wrapping {
         {
             lock (this)
             {
-                var data = response.GetValue<OrchestratorUpdate<SessionUpdateEmptyData>>();
+                var data = response.GetValue<OrchestratorUpdate<EmptyUpdate>>();
 
                 switch (data.EventId)
                 {
@@ -702,7 +702,7 @@ namespace Orchestrator.Wrapping {
 
         private void OnSessionUpdated(SocketIOResponse response) {
             lock (this) {
-                var data = response.GetValue<SessionUpdate<SessionUpdateEmptyData>>();
+                var data = response.GetValue<SessionUpdate<EmptyUpdate>>();
 
                 switch (data.EventId) {
                     case "USER_JOINED_SESSION":

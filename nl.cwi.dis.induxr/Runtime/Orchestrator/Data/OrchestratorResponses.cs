@@ -83,7 +83,7 @@ namespace Orchestrator.Data {
         [JsonProperty("status")] public string Status;
     }
 
-    public class SessionUpdateEmptyData
+    public class EmptyUpdate
     {
     }
 
