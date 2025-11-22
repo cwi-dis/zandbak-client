@@ -33,6 +33,7 @@ namespace Orchestrator.App
         public bool IsSharing => CurrentPresentation.IsSharing;
 
         public List<Bubble> Bubbles { get; private set; }
+        public Bubble CurrentBubble { get; private set; }
 
         public List<ChatMessage> Chat => _sessionData.Chat.ToList();
         public Dictionary<string, List<ChatMessage>> PrivateMessages = new();
@@ -543,6 +544,7 @@ namespace Orchestrator.App
             {
                 var bubble = new Bubble(_orchestrator, body);
                 Bubbles.Add(bubble);
+                CurrentBubble = bubble;
 
                 tcs.SetResult(bubble);
             });
@@ -606,6 +608,7 @@ namespace Orchestrator.App
             {
                 if (status.Error == 0)
                 {
+                    CurrentBubble = bubble;
                     tcs.SetResult(true);
                 }
                 else
