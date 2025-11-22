@@ -236,7 +236,7 @@ namespace Orchestrator.Wrapping
         /// <summary>
         /// Invoked when the current user is invited to a bubble
         /// </summary>
-        public event Action<Bubble> OnBubbleInvited;
+        public event Action<string> OnBubbleInvited;
 
         #endregion
 
@@ -964,15 +964,7 @@ namespace Orchestrator.Wrapping
 
         void IUserSessionEventsListener.OnBubbleInvited(string bubbleId)
         {
-            Wrapper.ListBubbles((_, bubbles) =>
-            {
-                var bubble = bubbles.Find((b) => b.Id == bubbleId);
-
-                if (bubble != null)
-                {
-                    OnBubbleInvited?.Invoke(bubble);
-                }
-            });
+            OnBubbleInvited?.Invoke(bubbleId);
         }
 
         void IUserSessionEventsListener.OnBubbleJoinRequested(string bubbleId)

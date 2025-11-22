@@ -171,6 +171,14 @@ namespace Orchestrator.App
         /// </remarks>
         public event Action<BroadcastData> OnBroadcastDataReceived;
 
+        /// <summary>
+        /// Occurs when a new bubble invitation is received.
+        /// </summary>
+        /// <remarks>
+        /// This event is triggered whenever the current user is invited to a bubble within the session.
+        /// </remarks>
+        public event Action<Bubble> OnBubbleInvited;
+
         public Session(Orchestrator orchestrator, Data.Session sessionData)
         {
             _sessionData = sessionData;
@@ -199,6 +207,8 @@ namespace Orchestrator.App
             OrchestratorController.Instance.OnUserStatusChangedEvent += UserStatusChanged;
 
             OrchestratorController.Instance.OnBroadcastReceivedEvent += BroadcastReceived;
+
+            OrchestratorController.Instance.OnBubbleInvited += BubbleInvited;
         }
 
         /// <summary>
@@ -701,6 +711,17 @@ namespace Orchestrator.App
         private void BroadcastReceived(BroadcastData data)
         {
             OnBroadcastDataReceived?.Invoke(data);
+        }
+
+        private async void BubbleInvited(string bubbleId)
+        {
+            await ListBubbles();
+            var invitedBubble = Bubbles.Find((b) => b.Id == bubbleId);
+
+            if (invitedBubble != null)
+            {
+                OnBubbleInvited?.Invoke(invitedBubble);
+            }
         }
 
         #endregion
