@@ -593,6 +593,31 @@ namespace Orchestrator.App
         }
 
         /// <summary>
+        /// Joins the specified bubble in response to an invitation from another user. If the current user has not been
+        /// invited to the specified bubble, this method will raise an exception.
+        /// </summary>
+        /// <param name="bubble">The bubble to join, representing the virtual space or group.</param>
+        /// <returns>A task that represents the asynchronous operation. The task result is a boolean indicating whether the join operation was successful.</returns>
+        public Task<bool> JoinBubble(Bubble bubble)
+        {
+            var tcs = new TaskCompletionSource<bool>();
+
+            OrchestratorController.Instance.Wrapper.JoinBubble(bubble.Id, (status) =>
+            {
+                if (status.Error == 0)
+                {
+                    tcs.SetResult(true);
+                }
+                else
+                {
+                    tcs.SetException(new Exception(status.Message));
+                }
+            });
+
+            return tcs.Task;
+        }
+
+        /// <summary>
         /// Broadcasts an object containing transform data to all users in the current session.
         /// </summary>
         /// <param name="data">The transform data object to be broadcast to the session.</param>
