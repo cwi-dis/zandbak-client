@@ -569,6 +569,30 @@ namespace Orchestrator.App
         }
 
         /// <summary>
+        /// Sends an invitation to the specified user to join a the current user's bubble in the session.
+        /// </summary>
+        /// <param name="user">The user to be invited to the bubble.</param>
+        /// <returns>A task that represents the asynchronous operation. The task result is a boolean indicating whether the invitation was successfully sent.</returns>
+        public Task<bool> InviteToBubble(User user)
+        {
+            var tcs = new TaskCompletionSource<bool>();
+
+            OrchestratorController.Instance.Wrapper.InviteToBubble(user.Id, (status) =>
+            {
+                if (status.Error == 0)
+                {
+                    tcs.SetResult(true);
+                }
+                else
+                {
+                    tcs.SetException(new Exception(status.Message));
+                }
+            });
+
+            return tcs.Task;
+        }
+
+        /// <summary>
         /// Broadcasts an object containing transform data to all users in the current session.
         /// </summary>
         /// <param name="data">The transform data object to be broadcast to the session.</param>
