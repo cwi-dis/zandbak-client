@@ -21,9 +21,6 @@ namespace Orchestrator.Data
 
     public interface IBubbleEventsListener
     {
-        void OnBubbleJoinRequested(string bubbleId);
-        void OnBubbleJoinRequestApproved(string bubbleId, bool approved);
-        void OnBubbleInvited(string bubbleId);
         void OnBubbleLeft(string userId);
         void OnBubbleJoined(string userId);
     }
@@ -49,6 +46,9 @@ namespace Orchestrator.Data
         void OnPresentationIsSharingChanged(Presentation presentation);
         void OnSlideChanged(Presentation presentation);
         void OnSessionIsSpeakingChanged(string userId, bool isSpeaking);
+        void OnBubbleJoinRequested(string bubbleId);
+        void OnBubbleJoinRequestApproved(string bubbleId, bool approved);
+        void OnBubbleInvited(string bubbleId);
     }
 
     // Interface for clients that will use the orchestrator wrapper

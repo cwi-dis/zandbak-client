@@ -962,7 +962,7 @@ namespace Orchestrator.Wrapping
             OnSessionDeletedEvent?.Invoke(session);
         }
 
-        void IBubbleEventsListener.OnBubbleInvited(string bubbleId)
+        void IUserSessionEventsListener.OnBubbleInvited(string bubbleId)
         {
             Wrapper.ListBubbles((_, bubbles) =>
             {
@@ -975,12 +975,12 @@ namespace Orchestrator.Wrapping
             });
         }
 
-        void IBubbleEventsListener.OnBubbleJoinRequested(string bubbleId)
+        void IUserSessionEventsListener.OnBubbleJoinRequested(string bubbleId)
         {
             // TODO: Implement me
         }
 
-        void IBubbleEventsListener.OnBubbleJoinRequestApproved(string bubbleId, bool approved)
+        void IUserSessionEventsListener.OnBubbleJoinRequestApproved(string bubbleId, bool approved)
         {
             // TODO: Implement me
         }
