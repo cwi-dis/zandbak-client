@@ -757,7 +757,7 @@ namespace Orchestrator.Wrapping {
                         Debug.Log("Bubble join request approved");
                         break;
                     case "BUBBLE_JOIN_INVITED":
-                        Debug.Log("Bubble join invited");
+                        OnSessionUpdatedWithBubbleId(response);
                         break;
                 }
             }
@@ -768,6 +768,16 @@ namespace Orchestrator.Wrapping {
             UnityThread.executeInUpdate(() =>
             {
                 _userSessionEventListener?.OnSessionClosed();
+            });
+        }
+
+        private void OnSessionUpdatedWithBubbleId(SocketIOResponse response)
+        {
+            var data = response.GetValue<SessionUpdate<SessionUpdateBubbleId>>();
+
+            UnityThread.executeInUpdate(() =>
+            {
+                _userSessionEventListener?.OnBubbleInvited(data.EventData.BubbleId);
             });
         }
 
