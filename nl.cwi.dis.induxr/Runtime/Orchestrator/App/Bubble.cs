@@ -24,7 +24,20 @@ namespace Orchestrator.App
 
         public Session Session => _orchestrator.CurrentSession;
 
+        /// <summary>
+        /// Event triggered when a user joins the bubble.
+        /// </summary>
+        /// <remarks>
+        /// This Action is invoked with the user who joined the bubble as a parameter.
+        /// </remarks>
         public Action<User> OnUserJoined;
+
+        /// <summary>
+        /// Event triggered when a user leaves the bubble.
+        /// </summary>
+        /// <remarks>
+        /// This Action is invoked with the user who left the bubble as a parameter.
+        /// </remarks>
         public Action<User> OnUserLeft;
 
         public Bubble(Orchestrator orchestrator, Data.Bubble bubbleData)
