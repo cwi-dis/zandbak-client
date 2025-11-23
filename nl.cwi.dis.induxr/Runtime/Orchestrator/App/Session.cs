@@ -571,6 +571,31 @@ namespace Orchestrator.App
         }
 
         /// <summary>
+        /// Sends a request to join the specified bubble in the session to the owner of the bubble. If an error occurs,
+        /// an exception is raised.
+        /// </summary>
+        /// <param name="bubble">The bubble to join</param>
+        /// <returns>A task representing the asynchronous operation. The task result is a boolean value indicating the success of the join request.</returns>
+        public Task<bool> RequestBubbleJoin(Bubble bubble)
+        {
+            var tcs = new TaskCompletionSource<bool>();
+
+            OrchestratorController.Instance.Wrapper.RequestBubbleJoin(bubble.Id, (status) =>
+            {
+                if (status.Error == 0)
+                {
+                    tcs.SetResult(true);
+                }
+                else
+                {
+                    tcs.SetException(new Exception(status.Message));
+                }
+            });
+
+            return tcs.Task;
+        }
+
+        /// <summary>
         /// Retrieves a bubble from the session's bubble list based on the specified bubble ID. Returns the bubble
         /// object if found, or raised an exception otherwise.
         /// </summary>
