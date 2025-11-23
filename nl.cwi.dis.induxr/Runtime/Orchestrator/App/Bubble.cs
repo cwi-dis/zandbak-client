@@ -40,6 +40,14 @@ namespace Orchestrator.App
         /// </remarks>
         public Action<User> OnUserLeft;
 
+        /// <summary>
+        /// Event triggered when a user requests to join the bubble.
+        /// </summary>
+        /// <remarks>
+        /// This Action is invoked with the user who requested to join the bubble as a parameter.
+        /// </remarks>
+        public Action<User> OnJoinRequested;
+
         public Bubble(Orchestrator orchestrator, Data.Bubble bubbleData)
         {
             _orchestrator = orchestrator;
@@ -47,6 +55,7 @@ namespace Orchestrator.App
 
             OrchestratorController.Instance.OnBubbleJoined += UserJoined;
             OrchestratorController.Instance.OnBubbleLeft += UserLeft;
+            OrchestratorController.Instance.OnBubbleJoinRequested += JoinRequested;
         }
 
         /// <summary>
@@ -111,6 +120,11 @@ namespace Orchestrator.App
         {
             _bubbleData.Users.Remove(user);
             OnUserLeft?.Invoke(Session.FindUserById(user.Id));
+        }
+
+        private void JoinRequested(Data.User user)
+        {
+            OnJoinRequested?.Invoke(Session.FindUserById(user.Id));
         }
     }
 }
