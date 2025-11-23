@@ -18,6 +18,10 @@ namespace Orchestrator.App
 
         public Session Session => _orchestrator.CurrentSession;
         public Bubble Bubble => _orchestrator?.CurrentSession?.CurrentBubble;
+
+        public bool IsInSession => Session != null;
+        public bool IsInBubble => Bubble != null;
+
         public string Id => UserData.Id;
         public string Name => UserData.Username;
         /// <summary>
