@@ -823,8 +823,6 @@ namespace Orchestrator.Wrapping {
                         OnSessionUpdatedWithUser(response);
                         break;
                     case "BUBBLE_JOIN_REQUEST_APPROVED":
-                        Debug.Log("Bubble join request approved");
-                        break;
                     case "BUBBLE_JOIN_INVITED":
                         OnSessionUpdatedWithBubbleId(response);
                         break;
@@ -846,7 +844,14 @@ namespace Orchestrator.Wrapping {
 
             UnityThread.executeInUpdate(() =>
             {
-                _userSessionEventListener?.OnBubbleInvited(data.EventData.BubbleId);
+                if (data.EventData.Approved != null)
+                {
+                    _userSessionEventListener?.OnBubbleJoinRequestApproved(data.EventData.BubbleId, (bool)data.EventData.Approved);
+                }
+                else
+                {
+                    _userSessionEventListener?.OnBubbleInvited(data.EventData.BubbleId);
+                }
             });
         }
 
