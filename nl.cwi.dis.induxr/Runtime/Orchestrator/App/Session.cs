@@ -180,6 +180,14 @@ namespace Orchestrator.App
         /// </remarks>
         public event Action<Bubble> OnBubbleInvited;
 
+        /// <summary>
+        /// Occurs when a bubble join request is either approved or denied.
+        /// </summary>
+        /// <remarks>
+        /// This event is triggered in response to a bubble join request by the current user
+        /// </remarks>
+        public event Action<Bubble, bool> OnBubbleJoinRequestApproved;
+
         public Session(Orchestrator orchestrator, Data.Session sessionData)
         {
             _sessionData = sessionData;
@@ -210,6 +218,7 @@ namespace Orchestrator.App
             OrchestratorController.Instance.OnBroadcastReceivedEvent += BroadcastReceived;
 
             OrchestratorController.Instance.OnBubbleInvited += BubbleInvited;
+            OrchestratorController.Instance.OnBubbleJoinRequestApproved += BubbleJoinRequestApproved;
         }
 
         /// <summary>
@@ -802,6 +811,16 @@ namespace Orchestrator.App
             if (invitedBubble != null)
             {
                 OnBubbleInvited?.Invoke(invitedBubble);
+            }
+        }
+
+        private async void BubbleJoinRequestApproved(string bubbleId, bool approved)
+        {
+            var invitedBubble = Bubbles.Find((b) => b.Id == bubbleId);
+
+            if (invitedBubble != null)
+            {
+                OnBubbleJoinRequestApproved?.Invoke(invitedBubble, approved);
             }
         }
 

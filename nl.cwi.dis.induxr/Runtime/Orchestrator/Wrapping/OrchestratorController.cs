@@ -253,6 +253,11 @@ namespace Orchestrator.Wrapping
         /// </summary>
         public event Action<User> OnBubbleJoinRequested;
 
+        /// <summary>
+        /// Invoked when a bubble join request is approved or denied by the owner of the bubble
+        /// </summary>
+        public event Action<string, bool> OnBubbleJoinRequestApproved;
+
         #endregion
 
         #region public properties
@@ -985,7 +990,7 @@ namespace Orchestrator.Wrapping
 
         void IUserSessionEventsListener.OnBubbleJoinRequestApproved(string bubbleId, bool approved)
         {
-            // TODO: Implement me
+            OnBubbleJoinRequestApproved?.Invoke(bubbleId, approved);
         }
 
         void IBubbleEventsListener.OnBubbleJoinRequested(User user)
