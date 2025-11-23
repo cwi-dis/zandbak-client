@@ -536,7 +536,7 @@ namespace Orchestrator.App
         /// </summary>
         /// <param name="name">The name of the bubble to be created.</param>
         /// <returns>A task representing the asynchronous operation. The task result contains the newly created bubble.</returns>
-        public Task<Bubble> CreateBubble(string name)
+        public Task<Bubble> CreateBubble(string name = null)
         {
             var tcs = new TaskCompletionSource<Bubble>();
 
