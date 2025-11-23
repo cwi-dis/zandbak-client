@@ -253,6 +253,18 @@ public class SessionController : MonoBehaviour
             return;
         }
 
+        bubble.OnUserJoined += (user) =>
+        {
+            Debug.Log($"User {user.Name} joined bubble");
+            notificationField.text += $"<i>{user.Name} joined your bubble!</i>\n";
+        };
+
+        bubble.OnUserLeft += (user) =>
+        {
+            Debug.Log($"User {user.Name} left bubble");
+            notificationField.text += $"<i>{user.Name} left your bubble!</i>\n";
+        };
+
         // Invite the first user in the session to the new bubble
         await bubble.InviteUser(otherUsers[0]);
     }
