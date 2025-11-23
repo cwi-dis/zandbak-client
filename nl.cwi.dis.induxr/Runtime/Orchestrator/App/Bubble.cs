@@ -24,10 +24,16 @@ namespace Orchestrator.App
 
         public Session Session => _orchestrator.CurrentSession;
 
+        public Action<User> OnUserJoined;
+        public Action<User> OnUserLeft;
+
         public Bubble(Orchestrator orchestrator, Data.Bubble bubbleData)
         {
             _orchestrator = orchestrator;
             _bubbleData = bubbleData;
+
+            OrchestratorController.Instance.OnBubbleJoined += UserJoined;
+            OrchestratorController.Instance.OnBubbleLeft += UserLeft;
         }
 
         /// <summary>
@@ -80,6 +86,18 @@ namespace Orchestrator.App
             });
 
             return tcs.Task;
+        }
+
+        private void UserJoined(Data.User user)
+        {
+            _bubbleData.Users.Add(user);
+            OnUserJoined?.Invoke(Session.FindUserById(user.Id));
+        }
+
+        private void UserLeft(Data.User user)
+        {
+            _bubbleData.Users.Remove(user);
+            OnUserLeft?.Invoke(Session.FindUserById(user.Id));
         }
     }
 }
