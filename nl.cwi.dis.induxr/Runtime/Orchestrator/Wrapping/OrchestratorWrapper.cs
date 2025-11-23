@@ -649,6 +649,21 @@ namespace Orchestrator.Wrapping {
             }
         }
 
+        public void RequestBubbleJoin(string bubbleId, Action<ResponseStatus> callback)
+        {
+            lock (this)
+            {
+                _socket.Emit("RequestJoinBubble", (response) =>
+                {
+                    var data = response.GetValue<OrchestratorResponse<EmptyResponse>>();
+                    UnityThread.executeInUpdate(() =>
+                    {
+                        callback(data.ResponseStatus);
+                    });
+                }, new { bubbleId });
+            }
+        }
+
         #endregion
 
         #region broadcasts
