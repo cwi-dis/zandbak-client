@@ -238,6 +238,16 @@ namespace Orchestrator.Wrapping
         /// </summary>
         public event Action<string> OnBubbleInvited;
 
+        /// <summary>
+        /// Invoked when a user joins the current user's bubble
+        /// </summary>
+        public event Action<User> OnBubbleJoined;
+
+        /// <summary>
+        /// Invoked when a user leaves the current user's bubble
+        /// </summary>
+        public event Action<User> OnBubbleLeft;
+
         #endregion
 
         #region public properties
@@ -977,14 +987,14 @@ namespace Orchestrator.Wrapping
             // TODO: Implement me
         }
 
-        void IBubbleEventsListener.OnBubbleJoined(string userId)
+        void IBubbleEventsListener.OnBubbleJoined(User user)
         {
-            // TODO: Implement me
+            OnBubbleJoined?.Invoke(user);
         }
 
-        void IBubbleEventsListener.OnBubbleLeft(string userId)
+        void IBubbleEventsListener.OnBubbleLeft(User user)
         {
-            // TODO: Implement me
+            OnBubbleLeft?.Invoke(user);
         }
 
         #endregion

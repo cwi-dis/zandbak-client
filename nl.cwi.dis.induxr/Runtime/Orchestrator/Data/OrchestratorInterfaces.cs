@@ -21,8 +21,8 @@ namespace Orchestrator.Data
 
     public interface IBubbleEventsListener
     {
-        void OnBubbleLeft(string userId);
-        void OnBubbleJoined(string userId);
+        void OnBubbleLeft(User user);
+        void OnBubbleJoined(User user);
     }
 
     public interface IOrchestratorEventsListener

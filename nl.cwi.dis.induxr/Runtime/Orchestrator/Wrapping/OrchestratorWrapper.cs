@@ -713,15 +713,23 @@ namespace Orchestrator.Wrapping {
         {
             lock (this)
             {
-                var data = response.GetValue<BubbleUpdate<EmptyUpdate>>();
+                var data = response.GetValue<BubbleUpdate<User>>();
 
                 switch (data.EventId)
                 {
                     case "USER_JOINED_BUBBLE":
-                        Debug.Log("User joined bubble");
+                        UnityThread.executeInUpdate(() =>
+                        {
+                            Debug.Log("User joined bubble");
+                            _bubbleEventListener.OnBubbleJoined(data.EventData);
+                        });
                         break;
                     case "USER_LEFT_BUBBLE":
-                        Debug.Log("User left bubble");
+                        UnityThread.executeInUpdate(() =>
+                        {
+                            Debug.Log("User left bubble");
+                            _bubbleEventListener.OnBubbleLeft(data.EventData);
+                        });
                         break;
                 }
             }
