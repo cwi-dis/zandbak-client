@@ -17,6 +17,7 @@ namespace Orchestrator.App
         public Data.User UserData { set; get; }
 
         public Session Session => _orchestrator.CurrentSession;
+        public Bubble Bubble => _orchestrator?.CurrentSession?.CurrentBubble;
         public string Id => UserData.Id;
         public string Name => UserData.Username;
         /// <summary>
