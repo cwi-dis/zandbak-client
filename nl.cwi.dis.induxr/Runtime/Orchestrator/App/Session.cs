@@ -816,12 +816,16 @@ namespace Orchestrator.App
 
         private async void BubbleJoinRequestApproved(string bubbleId, bool approved)
         {
-            var invitedBubble = Bubbles.Find((b) => b.Id == bubbleId);
+            var requestedBubble = Bubbles.Find((b) => b.Id == bubbleId);
+            if (requestedBubble == null) return;
 
-            if (invitedBubble != null)
+            if (approved)
             {
-                OnBubbleJoinRequestApproved?.Invoke(invitedBubble, approved);
+                var bubble = await GetBubble(bubbleId);
+                CurrentBubble = bubble;
             }
+
+            OnBubbleJoinRequestApproved?.Invoke(requestedBubble, approved);
         }
 
         #endregion
