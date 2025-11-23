@@ -8,6 +8,7 @@ using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 using User = Orchestrator.App.User;
 using Session = Orchestrator.App.Session;
+using Bubble = Orchestrator.App.Bubble;
 
 public class SessionController : MonoBehaviour
 {
@@ -40,6 +41,9 @@ public class SessionController : MonoBehaviour
     public Button switchButton;
     public TMP_InputField sessionNameField;
 
+    [Header("Bubbles")]
+    public Button createBubbleButton;
+
     private readonly Dictionary<string, GameObject> _activeUsers = new();
     private Session _session;
     private bool _isHandRaised = false;
@@ -62,11 +66,13 @@ public class SessionController : MonoBehaviour
         _session.OnPresentationIsSharingChanged += OnPresentationShared;
         _session.OnClosed += OnSessionClosed;
         _session.OnUserStatusChanged += OnUserStatusChanged;
+        _session.OnBubbleInvited += OnBubbleInvited;
 
         // Adding listeners for UI elements
         leaveButton.onClick.AddListener(LeaveSession);
         switchButton.onClick.AddListener(SwitchSession);
         raiseHandButton.onClick.AddListener(RaiseOrLowerHand);
+        createBubbleButton.onClick.AddListener(CreateBubble);
         chatSendButton.onClick.AddListener(SendChatMessage);
         chatInputField.onValueChanged.AddListener(delegate { chatSendButton.interactable = chatInputField.text.Length > 0; });
 
@@ -233,6 +239,24 @@ public class SessionController : MonoBehaviour
         await _session.GetRaisedHands();
     }
 
+    private async void CreateBubble()
+    {
+        // Create a new bubble
+        var bubble = await _session.CreateBubble();
+        // Get other users in the session
+        var otherUsers = _session.Users.FindAll(u => u.Id != _session.Self.Id);
+
+        // If there are no other users in the session, do nothing
+        if (otherUsers.Count == 0)
+        {
+            Debug.Log("No other users in session, new bubble will only contain self.");
+            return;
+        }
+
+        // Invite the first user in the session to the new bubble
+        await bubble.InviteUser(otherUsers[0]);
+    }
+
     private void OnUserClearedRaisedHand(User user)
     {
         // Some user raised their hand, add notification and refresh the list of raised hands
@@ -387,5 +411,13 @@ public class SessionController : MonoBehaviour
         // Post notification if a user in the session changes their status
         Debug.Log("User " + user.Name + " changed their status to: " + user.Status);
         notificationField.text += $"<i>{user.Name} changed their status to {user.Status}!</i>\n";
+    }
+
+    private void OnBubbleInvited(Bubble bubble)
+    {
+        Debug.Log("You have been invited to join the bubble: " + bubble.Name);
+        notificationField.text += $"<i>You have been invited to join the bubble '{bubble.Name}' by {bubble.Owner.Name}</i>\n";
+
+        _session.JoinBubble(bubble);
     }
 }
