@@ -805,6 +805,7 @@ namespace Orchestrator.Wrapping {
                         break;
                     case "BUBBLE_JOIN_REQUESTED":
                         Debug.Log("Bubble join requested");
+                        OnSessionUpdatedWithUser(response);
                         break;
                     case "BUBBLE_JOIN_REQUEST_APPROVED":
                         Debug.Log("Bubble join request approved");
@@ -831,6 +832,16 @@ namespace Orchestrator.Wrapping {
             UnityThread.executeInUpdate(() =>
             {
                 _userSessionEventListener?.OnBubbleInvited(data.EventData.BubbleId);
+            });
+        }
+
+        private void OnSessionUpdatedWithUser(SocketIOResponse response)
+        {
+            var data = response.GetValue<SessionUpdate<User>>();
+
+            UnityThread.executeInUpdate(() =>
+            {
+                _bubbleEventListener?.OnBubbleJoinRequested(data.EventData);
             });
         }
 

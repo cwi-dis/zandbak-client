@@ -23,6 +23,7 @@ namespace Orchestrator.Data
     {
         void OnBubbleLeft(User user);
         void OnBubbleJoined(User user);
+        void OnBubbleJoinRequested(User user);
     }
 
     public interface IOrchestratorEventsListener
@@ -46,7 +47,6 @@ namespace Orchestrator.Data
         void OnPresentationIsSharingChanged(Presentation presentation);
         void OnSlideChanged(Presentation presentation);
         void OnSessionIsSpeakingChanged(string userId, bool isSpeaking);
-        void OnBubbleJoinRequested(string bubbleId);
         void OnBubbleJoinRequestApproved(string bubbleId, bool approved);
         void OnBubbleInvited(string bubbleId);
     }

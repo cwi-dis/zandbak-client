@@ -248,6 +248,11 @@ namespace Orchestrator.Wrapping
         /// </summary>
         public event Action<User> OnBubbleLeft;
 
+        /// <summary>
+        /// Invoked when a user requests to join the current user's bubble
+        /// </summary>
+        public event Action<User> OnBubbleJoinRequested;
+
         #endregion
 
         #region public properties
@@ -977,14 +982,15 @@ namespace Orchestrator.Wrapping
             OnBubbleInvited?.Invoke(bubbleId);
         }
 
-        void IUserSessionEventsListener.OnBubbleJoinRequested(string bubbleId)
-        {
-            // TODO: Implement me
-        }
 
         void IUserSessionEventsListener.OnBubbleJoinRequestApproved(string bubbleId, bool approved)
         {
             // TODO: Implement me
+        }
+
+        void IBubbleEventsListener.OnBubbleJoinRequested(User user)
+        {
+            OnBubbleJoinRequested?.Invoke(user);
         }
 
         void IBubbleEventsListener.OnBubbleJoined(User user)
