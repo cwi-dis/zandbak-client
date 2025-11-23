@@ -19,6 +19,12 @@ namespace Orchestrator.Data
         void OnBroadcastReceived(BroadcastData broadcastData);
     }
 
+    public interface IBubbleEventsListener
+    {
+        void OnBubbleLeft(User user);
+        void OnBubbleJoined(User user);
+    }
+
     public interface IOrchestratorEventsListener
     {
         void OnSessionCreated(Session session);
@@ -40,6 +46,9 @@ namespace Orchestrator.Data
         void OnPresentationIsSharingChanged(Presentation presentation);
         void OnSlideChanged(Presentation presentation);
         void OnSessionIsSpeakingChanged(string userId, bool isSpeaking);
+        void OnBubbleJoinRequested(string bubbleId);
+        void OnBubbleJoinRequestApproved(string bubbleId, bool approved);
+        void OnBubbleInvited(string bubbleId);
     }
 
     // Interface for clients that will use the orchestrator wrapper

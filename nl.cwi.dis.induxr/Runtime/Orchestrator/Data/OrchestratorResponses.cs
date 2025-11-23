@@ -62,6 +62,11 @@ namespace Orchestrator.Data {
         [JsonProperty("status")] public string Status;
     }
 
+    public class SessionUpdateBubbleId {
+        [JsonProperty("bubbleId")] public string BubbleId;
+        [JsonProperty("approve")] public bool? Approved;
+    }
+
     public class SessionUpdatePresentationData {
         [JsonProperty("currentPresentation")] public Presentation Presentation;
     }
@@ -83,11 +88,17 @@ namespace Orchestrator.Data {
         [JsonProperty("status")] public string Status;
     }
 
-    public class SessionUpdateEmptyData
+    public class EmptyUpdate
     {
     }
 
     public class SessionUpdate<T> {
+        [JsonProperty("eventId")] public string EventId;
+        [JsonProperty("eventData")] public T EventData;
+    }
+
+    public class BubbleUpdate<T>
+    {
         [JsonProperty("eventId")] public string EventId;
         [JsonProperty("eventData")] public T EventData;
     }

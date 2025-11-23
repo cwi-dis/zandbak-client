@@ -23,13 +23,16 @@ namespace Orchestrator.Wrapping {
         // Listener for the user events emitted when a session is updated by the orchestrator
         private readonly IUserSessionEventsListener _userSessionEventListener;
 
+        // Listener for the events emitted when an event on a conversation bubble occurs
+        private readonly IBubbleEventsListener _bubbleEventListener;
+
         // Listener for the events emitted when an Orchestrator-wide event occurs
         private readonly IOrchestratorEventsListener _orchestratorEventListener;
 
         public Action<UserDataStreamPacket> OnDataStreamReceived;
         private string _myUserID = "";
 
-        public OrchestratorWrapper(string orchestratorSocketUrl, IOrchestratorResponsesListener responsesListener, IUserMessagesListener userMessagesListener, IUserSessionEventsListener userSessionEventsListener, IOrchestratorEventsListener orchestratorEventListener)
+        public OrchestratorWrapper(string orchestratorSocketUrl, IOrchestratorResponsesListener responsesListener, IUserMessagesListener userMessagesListener, IUserSessionEventsListener userSessionEventsListener, IOrchestratorEventsListener orchestratorEventListener, IBubbleEventsListener bubbleEventListener)
         {
             _instance ??= this;
 
@@ -37,6 +40,7 @@ namespace Orchestrator.Wrapping {
             _userMessagesListener = userMessagesListener;
             _userSessionEventListener = userSessionEventsListener;
             _orchestratorEventListener = orchestratorEventListener;
+            _bubbleEventListener = bubbleEventListener;
 
             _socket = new SocketIOUnity(new Uri(orchestratorSocketUrl), new SocketIOOptions {
                 Transport = TransportProtocol.WebSocket,
@@ -62,6 +66,7 @@ namespace Orchestrator.Wrapping {
             _socket.On("SessionUpdated", OnSessionUpdated);
             _socket.On("SessionClosed", OnSessionClosed);
             _socket.On("OrchestratorUpdated", OnOrchestratorUpdated);
+            _socket.On("BubbleUpdated", OnBubbleUpdated);
         }
 
         public void Connect()
@@ -584,6 +589,21 @@ namespace Orchestrator.Wrapping {
             }
         }
 
+        public void GetBubble(string bubbleId, Action<ResponseStatus, Bubble> callback)
+        {
+            lock (this)
+            {
+                _socket.Emit("GetBubble", (response) =>
+                {
+                    var data = response.GetValue<OrchestratorResponse<Bubble>>();
+                    UnityThread.executeInUpdate(() =>
+                    {
+                        callback(data.ResponseStatus, data.Body);
+                    });
+                }, new { bubbleId });
+            }
+        }
+
         public void LeaveBubble(string bubbleId, Action<ResponseStatus, Bubble> callback)
         {
             lock (this)
@@ -596,6 +616,36 @@ namespace Orchestrator.Wrapping {
                         callback(data.ResponseStatus, data.Body);
                     });
                 });
+            }
+        }
+
+        public void InviteToBubble(string userId, Action<ResponseStatus> callback)
+        {
+            lock (this)
+            {
+                _socket.Emit("SendBubbleInvitation", (response) =>
+                {
+                    var data = response.GetValue<OrchestratorResponse<EmptyResponse>>();
+                    UnityThread.executeInUpdate(() =>
+                    {
+                        callback(data.ResponseStatus);
+                    });
+                }, new { userId });
+            }
+        }
+
+        public void JoinBubble(string bubbleId, Action<ResponseStatus> callback)
+        {
+            lock (this)
+            {
+                _socket.Emit("JoinBubble", (response) =>
+                {
+                    var data = response.GetValue<OrchestratorResponse<EmptyResponse>>();
+                    UnityThread.executeInUpdate(() =>
+                    {
+                        callback(data.ResponseStatus);
+                    });
+                }, new { bubbleId });
             }
         }
 
@@ -659,11 +709,37 @@ namespace Orchestrator.Wrapping {
             }
         }
 
+        private void OnBubbleUpdated(SocketIOResponse response)
+        {
+            lock (this)
+            {
+                var data = response.GetValue<BubbleUpdate<User>>();
+
+                switch (data.EventId)
+                {
+                    case "USER_JOINED_BUBBLE":
+                        UnityThread.executeInUpdate(() =>
+                        {
+                            Debug.Log("User joined bubble");
+                            _bubbleEventListener.OnBubbleJoined(data.EventData);
+                        });
+                        break;
+                    case "USER_LEFT_BUBBLE":
+                        UnityThread.executeInUpdate(() =>
+                        {
+                            Debug.Log("User left bubble");
+                            _bubbleEventListener.OnBubbleLeft(data.EventData);
+                        });
+                        break;
+                }
+            }
+        }
+
         private void OnOrchestratorUpdated(SocketIOResponse response)
         {
             lock (this)
             {
-                var data = response.GetValue<OrchestratorUpdate<SessionUpdateEmptyData>>();
+                var data = response.GetValue<OrchestratorUpdate<EmptyUpdate>>();
 
                 switch (data.EventId)
                 {
@@ -687,7 +763,7 @@ namespace Orchestrator.Wrapping {
 
         private void OnSessionUpdated(SocketIOResponse response) {
             lock (this) {
-                var data = response.GetValue<SessionUpdate<SessionUpdateEmptyData>>();
+                var data = response.GetValue<SessionUpdate<EmptyUpdate>>();
 
                 switch (data.EventId) {
                     case "USER_JOINED_SESSION":
@@ -712,6 +788,15 @@ namespace Orchestrator.Wrapping {
                     case "USER_IS_SPEAKING":
                         OnSessionUpdatedWithIsSpeakingData(response);
                         break;
+                    case "BUBBLE_JOIN_REQUESTED":
+                        Debug.Log("Bubble join requested");
+                        break;
+                    case "BUBBLE_JOIN_REQUEST_APPROVED":
+                        Debug.Log("Bubble join request approved");
+                        break;
+                    case "BUBBLE_JOIN_INVITED":
+                        OnSessionUpdatedWithBubbleId(response);
+                        break;
                 }
             }
         }
@@ -721,6 +806,16 @@ namespace Orchestrator.Wrapping {
             UnityThread.executeInUpdate(() =>
             {
                 _userSessionEventListener?.OnSessionClosed();
+            });
+        }
+
+        private void OnSessionUpdatedWithBubbleId(SocketIOResponse response)
+        {
+            var data = response.GetValue<SessionUpdate<SessionUpdateBubbleId>>();
+
+            UnityThread.executeInUpdate(() =>
+            {
+                _userSessionEventListener?.OnBubbleInvited(data.EventData.BubbleId);
             });
         }
 

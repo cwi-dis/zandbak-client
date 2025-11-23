@@ -33,6 +33,7 @@ namespace Orchestrator.App
         public bool IsSharing => CurrentPresentation.IsSharing;
 
         public List<Bubble> Bubbles { get; private set; }
+        public Bubble CurrentBubble;
 
         public List<ChatMessage> Chat => _sessionData.Chat.ToList();
         public Dictionary<string, List<ChatMessage>> PrivateMessages = new();
@@ -171,6 +172,14 @@ namespace Orchestrator.App
         /// </remarks>
         public event Action<BroadcastData> OnBroadcastDataReceived;
 
+        /// <summary>
+        /// Occurs when a new bubble invitation is received.
+        /// </summary>
+        /// <remarks>
+        /// This event is triggered whenever the current user is invited to a bubble within the session.
+        /// </remarks>
+        public event Action<Bubble> OnBubbleInvited;
+
         public Session(Orchestrator orchestrator, Data.Session sessionData)
         {
             _sessionData = sessionData;
@@ -199,6 +208,8 @@ namespace Orchestrator.App
             OrchestratorController.Instance.OnUserStatusChangedEvent += UserStatusChanged;
 
             OrchestratorController.Instance.OnBroadcastReceivedEvent += BroadcastReceived;
+
+            OrchestratorController.Instance.OnBubbleInvited += BubbleInvited;
         }
 
         /// <summary>
@@ -525,7 +536,7 @@ namespace Orchestrator.App
         /// </summary>
         /// <param name="name">The name of the bubble to be created.</param>
         /// <returns>A task representing the asynchronous operation. The task result contains the newly created bubble.</returns>
-        public Task<Bubble> CreateBubble(string name)
+        public Task<Bubble> CreateBubble(string name = null)
         {
             var tcs = new TaskCompletionSource<Bubble>();
 
@@ -533,6 +544,7 @@ namespace Orchestrator.App
             {
                 var bubble = new Bubble(_orchestrator, body);
                 Bubbles.Add(bubble);
+                CurrentBubble = bubble;
 
                 tcs.SetResult(bubble);
             });
@@ -553,6 +565,84 @@ namespace Orchestrator.App
             {
                 Bubbles = body.Select(b => new Bubble(_orchestrator, b)).ToList();
                 tcs.SetResult(Bubbles);
+            });
+
+            return tcs.Task;
+        }
+
+        /// <summary>
+        /// Sends an invitation to the specified user to join the current user's bubble in the session.
+        /// </summary>
+        /// <param name="user">The user to be invited to the bubble.</param>
+        /// <returns>A task that represents the asynchronous operation. The task result is a boolean indicating whether the invitation was successfully sent.</returns>
+        public Task<bool> InviteToBubble(User user)
+        {
+            var tcs = new TaskCompletionSource<bool>();
+
+            OrchestratorController.Instance.Wrapper.InviteToBubble(user.Id, (status) =>
+            {
+                if (status.Error == 0)
+                {
+                    tcs.SetResult(true);
+                }
+                else
+                {
+                    tcs.SetException(new Exception(status.Message));
+                }
+            });
+
+            return tcs.Task;
+        }
+
+        /// <summary>
+        /// Retrieves a bubble from the session's bubble list based on the specified bubble ID. Returns the bubble
+        /// object if found, or raised an exception otherwise.
+        /// </summary>
+        /// <param name="bubbleId">The ID of the bubble to retrieve</param>
+        /// <returns>A bubble object corresponding to the given ID</returns>
+        public Task<Bubble> GetBubble(string bubbleId)
+        {
+            var tcs = new TaskCompletionSource<Bubble>();
+
+            OrchestratorController.Instance.Wrapper.GetBubble(bubbleId, (status, body) =>
+            {
+                if (status.Error == 0)
+                {
+                    Bubbles = Bubbles.Select(b => b.Id == bubbleId ? new Bubble(_orchestrator, body) : b).ToList();
+                    tcs.SetResult(Bubbles.Find(b => b.Id == bubbleId));
+                }
+                else
+                {
+                    tcs.SetException(new Exception(status.Message));
+                }
+            });
+
+            return tcs.Task;
+        }
+
+        /// <summary>
+        /// Joins the specified bubble in response to an invitation from another user. If the current user has not been
+        /// invited to the specified bubble, this method will raise an exception.
+        /// </summary>
+        /// <param name="bubble">The bubble to join, representing the virtual space or group.</param>
+        /// <returns>A task that represents the asynchronous operation. The task result is a boolean indicating whether the join operation was successful.</returns>
+        public Task<bool> JoinBubble(Bubble bubble)
+        {
+            var tcs = new TaskCompletionSource<bool>();
+
+            OrchestratorController.Instance.Wrapper.JoinBubble(bubble.Id, async (status) =>
+            {
+                if (status.Error == 0)
+                {
+                    var refreshedBubble = await GetBubble(bubble.Id);
+                    CurrentBubble = refreshedBubble;
+
+                    tcs.SetResult(true);
+                }
+                else
+                {
+                    tcs.SetException(new Exception(status.Message));
+                }
             });
 
             return tcs.Task;
@@ -701,6 +791,17 @@ namespace Orchestrator.App
         private void BroadcastReceived(BroadcastData data)
         {
             OnBroadcastDataReceived?.Invoke(data);
+        }
+
+        private async void BubbleInvited(string bubbleId)
+        {
+            await ListBubbles();
+            var invitedBubble = Bubbles.Find((b) => b.Id == bubbleId);
+
+            if (invitedBubble != null)
+            {
+                OnBubbleInvited?.Invoke(invitedBubble);
+            }
         }
 
         #endregion

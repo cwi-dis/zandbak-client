@@ -15,7 +15,7 @@ using UnityEditor.Search;
 
 namespace Orchestrator.Wrapping
 {
-    public class OrchestratorController : MonoBehaviour, IOrchestratorResponsesListener, IUserMessagesListener, IUserSessionEventsListener, IOrchestratorEventsListener
+    public class OrchestratorController : MonoBehaviour, IOrchestratorResponsesListener, IUserMessagesListener, IUserSessionEventsListener, IOrchestratorEventsListener, IBubbleEventsListener
     {
         [Tooltip("Enable trace logging output")]
         [SerializeField] private bool enableLogging = true;
@@ -233,6 +233,21 @@ namespace Orchestrator.Wrapping
         /// </summary>
         public event Action<BroadcastData> OnBroadcastReceivedEvent;
 
+        /// <summary>
+        /// Invoked when the current user is invited to a bubble
+        /// </summary>
+        public event Action<string> OnBubbleInvited;
+
+        /// <summary>
+        /// Invoked when a user joins the current user's bubble
+        /// </summary>
+        public event Action<User> OnBubbleJoined;
+
+        /// <summary>
+        /// Invoked when a user leaves the current user's bubble
+        /// </summary>
+        public event Action<User> OnBubbleLeft;
+
         #endregion
 
         #region public properties
@@ -285,7 +300,7 @@ namespace Orchestrator.Wrapping
             Log($"OrchestratorController: connect to {url}");
 
             SocketUrl = new Uri(url);
-            _orchestratorWrapper = new OrchestratorWrapper(url, this, this, this, this);
+            _orchestratorWrapper = new OrchestratorWrapper(url, this, this, this, this, this);
             _orchestratorWrapper.Connect();
         }
 
@@ -955,6 +970,31 @@ namespace Orchestrator.Wrapping
         void IOrchestratorEventsListener.OnSessionDeleted(Session session)
         {
             OnSessionDeletedEvent?.Invoke(session);
+        }
+
+        void IUserSessionEventsListener.OnBubbleInvited(string bubbleId)
+        {
+            OnBubbleInvited?.Invoke(bubbleId);
+        }
+
+        void IUserSessionEventsListener.OnBubbleJoinRequested(string bubbleId)
+        {
+            // TODO: Implement me
+        }
+
+        void IUserSessionEventsListener.OnBubbleJoinRequestApproved(string bubbleId, bool approved)
+        {
+            // TODO: Implement me
+        }
+
+        void IBubbleEventsListener.OnBubbleJoined(User user)
+        {
+            OnBubbleJoined?.Invoke(user);
+        }
+
+        void IBubbleEventsListener.OnBubbleLeft(User user)
+        {
+            OnBubbleLeft?.Invoke(user);
         }
 
         #endregion
