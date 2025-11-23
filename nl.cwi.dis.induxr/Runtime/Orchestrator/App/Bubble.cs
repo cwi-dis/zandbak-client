@@ -85,6 +85,37 @@ namespace Orchestrator.App
         }
 
         /// <summary>
+        /// Approves or denies a user's request to join the current bubble asynchronously by interacting with the Orchestrator.
+        /// </summary>
+        /// <param name="user">
+        /// The user whose join request is being approved or denied.
+        /// </param>
+        /// <param name="approve">
+        /// A boolean indicating whether to approve (true) or deny (false) the join request.
+        /// </param>
+        /// <returns>
+        /// A task that represents the asynchronous operation. The task result is true if the operation succeeds; otherwise, an exception is thrown in case of an error.
+        /// </returns>
+        public Task<bool> ApproveBubbleJoinRequest(User user, bool approve)
+        {
+            var tcs = new TaskCompletionSource<bool>();
+
+            OrchestratorController.Instance.Wrapper.ApproveBubbleJoinRequest(user.Id, Id, approve, (status) =>
+            {
+                if (status.Error == ResponseStatus.Ok)
+                {
+                    tcs.SetResult(true);
+                }
+                else
+                {
+                    tcs.SetException(new Exception(status.Message));
+                }
+            });
+
+            return tcs.Task;
+        }
+
+        /// <summary>
         /// Invites a user to the current bubble asynchronously by communicating with the Orchestrator.
         /// </summary>
         /// <param name="u">The user to be invited to the bubble.</param>
