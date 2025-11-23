@@ -33,7 +33,7 @@ namespace Orchestrator.App
         public bool IsSharing => CurrentPresentation.IsSharing;
 
         public List<Bubble> Bubbles { get; private set; }
-        public Bubble CurrentBubble { get; private set; }
+        public Bubble CurrentBubble;
 
         public List<ChatMessage> Chat => _sessionData.Chat.ToList();
         public Dictionary<string, List<ChatMessage>> PrivateMessages = new();

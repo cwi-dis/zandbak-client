@@ -44,6 +44,7 @@ namespace Orchestrator.App
             {
                 if (status.Error == ResponseStatus.Ok)
                 {
+                    Session.CurrentBubble = null;
                     tcs.SetResult(true);
                 }
                 else
