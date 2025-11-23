@@ -571,7 +571,7 @@ namespace Orchestrator.App
         }
 
         /// <summary>
-        /// Sends an invitation to the specified user to join a the current user's bubble in the session.
+        /// Sends an invitation to the specified user to join the current user's bubble in the session.
         /// </summary>
         /// <param name="user">The user to be invited to the bubble.</param>
         /// <returns>A task that represents the asynchronous operation. The task result is a boolean indicating whether the invitation was successfully sent.</returns>
@@ -595,6 +595,32 @@ namespace Orchestrator.App
         }
 
         /// <summary>
+        /// Retrieves a bubble from the session's bubble list based on the specified bubble ID. Returns the bubble
+        /// object if found, or raised an exception otherwise.
+        /// </summary>
+        /// <param name="bubbleId">The ID of the bubble to retrieve</param>
+        /// <returns>A bubble object corresponding to the given ID</returns>
+        public Task<Bubble> GetBubble(string bubbleId)
+        {
+            var tcs = new TaskCompletionSource<Bubble>();
+
+            OrchestratorController.Instance.Wrapper.GetBubble(bubbleId, (status, body) =>
+            {
+                if (status.Error == 0)
+                {
+                    Bubbles = Bubbles.Select(b => b.Id == bubbleId ? new Bubble(_orchestrator, body) : b).ToList();
+                    tcs.SetResult(Bubbles.Find(b => b.Id == bubbleId));
+                }
+                else
+                {
+                    tcs.SetException(new Exception(status.Message));
+                }
+            });
+
+            return tcs.Task;
+        }
+
+        /// <summary>
         /// Joins the specified bubble in response to an invitation from another user. If the current user has not been
         /// invited to the specified bubble, this method will raise an exception.
         /// </summary>
@@ -604,11 +630,13 @@ namespace Orchestrator.App
         {
             var tcs = new TaskCompletionSource<bool>();
 
-            OrchestratorController.Instance.Wrapper.JoinBubble(bubble.Id, (status) =>
+            OrchestratorController.Instance.Wrapper.JoinBubble(bubble.Id, async (status) =>
             {
                 if (status.Error == 0)
                 {
-                    CurrentBubble = bubble;
+                    var refreshedBubble = await GetBubble(bubble.Id);
+                    CurrentBubble = refreshedBubble;
+
                     tcs.SetResult(true);
                 }
                 else

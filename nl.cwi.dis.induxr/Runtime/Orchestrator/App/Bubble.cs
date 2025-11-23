@@ -10,7 +10,12 @@ namespace Orchestrator.App
     public class Bubble
     {
         private readonly Orchestrator _orchestrator;
-        private readonly Data.Bubble _bubbleData;
+        private Data.Bubble _bubbleData;
+
+        public Data.Bubble BubbleData
+        {
+            set => _bubbleData = value;
+        }
 
         public string Id => _bubbleData.Id;
         public string Name => _bubbleData.Name;
