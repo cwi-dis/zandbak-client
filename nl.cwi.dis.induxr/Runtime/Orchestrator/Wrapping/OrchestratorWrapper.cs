@@ -589,6 +589,21 @@ namespace Orchestrator.Wrapping {
             }
         }
 
+        public void GetBubble(string bubbleId, Action<ResponseStatus, Bubble> callback)
+        {
+            lock (this)
+            {
+                _socket.Emit("GetBubble", (response) =>
+                {
+                    var data = response.GetValue<OrchestratorResponse<Bubble>>();
+                    UnityThread.executeInUpdate(() =>
+                    {
+                        callback(data.ResponseStatus, data.Body);
+                    });
+                }, new { bubbleId });
+            }
+        }
+
         public void LeaveBubble(string bubbleId, Action<ResponseStatus, Bubble> callback)
         {
             lock (this)
