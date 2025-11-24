@@ -285,6 +285,14 @@ public class SessionController : MonoBehaviour
             Debug.Log($"User {user.Name} left bubble");
             notificationField.text += $"<i>{user.Name} left your bubble!</i>\n";
         };
+
+        bubble.OnJoinRequested += async (user) =>
+        {
+            Debug.Log($"User {user.Name} requests to join bubble");
+            notificationField.text += $"<i>{user.Name} requests to join your bubble</i>\n";
+
+            await bubble.ApproveBubbleJoinRequest(user, true);
+        };
     }
 
     private async void InviteToBubble()
