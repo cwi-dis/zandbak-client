@@ -243,6 +243,24 @@ public class SessionController : MonoBehaviour
     {
         // Create a new bubble
         var bubble = await _session.CreateBubble();
+
+        // Set the position of the avatar to the position of the bubble plane
+        var bubblePlane = GameObject.Find("BubblePlane");
+
+        if (bubblePlane != null)
+        {
+            // Get plane position and size
+            var planePosition = bubblePlane.transform.position;
+            var planeSize = bubblePlane.GetComponent<Renderer>().bounds.size;
+
+            // Pick random position within bubble plane
+            planePosition.x += Random.Range(-planeSize.x / 2, planeSize.x / 2);
+            planePosition.z += Random.Range(-planeSize.z / 2, planeSize.z / 2);
+
+            // Set avatar position
+            _session.Self.Avatar.transform.SetPositionAndRotation(planePosition, Quaternion.identity);
+        }
+
         // Get other users in the session
         var otherUsers = _session.Users.FindAll(u => u.Id != _session.Self.Id);
 
