@@ -44,6 +44,9 @@ public class SessionController : MonoBehaviour
     [Header("Bubbles")]
     public Button createBubbleButton;
 
+    [Header("Panel Manager")]
+    public PanelManager panelManager;
+
     private readonly Dictionary<string, GameObject> _activeUsers = new();
     private Session _session;
     private bool _isHandRaised = false;
@@ -260,6 +263,9 @@ public class SessionController : MonoBehaviour
             // Set avatar position
             _session.Self.Avatar.transform.SetPositionAndRotation(planePosition, Quaternion.identity);
         }
+
+        // Activate the BubblePanel
+        panelManager.ActivatePanelByName("BubblePanel");
 
         // Get other users in the session
         var otherUsers = _session.Users.FindAll(u => u.Id != _session.Self.Id);
