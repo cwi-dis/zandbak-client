@@ -15,6 +15,7 @@ namespace Orchestrator.App
         private readonly Orchestrator _orchestrator;
 
         public Data.User UserData { set; get; }
+        public GameObject Avatar;
 
         public Session Session => _orchestrator.CurrentSession;
         public Bubble Bubble => _orchestrator?.CurrentSession?.CurrentBubble;
