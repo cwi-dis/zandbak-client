@@ -45,6 +45,7 @@ public class SessionController : MonoBehaviour
     public Button createBubbleButton;
     public Button inviteToBubbleButton;
     public Button leaveBubbleButton;
+    public Button requestBubbleAccessButton;
 
     [Header("Panel Manager")]
     public PanelManager panelManager;
@@ -83,6 +84,7 @@ public class SessionController : MonoBehaviour
         createBubbleButton.onClick.AddListener(CreateBubble);
         inviteToBubbleButton.onClick.AddListener(InviteToBubble);
         leaveBubbleButton.onClick.AddListener(LeaveBubble);
+        requestBubbleAccessButton.onClick.AddListener(RequestBubbleAccess);
 
         // Disable the chat send button initially
         chatSendButton.interactable = false;
@@ -314,6 +316,21 @@ public class SessionController : MonoBehaviour
             panelManager.ActivatePanelByName("SessionPanel");
             _session.Self.Avatar.transform.SetPositionAndRotation(Vector3.zero, Quaternion.identity);
         }
+    }
+
+    private async void RequestBubbleAccess()
+    {
+        // Get list of bubbles
+        var bubbles = await _session.ListBubbles();
+
+        // Do nothing is there are no bubbles
+        if (bubbles.Count == 0)
+        {
+            Debug.LogWarning("No bubbles found.");
+        }
+
+        // Send join request to bubble owner
+        await _session.RequestBubbleJoin(bubbles[0]);
     }
 
     private void OnUserClearedRaisedHand(User user)
