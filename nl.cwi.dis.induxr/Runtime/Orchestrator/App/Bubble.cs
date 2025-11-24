@@ -68,7 +68,7 @@ namespace Orchestrator.App
         {
             var tcs = new TaskCompletionSource<bool>();
 
-            OrchestratorController.Instance.Wrapper.LeaveBubble(Id, (status, _) =>
+            OrchestratorController.Instance.Wrapper.LeaveBubble((status, _) =>
             {
                 if (status.Error == ResponseStatus.Ok)
                 {

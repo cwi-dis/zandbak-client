@@ -604,7 +604,7 @@ namespace Orchestrator.Wrapping {
             }
         }
 
-        public void LeaveBubble(string bubbleId, Action<ResponseStatus, Bubble> callback)
+        public void LeaveBubble(Action<ResponseStatus, Bubble> callback)
         {
             lock (this)
             {
@@ -615,7 +615,7 @@ namespace Orchestrator.Wrapping {
                     {
                         callback(data.ResponseStatus, data.Body);
                     });
-                });
+                }, new {});
             }
         }
 
