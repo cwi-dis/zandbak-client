@@ -255,6 +255,19 @@ public class SessionController : MonoBehaviour
         // Create a new bubble
         var bubble = await _session.CreateBubble();
 
+        bubble.OnJoinRequested += async (user) =>
+        {
+            Debug.Log($"User {user.Name} requests to join bubble");
+            notificationField.text += $"<i>{user.Name} requests to join your bubble</i>\n";
+
+            await bubble.ApproveBubbleJoinRequest(user, true);
+        };
+
+        MoveToBubble(bubble);
+    }
+
+    private void MoveToBubble(Bubble bubble)
+    {
         // Set the position of the avatar to the position of the bubble plane
         var bubblePlane = GameObject.Find("BubblePlane");
 
@@ -285,14 +298,6 @@ public class SessionController : MonoBehaviour
         {
             Debug.Log($"User {user.Name} left bubble");
             notificationField.text += $"<i>{user.Name} left your bubble!</i>\n";
-        };
-
-        bubble.OnJoinRequested += async (user) =>
-        {
-            Debug.Log($"User {user.Name} requests to join bubble");
-            notificationField.text += $"<i>{user.Name} requests to join your bubble</i>\n";
-
-            await bubble.ApproveBubbleJoinRequest(user, true);
         };
     }
 
@@ -508,13 +513,13 @@ public class SessionController : MonoBehaviour
 
     private void OnBubbleJoinRequestApproved(Bubble bubble, bool approved)
     {
-        if (approved)
-        {
-            Debug.Log($"You have been added to the bubble: {bubble.Name}");
-        }
-        else
+        if (!approved)
         {
             Debug.Log($"Your join request for {bubble.Name} has been rejected");
+            return;
         }
+
+        Debug.Log($"You have been added to the bubble: {_session.CurrentBubble?.Name}");
+        MoveToBubble(bubble);
     }
 }
