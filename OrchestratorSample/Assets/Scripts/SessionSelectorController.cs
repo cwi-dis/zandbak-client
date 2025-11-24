@@ -48,45 +48,10 @@ public class SessionSelectorController : MonoBehaviour
         joinButton.onClick.AddListener(OnJoinSession);
 
         // Refresh session dropdown when a session is created
-        _orchestrator.OnSessionCreated += (session) =>
-        {
-            Debug.Log($"New session created: {session.Name} ({session.Id})");
-
-            // Enable the join button, because now we have at least one session
-            joinButton.interactable = true;
-
-            // Get the updated sessions from the orchestrator object
-            var refreshedSessions = _orchestrator.Sessions;
-
-            // Clear the session dropdown and re-render the options with the updated session names
-            sessionDropdown.ClearOptions();
-            sessionDropdown.AddOptions(refreshedSessions.Select((s) => s.Name).ToList());
-
-            // Update the local session list
-            _sessions = refreshedSessions;
-        };
+        _orchestrator.OnSessionCreated += SessionCreated;
 
         // Refresh session dropdown when a session is deleted
-        _orchestrator.OnSessionDeleted += (sessionId) =>
-        {
-            Debug.Log($"Session with ID {sessionId} was deleted");
-
-            // Disable the join button if the list of sessions has become empty
-            if (_orchestrator.Sessions.Count == 0)
-            {
-                joinButton.interactable = false;
-            }
-
-            // Get the updated sessions from the orchestrator object
-            var refreshedSessions = _orchestrator.Sessions;
-
-            // Clear the session dropdown and re-render the options with the updated session names
-            sessionDropdown.ClearOptions();
-            sessionDropdown.AddOptions(refreshedSessions.Select((s) => s.Name).ToList());
-
-            // Update the local session list
-            _sessions = refreshedSessions;
-        };
+        _orchestrator.OnSessionDeleted += SessionDeleted;
 
         // Add a listener to the session creation input field and only enable it if there is a value in the text input field
         createButton.interactable = false;
@@ -119,6 +84,45 @@ public class SessionSelectorController : MonoBehaviour
         }
     }
 
+    private void SessionCreated(Session session)
+    {
+        Debug.Log($"New session created: {session.Name} ({session.Id})");
+
+        // Enable the join button, because now we have at least one session
+        joinButton.interactable = true;
+
+        // Get the updated sessions from the orchestrator object
+        var refreshedSessions = _orchestrator.Sessions;
+
+        // Clear the session dropdown and re-render the options with the updated session names
+        sessionDropdown.ClearOptions();
+        sessionDropdown.AddOptions(refreshedSessions.Select((s) => s.Name).ToList());
+
+        // Update the local session list
+        _sessions = refreshedSessions;
+    }
+
+    private void SessionDeleted(string sessionId)
+    {
+        Debug.Log($"Session with ID {sessionId} was deleted");
+
+        // Disable the join button if the list of sessions has become empty
+        if (_orchestrator.Sessions.Count == 0)
+        {
+            joinButton.interactable = false;
+        }
+
+        // Get the updated sessions from the orchestrator object
+        var refreshedSessions = _orchestrator.Sessions;
+
+        // Clear the session dropdown and re-render the options with the updated session names
+        sessionDropdown.ClearOptions();
+        sessionDropdown.AddOptions(refreshedSessions.Select((s) => s.Name).ToList());
+
+        // Update the local session list
+        _sessions = refreshedSessions;
+    }
+
     private async void OnJoinSession()
     {
         // Get the selected value and join the session using its ID
@@ -147,6 +151,10 @@ public class SessionSelectorController : MonoBehaviour
     private void OnSessionJoined(Session session)
     {
         Debug.Log("Session joined: " + session.Name);
+
+        // Unsubscribe from the event listeners
+        _orchestrator.OnSessionCreated -= SessionCreated;
+        _orchestrator.OnSessionDeleted -= SessionDeleted;
 
         // Destroy this object and load the session scene
         SceneManager.LoadScene("Scenes/SessionScene");
