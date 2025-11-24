@@ -6,10 +6,10 @@ using System.Text;
 using System.Threading.Tasks;
 using Orchestrator.Data;
 using Orchestrator.Util;
-using UnityEditor.PackageManager;
 using UnityEngine;
 
 #if UNITY_EDITOR
+using UnityEditor.PackageManager;
 using UnityEditor.Search;
 #endif
 
@@ -1195,7 +1195,7 @@ namespace Orchestrator.Wrapping
             }
         }
 
-        #if UNITY_EDITOR
+#if UNITY_EDITOR
         private void VerifyOrchestratorVersion()
         {
             // Get package info for this package
@@ -1241,7 +1241,7 @@ namespace Orchestrator.Wrapping
                 Debug.LogWarning("Could not get version info from package");
             }
         }
-        #endif
+#endif
     }
 }
 
