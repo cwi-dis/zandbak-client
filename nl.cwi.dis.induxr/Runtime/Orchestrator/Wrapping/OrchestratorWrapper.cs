@@ -604,7 +604,7 @@ namespace Orchestrator.Wrapping {
             }
         }
 
-        public void LeaveBubble(string bubbleId, Action<ResponseStatus, Bubble> callback)
+        public void LeaveBubble(Action<ResponseStatus, Bubble> callback)
         {
             lock (this)
             {
@@ -615,7 +615,7 @@ namespace Orchestrator.Wrapping {
                     {
                         callback(data.ResponseStatus, data.Body);
                     });
-                });
+                }, new {});
             }
         }
 
@@ -646,6 +646,36 @@ namespace Orchestrator.Wrapping {
                         callback(data.ResponseStatus);
                     });
                 }, new { bubbleId });
+            }
+        }
+
+        public void RequestBubbleJoin(string bubbleId, Action<ResponseStatus> callback)
+        {
+            lock (this)
+            {
+                _socket.Emit("RequestJoinBubble", (response) =>
+                {
+                    var data = response.GetValue<OrchestratorResponse<EmptyResponse>>();
+                    UnityThread.executeInUpdate(() =>
+                    {
+                        callback(data.ResponseStatus);
+                    });
+                }, new { bubbleId });
+            }
+        }
+
+        public void ApproveBubbleJoinRequest(string userId, string bubbleId, bool approve, Action<ResponseStatus> callback)
+        {
+            lock (this)
+            {
+                _socket.Emit("ApproveJoinBubble", (response) =>
+                {
+                    var data = response.GetValue<OrchestratorResponse<EmptyResponse>>();
+                    UnityThread.executeInUpdate(() =>
+                    {
+                        callback(data.ResponseStatus);
+                    });
+                }, new { userId, bubbleId, approve });
             }
         }
 
@@ -790,10 +820,9 @@ namespace Orchestrator.Wrapping {
                         break;
                     case "BUBBLE_JOIN_REQUESTED":
                         Debug.Log("Bubble join requested");
+                        OnSessionUpdatedWithUser(response);
                         break;
                     case "BUBBLE_JOIN_REQUEST_APPROVED":
-                        Debug.Log("Bubble join request approved");
-                        break;
                     case "BUBBLE_JOIN_INVITED":
                         OnSessionUpdatedWithBubbleId(response);
                         break;
@@ -815,7 +844,24 @@ namespace Orchestrator.Wrapping {
 
             UnityThread.executeInUpdate(() =>
             {
-                _userSessionEventListener?.OnBubbleInvited(data.EventData.BubbleId);
+                if (data.EventData.Approved != null)
+                {
+                    _userSessionEventListener?.OnBubbleJoinRequestApproved(data.EventData.BubbleId, (bool)data.EventData.Approved);
+                }
+                else
+                {
+                    _userSessionEventListener?.OnBubbleInvited(data.EventData.BubbleId);
+                }
+            });
+        }
+
+        private void OnSessionUpdatedWithUser(SocketIOResponse response)
+        {
+            var data = response.GetValue<SessionUpdate<User>>();
+
+            UnityThread.executeInUpdate(() =>
+            {
+                _bubbleEventListener?.OnBubbleJoinRequested(data.EventData);
             });
         }
 

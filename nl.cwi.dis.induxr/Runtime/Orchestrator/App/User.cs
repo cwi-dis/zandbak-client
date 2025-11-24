@@ -17,6 +17,11 @@ namespace Orchestrator.App
         public Data.User UserData { set; get; }
 
         public Session Session => _orchestrator.CurrentSession;
+        public Bubble Bubble => _orchestrator?.CurrentSession?.CurrentBubble;
+
+        public bool IsInSession => Session != null;
+        public bool IsInBubble => Bubble != null;
+
         public string Id => UserData.Id;
         public string Name => UserData.Username;
         /// <summary>
@@ -198,6 +203,8 @@ namespace Orchestrator.App
 
     public class SelfUser : User
     {
+        public GameObject Avatar;
+
         public SelfUser(Orchestrator orchestrator, Data.User userData) : base(orchestrator, userData) {}
 
         /// <summary>

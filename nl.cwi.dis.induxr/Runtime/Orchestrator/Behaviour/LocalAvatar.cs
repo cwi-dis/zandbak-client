@@ -1,7 +1,7 @@
 using System.Linq;
 using Orchestrator.Data;
 using UnityEngine;
-using User = Orchestrator.App.User;
+using SelfUser = Orchestrator.App.SelfUser;
 
 namespace Orchestrator.Behaviour
 {
@@ -14,7 +14,7 @@ namespace Orchestrator.Behaviour
         [Tooltip("A reference to the object to be used as notification icon. If given, the notification icon will be shown when the user's hand is raised.")]
         public GameObject notification;
 
-        private User _user;
+        private SelfUser _user;
         private SkinnedMeshRenderer _mesh;
         private float _timer;
 
@@ -22,9 +22,10 @@ namespace Orchestrator.Behaviour
         /// Initializes the local avatar with the specified user.
         /// </summary>
         /// <param name="user">The user to associate with the local avatar.</param>
-        public void Initialize(User user)
+        public void Initialize(SelfUser user)
         {
             _user = user;
+            _user.Avatar = gameObject;
         }
 
         private void Start()

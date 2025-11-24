@@ -180,6 +180,14 @@ namespace Orchestrator.App
         /// </remarks>
         public event Action<Bubble> OnBubbleInvited;
 
+        /// <summary>
+        /// Occurs when a bubble join request is either approved or denied.
+        /// </summary>
+        /// <remarks>
+        /// This event is triggered in response to a bubble join request by the current user
+        /// </remarks>
+        public event Action<Bubble, bool> OnBubbleJoinRequestApproved;
+
         public Session(Orchestrator orchestrator, Data.Session sessionData)
         {
             _sessionData = sessionData;
@@ -210,6 +218,7 @@ namespace Orchestrator.App
             OrchestratorController.Instance.OnBroadcastReceivedEvent += BroadcastReceived;
 
             OrchestratorController.Instance.OnBubbleInvited += BubbleInvited;
+            OrchestratorController.Instance.OnBubbleJoinRequestApproved += BubbleJoinRequestApproved;
         }
 
         /// <summary>
@@ -571,15 +580,16 @@ namespace Orchestrator.App
         }
 
         /// <summary>
-        /// Sends an invitation to the specified user to join the current user's bubble in the session.
+        /// Sends a request to join the specified bubble in the session to the owner of the bubble. If an error occurs,
+        /// an exception is raised.
         /// </summary>
-        /// <param name="user">The user to be invited to the bubble.</param>
-        /// <returns>A task that represents the asynchronous operation. The task result is a boolean indicating whether the invitation was successfully sent.</returns>
-        public Task<bool> InviteToBubble(User user)
+        /// <param name="bubble">The bubble to join</param>
+        /// <returns>A task representing the asynchronous operation. The task result is a boolean value indicating the success of the join request.</returns>
+        public Task<bool> RequestBubbleJoin(Bubble bubble)
         {
             var tcs = new TaskCompletionSource<bool>();
 
-            OrchestratorController.Instance.Wrapper.InviteToBubble(user.Id, (status) =>
+            OrchestratorController.Instance.Wrapper.RequestBubbleJoin(bubble.Id, (status) =>
             {
                 if (status.Error == 0)
                 {
@@ -802,6 +812,20 @@ namespace Orchestrator.App
             {
                 OnBubbleInvited?.Invoke(invitedBubble);
             }
+        }
+
+        private async void BubbleJoinRequestApproved(string bubbleId, bool approved)
+        {
+            var requestedBubble = Bubbles.Find((b) => b.Id == bubbleId);
+            if (requestedBubble == null) return;
+
+            if (approved)
+            {
+                var bubble = await GetBubble(bubbleId);
+                CurrentBubble = bubble;
+            }
+
+            OnBubbleJoinRequestApproved?.Invoke(requestedBubble, approved);
         }
 
         #endregion

@@ -43,6 +43,12 @@ public class SessionController : MonoBehaviour
 
     [Header("Bubbles")]
     public Button createBubbleButton;
+    public Button inviteToBubbleButton;
+    public Button leaveBubbleButton;
+    public Button requestBubbleAccessButton;
+
+    [Header("Panel Manager")]
+    public PanelManager panelManager;
 
     private readonly Dictionary<string, GameObject> _activeUsers = new();
     private Session _session;
@@ -67,14 +73,19 @@ public class SessionController : MonoBehaviour
         _session.OnClosed += OnSessionClosed;
         _session.OnUserStatusChanged += OnUserStatusChanged;
         _session.OnBubbleInvited += OnBubbleInvited;
+        _session.OnBubbleJoinRequestApproved += OnBubbleJoinRequestApproved;
 
         // Adding listeners for UI elements
         leaveButton.onClick.AddListener(LeaveSession);
         switchButton.onClick.AddListener(SwitchSession);
         raiseHandButton.onClick.AddListener(RaiseOrLowerHand);
-        createBubbleButton.onClick.AddListener(CreateBubble);
         chatSendButton.onClick.AddListener(SendChatMessage);
         chatInputField.onValueChanged.AddListener(delegate { chatSendButton.interactable = chatInputField.text.Length > 0; });
+
+        createBubbleButton.onClick.AddListener(CreateBubble);
+        inviteToBubbleButton.onClick.AddListener(InviteToBubble);
+        leaveBubbleButton.onClick.AddListener(LeaveBubble);
+        requestBubbleAccessButton.onClick.AddListener(RequestBubbleAccess);
 
         // Disable the chat send button initially
         chatSendButton.interactable = false;
@@ -243,15 +254,39 @@ public class SessionController : MonoBehaviour
     {
         // Create a new bubble
         var bubble = await _session.CreateBubble();
-        // Get other users in the session
-        var otherUsers = _session.Users.FindAll(u => u.Id != _session.Self.Id);
 
-        // If there are no other users in the session, do nothing
-        if (otherUsers.Count == 0)
+        bubble.OnJoinRequested += async (user) =>
         {
-            Debug.Log("No other users in session, new bubble will only contain self.");
-            return;
+            Debug.Log($"User {user.Name} requests to join bubble");
+            notificationField.text += $"<i>{user.Name} requests to join your bubble</i>\n";
+
+            await bubble.ApproveBubbleJoinRequest(user, true);
+        };
+
+        MoveToBubble(bubble);
+    }
+
+    private void MoveToBubble(Bubble bubble)
+    {
+        // Set the position of the avatar to the position of the bubble plane
+        var bubblePlane = GameObject.Find("BubblePlane");
+
+        if (bubblePlane != null)
+        {
+            // Get plane position and size
+            var planePosition = bubblePlane.transform.position;
+            var planeSize = bubblePlane.GetComponent<Renderer>().bounds.size;
+
+            // Pick random position within bubble plane
+            planePosition.x += Random.Range(-planeSize.x / 2, planeSize.x / 2);
+            planePosition.z += Random.Range(-planeSize.z / 2, planeSize.z / 2);
+
+            // Set avatar position
+            _session.Self.Avatar.transform.SetPositionAndRotation(planePosition, Quaternion.identity);
         }
+
+        // Activate the BubblePanel
+        panelManager.ActivatePanelByName("BubblePanel");
 
         bubble.OnUserJoined += (user) =>
         {
@@ -264,9 +299,52 @@ public class SessionController : MonoBehaviour
             Debug.Log($"User {user.Name} left bubble");
             notificationField.text += $"<i>{user.Name} left your bubble!</i>\n";
         };
+    }
 
-        // Invite the first user in the session to the new bubble
-        await bubble.InviteUser(otherUsers[0]);
+    private async void InviteToBubble()
+    {
+        // Get other users in the session
+        var otherUsers = _session.Users.FindAll(u => u.Id != _session.Self.Id);
+
+        // If there are no other users in the session, do nothing
+        if (otherUsers.Count == 0)
+        {
+            Debug.LogWarning("No other users in session, new bubble will only contain self.");
+            return;
+        }
+
+        if (_session.CurrentBubble != null)
+        {
+            // Invite the first user in the session to the new bubble
+            await _session.CurrentBubble.InviteUser(otherUsers[0]);
+        }
+    }
+
+    private async void LeaveBubble()
+    {
+        if (_session.CurrentBubble != null)
+        {
+            // Invite the first user in the session to the new bubble
+            await _session.CurrentBubble.LeaveBubble();
+
+            panelManager.ActivatePanelByName("SessionPanel");
+            _session.Self.Avatar.transform.SetPositionAndRotation(Vector3.zero, Quaternion.identity);
+        }
+    }
+
+    private async void RequestBubbleAccess()
+    {
+        // Get list of bubbles
+        var bubbles = await _session.ListBubbles();
+
+        // Do nothing is there are no bubbles
+        if (bubbles.Count == 0)
+        {
+            Debug.LogWarning("No bubbles found.");
+        }
+
+        // Send join request to bubble owner
+        await _session.RequestBubbleJoin(bubbles[0]);
     }
 
     private void OnUserClearedRaisedHand(User user)
@@ -431,5 +509,17 @@ public class SessionController : MonoBehaviour
         notificationField.text += $"<i>You have been invited to join the bubble '{bubble.Name}' by {bubble.Owner.Name}</i>\n";
 
         _session.JoinBubble(bubble);
+    }
+
+    private void OnBubbleJoinRequestApproved(Bubble bubble, bool approved)
+    {
+        if (!approved)
+        {
+            Debug.Log($"Your join request for {bubble.Name} has been rejected");
+            return;
+        }
+
+        Debug.Log($"You have been added to the bubble: {_session.CurrentBubble?.Name}");
+        MoveToBubble(bubble);
     }
 }

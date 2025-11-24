@@ -6,10 +6,10 @@ using System.Text;
 using System.Threading.Tasks;
 using Orchestrator.Data;
 using Orchestrator.Util;
-using UnityEditor.PackageManager;
 using UnityEngine;
 
 #if UNITY_EDITOR
+using UnityEditor.PackageManager;
 using UnityEditor.Search;
 #endif
 
@@ -247,6 +247,16 @@ namespace Orchestrator.Wrapping
         /// Invoked when a user leaves the current user's bubble
         /// </summary>
         public event Action<User> OnBubbleLeft;
+
+        /// <summary>
+        /// Invoked when a user requests to join the current user's bubble
+        /// </summary>
+        public event Action<User> OnBubbleJoinRequested;
+
+        /// <summary>
+        /// Invoked when a bubble join request is approved or denied by the owner of the bubble
+        /// </summary>
+        public event Action<string, bool> OnBubbleJoinRequestApproved;
 
         #endregion
 
@@ -977,14 +987,15 @@ namespace Orchestrator.Wrapping
             OnBubbleInvited?.Invoke(bubbleId);
         }
 
-        void IUserSessionEventsListener.OnBubbleJoinRequested(string bubbleId)
-        {
-            // TODO: Implement me
-        }
 
         void IUserSessionEventsListener.OnBubbleJoinRequestApproved(string bubbleId, bool approved)
         {
-            // TODO: Implement me
+            OnBubbleJoinRequestApproved?.Invoke(bubbleId, approved);
+        }
+
+        void IBubbleEventsListener.OnBubbleJoinRequested(User user)
+        {
+            OnBubbleJoinRequested?.Invoke(user);
         }
 
         void IBubbleEventsListener.OnBubbleJoined(User user)
@@ -1184,7 +1195,7 @@ namespace Orchestrator.Wrapping
             }
         }
 
-        #if UNITY_EDITOR
+#if UNITY_EDITOR
         private void VerifyOrchestratorVersion()
         {
             // Get package info for this package
@@ -1230,7 +1241,7 @@ namespace Orchestrator.Wrapping
                 Debug.LogWarning("Could not get version info from package");
             }
         }
-        #endif
+#endif
     }
 }
 
