@@ -73,6 +73,7 @@ public class SessionController : MonoBehaviour
         _session.OnClosed += OnSessionClosed;
         _session.OnUserStatusChanged += OnUserStatusChanged;
         _session.OnBubbleInvited += OnBubbleInvited;
+        _session.OnBubbleJoinRequestApproved += OnBubbleJoinRequestApproved;
 
         // Adding listeners for UI elements
         leaveButton.onClick.AddListener(LeaveSession);
@@ -503,5 +504,17 @@ public class SessionController : MonoBehaviour
         notificationField.text += $"<i>You have been invited to join the bubble '{bubble.Name}' by {bubble.Owner.Name}</i>\n";
 
         _session.JoinBubble(bubble);
+    }
+
+    private void OnBubbleJoinRequestApproved(Bubble bubble, bool approved)
+    {
+        if (approved)
+        {
+            Debug.Log($"You have been added to the bubble: {bubble.Name}");
+        }
+        else
+        {
+            Debug.Log($"Your join request for {bubble.Name} has been rejected");
+        }
     }
 }
