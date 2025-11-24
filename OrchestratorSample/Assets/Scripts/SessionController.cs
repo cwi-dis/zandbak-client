@@ -43,6 +43,8 @@ public class SessionController : MonoBehaviour
 
     [Header("Bubbles")]
     public Button createBubbleButton;
+    public Button inviteToBubbleButton;
+    public Button leaveBubbleButton;
 
     [Header("Panel Manager")]
     public PanelManager panelManager;
@@ -75,9 +77,12 @@ public class SessionController : MonoBehaviour
         leaveButton.onClick.AddListener(LeaveSession);
         switchButton.onClick.AddListener(SwitchSession);
         raiseHandButton.onClick.AddListener(RaiseOrLowerHand);
-        createBubbleButton.onClick.AddListener(CreateBubble);
         chatSendButton.onClick.AddListener(SendChatMessage);
         chatInputField.onValueChanged.AddListener(delegate { chatSendButton.interactable = chatInputField.text.Length > 0; });
+
+        createBubbleButton.onClick.AddListener(CreateBubble);
+        inviteToBubbleButton.onClick.AddListener(InviteToBubble);
+        leaveBubbleButton.onClick.AddListener(LeaveBubble);
 
         // Disable the chat send button initially
         chatSendButton.interactable = false;
@@ -267,16 +272,6 @@ public class SessionController : MonoBehaviour
         // Activate the BubblePanel
         panelManager.ActivatePanelByName("BubblePanel");
 
-        // Get other users in the session
-        var otherUsers = _session.Users.FindAll(u => u.Id != _session.Self.Id);
-
-        // If there are no other users in the session, do nothing
-        if (otherUsers.Count == 0)
-        {
-            Debug.Log("No other users in session, new bubble will only contain self.");
-            return;
-        }
-
         bubble.OnUserJoined += (user) =>
         {
             Debug.Log($"User {user.Name} joined bubble");
@@ -288,9 +283,37 @@ public class SessionController : MonoBehaviour
             Debug.Log($"User {user.Name} left bubble");
             notificationField.text += $"<i>{user.Name} left your bubble!</i>\n";
         };
+    }
 
-        // Invite the first user in the session to the new bubble
-        await bubble.InviteUser(otherUsers[0]);
+    private async void InviteToBubble()
+    {
+        // Get other users in the session
+        var otherUsers = _session.Users.FindAll(u => u.Id != _session.Self.Id);
+
+        // If there are no other users in the session, do nothing
+        if (otherUsers.Count == 0)
+        {
+            Debug.LogWarning("No other users in session, new bubble will only contain self.");
+            return;
+        }
+
+        if (_session.CurrentBubble != null)
+        {
+            // Invite the first user in the session to the new bubble
+            await _session.CurrentBubble.InviteUser(otherUsers[0]);
+        }
+    }
+
+    private async void LeaveBubble()
+    {
+        if (_session.CurrentBubble != null)
+        {
+            // Invite the first user in the session to the new bubble
+            await _session.CurrentBubble.LeaveBubble();
+
+            panelManager.ActivatePanelByName("SessionPanel");
+            _session.Self.Avatar.transform.SetPositionAndRotation(Vector3.zero, Quaternion.identity);
+        }
     }
 
     private void OnUserClearedRaisedHand(User user)
