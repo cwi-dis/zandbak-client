@@ -15,7 +15,6 @@ namespace Orchestrator.App
         private readonly Orchestrator _orchestrator;
 
         public Data.User UserData { set; get; }
-        public GameObject Avatar;
 
         public Session Session => _orchestrator.CurrentSession;
         public Bubble Bubble => _orchestrator?.CurrentSession?.CurrentBubble;
@@ -204,6 +203,8 @@ namespace Orchestrator.App
 
     public class SelfUser : User
     {
+        public GameObject Avatar;
+
         public SelfUser(Orchestrator orchestrator, Data.User userData) : base(orchestrator, userData) {}
 
         /// <summary>
