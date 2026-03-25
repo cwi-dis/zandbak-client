@@ -156,6 +156,14 @@ namespace Orchestrator.Data
         [JsonProperty("users")] public List<User> Users;
     }
 
+    public class Room : OrchestratorElement
+    {
+        [JsonProperty("id")] public string Id;
+        [JsonProperty("name")] public string Name;
+        [JsonProperty("description")] public string Description;
+        [JsonProperty("filename")] public string Filename;
+    }
+
     public class ScheduledSession : OrchestratorElement
     {
         [JsonProperty("id")] public string Id;
