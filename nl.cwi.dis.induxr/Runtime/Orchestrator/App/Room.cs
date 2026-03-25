@@ -14,5 +14,11 @@ namespace Orchestrator.App
         public string Name => _roomData.Name;
         public string Description => _roomData.Description;
         public string Filename => _roomData.Filename;
+
+        public Room(Orchestrator orchestrator, Data.Room roomData)
+        {
+            _orchestrator = orchestrator;
+            _roomData = roomData;
+        }
     }
 }
