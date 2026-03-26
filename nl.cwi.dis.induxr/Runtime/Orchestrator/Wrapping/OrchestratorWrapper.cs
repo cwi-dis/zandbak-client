@@ -207,7 +207,7 @@ namespace Orchestrator.Wrapping {
 
         #region session management
 
-        public void AddSession(string sessionName, string sessionDescription, string sessionProtocol, string[] channels, bool persistent = false) {
+        public void AddSession(string sessionName, string sessionDescription, string sessionProtocol, string sessionRoom, string[] channels, bool persistent = false) {
             lock (this) {
                 _socket.Emit("AddSession", (response) => {
                     var data = response.GetValue<OrchestratorResponse<Session>>();
@@ -219,6 +219,7 @@ namespace Orchestrator.Wrapping {
                     sessionName,
                     sessionDescription,
                     sessionProtocol,
+                    sessionRoom,
                     channels,
                     persistent
                 });
