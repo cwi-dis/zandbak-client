@@ -247,6 +247,23 @@ namespace Orchestrator.App
         }
 
         /// <summary>
+        /// Retrieves a list of available rooms from the Orchestrator
+        /// </summary>
+        /// <returns>A task that represents the asynchronous operation. The task result contains a list of available rooms.</returns>
+        public Task<List<Room>> GetRooms()
+        {
+            var tcs = new TaskCompletionSource<List<Room>>();
+
+            OrchestratorController.Instance.Wrapper.GetRooms((_, body) =>
+            {
+                var rooms = body.Select(r => new Room(this, r)).ToList();
+                tcs.SetResult(rooms);
+            });
+
+            return tcs.Task;
+        }
+
+        /// <summary>
         /// Creates a new session asynchronously with the specified session name.
         /// </summary>
         /// <param name="sessionName">The name of the session to be created.</param>
