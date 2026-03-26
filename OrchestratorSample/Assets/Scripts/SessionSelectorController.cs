@@ -36,6 +36,12 @@ public class SessionSelectorController : MonoBehaviour
     {
         // Get active sessions
         var sessions = await _orchestrator.GetSessions();
+        var rooms = await _orchestrator.GetRooms();
+
+        foreach (var room in rooms)
+        {
+            Debug.Log($"Room: {room.Name} ({room.Id})");
+        }
 
         // Disable the join button if there are no active sessions
         if (sessions.Count == 0)
