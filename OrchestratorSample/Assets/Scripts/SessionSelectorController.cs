@@ -7,6 +7,7 @@ using UnityEngine;
 using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 using Session = Orchestrator.App.Session;
+using Room = Orchestrator.App.Room;
 
 public class SessionSelectorController : MonoBehaviour
 {
@@ -16,12 +17,14 @@ public class SessionSelectorController : MonoBehaviour
 
     [Header("Create Session")]
     public TMP_InputField sessionNameField;
+    public TMP_Dropdown roomDropdown;
     public Button createButton;
 
     [Header("Create Session")]
     public TMP_Dropdown scheduledSessionDropdown;
     public Button scheduleButton;
 
+    private List<Room> _rooms;
     private List<Session> _sessions;
     private List<ScheduledSession> _scheduledSessions;
     private Orchestrator.App.Orchestrator _orchestrator;
@@ -35,22 +38,16 @@ public class SessionSelectorController : MonoBehaviour
     private async void Start()
     {
         // Get active sessions
-        var sessions = await _orchestrator.GetSessions();
-        var rooms = await _orchestrator.GetRooms();
-
-        foreach (var room in rooms)
-        {
-            Debug.Log($"Room: {room.Name} ({room.Id})");
-        }
+        _sessions = await _orchestrator.GetSessions();
 
         // Disable the join button if there are no active sessions
-        if (sessions.Count == 0)
+        if (_sessions.Count == 0)
         {
             joinButton.interactable = false;
         }
 
         // Add session names to dropdown
-        sessionDropdown.AddOptions(sessions.Select((s) => s.Name).ToList());
+        sessionDropdown.AddOptions(_sessions.Select((s) => s.Name).ToList());
         joinButton.onClick.AddListener(OnJoinSession);
 
         // Refresh session dropdown when a session is created
@@ -59,12 +56,22 @@ public class SessionSelectorController : MonoBehaviour
         // Refresh session dropdown when a session is deleted
         _orchestrator.OnSessionDeleted += SessionDeleted;
 
+        // Get available rooms
+        _rooms = await _orchestrator.GetRooms();
+
+        // Disable the session creation button if there are no rooms
+        if (_rooms.Count == 0)
+        {
+            createButton.interactable = false;
+        }
+
+        // Add room names to dropdown
+        roomDropdown.AddOptions(_rooms.Select((r) => r.Name).ToList());
+
         // Add a listener to the session creation input field and only enable it if there is a value in the text input field
         createButton.interactable = false;
         sessionNameField.onValueChanged.AddListener(delegate { createButton.interactable = sessionNameField.text.Length > 0; });
         createButton.onClick.AddListener(OnCreateSession);
-
-        _sessions = sessions;
 
         // Only show scheduled sessions dropdown if the user is a presenter
         if (_orchestrator.Self.Type == "presenter")
@@ -140,8 +147,11 @@ public class SessionSelectorController : MonoBehaviour
 
     private async void OnCreateSession()
     {
-        // Get the chosen session name and create the session
-        var createdSession = await _orchestrator.CreateSession(sessionNameField.text);
+        // Get the selected value for the room dropdown
+        var selectedDropdownValue = roomDropdown.value;
+
+        // Get the chosen session name and create the session with the selected room
+        var createdSession = await _orchestrator.CreateSession(sessionNameField.text, _rooms[selectedDropdownValue]);
         OnSessionJoined(createdSession);
     }
 
