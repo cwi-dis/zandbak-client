@@ -148,7 +148,7 @@ public class SessionController : MonoBehaviour
         localAvatar.Initialize(user);
 
         // Printing a welcome message
-        notificationField.text += $"Welcome to <i>{_session.Name}</i>\n\n";
+        notificationField.text += $"Welcome to <i>{_session.Name}</i>\nThis room uses room model {_session.Room.Name}\n\n";
     }
 
     private async void NextPresentation()
