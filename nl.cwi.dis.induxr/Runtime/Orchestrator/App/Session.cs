@@ -285,7 +285,7 @@ namespace Orchestrator.App
         public Task<bool> Leave()
         {
             var tcs = new TaskCompletionSource<bool>();
-            OrchestratorController.Instance.LeaveSession();
+            OrchestratorController.Instance.Wrapper.LeaveSession();
 
             foreach (var user in Users)
             {
@@ -312,7 +312,7 @@ namespace Orchestrator.App
         {
             var tcs = new TaskCompletionSource<bool>();
 
-            OrchestratorController.Instance.RemoveUserFromSession(userToRemove.Id);
+            OrchestratorController.Instance.Wrapper.LeaveSession(userToRemove.Id);
             userToRemove.Leave();
 
             tcs.SetResult(true);
