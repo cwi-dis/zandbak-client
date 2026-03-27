@@ -197,7 +197,7 @@ namespace Orchestrator.App
 
             Users = _sessionData.UserDefinitions.Select(u => new User(orchestrator, u)).ToList();
             Bubbles = _sessionData.Bubbles.Select(b => new Bubble(orchestrator, b)).ToList();
-            Room = (_sessionData.Room != null) ? new Room(orchestrator, _sessionData.Room) : null;
+            Room = new Room(orchestrator, _sessionData.Room);
 
             OrchestratorController.Instance.OnSessionCloseEvent += SessionClosed;
 
