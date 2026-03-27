@@ -59,7 +59,6 @@ namespace Orchestrator.Data
         void OnError(ResponseStatus status);
         void OnConnect();
         void OnConnecting();
-        void OnGetOrchestratorVersionResponse(ResponseStatus status, string version);
         void OnDisconnect();
 
         void OnLoginResponse(ResponseStatus status, User user);

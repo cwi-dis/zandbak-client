@@ -93,15 +93,10 @@ namespace Orchestrator.App
         {
             var tcs = new TaskCompletionSource<string>();
 
-            Action<string> fn = null;
-            fn = (version) =>
+            OrchestratorController.Instance.Wrapper.GetOrchestratorVersion((_, version) =>
             {
                 tcs.SetResult(version);
-                OrchestratorController.Instance.OnGetOrchestratorVersionEvent -= fn;
-            };
-
-            OrchestratorController.Instance.OnGetOrchestratorVersionEvent += fn;
-            OrchestratorController.Instance.GetVersion();
+            });
 
             return tcs.Task;
         }

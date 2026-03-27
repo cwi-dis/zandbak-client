@@ -132,13 +132,13 @@ namespace Orchestrator.Wrapping {
 
         #region utility requests
 
-        public void GetOrchestratorVersion() {
+        public void GetOrchestratorVersion(Action<ResponseStatus, string> callback) {
             lock (this) {
                 _socket.Emit("GetOrchestratorVersion", (response) => {
                     var data = response.GetValue<OrchestratorResponse<VersionResponse>>();
 
                     UnityThread.executeInUpdate(() => {
-                        _responsesListener?.OnGetOrchestratorVersionResponse(data.ResponseStatus, data.Body.OrchestratorVersion);
+                        callback(data.ResponseStatus, data.Body.OrchestratorVersion);
                     });
                 }, new { });
             }

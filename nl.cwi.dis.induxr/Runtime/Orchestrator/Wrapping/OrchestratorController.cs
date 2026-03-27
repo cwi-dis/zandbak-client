@@ -88,11 +88,6 @@ namespace Orchestrator.Wrapping
         public event Action<bool> OnConnectionEvent;
 
         /// <summary>
-        /// Invoked when the Orchestrator's current version is requested, with the version as an argument
-        /// </summary>
-        public event Action<string> OnGetOrchestratorVersionEvent;
-
-        /// <summary>
         /// Invoked when the current user logs into the Orchestrator, with a boolean indicating success and the user's ID as arguments
         /// </summary>
         public event Action<bool, User> OnLoginEvent;
@@ -366,25 +361,6 @@ namespace Orchestrator.Wrapping
         public void Disconnect()
         {
             Abort();
-        }
-
-        /// <summary>
-        /// Retrieves the version of the Orchestrator by sending a request to the connected server.
-        /// Invokes <c>OnGetOrchestratorVersionEvent</c> upon completion.
-        /// </summary>
-        [Obsolete("Direct usage of OrchestratorController is deprecated. Use the instance of App.Orchestrator returned by SocketConnectAsync() instead")]
-        public void GetVersion()
-        {
-            _orchestratorWrapper.GetOrchestratorVersion();
-        }
-
-        void IOrchestratorResponsesListener.OnGetOrchestratorVersionResponse(ResponseStatus status, string version) {
-            if (status.Error != 0) {
-                OnErrorEvent?.Invoke(status);
-                return;
-            }
-
-            OnGetOrchestratorVersionEvent?.Invoke(version);
         }
 
         void IOrchestratorResponsesListener.OnDisconnect() {
@@ -1204,9 +1180,8 @@ namespace Orchestrator.Wrapping
 
             if (packageInfo != null)
             {
-                // Lambda function to be called in response to the orchestrator version event
-                Action<string> fn = null;
-                fn = (version) =>
+                // Get the version of the Orchestrator
+                Wrapper.GetOrchestratorVersion((_, version) =>
                 {
                     try
                     {
@@ -1227,15 +1202,7 @@ namespace Orchestrator.Wrapping
                     {
                         Debug.LogError(e.Message);
                     }
-
-                    // Remove handler
-                    OnGetOrchestratorVersionEvent -= fn;
-                };
-
-                // Attach a handler to the orchestrator version response event
-                OnGetOrchestratorVersionEvent += fn;
-                // Get Orchestrator version
-                GetVersion();
+                });
             }
             else
             {
