@@ -98,11 +98,6 @@ namespace Orchestrator.Wrapping
         public event Action<bool> OnLogoutEvent;
 
         /// <summary>
-        /// Invoked when a list of sessions has been requested with the list of sessions as argument
-        /// </summary>
-        public event Action<List<Session>> OnSessionsEvent;
-
-        /// <summary>
         /// Invoked when a list of scheduled sessions has been requested with the list of scheduled sessions as argument
         /// </summary>
         public event Action<List<ScheduledSession>> OnScheduledSessionsEvent;
@@ -480,36 +475,6 @@ namespace Orchestrator.Wrapping
         #region Sessions
 
         /// <summary>
-        /// Retrieves the list of currently active sessions.
-        /// Invokes <c>OnSessionsEvent</c> upon completion with a list of sessions.
-        /// </summary>
-        [Obsolete("Direct usage of OrchestratorController is deprecated. Use the instance of App.Orchestrator returned by SocketConnectAsync() instead")]
-        public void GetSessions() {
-            _orchestratorWrapper.GetSessions();
-        }
-
-        void IOrchestratorResponsesListener.OnGetSessionsResponse(ResponseStatus status, List<Session> sessions) {
-            if (status.Error != 0) {
-                OnErrorEvent?.Invoke(status);
-                return;
-            }
-
-            int nRemoved = sessions.RemoveAll(item => item == null);
-
-            if (nRemoved > 0)
-            {
-                Debug.LogWarning($"OrchestratorController: Removed {nRemoved} null sessions");
-            }
-
-            Log("OrchestratorController: OnGetSessionsResponse: Number of available sessions:" + sessions.Count);
-
-            // update the list of available sessions
-            _availableSessions = sessions;
-
-            OnSessionsEvent?.Invoke(sessions);
-        }
-
-        /// <summary>
         /// Retrieves the list of scheduled sessions.
         /// Invokes <c>OnScheduledSessionsEvent</c> upon completion with a list of sessions.
         /// </summary>
@@ -622,11 +587,7 @@ namespace Orchestrator.Wrapping
             }
 
             Log("OrchestratorController: OnDeleteSessionResponse: Session successfully deleted.");
-
             _session = null;
-
-            // update the lists of session, anyway the result
-            _orchestratorWrapper.GetSessions();
         }
 
         /// <summary>

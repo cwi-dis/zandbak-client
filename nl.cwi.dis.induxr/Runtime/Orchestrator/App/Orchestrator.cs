@@ -201,16 +201,11 @@ namespace Orchestrator.App
         {
             var tcs = new TaskCompletionSource<List<Session>>();
 
-            Action<List<Data.Session>> fn = null;
-            fn = (sessions) =>
+            OrchestratorController.Instance.Wrapper.GetSessions((_, sessions) =>
             {
                 Sessions = sessions.Select(session => new Session(this, session)).ToList();
                 tcs.SetResult(Sessions);
-                OrchestratorController.Instance.OnSessionsEvent -= fn;
-            };
-
-            OrchestratorController.Instance.OnSessionsEvent += fn;
-            OrchestratorController.Instance.GetSessions();
+            });
 
             return tcs.Task;
         }

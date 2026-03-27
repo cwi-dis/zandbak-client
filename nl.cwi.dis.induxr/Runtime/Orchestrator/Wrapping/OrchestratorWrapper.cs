@@ -240,7 +240,7 @@ namespace Orchestrator.Wrapping {
             }
         }
 
-        public void GetSessions() {
+        public void GetSessions(Action<ResponseStatus, List<Session>> callback) {
             lock (this) {
                 _socket.Emit("GetSessions", (response) => {
                     var data = response.GetValue<OrchestratorResponse<Dictionary<string, Session>>>();
@@ -251,7 +251,7 @@ namespace Orchestrator.Wrapping {
                     }
 
                     UnityThread.executeInUpdate(() => {
-                        _responsesListener?.OnGetSessionsResponse(data.ResponseStatus, sessions);
+                        callback(data.ResponseStatus, sessions);
                     });
                 }, new { });
             }
