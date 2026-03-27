@@ -103,12 +103,6 @@ namespace Orchestrator.Wrapping
         public event Action<Session> OnSessionInfoEvent;
 
         /// <summary>
-        /// Invoked when a new session has been created, with the session information as argument
-        /// </summary>
-        public event Action<Session> OnAddSessionEvent;
-
-
-        /// <summary>
         /// Invoked when the current session is being closed remotely
         /// </summary>
         public event Action OnSessionCloseEvent;
@@ -468,50 +462,6 @@ namespace Orchestrator.Wrapping
         #endregion
 
         #region Sessions
-
-        /// <summary>
-        /// Creates a new session with the given name and the given description.
-        /// Invokes <c>OnAddSessionEvent</c> upon completion with all information about the created session.
-        /// </summary>
-        /// <param name="sessionName">The name of the session to be created</param>
-        /// <param name="roomId">The ID of the room model to use for the new session</param>
-        /// <param name="sessionDescription">The description of the session to be created. This parameter is optional and defaults to the empty string</param>
-        /// <param name="persistent">If true, the session will be marked as persistent, i.e. it can exist even without any users in it and defaults to false</param>
-        [Obsolete("Direct usage of OrchestratorController is deprecated. Use the instance of App.Orchestrator returned by SocketConnectAsync() instead")]
-        public void AddSession(string sessionName, string roomId, string sessionDescription = "", bool persistent = false) {
-            _orchestratorWrapper.AddSession(sessionName, sessionDescription, "socketio", roomId, new[] { "transform" }, persistent);
-        }
-
-        /// <summary>
-        /// Creates a new session from a session stored in the Orchestrator's database identified by a session ID.
-        /// Invokes <c>OnAddSessionEvent</c> upon completion with all information about the created session. The session
-        /// with the given ID must exist in the Orchestrator's database, if no such session is found, an error is
-        /// triggered.
-        /// </summary>
-        /// <param name="sessionId">The ID of the session to be created</param>
-        [Obsolete("Direct usage of OrchestratorController is deprecated. Use the instance of App.Orchestrator returned by SocketConnectAsync() instead")]
-        public void ScheduleSession(string sessionId)
-        {
-            _orchestratorWrapper.ScheduleSession(sessionId);
-        }
-
-        void IOrchestratorResponsesListener.OnAddSessionResponse(ResponseStatus status, Session session) {
-            if (status.Error != 0) {
-                _session = null;
-                OnErrorEvent?.Invoke(status);
-                return;
-            }
-
-            Log("OrchestratorController: OnAddSessionResponse: Session " + session.Name + " successfully created by " + session.GetUser(session.AdministratorId).Username + ".");
-
-            // success
-            _session = session;
-
-            _userIsMaster = session.MasterId == SelfUser.Id;
-
-            _availableSessions.Add(session);
-            OnAddSessionEvent?.Invoke(session);
-        }
 
         /// <summary>
         /// Retrieves information about the session that the user is currently a member of.

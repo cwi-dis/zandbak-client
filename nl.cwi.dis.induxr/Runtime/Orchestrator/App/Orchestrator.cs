@@ -253,18 +253,14 @@ namespace Orchestrator.App
         {
             var tcs = new TaskCompletionSource<Session>();
 
-            Action<Data.Session> fn = null;
-            fn = (session) =>
-            {
-                CurrentSession = new Session(this, session);
-                CurrentSession.Join();
+            OrchestratorController.Instance.Wrapper.AddSession(sessionName, "", "socketio", room.Id, new[] { "transform" }, false,
+                (_, session) =>
+                {
+                    CurrentSession = new Session(this, session);
+                    CurrentSession.Join();
 
-                tcs.SetResult(CurrentSession);
-                OrchestratorController.Instance.OnAddSessionEvent -= fn;
-            };
-
-            OrchestratorController.Instance.OnAddSessionEvent += fn;
-            OrchestratorController.Instance.AddSession(sessionName, room.Id);
+                    tcs.SetResult(CurrentSession);
+                });
 
             return tcs.Task;
         }
@@ -279,18 +275,14 @@ namespace Orchestrator.App
         {
             var tcs = new TaskCompletionSource<Session>();
 
-            Action<Data.Session> fn = null;
-            fn = (session) =>
-            {
-                CurrentSession = new Session(this, session);
-                CurrentSession.Join();
+            OrchestratorController.Instance.Wrapper.AddSession(sessionName, "", "socketio", room.Id, new[] { "transform" }, true,
+                (_, session) =>
+                {
+                    CurrentSession = new Session(this, session);
+                    CurrentSession.Join();
 
-                tcs.SetResult(CurrentSession);
-                OrchestratorController.Instance.OnAddSessionEvent -= fn;
-            };
-
-            OrchestratorController.Instance.OnAddSessionEvent += fn;
-            OrchestratorController.Instance.AddSession(sessionName, room.Id, persistent: true);
+                    tcs.SetResult(CurrentSession);
+                });
 
             return tcs.Task;
         }
@@ -305,18 +297,13 @@ namespace Orchestrator.App
         {
             var tcs = new TaskCompletionSource<Session>();
 
-            Action<Data.Session> fn = null;
-            fn = (session) =>
+            OrchestratorController.Instance.Wrapper.ScheduleSession(sessionId, (_, session) =>
             {
                 CurrentSession = new Session(this, session);
                 CurrentSession.Join();
 
                 tcs.SetResult(CurrentSession);
-                OrchestratorController.Instance.OnAddSessionEvent -= fn;
-            };
-
-            OrchestratorController.Instance.OnAddSessionEvent += fn;
-            OrchestratorController.Instance.ScheduleSession(sessionId);
+            });
 
             return tcs.Task;
         }

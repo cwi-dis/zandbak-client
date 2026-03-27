@@ -207,13 +207,13 @@ namespace Orchestrator.Wrapping {
 
         #region session management
 
-        public void AddSession(string sessionName, string sessionDescription, string sessionProtocol, string sessionRoom, string[] channels, bool persistent = false) {
+        public void AddSession(string sessionName, string sessionDescription, string sessionProtocol, string sessionRoom, string[] channels, bool persistent, Action<ResponseStatus, Session> callback) {
             lock (this) {
                 _socket.Emit("AddSession", (response) => {
                     var data = response.GetValue<OrchestratorResponse<Session>>();
 
                     UnityThread.executeInUpdate(() => {
-                        _responsesListener?.OnAddSessionResponse(data.ResponseStatus, data.Body);
+                        callback(data.ResponseStatus, data.Body);
                     });
                 }, new {
                     sessionName,
@@ -226,13 +226,13 @@ namespace Orchestrator.Wrapping {
             }
         }
 
-        public void ScheduleSession(string sessionId) {
+        public void ScheduleSession(string sessionId, Action<ResponseStatus, Session> callback) {
             lock (this) {
                 _socket.Emit("ScheduleSession", (response) => {
                     var data = response.GetValue<OrchestratorResponse<Session>>();
 
                     UnityThread.executeInUpdate(() => {
-                        _responsesListener?.OnAddSessionResponse(data.ResponseStatus, data.Body);
+                        callback(data.ResponseStatus, data.Body);
                     });
                 }, new {
                     sessionId
