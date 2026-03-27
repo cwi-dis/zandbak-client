@@ -325,8 +325,6 @@ namespace Orchestrator.App
             }
             else
             {
-                Action<Data.Session> fn = null;
-
                 OrchestratorController.Instance.Wrapper.JoinSession(sessionId, (_, session) =>
                 {
                     CurrentSession = sessionToJoin;
