@@ -102,11 +102,6 @@ namespace Orchestrator.Wrapping
         public event Action OnSessionCloseEvent;
 
         /// <summary>
-        /// Invoked when a given session has been joined successfully, with the session information as argument
-        /// </summary>
-        public event Action<Session> OnJoinSessionEvent;
-
-        /// <summary>
         /// Invoked in response to the current user in the session raising their hand
         /// </summary>
         public event Action OnRaisedHandEvent;
@@ -452,59 +447,6 @@ namespace Orchestrator.Wrapping
         #endregion
 
         #region Sessions
-
-        /// <summary>
-        /// Deletes the current session. The current user must either be the session creator or its admin to be allowed
-        /// to do this.
-        /// </summary>
-        /// <param name="pSessionID"></param>
-        [Obsolete("Direct usage of OrchestratorController is deprecated. Use the instance of App.Orchestrator returned by SocketConnectAsync() instead")]
-        public void DeleteSession(string pSessionID) {
-            _orchestratorWrapper.DeleteSession(pSessionID);
-        }
-
-        void IOrchestratorResponsesListener.OnDeleteSessionResponse(ResponseStatus status) {
-            if (status.Error != 0) {
-                OnErrorEvent?.Invoke(status);
-                return;
-            }
-
-            Log("OrchestratorController: OnDeleteSessionResponse: Session successfully deleted.");
-            _session = null;
-        }
-
-        /// <summary>
-        /// Joins the session with the given ID.
-        /// Invokes <c>OnJoinSessionEvent</c> upon completion with all information about the joined session.
-        /// </summary>
-        /// <param name="pSessionID">The ID of the session to be joined</param>
-        [Obsolete("Direct usage of OrchestratorController is deprecated. Use the instance of App.Orchestrator returned by SocketConnectAsync() instead")]
-        public void JoinSession(string pSessionID) {
-            _orchestratorWrapper.JoinSession(pSessionID);
-        }
-
-        void IOrchestratorResponsesListener.OnJoinSessionResponse(ResponseStatus status, Session session) {
-            if (status.Error != 0) {
-                OnErrorEvent?.Invoke(status);
-                return;
-            }
-
-            // success
-            _session = session;
-            _userIsMaster = session.MasterId == SelfUser.Id;
-            int userCount = session.GetUserCount();
-
-            Log($"OrchestratorController: OnJoinSessionResponse: Session {session.Name}, isMaster={(_userIsMaster)}, nUser={userCount}");
-
-            // Simulate a user joining a session for each connected user
-            foreach (var id in session.UserIds) {
-                if (id != SelfUser.Id) {
-                    ((IUserSessionEventsListener)this).OnUserJoinedSession(id, null);
-                }
-            }
-
-            OnJoinSessionEvent?.Invoke(_session);
-        }
 
         /// <summary>
         /// Sets the current user's <c>isSpeaking</c> flag to the given value.

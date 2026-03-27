@@ -326,18 +326,15 @@ namespace Orchestrator.App
             else
             {
                 Action<Data.Session> fn = null;
-                fn = (session) =>
+
+                OrchestratorController.Instance.Wrapper.JoinSession(sessionId, (_, session) =>
                 {
                     CurrentSession = sessionToJoin;
                     sessionToJoin.SessionData = session;
                     sessionToJoin.Join();
 
                     tcs.SetResult(sessionToJoin);
-                    OrchestratorController.Instance.OnJoinSessionEvent -= fn;
-                };
-
-                OrchestratorController.Instance.OnJoinSessionEvent += fn;
-                OrchestratorController.Instance.JoinSession(sessionId);
+                });
             }
 
             return tcs.Task;

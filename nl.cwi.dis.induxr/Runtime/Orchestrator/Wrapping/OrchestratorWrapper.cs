@@ -281,13 +281,13 @@ namespace Orchestrator.Wrapping {
             }
         }
 
-        public void DeleteSession(string sessionId) {
+        public void DeleteSession(string sessionId, Action<ResponseStatus> callback) {
             lock (this) {
                 _socket.Emit("DeleteSession", (response) => {
                     var data = response.GetValue<OrchestratorResponse<EmptyResponse>>();
 
                     UnityThread.executeInUpdate(() => {
-                        _responsesListener?.OnDeleteSessionResponse(data.ResponseStatus);
+                        callback(data.ResponseStatus);
                     });
                 }, new {
                     sessionId
@@ -295,13 +295,13 @@ namespace Orchestrator.Wrapping {
             }
         }
 
-        public void JoinSession(string sessionId) {
+        public void JoinSession(string sessionId, Action<ResponseStatus, Session> callback) {
             lock (this) {
                 _socket.Emit("JoinSession", (response) => {
                     var data = response.GetValue<OrchestratorResponse<Session>>();
 
                     UnityThread.executeInUpdate(() => {
-                        _responsesListener?.OnJoinSessionResponse(data.ResponseStatus, data.Body);
+                        callback(data.ResponseStatus, data.Body);
                     });
                 }, new {
                     sessionId
