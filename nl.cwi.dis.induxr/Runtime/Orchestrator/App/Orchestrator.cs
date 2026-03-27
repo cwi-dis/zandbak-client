@@ -218,15 +218,10 @@ namespace Orchestrator.App
         {
             var tcs = new TaskCompletionSource<List<ScheduledSession>>();
 
-            Action<List<ScheduledSession>> fn = null;
-            fn = (sessions) =>
+            OrchestratorController.Instance.Wrapper.GetScheduledSessions((_, scheduledSessions) =>
             {
-                tcs.SetResult(sessions);
-                OrchestratorController.Instance.OnScheduledSessionsEvent -= fn;
-            };
-
-            OrchestratorController.Instance.OnScheduledSessionsEvent += fn;
-            OrchestratorController.Instance.GetScheduledSessions();
+                tcs.SetResult(scheduledSessions);
+            });
 
             return tcs.Task;
         }

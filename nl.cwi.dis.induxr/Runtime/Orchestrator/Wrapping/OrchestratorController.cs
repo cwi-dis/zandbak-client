@@ -98,11 +98,6 @@ namespace Orchestrator.Wrapping
         public event Action<bool> OnLogoutEvent;
 
         /// <summary>
-        /// Invoked when a list of scheduled sessions has been requested with the list of scheduled sessions as argument
-        /// </summary>
-        public event Action<List<ScheduledSession>> OnScheduledSessionsEvent;
-
-        /// <summary>
         /// Invoked when information about the current session has been requested, with the session information as argument
         /// </summary>
         public event Action<Session> OnSessionInfoEvent;
@@ -473,26 +468,6 @@ namespace Orchestrator.Wrapping
         #endregion
 
         #region Sessions
-
-        /// <summary>
-        /// Retrieves the list of scheduled sessions.
-        /// Invokes <c>OnScheduledSessionsEvent</c> upon completion with a list of sessions.
-        /// </summary>
-        [Obsolete("Direct usage of OrchestratorController is deprecated. Use the instance of App.Orchestrator returned by SocketConnectAsync() instead")]
-        public void GetScheduledSessions()
-        {
-            _orchestratorWrapper.GetScheduledSessions();
-        }
-
-        void IOrchestratorResponsesListener.OnGetScheduledSessionsResponse(ResponseStatus status, List<ScheduledSession> sessions)
-        {
-            if (status.Error != 0) {
-                OnErrorEvent?.Invoke(status);
-                return;
-            }
-
-            OnScheduledSessionsEvent?.Invoke(sessions);
-        }
 
         /// <summary>
         /// Creates a new session with the given name and the given description.

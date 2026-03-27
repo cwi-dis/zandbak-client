@@ -257,13 +257,13 @@ namespace Orchestrator.Wrapping {
             }
         }
 
-        public void GetScheduledSessions() {
+        public void GetScheduledSessions(Action<ResponseStatus, List<ScheduledSession>> callback) {
             lock (this) {
                 _socket.Emit("GetScheduledSessions", (response) => {
                     var data = response.GetValue<OrchestratorResponse<List<ScheduledSession>>>();
 
                     UnityThread.executeInUpdate(() => {
-                        _responsesListener?.OnGetScheduledSessionsResponse(data.ResponseStatus, data.Body);
+                        callback(data.ResponseStatus, data.Body);
                     });
                 }, new { });
             }
