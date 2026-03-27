@@ -1,6 +1,6 @@
 {
   "name" : "nl.cwi.dis.induxr",
-  "version" : "1.0.1",
+  "version" : "1.2.0",
   "displayName" : "INDUX-R Orchestrator Wrapper",
   "description" : "Create networked shared social VR experiences in Unity.",
   "dependencies": {
