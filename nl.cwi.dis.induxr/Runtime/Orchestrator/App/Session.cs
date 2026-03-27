@@ -285,21 +285,24 @@ namespace Orchestrator.App
         public Task<bool> Leave()
         {
             var tcs = new TaskCompletionSource<bool>();
-            OrchestratorController.Instance.Wrapper.LeaveSession();
 
-            foreach (var user in Users)
+            OrchestratorController.Instance.Wrapper.LeaveSession((_) =>
             {
-                user.Leave();
-            }
+                foreach (var user in Users)
+                {
+                    user.Leave();
+                }
 
-            if (_orchestrator.Sessions.Remove(_orchestrator.CurrentSession))
-            {
-                Debug.Log("Removed current session from session list");
-            }
+                if (_orchestrator.Sessions.Remove(_orchestrator.CurrentSession))
+                {
+                    Debug.Log("Removed current session from session list");
+                }
 
-            _orchestrator.CurrentSession = null;
+                _orchestrator.CurrentSession = null;
 
-            tcs.SetResult(true);
+                tcs.SetResult(true);
+            });
+
             return tcs.Task;
         }
 
@@ -312,10 +315,12 @@ namespace Orchestrator.App
         {
             var tcs = new TaskCompletionSource<bool>();
 
-            OrchestratorController.Instance.Wrapper.LeaveSession(userToRemove.Id);
-            userToRemove.Leave();
+            OrchestratorController.Instance.Wrapper.LeaveSession(userToRemove.Id, (_) =>
+            {
+                userToRemove.Leave();
+                tcs.SetResult(true);
+            });
 
-            tcs.SetResult(true);
             return tcs.Task;
         }
 

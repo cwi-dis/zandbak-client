@@ -309,17 +309,28 @@ namespace Orchestrator.Wrapping {
             }
         }
 
-        public void LeaveSession(string userId = null) {
+        public void LeaveSession(Action<ResponseStatus> callback) {
             lock (this) {
-                object requestParams = (userId == null) ? new { } : new { userId };
-
                 _socket.Emit("LeaveSession", (response) => {
                     var data = response.GetValue<OrchestratorResponse<EmptyResponse>>();
 
                     UnityThread.executeInUpdate(() => {
-                        _responsesListener?.OnLeaveSessionResponse(data.ResponseStatus);
+                        callback(data.ResponseStatus);
                     });
-                }, requestParams);
+                }, new {});
+            }
+        }
+
+        public void LeaveSession(string userId, Action<ResponseStatus> callback)
+        {
+            lock (this) {
+                _socket.Emit("LeaveSession", (response) => {
+                    var data = response.GetValue<OrchestratorResponse<EmptyResponse>>();
+
+                    UnityThread.executeInUpdate(() => {
+                        callback(data.ResponseStatus);
+                    });
+                }, new { userId });
             }
         }
 

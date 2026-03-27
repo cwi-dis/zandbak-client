@@ -577,27 +577,12 @@ namespace Orchestrator.Wrapping
             }
         }
 
-        void IOrchestratorResponsesListener.OnLeaveSessionResponse(ResponseStatus status) {
-            if (status.Error != 0) {
-                OnErrorEvent?.Invoke(status);
-                return;
-            }
-
-            Log("OrchestratorController: OnLeaveSessionResponse: Session successfully left.");
-
-            // Set this at the end and for the session creator, when the session has been deleted.
-            _session = null;
-        }
-
         void IUserSessionEventsListener.OnSessionClosed()
         {
             // The session has been closed by the session creator.
             Log("OrchestratorController: OnSessionClosed: Current session closed by session creator.");
 
             OnSessionCloseEvent?.Invoke();
-
-            // Leave the session
-            Wrapper.LeaveSession();
         }
 
         void IUserSessionEventsListener.OnUserJoinedSession(string userID, User user) {
