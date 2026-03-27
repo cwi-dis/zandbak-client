@@ -161,7 +161,7 @@ namespace Orchestrator.Data
         [JsonProperty("id")] public string Id;
         [JsonProperty("name")] public string Name;
         [JsonProperty("description")] public string Description;
-        [JsonProperty("filename")] public string Filename;
+        [JsonProperty("model")] public string Model;
     }
 
     public class ScheduledSession : OrchestratorElement
