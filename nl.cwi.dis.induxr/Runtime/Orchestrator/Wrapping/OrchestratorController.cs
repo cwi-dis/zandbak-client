@@ -232,10 +232,7 @@ namespace Orchestrator.Wrapping
 
         public bool ConnectedToOrchestrator => _connectedToOrchestrator;
         public OrchestratorConnectionStatus ConnectionStatus => _connectionStatus;
-        public bool UserIsLogged => _userIsLogged;
-        public bool UserIsMaster => _userIsMaster;
         public User SelfUser { get; private set; }
-        public Session CurrentSession => _session;
 
         #endregion
 
@@ -477,7 +474,7 @@ namespace Orchestrator.Wrapping
         }
 
         /// <summary>
-        /// Joins the session given by the ID.
+        /// Joins the session with the given ID.
         /// Invokes <c>OnJoinSessionEvent</c> upon completion with all information about the joined session.
         /// </summary>
         /// <param name="pSessionID">The ID of the session to be joined</param>

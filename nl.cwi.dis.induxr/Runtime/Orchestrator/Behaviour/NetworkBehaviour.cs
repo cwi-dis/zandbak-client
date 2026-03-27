@@ -45,7 +45,7 @@ namespace Orchestrator.Behaviour
         }
 
         private void Broadcast(object data) {
-            if (OrchestratorController.Instance.CurrentSession != null)
+            if (OrchestratorController.Instance.Orchestrator.CurrentSession != null)
             {
                 OrchestratorController.Instance.Broadcast("transform", JsonConvert.SerializeObject(data));
             }
