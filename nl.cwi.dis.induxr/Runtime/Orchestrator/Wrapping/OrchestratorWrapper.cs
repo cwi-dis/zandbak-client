@@ -144,13 +144,13 @@ namespace Orchestrator.Wrapping {
             }
         }
 
-        public void GetNtpTime() {
+        public void GetNtpTime(Action<ResponseStatus, NtpClock> callback) {
             lock (this) {
                 _socket.Emit("GetNTPTime", (response) => {
                     var data = response.GetValue<OrchestratorResponse<NtpClock>>();
 
                     UnityThread.executeInUpdate(() => {
-                        _responsesListener?.OnGetNTPTimeResponse(data.ResponseStatus, data.Body);
+                        callback(data.ResponseStatus, data.Body);
                     });
                 }, new { });
             }

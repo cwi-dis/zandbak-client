@@ -185,15 +185,10 @@ namespace Orchestrator.App
         {
             var tcs = new TaskCompletionSource<double>();
 
-            Action<NtpClock> fn = null;
-            fn = (ntpTime) =>
+            OrchestratorController.Instance.Wrapper.GetNtpTime((_, ntpTime) =>
             {
                 tcs.SetResult(ntpTime.Timestamp);
-                OrchestratorController.Instance.OnGetNtpTimeEvent -= fn;
-            };
-
-            OrchestratorController.Instance.OnGetNtpTimeEvent += fn;
-            OrchestratorController.Instance.GetNtpTime();
+            });
 
             return tcs.Task;
         }

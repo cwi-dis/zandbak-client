@@ -98,11 +98,6 @@ namespace Orchestrator.Wrapping
         public event Action<bool> OnLogoutEvent;
 
         /// <summary>
-        /// Invoked when the current NTP time is received, with the NTP time as argument
-        /// </summary>
-        public event Action<NtpClock> OnGetNtpTimeEvent;
-
-        /// <summary>
         /// Invoked when a list of sessions has been requested with the list of sessions as argument
         /// </summary>
         public event Action<List<Session>> OnSessionsEvent;
@@ -478,31 +473,6 @@ namespace Orchestrator.Wrapping
             _userIsLogged = false;
 
             OnLogoutEvent?.Invoke(userLoggedOutSuccessfully);
-        }
-
-        #endregion
-
-        #region NTP clock
-
-        /// <summary>
-        /// Gets the current NTP time from the Orchestrator.
-        /// Invokes <c>OnGetNtpTimeEvent</c> upon completion with the current NTP time.
-        /// </summary>
-        [Obsolete("Direct usage of OrchestratorController is deprecated. Use the instance of App.Orchestrator returned by SocketConnectAsync() instead")]
-        public void GetNtpTime() {
-            _orchestratorWrapper.GetNtpTime();
-        }
-
-        void IOrchestratorResponsesListener.OnGetNTPTimeResponse(ResponseStatus status, NtpClock ntpTime) {
-            if (status.Error != 0) {
-                OnErrorEvent?.Invoke(status);
-                return;
-            }
-
-            Log("OrchestratorController: OnGetNTPTimeResponse: NtpTime: " + ntpTime.Timestamp);
-            if (OnGetNtpTimeEvent == null) Debug.LogWarning("OrchestratorController: NTP time response received but nothing listens");
-
-            OnGetNtpTimeEvent?.Invoke(ntpTime);
         }
 
         #endregion
