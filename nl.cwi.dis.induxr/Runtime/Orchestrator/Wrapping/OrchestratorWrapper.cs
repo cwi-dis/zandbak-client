@@ -269,13 +269,13 @@ namespace Orchestrator.Wrapping {
             }
         }
 
-        public void GetSessionInfo() {
+        public void GetSessionInfo(Action<ResponseStatus, Session> callback) {
             lock (this) {
                 _socket.Emit("GetSessionInfo", (response) => {
                     var data = response.GetValue<OrchestratorResponse<Session>>();
 
                     UnityThread.executeInUpdate(() => {
-                        _responsesListener?.OnGetSessionInfoResponse(data.ResponseStatus, data.Body);
+                        callback(data.ResponseStatus, data.Body);
                     });
                 }, new { });
             }

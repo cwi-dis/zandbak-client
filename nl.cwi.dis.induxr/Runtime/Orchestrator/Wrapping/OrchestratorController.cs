@@ -47,7 +47,6 @@ namespace Orchestrator.Wrapping
 
         //Session
         private Session _session;
-        private List<Session> _availableSessions = new();
 
         // user Login state
         private bool _userIsLogged;
@@ -96,11 +95,6 @@ namespace Orchestrator.Wrapping
         /// Invoked when the current user logs out of the Orchestrator, with a boolean indicating success as argument
         /// </summary>
         public event Action<bool> OnLogoutEvent;
-
-        /// <summary>
-        /// Invoked when information about the current session has been requested, with the session information as argument
-        /// </summary>
-        public event Action<Session> OnSessionInfoEvent;
 
         /// <summary>
         /// Invoked when the current session is being closed remotely
@@ -241,7 +235,6 @@ namespace Orchestrator.Wrapping
         public bool UserIsLogged => _userIsLogged;
         public bool UserIsMaster => _userIsMaster;
         public User SelfUser { get; private set; }
-        public Session[] AvailableSessions => _availableSessions?.ToArray();
         public Session CurrentSession => _session;
 
         #endregion
@@ -462,38 +455,6 @@ namespace Orchestrator.Wrapping
         #endregion
 
         #region Sessions
-
-        /// <summary>
-        /// Retrieves information about the session that the user is currently a member of.
-        /// Invokes <c>OnSessionInfoEvent</c> upon completion with all information about the current session.
-        /// </summary>
-        [Obsolete("Direct usage of OrchestratorController is deprecated. Use the instance of App.Orchestrator returned by SocketConnectAsync() instead")]
-        public void GetSessionInfo() {
-            _orchestratorWrapper.GetSessionInfo();
-        }
-
-        void IOrchestratorResponsesListener.OnGetSessionInfoResponse(ResponseStatus status, Session session) {
-            if (_session == null || string.IsNullOrEmpty(session.Id)) {
-                LogWarning("OrchestratorController: OnGetSessionInfoResponse: Aborted, current session is null.");
-                return;
-            }
-
-            if (status.Error != 0) {
-                LogError($"OrchestratorController: OnGetSessionInfoResponse: clear session, status={status}");
-                _session = null;
-                OnErrorEvent?.Invoke(status);
-                return;
-            }
-
-            // success
-            _session = session;
-            _userIsMaster = session.MasterId == SelfUser.Id;
-            int userCount = _session.GetUserCount();
-
-            Log($"OrchestratorController: OnGetSessionInfoResponse: Get session info of {session.Name}, isMaster={(_userIsMaster)}, nUser={userCount}");
-
-            OnSessionInfoEvent?.Invoke(session);
-        }
 
         /// <summary>
         /// Deletes the current session. The current user must either be the session creator or its admin to be allowed
@@ -721,69 +682,42 @@ namespace Orchestrator.Wrapping
         }
 
         void IUserSessionEventsListener.OnUserJoinedSession(string userID, User user) {
-            // Someone has joined the session
-            if (string.IsNullOrEmpty(userID))
-            {
-                Debug.LogError("OrchestratorController: OnUserJoinedSession: empty userID");
-            }
-
-            if (user == null)
-            {
-                user = _session.GetUser(userID);
-
-                if (user == null)
-                {
-                    Debug.LogError($"OrchestratorController: OnUserJoinedSession: userID {userID} unknown");
-                    return;
-                }
-            }
-
-            Log("OrchestratorController: OnUserJoinedSession: User " + user.Username + " joined the session.");
-
-            _orchestratorWrapper.GetSessionInfo();
             OnUserJoinSessionEvent?.Invoke(userID, user);
         }
 
         void IUserSessionEventsListener.OnUserLeftSession(string userID, bool force) {
             if (!string.IsNullOrEmpty(userID)) {
-                _orchestratorWrapper.GetSessionInfo();
                 OnUserLeaveSessionEvent?.Invoke(userID, force);
             }
         }
 
         void IUserSessionEventsListener.OnUserRaisedHand(string userID)
         {
-            _orchestratorWrapper.GetSessionInfo();
             OnUserRaisedHandEvent?.Invoke(userID);
         }
 
         void IUserSessionEventsListener.OnUserClearedRaisedHand(string userID)
         {
-            _orchestratorWrapper.GetSessionInfo();
             OnUserClearedRaisedHandEvent?.Invoke(userID);
         }
 
         void IUserSessionEventsListener.OnSessionStatusChanged(string status)
         {
-            _orchestratorWrapper.GetSessionInfo();
             OnSessionStatusChangedEvent?.Invoke(status);
         }
 
         void IUserSessionEventsListener.OnPresentationChanged(Presentation presentation)
         {
-            _orchestratorWrapper.GetSessionInfo();
             OnSessionPresentationChangedEvent?.Invoke(presentation);
         }
 
         void IUserSessionEventsListener.OnPresentationIsSharingChanged(Presentation presentation)
         {
-            _orchestratorWrapper.GetSessionInfo();
             OnSessionPresentationIsSharingEvent?.Invoke(presentation);
         }
 
         void IUserSessionEventsListener.OnSlideChanged(Presentation presentation)
         {
-            _orchestratorWrapper.GetSessionInfo();
             OnSessionPresentationSlideChangedEvent?.Invoke(presentation);
         }
 

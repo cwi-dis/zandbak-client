@@ -233,16 +233,11 @@ namespace Orchestrator.App
         {
             var tcs = new TaskCompletionSource<Session>();
 
-            Action<Data.Session> fn = null;
-            fn = (sessionData) =>
+            OrchestratorController.Instance.Wrapper.GetSessionInfo((_, sessionData) =>
             {
                 _sessionData = sessionData;
                 tcs.SetResult(this);
-                OrchestratorController.Instance.OnSessionInfoEvent -= fn;
-            };
-
-            OrchestratorController.Instance.OnSessionInfoEvent += fn;
-            OrchestratorController.Instance.GetSessionInfo();
+            });
 
             return tcs.Task;
         }
