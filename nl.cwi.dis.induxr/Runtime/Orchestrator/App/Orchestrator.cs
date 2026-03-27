@@ -247,11 +247,29 @@ namespace Orchestrator.App
         }
 
         /// <summary>
+        /// Retrieves a list of available rooms from the Orchestrator
+        /// </summary>
+        /// <returns>A task that represents the asynchronous operation. The task result contains a list of available rooms.</returns>
+        public Task<List<Room>> GetRooms()
+        {
+            var tcs = new TaskCompletionSource<List<Room>>();
+
+            OrchestratorController.Instance.Wrapper.GetRooms((_, body) =>
+            {
+                var rooms = body.Select(r => new Room(this, r)).ToList();
+                tcs.SetResult(rooms);
+            });
+
+            return tcs.Task;
+        }
+
+        /// <summary>
         /// Creates a new session asynchronously with the specified session name.
         /// </summary>
         /// <param name="sessionName">The name of the session to be created.</param>
+        /// <param name="room">The room model to use for this session</param>
         /// <returns>A task that represents the asynchronous operation. The task result contains the created session object.</returns>
-        public Task<Session> CreateSession(string sessionName)
+        public Task<Session> CreateSession(string sessionName, Room room)
         {
             var tcs = new TaskCompletionSource<Session>();
 
@@ -266,7 +284,7 @@ namespace Orchestrator.App
             };
 
             OrchestratorController.Instance.OnAddSessionEvent += fn;
-            OrchestratorController.Instance.AddSession(sessionName);
+            OrchestratorController.Instance.AddSession(sessionName, room.Id);
 
             return tcs.Task;
         }
@@ -275,8 +293,9 @@ namespace Orchestrator.App
         /// Creates a new persistent session asynchronously with the specified session name.
         /// </summary>
         /// <param name="sessionName">The name of the session to be created.</param>
+        /// <param name="room">The room model to use for this session</param>
         /// <returns>A task that represents the asynchronous operation. The task result contains the created session object.</returns>
-        public Task<Session> CreatePersistentSession(string sessionName)
+        public Task<Session> CreatePersistentSession(string sessionName, Room room)
         {
             var tcs = new TaskCompletionSource<Session>();
 
@@ -291,7 +310,7 @@ namespace Orchestrator.App
             };
 
             OrchestratorController.Instance.OnAddSessionEvent += fn;
-            OrchestratorController.Instance.AddSession(sessionName, persistent: true);
+            OrchestratorController.Instance.AddSession(sessionName, room.Id, persistent: true);
 
             return tcs.Task;
         }

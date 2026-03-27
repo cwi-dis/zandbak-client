@@ -35,6 +35,8 @@ namespace Orchestrator.App
         public List<Bubble> Bubbles { get; private set; }
         public Bubble CurrentBubble;
 
+        public Room Room { get; private set; }
+
         public List<ChatMessage> Chat => _sessionData.Chat.ToList();
         public Dictionary<string, List<ChatMessage>> PrivateMessages = new();
 
@@ -195,6 +197,7 @@ namespace Orchestrator.App
 
             Users = _sessionData.UserDefinitions.Select(u => new User(orchestrator, u)).ToList();
             Bubbles = _sessionData.Bubbles.Select(b => new Bubble(orchestrator, b)).ToList();
+            Room = new Room(orchestrator, _sessionData.Room);
 
             OrchestratorController.Instance.OnSessionCloseEvent += SessionClosed;
 

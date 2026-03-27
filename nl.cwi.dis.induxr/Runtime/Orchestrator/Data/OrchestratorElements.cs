@@ -156,6 +156,14 @@ namespace Orchestrator.Data
         [JsonProperty("users")] public List<User> Users;
     }
 
+    public class Room : OrchestratorElement
+    {
+        [JsonProperty("id")] public string Id;
+        [JsonProperty("name")] public string Name;
+        [JsonProperty("description")] public string Description;
+        [JsonProperty("model")] public string Model;
+    }
+
     public class ScheduledSession : OrchestratorElement
     {
         [JsonProperty("id")] public string Id;
@@ -168,6 +176,7 @@ namespace Orchestrator.Data
         [JsonProperty("createdAt")] public DateTime CreatedAt;
         [JsonProperty("updatedAt")] public DateTime UpdatedAt;
         [JsonProperty("presentations")] public List<ScheduledPresentation> Presentations;
+        [JsonProperty("room")] public Room Room;
     }
 
     public class Session : OrchestratorElement
@@ -187,6 +196,7 @@ namespace Orchestrator.Data
         [JsonProperty("sessionCurrentPresentation")] public Presentation CurrentPresentation;
         [JsonProperty("sessionPresentations")] public List<Presentation> Presentations;
         [JsonProperty("sessionBubbles")] public List<Bubble> Bubbles;
+        [JsonProperty("sessionRoom")] public Room Room;
         [JsonProperty("sessionStatus")] public string Status;
         [JsonProperty("sessionPersistent")] public bool Persistent;
 
