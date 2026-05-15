@@ -1,7 +1,6 @@
 ﻿#pragma warning disable CS0618
 
 using System;
-using System.Collections.Generic;
 using System.Text;
 using System.Threading.Tasks;
 using Orchestrator.Data;
@@ -87,26 +86,6 @@ namespace Orchestrator.Wrapping
         /// Invoked when the current session is being closed remotely
         /// </summary>
         public event Action OnSessionCloseEvent;
-
-        /// <summary>
-        /// Invoked in response to the current user in the session raising their hand
-        /// </summary>
-        public event Action OnRaisedHandEvent;
-
-        /// <summary>
-        /// Invoked in response to the current user clearing a raised hand
-        /// </summary>
-        public event Action OnClearRaisedHandEvent;
-
-        /// <summary>
-        /// Invoked in response to the current user requesting the list of raised hands. Receives a list of users as an argument
-        /// </summary>
-        public event Action<List<User>> OnGetRaisedHandsEvent;
-
-        /// <summary>
-        /// Invoked in response to the current user requesting the list of chat messages. Receives a list of chat messages as an argument
-        /// </summary>
-        public event Action<List<ChatMessage>> OnGetMessagesEvent;
 
         /// <summary>
         /// Invoked when a new user joins the current session, with the user ID as argument
