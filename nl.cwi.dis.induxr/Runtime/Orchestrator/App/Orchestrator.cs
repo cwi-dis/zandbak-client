@@ -93,15 +93,10 @@ namespace Orchestrator.App
         {
             var tcs = new TaskCompletionSource<string>();
 
-            Action<string> fn = null;
-            fn = (version) =>
+            OrchestratorController.Instance.Wrapper.GetOrchestratorVersion((_, version) =>
             {
                 tcs.SetResult(version);
-                OrchestratorController.Instance.OnGetOrchestratorVersionEvent -= fn;
-            };
-
-            OrchestratorController.Instance.OnGetOrchestratorVersionEvent += fn;
-            OrchestratorController.Instance.GetVersion();
+            });
 
             return tcs.Task;
         }
@@ -120,10 +115,10 @@ namespace Orchestrator.App
         {
             var tcs = new TaskCompletionSource<User>();
 
-            Action<bool, Data.User> fn = null;
-            fn = (success, userData) =>
+            Action<ResponseStatus, Data.User> fn = null;
+            fn = (response, userData) =>
             {
-                if (success)
+                if (response.Error == 0)
                 {
                     Self = new SelfUser(this, userData);
                     tcs.SetResult(Self);
@@ -132,20 +127,17 @@ namespace Orchestrator.App
                 {
                     tcs.SetException(new Exception("Login failed"));
                 }
-
-                OrchestratorController.Instance.OnLoginEvent -= fn;
             };
-
-            OrchestratorController.Instance.OnLoginEvent += fn;
 
             if (password == null)
             {
-                OrchestratorController.Instance.Login(username, deviceType);
+                OrchestratorController.Instance.Wrapper.Login(username, OrchestratorController.DeviceTypeToString(deviceType), fn);
             }
             else
             {
-                OrchestratorController.Instance.Login(username, password, deviceType);
+                OrchestratorController.Instance.Wrapper.Login(username, password, OrchestratorController.DeviceTypeToString(deviceType), fn);
             }
+
 
             return tcs.Task;
         }
@@ -158,18 +150,13 @@ namespace Orchestrator.App
         {
             var tcs = new TaskCompletionSource<bool>();
 
-            Action<bool> fn = null;
-            fn = (success) =>
+            OrchestratorController.Instance.Wrapper.Logout((success) =>
             {
                 Self = null;
                 CurrentSession = null;
 
                 tcs.SetResult(success);
-                OrchestratorController.Instance.OnLogoutEvent -= fn;
-            };
-
-            OrchestratorController.Instance.OnLogoutEvent += fn;
-            OrchestratorController.Instance.Logout();
+            });
 
             return tcs.Task;
         }
@@ -190,15 +177,10 @@ namespace Orchestrator.App
         {
             var tcs = new TaskCompletionSource<double>();
 
-            Action<NtpClock> fn = null;
-            fn = (ntpTime) =>
+            OrchestratorController.Instance.Wrapper.GetNtpTime((_, ntpTime) =>
             {
                 tcs.SetResult(ntpTime.Timestamp);
-                OrchestratorController.Instance.OnGetNtpTimeEvent -= fn;
-            };
-
-            OrchestratorController.Instance.OnGetNtpTimeEvent += fn;
-            OrchestratorController.Instance.GetNtpTime();
+            });
 
             return tcs.Task;
         }
@@ -211,16 +193,11 @@ namespace Orchestrator.App
         {
             var tcs = new TaskCompletionSource<List<Session>>();
 
-            Action<List<Data.Session>> fn = null;
-            fn = (sessions) =>
+            OrchestratorController.Instance.Wrapper.GetSessions((_, sessions) =>
             {
                 Sessions = sessions.Select(session => new Session(this, session)).ToList();
                 tcs.SetResult(Sessions);
-                OrchestratorController.Instance.OnSessionsEvent -= fn;
-            };
-
-            OrchestratorController.Instance.OnSessionsEvent += fn;
-            OrchestratorController.Instance.GetSessions();
+            });
 
             return tcs.Task;
         }
@@ -233,15 +210,10 @@ namespace Orchestrator.App
         {
             var tcs = new TaskCompletionSource<List<ScheduledSession>>();
 
-            Action<List<ScheduledSession>> fn = null;
-            fn = (sessions) =>
+            OrchestratorController.Instance.Wrapper.GetScheduledSessions((_, scheduledSessions) =>
             {
-                tcs.SetResult(sessions);
-                OrchestratorController.Instance.OnScheduledSessionsEvent -= fn;
-            };
-
-            OrchestratorController.Instance.OnScheduledSessionsEvent += fn;
-            OrchestratorController.Instance.GetScheduledSessions();
+                tcs.SetResult(scheduledSessions);
+            });
 
             return tcs.Task;
         }
@@ -273,18 +245,14 @@ namespace Orchestrator.App
         {
             var tcs = new TaskCompletionSource<Session>();
 
-            Action<Data.Session> fn = null;
-            fn = (session) =>
-            {
-                CurrentSession = new Session(this, session);
-                CurrentSession.Join();
+            OrchestratorController.Instance.Wrapper.AddSession(sessionName, "", "socketio", room.Id, new[] { "transform" }, false,
+                (_, session) =>
+                {
+                    CurrentSession = new Session(this, session);
+                    CurrentSession.Join();
 
-                tcs.SetResult(CurrentSession);
-                OrchestratorController.Instance.OnAddSessionEvent -= fn;
-            };
-
-            OrchestratorController.Instance.OnAddSessionEvent += fn;
-            OrchestratorController.Instance.AddSession(sessionName, room.Id);
+                    tcs.SetResult(CurrentSession);
+                });
 
             return tcs.Task;
         }
@@ -299,18 +267,14 @@ namespace Orchestrator.App
         {
             var tcs = new TaskCompletionSource<Session>();
 
-            Action<Data.Session> fn = null;
-            fn = (session) =>
-            {
-                CurrentSession = new Session(this, session);
-                CurrentSession.Join();
+            OrchestratorController.Instance.Wrapper.AddSession(sessionName, "", "socketio", room.Id, new[] { "transform" }, true,
+                (_, session) =>
+                {
+                    CurrentSession = new Session(this, session);
+                    CurrentSession.Join();
 
-                tcs.SetResult(CurrentSession);
-                OrchestratorController.Instance.OnAddSessionEvent -= fn;
-            };
-
-            OrchestratorController.Instance.OnAddSessionEvent += fn;
-            OrchestratorController.Instance.AddSession(sessionName, room.Id, persistent: true);
+                    tcs.SetResult(CurrentSession);
+                });
 
             return tcs.Task;
         }
@@ -325,18 +289,13 @@ namespace Orchestrator.App
         {
             var tcs = new TaskCompletionSource<Session>();
 
-            Action<Data.Session> fn = null;
-            fn = (session) =>
+            OrchestratorController.Instance.Wrapper.ScheduleSession(sessionId, (_, session) =>
             {
                 CurrentSession = new Session(this, session);
                 CurrentSession.Join();
 
                 tcs.SetResult(CurrentSession);
-                OrchestratorController.Instance.OnAddSessionEvent -= fn;
-            };
-
-            OrchestratorController.Instance.OnAddSessionEvent += fn;
-            OrchestratorController.Instance.ScheduleSession(sessionId);
+            });
 
             return tcs.Task;
         }
@@ -358,19 +317,14 @@ namespace Orchestrator.App
             }
             else
             {
-                Action<Data.Session> fn = null;
-                fn = (session) =>
+                OrchestratorController.Instance.Wrapper.JoinSession(sessionId, (_, session) =>
                 {
                     CurrentSession = sessionToJoin;
                     sessionToJoin.SessionData = session;
                     sessionToJoin.Join();
 
                     tcs.SetResult(sessionToJoin);
-                    OrchestratorController.Instance.OnJoinSessionEvent -= fn;
-                };
-
-                OrchestratorController.Instance.OnJoinSessionEvent += fn;
-                OrchestratorController.Instance.JoinSession(sessionId);
+                });
             }
 
             return tcs.Task;

@@ -1,7 +1,6 @@
 ﻿#pragma warning disable CS0618
 
 using System;
-using System.Collections.Generic;
 using System.Text;
 using System.Threading.Tasks;
 using Orchestrator.Data;
@@ -47,10 +46,6 @@ namespace Orchestrator.Wrapping
 
         //Session
         private Session _session;
-        private List<Session> _availableSessions = new();
-
-        // user Login state
-        private bool _userIsLogged;
 
         // user Login state
         private bool _userIsMaster;
@@ -88,80 +83,9 @@ namespace Orchestrator.Wrapping
         public event Action<bool> OnConnectionEvent;
 
         /// <summary>
-        /// Invoked when the Orchestrator's current version is requested, with the version as an argument
-        /// </summary>
-        public event Action<string> OnGetOrchestratorVersionEvent;
-
-        /// <summary>
-        /// Invoked when the current user logs into the Orchestrator, with a boolean indicating success and the user's ID as arguments
-        /// </summary>
-        public event Action<bool, User> OnLoginEvent;
-
-        /// <summary>
-        /// Invoked when the current user logs out of the Orchestrator, with a boolean indicating success as argument
-        /// </summary>
-        public event Action<bool> OnLogoutEvent;
-
-        /// <summary>
-        /// Invoked when the current NTP time is received, with the NTP time as argument
-        /// </summary>
-        public event Action<NtpClock> OnGetNtpTimeEvent;
-
-        /// <summary>
-        /// Invoked when a list of sessions has been requested with the list of sessions as argument
-        /// </summary>
-        public event Action<List<Session>> OnSessionsEvent;
-
-        /// <summary>
-        /// Invoked when a list of scheduled sessions has been requested with the list of scheduled sessions as argument
-        /// </summary>
-        public event Action<List<ScheduledSession>> OnScheduledSessionsEvent;
-
-        /// <summary>
-        /// Invoked when information about the current session has been requested, with the session information as argument
-        /// </summary>
-        public event Action<Session> OnSessionInfoEvent;
-
-        /// <summary>
-        /// Invoked when a new session has been created, with the session information as argument
-        /// </summary>
-        public event Action<Session> OnAddSessionEvent;
-
-
-        /// <summary>
         /// Invoked when the current session is being closed remotely
         /// </summary>
         public event Action OnSessionCloseEvent;
-
-        /// <summary>
-        /// Invoked when a given session has been joined successfully, with the session information as argument
-        /// </summary>
-        public event Action<Session> OnJoinSessionEvent;
-
-        /// <summary>
-        /// Invoked in response to the current user in the session raising their hand
-        /// </summary>
-        public event Action OnRaisedHandEvent;
-
-        /// <summary>
-        /// Invoked in response to the current user clearing a raised hand
-        /// </summary>
-        public event Action OnClearRaisedHandEvent;
-
-        /// <summary>
-        /// Invoked in response to the current user requesting the list of raised hands. Receives a list of users as an argument
-        /// </summary>
-        public event Action<List<User>> OnGetRaisedHandsEvent;
-
-        /// <summary>
-        /// Invoked in response to the current user requesting the list of chat messages. Receives a list of chat messages as an argument
-        /// </summary>
-        public event Action<List<ChatMessage>> OnGetMessagesEvent;
-
-        /// <summary>
-        /// Invoked in response to the current user setting their isSpeaking flag
-        /// </summary>
-        public event Action<bool> OnIsSpeakingEvent;
 
         /// <summary>
         /// Invoked when a new user joins the current session, with the user ID as argument
@@ -264,11 +188,6 @@ namespace Orchestrator.Wrapping
 
         public bool ConnectedToOrchestrator => _connectedToOrchestrator;
         public OrchestratorConnectionStatus ConnectionStatus => _connectionStatus;
-        public bool UserIsLogged => _userIsLogged;
-        public bool UserIsMaster => _userIsMaster;
-        public User SelfUser { get; private set; }
-        public Session[] AvailableSessions => _availableSessions?.ToArray();
-        public Session CurrentSession => _session;
 
         #endregion
 
@@ -368,514 +287,24 @@ namespace Orchestrator.Wrapping
             Abort();
         }
 
-        /// <summary>
-        /// Retrieves the version of the Orchestrator by sending a request to the connected server.
-        /// Invokes <c>OnGetOrchestratorVersionEvent</c> upon completion.
-        /// </summary>
-        [Obsolete("Direct usage of OrchestratorController is deprecated. Use the instance of App.Orchestrator returned by SocketConnectAsync() instead")]
-        public void GetVersion()
-        {
-            _orchestratorWrapper.GetOrchestratorVersion();
-        }
-
-        void IOrchestratorResponsesListener.OnGetOrchestratorVersionResponse(ResponseStatus status, string version) {
-            if (status.Error != 0) {
-                OnErrorEvent?.Invoke(status);
-                return;
-            }
-
-            OnGetOrchestratorVersionEvent?.Invoke(version);
-        }
-
         void IOrchestratorResponsesListener.OnDisconnect() {
             Debug.LogWarning($"OrchestratorController: disconnected from orchestrator");
-            SelfUser = null;
             _connectedToOrchestrator = false;
             _connectionStatus = OrchestratorConnectionStatus.Disconnected;
-            _userIsLogged = false;
             SocketUrl = null;
             OnConnectionEvent?.Invoke(false);
         }
 
         #endregion
 
-        #region Login/Logout
-
-        /// <summary>
-        /// Logs in a user to the Orchestrator with the specified username and the given device type.
-        ///
-        /// Invokes <c>OnLoginEvent</c> upon completion with a boolean parameter indicating whether the login was
-        /// successful and if so, also a string parameter with the user's ID.
-        /// </summary>
-        /// <param name="username">The username of the user to log in.</param>
-        /// <param name="deviceType">The type of device that the user uses to log in</param>
-        [Obsolete("Direct usage of OrchestratorController is deprecated. Use the instance of App.Orchestrator returned by SocketConnectAsync() instead")]
-        public void Login(string username, DeviceType deviceType)
-        {
-            SelfUser = new User
-            {
-                Username = username,
-                DeviceType = DeviceTypeToString(deviceType)
-            };
-
-            _orchestratorWrapper.Login(username, DeviceTypeToString(deviceType));
-        }
-
-        /// <summary>
-        /// Logs in a user to the Orchestrator with the specified username, password and device type. The given
-        /// username and password combination is checked against the Orchestrator's database.
-        ///
-        /// Invokes <c>OnLoginEvent</c> upon completion with a boolean parameter indicating whether the login was
-        /// successful and if so, also a string parameter with the user's ID.
-        /// </summary>
-        /// <param name="username">The username of the user to log in.</param>
-        /// <param name="password">The password of the user to log in</param>
-        /// <param name="deviceType">The deviceType that the user uses to log in</param>
-        [Obsolete("Direct usage of OrchestratorController is deprecated. Use the instance of App.Orchestrator returned by SocketConnectAsync() instead")]
-        public void Login(string username, string password, DeviceType deviceType)
-        {
-            SelfUser = new User
-            {
-                Username = username,
-                Password = password,
-                DeviceType = DeviceTypeToString(deviceType)
-            };
-
-            _orchestratorWrapper.Login(username, password, DeviceTypeToString(deviceType));
-        }
-
-        void IOrchestratorResponsesListener.OnLoginResponse(ResponseStatus status, User userData) {
-            var userLoggedSuccessfully = (status.Error == 0);
-
-            if (status.Error != 0) {
-                OnErrorEvent?.Invoke(status);
-                return;
-            }
-
-            if (!_userIsLogged) {
-                // user was not logged before the request
-                if (userLoggedSuccessfully) {
-                    Log("OrchestratorController: OnLoginResponse: User logged in.");
-
-                    _userIsLogged = true;
-                    SelfUser.Id = userData.Id;
-                } else {
-                    _userIsLogged = false;
-                }
-            } else {
-                // user was logged in previously
-                if (!userLoggedSuccessfully) {
-                    // normal, user previously logged, nothing to do
-                } else {
-                    // should not occur
-                }
-            }
-
-            OnLoginEvent?.Invoke(userLoggedSuccessfully, userData);
-        }
-
-        private static string DeviceTypeToString(DeviceType deviceType) => deviceType switch
+        public static string DeviceTypeToString(DeviceType deviceType) => deviceType switch
         {
             DeviceType.VR => "vr",
             DeviceType.AR => "ar",
             _ => "unknown"
         };
 
-        /// <summary>
-        /// Terminates an existing Orchestrator connection.
-        /// Invokes <c>OnLogoutEvent</c> upon completion.
-        /// </summary>
-        [Obsolete("Direct usage of OrchestratorController is deprecated. Use the instance of App.Orchestrator returned by SocketConnectAsync() instead")]
-        public void Logout() {
-            _orchestratorWrapper.Logout();
-        }
-
-        void IOrchestratorResponsesListener.OnLogoutResponse(ResponseStatus status) {
-            bool userLoggedOutSuccessfully = (status.Error == 0);
-
-            if (status.Error != 0) {
-                OnErrorEvent?.Invoke(status);
-                return;
-            }
-
-            SelfUser = null;
-            _userIsLogged = false;
-
-            OnLogoutEvent?.Invoke(userLoggedOutSuccessfully);
-        }
-
-        #endregion
-
-        #region NTP clock
-
-        /// <summary>
-        /// Gets the current NTP time from the Orchestrator.
-        /// Invokes <c>OnGetNtpTimeEvent</c> upon completion with the current NTP time.
-        /// </summary>
-        [Obsolete("Direct usage of OrchestratorController is deprecated. Use the instance of App.Orchestrator returned by SocketConnectAsync() instead")]
-        public void GetNtpTime() {
-            _orchestratorWrapper.GetNtpTime();
-        }
-
-        void IOrchestratorResponsesListener.OnGetNTPTimeResponse(ResponseStatus status, NtpClock ntpTime) {
-            if (status.Error != 0) {
-                OnErrorEvent?.Invoke(status);
-                return;
-            }
-
-            Log("OrchestratorController: OnGetNTPTimeResponse: NtpTime: " + ntpTime.Timestamp);
-            if (OnGetNtpTimeEvent == null) Debug.LogWarning("OrchestratorController: NTP time response received but nothing listens");
-
-            OnGetNtpTimeEvent?.Invoke(ntpTime);
-        }
-
-        #endregion
-
         #region Sessions
-
-        /// <summary>
-        /// Retrieves the list of currently active sessions.
-        /// Invokes <c>OnSessionsEvent</c> upon completion with a list of sessions.
-        /// </summary>
-        [Obsolete("Direct usage of OrchestratorController is deprecated. Use the instance of App.Orchestrator returned by SocketConnectAsync() instead")]
-        public void GetSessions() {
-            _orchestratorWrapper.GetSessions();
-        }
-
-        void IOrchestratorResponsesListener.OnGetSessionsResponse(ResponseStatus status, List<Session> sessions) {
-            if (status.Error != 0) {
-                OnErrorEvent?.Invoke(status);
-                return;
-            }
-
-            int nRemoved = sessions.RemoveAll(item => item == null);
-
-            if (nRemoved > 0)
-            {
-                Debug.LogWarning($"OrchestratorController: Removed {nRemoved} null sessions");
-            }
-
-            Log("OrchestratorController: OnGetSessionsResponse: Number of available sessions:" + sessions.Count);
-
-            // update the list of available sessions
-            _availableSessions = sessions;
-
-            OnSessionsEvent?.Invoke(sessions);
-        }
-
-        /// <summary>
-        /// Retrieves the list of scheduled sessions.
-        /// Invokes <c>OnScheduledSessionsEvent</c> upon completion with a list of sessions.
-        /// </summary>
-        [Obsolete("Direct usage of OrchestratorController is deprecated. Use the instance of App.Orchestrator returned by SocketConnectAsync() instead")]
-        public void GetScheduledSessions()
-        {
-            _orchestratorWrapper.GetScheduledSessions();
-        }
-
-        void IOrchestratorResponsesListener.OnGetScheduledSessionsResponse(ResponseStatus status, List<ScheduledSession> sessions)
-        {
-            if (status.Error != 0) {
-                OnErrorEvent?.Invoke(status);
-                return;
-            }
-
-            OnScheduledSessionsEvent?.Invoke(sessions);
-        }
-
-        /// <summary>
-        /// Creates a new session with the given name and the given description.
-        /// Invokes <c>OnAddSessionEvent</c> upon completion with all information about the created session.
-        /// </summary>
-        /// <param name="sessionName">The name of the session to be created</param>
-        /// <param name="roomId">The ID of the room model to use for the new session</param>
-        /// <param name="sessionDescription">The description of the session to be created. This parameter is optional and defaults to the empty string</param>
-        /// <param name="persistent">If true, the session will be marked as persistent, i.e. it can exist even without any users in it and defaults to false</param>
-        [Obsolete("Direct usage of OrchestratorController is deprecated. Use the instance of App.Orchestrator returned by SocketConnectAsync() instead")]
-        public void AddSession(string sessionName, string roomId, string sessionDescription = "", bool persistent = false) {
-            _orchestratorWrapper.AddSession(sessionName, sessionDescription, "socketio", roomId, new[] { "transform" }, persistent);
-        }
-
-        /// <summary>
-        /// Creates a new session from a session stored in the Orchestrator's database identified by a session ID.
-        /// Invokes <c>OnAddSessionEvent</c> upon completion with all information about the created session. The session
-        /// with the given ID must exist in the Orchestrator's database, if no such session is found, an error is
-        /// triggered.
-        /// </summary>
-        /// <param name="sessionId">The ID of the session to be created</param>
-        [Obsolete("Direct usage of OrchestratorController is deprecated. Use the instance of App.Orchestrator returned by SocketConnectAsync() instead")]
-        public void ScheduleSession(string sessionId)
-        {
-            _orchestratorWrapper.ScheduleSession(sessionId);
-        }
-
-        void IOrchestratorResponsesListener.OnAddSessionResponse(ResponseStatus status, Session session) {
-            if (status.Error != 0) {
-                _session = null;
-                OnErrorEvent?.Invoke(status);
-                return;
-            }
-
-            Log("OrchestratorController: OnAddSessionResponse: Session " + session.Name + " successfully created by " + session.GetUser(session.AdministratorId).Username + ".");
-
-            // success
-            _session = session;
-
-            _userIsMaster = session.MasterId == SelfUser.Id;
-
-            _availableSessions.Add(session);
-            OnAddSessionEvent?.Invoke(session);
-        }
-
-        /// <summary>
-        /// Retrieves information about the session that the user is currently a member of.
-        /// Invokes <c>OnSessionInfoEvent</c> upon completion with all information about the current session.
-        /// </summary>
-        [Obsolete("Direct usage of OrchestratorController is deprecated. Use the instance of App.Orchestrator returned by SocketConnectAsync() instead")]
-        public void GetSessionInfo() {
-            _orchestratorWrapper.GetSessionInfo();
-        }
-
-        void IOrchestratorResponsesListener.OnGetSessionInfoResponse(ResponseStatus status, Session session) {
-            if (_session == null || string.IsNullOrEmpty(session.Id)) {
-                LogWarning("OrchestratorController: OnGetSessionInfoResponse: Aborted, current session is null.");
-                return;
-            }
-
-            if (status.Error != 0) {
-                LogError($"OrchestratorController: OnGetSessionInfoResponse: clear session, status={status}");
-                _session = null;
-                OnErrorEvent?.Invoke(status);
-                return;
-            }
-
-            // success
-            _session = session;
-            _userIsMaster = session.MasterId == SelfUser.Id;
-            int userCount = _session.GetUserCount();
-
-            Log($"OrchestratorController: OnGetSessionInfoResponse: Get session info of {session.Name}, isMaster={(_userIsMaster)}, nUser={userCount}");
-
-            OnSessionInfoEvent?.Invoke(session);
-        }
-
-        /// <summary>
-        /// Deletes the current session. The current user must either be the session creator or its admin to be allowed
-        /// to do this.
-        /// </summary>
-        /// <param name="pSessionID"></param>
-        [Obsolete("Direct usage of OrchestratorController is deprecated. Use the instance of App.Orchestrator returned by SocketConnectAsync() instead")]
-        public void DeleteSession(string pSessionID) {
-            _orchestratorWrapper.DeleteSession(pSessionID);
-        }
-
-        void IOrchestratorResponsesListener.OnDeleteSessionResponse(ResponseStatus status) {
-            if (status.Error != 0) {
-                OnErrorEvent?.Invoke(status);
-                return;
-            }
-
-            Log("OrchestratorController: OnDeleteSessionResponse: Session successfully deleted.");
-
-            _session = null;
-
-            // update the lists of session, anyway the result
-            _orchestratorWrapper.GetSessions();
-        }
-
-        /// <summary>
-        /// Joins the session given by the ID.
-        /// Invokes <c>OnJoinSessionEvent</c> upon completion with all information about the joined session.
-        /// </summary>
-        /// <param name="pSessionID">The ID of the session to be joined</param>
-        [Obsolete("Direct usage of OrchestratorController is deprecated. Use the instance of App.Orchestrator returned by SocketConnectAsync() instead")]
-        public void JoinSession(string pSessionID) {
-            _orchestratorWrapper.JoinSession(pSessionID);
-        }
-
-        void IOrchestratorResponsesListener.OnJoinSessionResponse(ResponseStatus status, Session session) {
-            if (status.Error != 0) {
-                OnErrorEvent?.Invoke(status);
-                return;
-            }
-
-            // success
-            _session = session;
-            _userIsMaster = session.MasterId == SelfUser.Id;
-            int userCount = session.GetUserCount();
-
-            Log($"OrchestratorController: OnJoinSessionResponse: Session {session.Name}, isMaster={(_userIsMaster)}, nUser={userCount}");
-
-            // Simulate a user joining a session for each connected user
-            foreach (var id in session.UserIds) {
-                if (id != SelfUser.Id) {
-                    ((IUserSessionEventsListener)this).OnUserJoinedSession(id, null);
-                }
-            }
-
-            OnJoinSessionEvent?.Invoke(_session);
-        }
-
-        /// <summary>
-        /// Sets the current user's <c>isSpeaking</c> flag to the given value.
-        /// Invokes <c>OnIsSpeakingEvent</c> upon completion.
-        /// </summary>
-        /// <param name="isSpeaking">The value to set the flag to</param>
-        [Obsolete("Direct usage of OrchestratorController is deprecated. Use the instance of App.Orchestrator returned by SocketConnectAsync() instead")]
-        public void IsSpeaking(bool isSpeaking)
-        {
-            _orchestratorWrapper.IsSpeaking(isSpeaking);
-        }
-
-        void IOrchestratorResponsesListener.OnIsSpeakingResponse(ResponseStatus status)
-        {
-            if (status.Error != 0) {
-                OnErrorEvent?.Invoke(status);
-                return;
-            }
-
-            OnIsSpeakingEvent?.Invoke(true);
-        }
-
-        /// <summary>
-        /// Leaves the current session.
-        /// </summary>
-        [Obsolete("Direct usage of OrchestratorController is deprecated. Use the instance of App.Orchestrator returned by SocketConnectAsync() instead")]
-        public void LeaveSession() {
-            _orchestratorWrapper.LeaveSession();
-            _session = null;
-        }
-
-        /// <summary>
-        /// Removes the user with the given ID from the current session. This action can only be performed by the
-        /// session creator or its admin. Further, the given user must be in the same session as the current user.
-        /// </summary>
-        /// <param name="userId">ID of the user to remove from the session</param>
-        [Obsolete("Direct usage of OrchestratorController is deprecated. Use the instance of App.Orchestrator returned by SocketConnectAsync() instead")]
-        public void RemoveUserFromSession(string userId)
-        {
-            _orchestratorWrapper.LeaveSession(userId);
-        }
-
-        /// <summary>
-        /// Advances the current presentation to the next slide.
-        /// This method triggers the associated functionality in the OrchestratorWrapper.
-        /// </summary>
-        [Obsolete("Direct usage of OrchestratorController is deprecated. Use the instance of App.Orchestrator returned by SocketConnectAsync() instead")]
-        public void GoToNextPresentation()
-        {
-            _orchestratorWrapper.GoToNextPresentation();
-        }
-
-        /// <summary>
-        /// Sets the current presentation to the given index.
-        /// This method triggers the associated functionality in the OrchestratorWrapper.
-        /// </summary>
-        [Obsolete("Direct usage of OrchestratorController is deprecated. Use the instance of App.Orchestrator returned by SocketConnectAsync() instead")]
-        public void GoToPresentation(int index)
-        {
-            _orchestratorWrapper.GoToPresentation(index);
-        }
-
-        void IOrchestratorResponsesListener.OnGoToNextPresentationResponse(ResponseStatus status, Presentation presentation)
-        {
-            if (status.Error != 0) {
-                OnErrorEvent?.Invoke(status);
-            }
-        }
-
-        /// <summary>
-        /// Changes the current slide in the current session presentation by the specified offset.
-        /// </summary>
-        /// <param name="slideOffset">The offset to apply to the current slide. A positive value moves forward, a negative value moves backward.</param>
-        [Obsolete("Direct usage of OrchestratorController is deprecated. Use the instance of App.Orchestrator returned by SocketConnectAsync() instead")]
-        public void ChangeSlide(int slideOffset)
-        {
-            _orchestratorWrapper.ChangeSlide(slideOffset);
-        }
-
-        /// <summary>
-        /// Changes the current slide in the current session presentation to the given index.
-        /// </summary>
-        /// <param name="slideIndex">The index of the slide to display.</param>
-        [Obsolete("Direct usage of OrchestratorController is deprecated. Use the instance of App.Orchestrator returned by SocketConnectAsync() instead")]
-        public void SetSlide(int slideIndex)
-        {
-            _orchestratorWrapper.SetSlide(slideIndex);
-        }
-
-        void IOrchestratorResponsesListener.OnChangeSlideResponse(ResponseStatus status, Presentation presentation)
-        {
-            if (status.Error != 0) {
-                OnErrorEvent?.Invoke(status);
-            }
-        }
-
-        /// <summary>
-        /// Sets whether the current presentation is being shared.
-        /// Updates the orchestrator with the sharing status. If the invoking user is not a presenter or administrator,
-        /// an error is issued. If there is no current presentation, an error is issued as well. Upon success, all
-        /// users will receive a session update with the updated presentation.
-        /// </summary>
-        /// <param name="isSharing">A boolean indicating if the current presentation should be marked as sharing.</param>
-        [Obsolete("Direct usage of OrchestratorController is deprecated. Use the instance of App.Orchestrator returned by SocketConnectAsync() instead")]
-        public void SetCurrentPresentationIsSharing(bool isSharing)
-        {
-            _orchestratorWrapper.CurrentPresentationIsSharing(isSharing);
-        }
-
-        void IOrchestratorResponsesListener.OnCurrentPresentationIsSharingResponse(ResponseStatus status, Presentation presentation)
-        {
-            if (status.Error != 0) {
-                OnErrorEvent?.Invoke(status);
-            }
-        }
-
-        /// <summary>
-        /// Updates the current session's status using the specified status string.
-        /// </summary>
-        /// <param name="status">The new status to be applied to the session.</param>
-        [Obsolete("Direct usage of OrchestratorController is deprecated. Use the instance of App.Orchestrator returned by SocketConnectAsync() instead")]
-        public void ChangeSessionStatus(string status)
-        {
-            _orchestratorWrapper.SetSessionStatus(status);
-        }
-
-        void IOrchestratorResponsesListener.OnChangeStatusResponse(ResponseStatus status, string sessionStatus)
-        {
-            if (status.Error != 0) {
-                OnErrorEvent?.Invoke(status);
-            }
-        }
-
-        /// <summary>
-        /// Changes the user's status to the specified value.
-        /// </summary>
-        /// <param name="status">The new status to assign to the user.</param>
-        [Obsolete("Direct usage of OrchestratorController is deprecated. Use the instance of App.Orchestrator returned by SocketConnectAsync() instead")]
-        public void ChangeUserStatus(string status)
-        {
-            _orchestratorWrapper.SetUserStatus(status);
-        }
-
-        void IOrchestratorResponsesListener.OnChangeUserStatusResponse(ResponseStatus status, string userStatus)
-        {
-            if (status.Error != 0) {
-                OnErrorEvent?.Invoke(status);
-            }
-        }
-
-        void IOrchestratorResponsesListener.OnLeaveSessionResponse(ResponseStatus status) {
-            if (status.Error != 0) {
-                OnErrorEvent?.Invoke(status);
-                return;
-            }
-
-            Log("OrchestratorController: OnLeaveSessionResponse: Session successfully left.");
-
-            // Set this at the end and for the session creator, when the session has been deleted.
-            _session = null;
-        }
 
         void IUserSessionEventsListener.OnSessionClosed()
         {
@@ -883,75 +312,45 @@ namespace Orchestrator.Wrapping
             Log("OrchestratorController: OnSessionClosed: Current session closed by session creator.");
 
             OnSessionCloseEvent?.Invoke();
-
-            // Leave the session
-            LeaveSession();
         }
 
         void IUserSessionEventsListener.OnUserJoinedSession(string userID, User user) {
-            // Someone has joined the session
-            if (string.IsNullOrEmpty(userID))
-            {
-                Debug.LogError("OrchestratorController: OnUserJoinedSession: empty userID");
-            }
-
-            if (user == null)
-            {
-                user = _session.GetUser(userID);
-
-                if (user == null)
-                {
-                    Debug.LogError($"OrchestratorController: OnUserJoinedSession: userID {userID} unknown");
-                    return;
-                }
-            }
-
-            Log("OrchestratorController: OnUserJoinedSession: User " + user.Username + " joined the session.");
-
-            _orchestratorWrapper.GetSessionInfo();
             OnUserJoinSessionEvent?.Invoke(userID, user);
         }
 
         void IUserSessionEventsListener.OnUserLeftSession(string userID, bool force) {
             if (!string.IsNullOrEmpty(userID)) {
-                _orchestratorWrapper.GetSessionInfo();
                 OnUserLeaveSessionEvent?.Invoke(userID, force);
             }
         }
 
         void IUserSessionEventsListener.OnUserRaisedHand(string userID)
         {
-            _orchestratorWrapper.GetSessionInfo();
             OnUserRaisedHandEvent?.Invoke(userID);
         }
 
         void IUserSessionEventsListener.OnUserClearedRaisedHand(string userID)
         {
-            _orchestratorWrapper.GetSessionInfo();
             OnUserClearedRaisedHandEvent?.Invoke(userID);
         }
 
         void IUserSessionEventsListener.OnSessionStatusChanged(string status)
         {
-            _orchestratorWrapper.GetSessionInfo();
             OnSessionStatusChangedEvent?.Invoke(status);
         }
 
         void IUserSessionEventsListener.OnPresentationChanged(Presentation presentation)
         {
-            _orchestratorWrapper.GetSessionInfo();
             OnSessionPresentationChangedEvent?.Invoke(presentation);
         }
 
         void IUserSessionEventsListener.OnPresentationIsSharingChanged(Presentation presentation)
         {
-            _orchestratorWrapper.GetSessionInfo();
             OnSessionPresentationIsSharingEvent?.Invoke(presentation);
         }
 
         void IUserSessionEventsListener.OnSlideChanged(Presentation presentation)
         {
-            _orchestratorWrapper.GetSessionInfo();
             OnSessionPresentationSlideChangedEvent?.Invoke(presentation);
         }
 
@@ -1013,132 +412,8 @@ namespace Orchestrator.Wrapping
 
         #region Messages
 
-        /// <summary>
-        /// Raises the current user's hand in the session.
-        /// </summary>
-        [Obsolete("Direct usage of OrchestratorController is deprecated. Use the instance of App.Orchestrator returned by SocketConnectAsync() instead")]
-        public void RaiseHand()
-        {
-            _orchestratorWrapper.RaiseHand();
-        }
-
-        void IOrchestratorResponsesListener.OnRaiseHandResponse(ResponseStatus status)
-        {
-            if (status.Error != 0) {
-                OnErrorEvent?.Invoke(status);
-                return;
-            }
-
-            OnRaisedHandEvent?.Invoke();
-        }
-
-        /// <summary>
-        /// Clears a user's raised hand, identified by the given user ID. Users can only clear their own raised hand.
-        /// Admins and presenters can clear anyone's raised hands.
-        /// </summary>
-        /// <param name="userId">The ID of the user whose raised hand shall be cleared</param>
-        [Obsolete("Direct usage of OrchestratorController is deprecated. Use the instance of App.Orchestrator returned by SocketConnectAsync() instead")]
-        public void ClearRaisedHand(string userId)
-        {
-            _orchestratorWrapper.ClearRaisedHand(userId);
-        }
-
-        /// <summary>
-        /// Clears the current user's raised hand.
-        /// </summary>
-        [Obsolete("Direct usage of OrchestratorController is deprecated. Use the instance of App.Orchestrator returned by SocketConnectAsync() instead")]
-        public void ClearRaisedHand()
-        {
-            _orchestratorWrapper.ClearRaisedHand();
-        }
-
-        void IOrchestratorResponsesListener.OnClearRaisedHandResponse(ResponseStatus status)
-        {
-            if (status.Error != 0) {
-                OnErrorEvent?.Invoke(status);
-                return;
-            }
-
-            OnClearRaisedHandEvent?.Invoke();
-        }
-
-        /// <summary>
-        /// Retrieves the list of users who have raised their hands in the session.
-        /// Invokes the <c>OnGetRaisedHandsEvent</c> event upon completion with the list of users.
-        /// </summary>
-        [Obsolete("Direct usage of OrchestratorController is deprecated. Use the instance of App.Orchestrator returned by SocketConnectAsync() instead")]
-        public void GetRaisedHands()
-        {
-            _orchestratorWrapper.GetRaisedHands();
-        }
-
-        void IOrchestratorResponsesListener.OnGetRaisedHandsResponse(ResponseStatus status, List<User> users)
-        {
-            if (status.Error != 0) {
-                OnErrorEvent?.Invoke(status);
-                return;
-            }
-
-            OnGetRaisedHandsEvent?.Invoke(users);
-        }
-
-        /// <summary>
-        /// Sends a message to the user identified by the given ID.
-        /// </summary>
-        /// <param name="pMessage">The message to be delivered</param>
-        /// <param name="pUserID">The ID of the user that the message should be delivered to</param>
-        [Obsolete("Direct usage of OrchestratorController is deprecated. Use the instance of App.Orchestrator returned by SocketConnectAsync() instead")]
-        public void SendMessage(string pMessage, string pUserID) {
-            _orchestratorWrapper.SendMessage(pMessage, pUserID);
-        }
-
-        void IOrchestratorResponsesListener.OnSendMessageResponse(ResponseStatus status) {
-            if (status.Error != 0) {
-                OnErrorEvent?.Invoke(status);
-            }
-        }
-
-        /// <summary>
-        /// Sends a message to all users in the current session.
-        /// </summary>
-        /// <param name="pMessage">The message to be delivered</param>
-        [Obsolete("Direct usage of OrchestratorController is deprecated. Use the instance of App.Orchestrator returned by SocketConnectAsync() instead")]
-        public void SendMessageToAll(string pMessage) {
-            _orchestratorWrapper.SendMessageToAll(pMessage);
-        }
-
-        void IOrchestratorResponsesListener.OnSendMessageToAllResponse(ResponseStatus status) {
-            if (status.Error != 0) {
-                OnErrorEvent?.Invoke(status);
-            }
-        }
-
         void IUserMessagesListener.OnUserMessageReceived(ChatMessage userMessage) {
             OnUserMessageReceivedEvent?.Invoke(userMessage);
-        }
-
-        /// <summary>
-        /// Retrieves the recent chat messages from the orchestrator.
-        /// </summary>
-        /// <param name="count">The number of messages to retrieve.</param>
-        [Obsolete("Direct usage of OrchestratorController is deprecated. Use the instance of App.Orchestrator returned by SocketConnectAsync() instead")]
-        public void GetMessages(int count)
-        {
-            _orchestratorWrapper.GetMessages(count);
-        }
-
-        /// <summary>
-        /// Retrieves all chat messages from the orchestrator.
-        /// </summary>
-        [Obsolete("Direct usage of OrchestratorController is deprecated. Use the instance of App.Orchestrator returned by SocketConnectAsync() instead")]
-        public void GetMessages()
-        {
-            _orchestratorWrapper.GetMessages();
-        }
-
-        void IOrchestratorResponsesListener.OnGetMessagesResponse(ResponseStatus status, List<ChatMessage> messages)
-        {
-            OnGetMessagesEvent?.Invoke(messages);
         }
 
         #endregion
@@ -1204,9 +479,8 @@ namespace Orchestrator.Wrapping
 
             if (packageInfo != null)
             {
-                // Lambda function to be called in response to the orchestrator version event
-                Action<string> fn = null;
-                fn = (version) =>
+                // Get the version of the Orchestrator
+                Wrapper.GetOrchestratorVersion((_, version) =>
                 {
                     try
                     {
@@ -1227,15 +501,7 @@ namespace Orchestrator.Wrapping
                     {
                         Debug.LogError(e.Message);
                     }
-
-                    // Remove handler
-                    OnGetOrchestratorVersionEvent -= fn;
-                };
-
-                // Attach a handler to the orchestrator version response event
-                OnGetOrchestratorVersionEvent += fn;
-                // Get Orchestrator version
-                GetVersion();
+                });
             }
             else
             {

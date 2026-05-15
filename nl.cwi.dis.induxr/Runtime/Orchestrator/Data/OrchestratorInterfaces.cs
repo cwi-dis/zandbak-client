@@ -59,35 +59,6 @@ namespace Orchestrator.Data
         void OnError(ResponseStatus status);
         void OnConnect();
         void OnConnecting();
-        void OnGetOrchestratorVersionResponse(ResponseStatus status, string version);
         void OnDisconnect();
-
-        void OnLoginResponse(ResponseStatus status, User user);
-        void OnLogoutResponse(ResponseStatus status);
-
-        void OnGetNTPTimeResponse(ResponseStatus status, NtpClock ntpTime);
-
-        void OnGetSessionsResponse(ResponseStatus status, List<Session> sessions);
-        void OnGetScheduledSessionsResponse(ResponseStatus status, List<ScheduledSession> sessions);
-        void OnAddSessionResponse(ResponseStatus status, Session session);
-        void OnGetSessionInfoResponse(ResponseStatus status, Session session);
-        void OnDeleteSessionResponse(ResponseStatus status);
-        void OnJoinSessionResponse(ResponseStatus status, Session session);
-        void OnLeaveSessionResponse(ResponseStatus status);
-
-        void OnSendMessageResponse(ResponseStatus status);
-        void OnRaiseHandResponse(ResponseStatus status);
-        void OnClearRaisedHandResponse(ResponseStatus status);
-        void OnGetRaisedHandsResponse(ResponseStatus status, List<User> raisedHands);
-        void OnSendMessageToAllResponse(ResponseStatus status);
-        void OnGetMessagesResponse(ResponseStatus status, List<ChatMessage> messages);
-        void OnIsSpeakingResponse(ResponseStatus status);
-        void OnChangeUserStatusResponse(ResponseStatus status, string userStatus);
-
-        void OnGoToNextPresentationResponse(ResponseStatus status, Presentation presentation);
-        void OnChangeSlideResponse(ResponseStatus status, Presentation presentation);
-        void OnCurrentPresentationIsSharingResponse(ResponseStatus status, Presentation presentation);
-
-        void OnChangeStatusResponse(ResponseStatus status, string sessionStatus);
     }
 }

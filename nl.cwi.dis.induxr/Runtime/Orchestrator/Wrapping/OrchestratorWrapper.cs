@@ -30,7 +30,6 @@ namespace Orchestrator.Wrapping {
         private readonly IOrchestratorEventsListener _orchestratorEventListener;
 
         public Action<UserDataStreamPacket> OnDataStreamReceived;
-        private string _myUserID = "";
 
         public OrchestratorWrapper(string orchestratorSocketUrl, IOrchestratorResponsesListener responsesListener, IUserMessagesListener userMessagesListener, IUserSessionEventsListener userSessionEventsListener, IOrchestratorEventsListener orchestratorEventListener, IBubbleEventsListener bubbleEventListener)
         {
@@ -132,25 +131,25 @@ namespace Orchestrator.Wrapping {
 
         #region utility requests
 
-        public void GetOrchestratorVersion() {
+        public void GetOrchestratorVersion(Action<ResponseStatus, string> callback) {
             lock (this) {
                 _socket.Emit("GetOrchestratorVersion", (response) => {
                     var data = response.GetValue<OrchestratorResponse<VersionResponse>>();
 
                     UnityThread.executeInUpdate(() => {
-                        _responsesListener?.OnGetOrchestratorVersionResponse(data.ResponseStatus, data.Body.OrchestratorVersion);
+                        callback(data.ResponseStatus, data.Body.OrchestratorVersion);
                     });
                 }, new { });
             }
         }
 
-        public void GetNtpTime() {
+        public void GetNtpTime(Action<ResponseStatus, NtpClock> callback) {
             lock (this) {
                 _socket.Emit("GetNTPTime", (response) => {
                     var data = response.GetValue<OrchestratorResponse<NtpClock>>();
 
                     UnityThread.executeInUpdate(() => {
-                        _responsesListener?.OnGetNTPTimeResponse(data.ResponseStatus, data.Body);
+                        callback(data.ResponseStatus, data.Body);
                     });
                 }, new { });
             }
@@ -160,14 +159,13 @@ namespace Orchestrator.Wrapping {
 
         #region login/logout
 
-        public void Login(string userName, string deviceType) {
+        public void Login(string userName, string deviceType, Action<ResponseStatus, User> callback) {
             lock (this) {
                 _socket.Emit("Login", (response) => {
                     var data = response.GetValue<OrchestratorResponse<LoginResponse>>();
-                    _myUserID = data.Body.UserId;
 
                     UnityThread.executeInUpdate(() => {
-                        _responsesListener?.OnLoginResponse(data.ResponseStatus, data.Body.UserData);
+                        callback(data.ResponseStatus, data.Body.UserData);
                     });
                 }, new {
                     userName, deviceType
@@ -175,14 +173,13 @@ namespace Orchestrator.Wrapping {
             }
         }
 
-        public void Login(string userName, string password, string deviceType) {
+        public void Login(string userName, string password, string deviceType, Action<ResponseStatus, User> callback) {
             lock (this) {
                 _socket.Emit("Login", (response) => {
                     var data = response.GetValue<OrchestratorResponse<LoginResponse>>();
-                    _myUserID = data.Body.UserId;
 
                     UnityThread.executeInUpdate(() => {
-                        _responsesListener?.OnLoginResponse(data.ResponseStatus, data.Body.UserData);
+                        callback(data.ResponseStatus, data.Body.UserData);
                     });
                 }, new {
                     userName, password, deviceType
@@ -190,14 +187,13 @@ namespace Orchestrator.Wrapping {
             }
         }
 
-        public void Logout() {
+        public void Logout(Action<bool> callback) {
             lock (this) {
                 _socket.Emit("Logout", (response) => {
                     var data = response.GetValue<OrchestratorResponse<EmptyResponse>>();
-                    _myUserID = "";
 
                     UnityThread.executeInUpdate(() => {
-                        _responsesListener?.OnLogoutResponse(data.ResponseStatus);
+                        callback(data.ResponseStatus.Error == 0);
                     });
                 }, new { });
             }
@@ -207,13 +203,13 @@ namespace Orchestrator.Wrapping {
 
         #region session management
 
-        public void AddSession(string sessionName, string sessionDescription, string sessionProtocol, string sessionRoom, string[] channels, bool persistent = false) {
+        public void AddSession(string sessionName, string sessionDescription, string sessionProtocol, string sessionRoom, string[] channels, bool persistent, Action<ResponseStatus, Session> callback) {
             lock (this) {
                 _socket.Emit("AddSession", (response) => {
                     var data = response.GetValue<OrchestratorResponse<Session>>();
 
                     UnityThread.executeInUpdate(() => {
-                        _responsesListener?.OnAddSessionResponse(data.ResponseStatus, data.Body);
+                        callback(data.ResponseStatus, data.Body);
                     });
                 }, new {
                     sessionName,
@@ -226,13 +222,13 @@ namespace Orchestrator.Wrapping {
             }
         }
 
-        public void ScheduleSession(string sessionId) {
+        public void ScheduleSession(string sessionId, Action<ResponseStatus, Session> callback) {
             lock (this) {
                 _socket.Emit("ScheduleSession", (response) => {
                     var data = response.GetValue<OrchestratorResponse<Session>>();
 
                     UnityThread.executeInUpdate(() => {
-                        _responsesListener?.OnAddSessionResponse(data.ResponseStatus, data.Body);
+                        callback(data.ResponseStatus, data.Body);
                     });
                 }, new {
                     sessionId
@@ -240,7 +236,7 @@ namespace Orchestrator.Wrapping {
             }
         }
 
-        public void GetSessions() {
+        public void GetSessions(Action<ResponseStatus, List<Session>> callback) {
             lock (this) {
                 _socket.Emit("GetSessions", (response) => {
                     var data = response.GetValue<OrchestratorResponse<Dictionary<string, Session>>>();
@@ -251,43 +247,43 @@ namespace Orchestrator.Wrapping {
                     }
 
                     UnityThread.executeInUpdate(() => {
-                        _responsesListener?.OnGetSessionsResponse(data.ResponseStatus, sessions);
+                        callback(data.ResponseStatus, sessions);
                     });
                 }, new { });
             }
         }
 
-        public void GetScheduledSessions() {
+        public void GetScheduledSessions(Action<ResponseStatus, List<ScheduledSession>> callback) {
             lock (this) {
                 _socket.Emit("GetScheduledSessions", (response) => {
                     var data = response.GetValue<OrchestratorResponse<List<ScheduledSession>>>();
 
                     UnityThread.executeInUpdate(() => {
-                        _responsesListener?.OnGetScheduledSessionsResponse(data.ResponseStatus, data.Body);
+                        callback(data.ResponseStatus, data.Body);
                     });
                 }, new { });
             }
         }
 
-        public void GetSessionInfo() {
+        public void GetSessionInfo(Action<ResponseStatus, Session> callback) {
             lock (this) {
                 _socket.Emit("GetSessionInfo", (response) => {
                     var data = response.GetValue<OrchestratorResponse<Session>>();
 
                     UnityThread.executeInUpdate(() => {
-                        _responsesListener?.OnGetSessionInfoResponse(data.ResponseStatus, data.Body);
+                        callback(data.ResponseStatus, data.Body);
                     });
                 }, new { });
             }
         }
 
-        public void DeleteSession(string sessionId) {
+        public void DeleteSession(string sessionId, Action<ResponseStatus> callback) {
             lock (this) {
                 _socket.Emit("DeleteSession", (response) => {
                     var data = response.GetValue<OrchestratorResponse<EmptyResponse>>();
 
                     UnityThread.executeInUpdate(() => {
-                        _responsesListener?.OnDeleteSessionResponse(data.ResponseStatus);
+                        callback(data.ResponseStatus);
                     });
                 }, new {
                     sessionId
@@ -295,13 +291,13 @@ namespace Orchestrator.Wrapping {
             }
         }
 
-        public void JoinSession(string sessionId) {
+        public void JoinSession(string sessionId, Action<ResponseStatus, Session> callback) {
             lock (this) {
                 _socket.Emit("JoinSession", (response) => {
                     var data = response.GetValue<OrchestratorResponse<Session>>();
 
                     UnityThread.executeInUpdate(() => {
-                        _responsesListener?.OnJoinSessionResponse(data.ResponseStatus, data.Body);
+                        callback(data.ResponseStatus, data.Body);
                     });
                 }, new {
                     sessionId
@@ -309,28 +305,39 @@ namespace Orchestrator.Wrapping {
             }
         }
 
-        public void LeaveSession(string userId = null) {
+        public void LeaveSession(Action<ResponseStatus> callback) {
             lock (this) {
-                object requestParams = (userId == null) ? new { } : new { userId };
-
                 _socket.Emit("LeaveSession", (response) => {
                     var data = response.GetValue<OrchestratorResponse<EmptyResponse>>();
 
                     UnityThread.executeInUpdate(() => {
-                        _responsesListener?.OnLeaveSessionResponse(data.ResponseStatus);
+                        callback(data.ResponseStatus);
                     });
-                }, requestParams);
+                }, new {});
             }
         }
 
-        public void IsSpeaking(bool isSpeaking)
+        public void LeaveSession(string userId, Action<ResponseStatus> callback)
+        {
+            lock (this) {
+                _socket.Emit("LeaveSession", (response) => {
+                    var data = response.GetValue<OrchestratorResponse<EmptyResponse>>();
+
+                    UnityThread.executeInUpdate(() => {
+                        callback(data.ResponseStatus);
+                    });
+                }, new { userId });
+            }
+        }
+
+        public void IsSpeaking(bool isSpeaking, Action<bool> callback)
         {
             lock (this) {
                 _socket.Emit("IsSpeaking", (response) => {
                     var data = response.GetValue<OrchestratorResponse<EmptyResponse>>();
 
                     UnityThread.executeInUpdate(() => {
-                        _responsesListener?.OnIsSpeakingResponse(data.ResponseStatus);
+                        callback(data.ResponseStatus.Error == 0);
                     });
                 }, new {
                     isSpeaking
@@ -338,13 +345,13 @@ namespace Orchestrator.Wrapping {
             }
         }
 
-        public void SendMessage(string message, string userId) {
+        public void SendMessage(string message, string userId, Action<ResponseStatus> callback) {
             lock (this) {
                 _socket.Emit("SendMessage", (response) => {
                     var data = response.GetValue<OrchestratorResponse<EmptyResponse>>();
 
                     UnityThread.executeInUpdate(() => {
-                        _responsesListener?.OnSendMessageResponse(data.ResponseStatus);
+                        callback(data.ResponseStatus);
                     });
                 }, new {
                     message,
@@ -353,13 +360,13 @@ namespace Orchestrator.Wrapping {
             }
         }
 
-        public void SendMessageToAll(string message) {
+        public void SendMessageToAll(string message, Action<ResponseStatus> callback) {
             lock (this) {
                 _socket.Emit("SendMessageToAll", (response) => {
                     var data = response.GetValue<OrchestratorResponse<EmptyResponse>>();
 
                     UnityThread.executeInUpdate(() => {
-                        _responsesListener?.OnSendMessageToAllResponse(data.ResponseStatus);
+                        callback(data.ResponseStatus);
                     });
                 }, new {
                     message
@@ -367,27 +374,27 @@ namespace Orchestrator.Wrapping {
             }
         }
 
-        public void GetMessages()
+        public void GetMessages(Action<ResponseStatus, List<ChatMessage>> callback)
         {
             lock (this) {
                 _socket.Emit("GetMessages", (response) => {
                     var data = response.GetValue<OrchestratorResponse<List<ChatMessage>>>();
 
                     UnityThread.executeInUpdate(() => {
-                        _responsesListener?.OnGetMessagesResponse(data.ResponseStatus, data.Body);
+                        callback(data.ResponseStatus, data.Body);
                     });
                 }, new {});
             }
         }
 
-        public void GetMessages(int count)
+        public void GetMessages(int count, Action<ResponseStatus, List<ChatMessage>> callback)
         {
             lock (this) {
                 _socket.Emit("GetMessages", (response) => {
                     var data = response.GetValue<OrchestratorResponse<List<ChatMessage>>>();
 
                     UnityThread.executeInUpdate(() => {
-                        _responsesListener?.OnGetMessagesResponse(data.ResponseStatus, data.Body);
+                        callback(data.ResponseStatus, data.Body);
                     });
                 }, new {
                     count
@@ -395,7 +402,7 @@ namespace Orchestrator.Wrapping {
             }
         }
 
-        public void RaiseHand()
+        public void RaiseHand(Action<ResponseStatus> callback)
         {
             lock (this)
             {
@@ -404,13 +411,13 @@ namespace Orchestrator.Wrapping {
                     var data = response.GetValue<OrchestratorResponse<EmptyResponse>>();
 
                     UnityThread.executeInUpdate(() => {
-                        _responsesListener?.OnRaiseHandResponse(data.ResponseStatus);
+                        callback(data.ResponseStatus);
                     });
                 }, new {});
             }
         }
 
-        public void ClearRaisedHand(string userId)
+        public void ClearRaisedHand(string userId, Action<ResponseStatus> callback)
         {
             lock (this)
             {
@@ -419,13 +426,13 @@ namespace Orchestrator.Wrapping {
                     var data = response.GetValue<OrchestratorResponse<EmptyResponse>>();
 
                     UnityThread.executeInUpdate(() => {
-                        _responsesListener?.OnClearRaisedHandResponse(data.ResponseStatus);
+                        callback(data.ResponseStatus);
                     });
                 }, new { userId });
             }
         }
 
-        public void ClearRaisedHand()
+        public void ClearRaisedHand(Action<ResponseStatus> callback)
         {
             lock (this)
             {
@@ -434,13 +441,13 @@ namespace Orchestrator.Wrapping {
                     var data = response.GetValue<OrchestratorResponse<EmptyResponse>>();
 
                     UnityThread.executeInUpdate(() => {
-                        _responsesListener?.OnClearRaisedHandResponse(data.ResponseStatus);
+                        callback(data.ResponseStatus);
                     });
                 }, new {});
             }
         }
 
-        public void GetRaisedHands()
+        public void GetRaisedHands(Action<ResponseStatus, List<User>> callback)
         {
             lock (this)
             {
@@ -449,13 +456,13 @@ namespace Orchestrator.Wrapping {
                     var data = response.GetValue<OrchestratorResponse<List<User>>>();
 
                     UnityThread.executeInUpdate(() => {
-                        _responsesListener?.OnGetRaisedHandsResponse(data.ResponseStatus, data.Body);
+                        callback(data.ResponseStatus, data.Body);
                     });
                 }, new {});
             }
         }
 
-        public void GoToNextPresentation()
+        public void GoToNextPresentation(Action<ResponseStatus, Presentation> callback)
         {
             lock (this)
             {
@@ -464,13 +471,13 @@ namespace Orchestrator.Wrapping {
                     var data = response.GetValue<OrchestratorResponse<PresentationResponse>>();
 
                     UnityThread.executeInUpdate(() => {
-                        _responsesListener?.OnGoToNextPresentationResponse(data.ResponseStatus, data.Body.Presentation);
+                        callback(data.ResponseStatus, data.Body.Presentation);
                     });
                 }, new {});
             }
         }
 
-        public void GoToPresentation(int presentationIndex)
+        public void GoToPresentation(int presentationIndex, Action<ResponseStatus, Presentation> callback)
         {
             lock (this)
             {
@@ -479,13 +486,13 @@ namespace Orchestrator.Wrapping {
                     var data = response.GetValue<OrchestratorResponse<PresentationResponse>>();
 
                     UnityThread.executeInUpdate(() => {
-                        _responsesListener?.OnGoToNextPresentationResponse(data.ResponseStatus, data.Body.Presentation);
+                        callback(data.ResponseStatus, data.Body.Presentation);
                     });
                 }, new { presentationIndex });
             }
         }
 
-        public void ChangeSlide(int slideOffset)
+        public void ChangeSlide(int slideOffset, Action<ResponseStatus, Presentation> callback)
         {
             lock (this)
             {
@@ -494,13 +501,13 @@ namespace Orchestrator.Wrapping {
                     var data = response.GetValue<OrchestratorResponse<PresentationResponse>>();
 
                     UnityThread.executeInUpdate(() => {
-                        _responsesListener?.OnChangeSlideResponse(data.ResponseStatus, data.Body.Presentation);
+                        callback(data.ResponseStatus, data.Body.Presentation);
                     });
                 }, new { slideOffset });
             }
         }
 
-        public void SetSlide(int slideIndex)
+        public void SetSlide(int slideIndex, Action<ResponseStatus, Presentation> callback)
         {
             lock (this)
             {
@@ -509,13 +516,13 @@ namespace Orchestrator.Wrapping {
                     var data = response.GetValue<OrchestratorResponse<PresentationResponse>>();
 
                     UnityThread.executeInUpdate(() => {
-                        _responsesListener?.OnChangeSlideResponse(data.ResponseStatus, data.Body.Presentation);
+                        callback(data.ResponseStatus, data.Body.Presentation);
                     });
                 }, new { slideIndex });
             }
         }
 
-        public void CurrentPresentationIsSharing(bool isSharing)
+        public void CurrentPresentationIsSharing(bool isSharing, Action<ResponseStatus, Presentation> callback)
         {
             lock (this)
             {
@@ -524,13 +531,13 @@ namespace Orchestrator.Wrapping {
                     var data = response.GetValue<OrchestratorResponse<PresentationResponse>>();
 
                     UnityThread.executeInUpdate(() => {
-                        _responsesListener?.OnCurrentPresentationIsSharingResponse(data.ResponseStatus, data.Body.Presentation);
+                        callback(data.ResponseStatus, data.Body.Presentation);
                     });
                 }, new { isSharing });
             }
         }
 
-        public void SetSessionStatus(string status)
+        public void SetSessionStatus(string status, Action<ResponseStatus, string> callback)
         {
             lock (this)
             {
@@ -539,13 +546,13 @@ namespace Orchestrator.Wrapping {
                     var data = response.GetValue<OrchestratorResponse<StatusResponse>>();
 
                     UnityThread.executeInUpdate(() => {
-                        _responsesListener?.OnChangeStatusResponse(data.ResponseStatus, data.Body.Status);
+                        callback(data.ResponseStatus, data.Body.Status);
                     });
                 }, new { status });
             }
         }
 
-        public void SetUserStatus(string status)
+        public void SetUserStatus(string status, Action<ResponseStatus, string> callback)
         {
             lock (this)
             {
@@ -554,7 +561,7 @@ namespace Orchestrator.Wrapping {
                     var data = response.GetValue<OrchestratorResponse<StatusResponse>>();
 
                     UnityThread.executeInUpdate(() => {
-                        _responsesListener?.OnChangeUserStatusResponse(data.ResponseStatus, data.Body.Status);
+                        callback(data.ResponseStatus, data.Body.Status);
                     });
                 }, new { status });
             }

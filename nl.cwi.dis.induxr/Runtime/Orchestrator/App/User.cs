@@ -129,8 +129,10 @@ namespace Orchestrator.App
         {
             var tcs = new TaskCompletionSource<bool>();
 
-            OrchestratorController.Instance.SendMessage(message, Id);
-            tcs.SetResult(true);
+            OrchestratorController.Instance.Wrapper.SendMessage(message, Id, (_) =>
+            {
+                tcs.SetResult(true);
+            });
 
             return tcs.Task;
         }
@@ -217,18 +219,11 @@ namespace Orchestrator.App
         {
             var tcs = new TaskCompletionSource<User>();
 
-            Action<Data.User, string> fn = null;
-            fn = (u, newStatus) =>
+            OrchestratorController.Instance.Wrapper.SetUserStatus(status, (_, newStatus) =>
             {
-                if (u.Id != Id) return;
-
                 UserData.Status = newStatus;
                 tcs.SetResult(this);
-                OrchestratorController.Instance.OnUserStatusChangedEvent -= fn;
-            };
-
-            OrchestratorController.Instance.OnUserStatusChangedEvent += fn;
-            OrchestratorController.Instance.ChangeUserStatus(status);
+            });
 
             return tcs.Task;
         }
@@ -241,16 +236,7 @@ namespace Orchestrator.App
         public Task<bool> SetIsSpeaking(bool isSpeaking)
         {
             var tcs = new TaskCompletionSource<bool>();
-
-            Action<bool> fn = null;
-            fn = (result) =>
-            {
-                tcs.SetResult(result);
-                OrchestratorController.Instance.OnIsSpeakingEvent -= fn;
-            };
-
-            OrchestratorController.Instance.OnIsSpeakingEvent += fn;
-            OrchestratorController.Instance.IsSpeaking(isSpeaking);
+            OrchestratorController.Instance.Wrapper.IsSpeaking(isSpeaking, tcs.SetResult);
 
             return tcs.Task;
         }
@@ -262,17 +248,11 @@ namespace Orchestrator.App
         public Task<bool> RaiseHand()
         {
             var tcs = new TaskCompletionSource<bool>();
-
-            Action fn = null;
-            fn = async () =>
+            OrchestratorController.Instance.Wrapper.RaiseHand(async (_) =>
             {
                 await Session.GetRaisedHands();
                 tcs.SetResult(true);
-                OrchestratorController.Instance.OnRaisedHandEvent -= fn;
-            };
-
-            OrchestratorController.Instance.OnRaisedHandEvent += fn;
-            OrchestratorController.Instance.RaiseHand();
+            });
 
             return tcs.Task;
         }
@@ -287,16 +267,11 @@ namespace Orchestrator.App
         {
             var tcs = new TaskCompletionSource<bool>();
 
-            Action fn = null;
-            fn = () =>
+            OrchestratorController.Instance.Wrapper.ClearRaisedHand(async (_) =>
             {
+                await Session.GetRaisedHands();
                 tcs.SetResult(true);
-                Session.GetRaisedHands();
-                OrchestratorController.Instance.OnClearRaisedHandEvent -= fn;
-            };
-
-            OrchestratorController.Instance.OnClearRaisedHandEvent += fn;
-            OrchestratorController.Instance.ClearRaisedHand();
+            });
 
             return tcs.Task;
         }

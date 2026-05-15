@@ -233,16 +233,11 @@ namespace Orchestrator.App
         {
             var tcs = new TaskCompletionSource<Session>();
 
-            Action<Data.Session> fn = null;
-            fn = (sessionData) =>
+            OrchestratorController.Instance.Wrapper.GetSessionInfo((_, sessionData) =>
             {
                 _sessionData = sessionData;
                 tcs.SetResult(this);
-                OrchestratorController.Instance.OnSessionInfoEvent -= fn;
-            };
-
-            OrchestratorController.Instance.OnSessionInfoEvent += fn;
-            OrchestratorController.Instance.GetSessionInfo();
+            });
 
             return tcs.Task;
         }
@@ -290,21 +285,24 @@ namespace Orchestrator.App
         public Task<bool> Leave()
         {
             var tcs = new TaskCompletionSource<bool>();
-            OrchestratorController.Instance.LeaveSession();
 
-            foreach (var user in Users)
+            OrchestratorController.Instance.Wrapper.LeaveSession((_) =>
             {
-                user.Leave();
-            }
+                foreach (var user in Users)
+                {
+                    user.Leave();
+                }
 
-            if (_orchestrator.Sessions.Remove(_orchestrator.CurrentSession))
-            {
-                Debug.Log("Removed current session from session list");
-            }
+                if (_orchestrator.Sessions.Remove(_orchestrator.CurrentSession))
+                {
+                    Debug.Log("Removed current session from session list");
+                }
 
-            _orchestrator.CurrentSession = null;
+                _orchestrator.CurrentSession = null;
 
-            tcs.SetResult(true);
+                tcs.SetResult(true);
+            });
+
             return tcs.Task;
         }
 
@@ -317,10 +315,12 @@ namespace Orchestrator.App
         {
             var tcs = new TaskCompletionSource<bool>();
 
-            OrchestratorController.Instance.RemoveUserFromSession(userToRemove.Id);
-            userToRemove.Leave();
+            OrchestratorController.Instance.Wrapper.LeaveSession(userToRemove.Id, (_) =>
+            {
+                userToRemove.Leave();
+                tcs.SetResult(true);
+            });
 
-            tcs.SetResult(true);
             return tcs.Task;
         }
 
@@ -332,16 +332,11 @@ namespace Orchestrator.App
         {
             var tcs = new TaskCompletionSource<Presentation>();
 
-            Action<Presentation> fn = null;
-            fn = (presentation) =>
+            OrchestratorController.Instance.Wrapper.GoToNextPresentation((_, presentation) =>
             {
                 tcs.SetResult(presentation);
                 CurrentPresentation = presentation;
-                OrchestratorController.Instance.OnSessionPresentationChangedEvent -= fn;
-            };
-
-            OrchestratorController.Instance.OnSessionPresentationChangedEvent += fn;
-            OrchestratorController.Instance.GoToNextPresentation();
+            });
 
             return tcs.Task;
         }
@@ -354,16 +349,11 @@ namespace Orchestrator.App
         {
             var tcs = new TaskCompletionSource<Presentation>();
 
-            Action<Presentation> fn = null;
-            fn = (presentation) =>
+            OrchestratorController.Instance.Wrapper.GoToPresentation(index, (_, presentation) =>
             {
                 tcs.SetResult(presentation);
                 CurrentPresentation = presentation;
-                OrchestratorController.Instance.OnSessionPresentationChangedEvent -= fn;
-            };
-
-            OrchestratorController.Instance.OnSessionPresentationChangedEvent += fn;
-            OrchestratorController.Instance.GoToPresentation(index);
+            });
 
             return tcs.Task;
         }
@@ -377,16 +367,11 @@ namespace Orchestrator.App
         {
             var tcs = new TaskCompletionSource<Presentation>();
 
-            Action<Presentation> fn = null;
-            fn = (presentation) =>
+            OrchestratorController.Instance.Wrapper.ChangeSlide(slideOffset, (_, presentation) =>
             {
                 tcs.SetResult(presentation);
                 CurrentPresentation.CurrentSlide = presentation.CurrentSlide;
-                OrchestratorController.Instance.OnSessionPresentationSlideChangedEvent -= fn;
-            };
-
-            OrchestratorController.Instance.OnSessionPresentationSlideChangedEvent += fn;
-            OrchestratorController.Instance.ChangeSlide(slideOffset);
+            });
 
             return tcs.Task;
         }
@@ -400,16 +385,11 @@ namespace Orchestrator.App
         {
             var tcs = new TaskCompletionSource<Presentation>();
 
-            Action<Presentation> fn = null;
-            fn = (presentation) =>
+            OrchestratorController.Instance.Wrapper.SetSlide(slideIndex, (_, presentation) =>
             {
                 tcs.SetResult(presentation);
                 CurrentPresentation.CurrentSlide = presentation.CurrentSlide;
-                OrchestratorController.Instance.OnSessionPresentationSlideChangedEvent -= fn;
-            };
-
-            OrchestratorController.Instance.OnSessionPresentationSlideChangedEvent += fn;
-            OrchestratorController.Instance.SetSlide(slideIndex);
+            });
 
             return tcs.Task;
         }
@@ -423,16 +403,11 @@ namespace Orchestrator.App
         {
             var tcs = new TaskCompletionSource<Presentation>();
 
-            Action<Presentation> fn = null;
-            fn = (presentation) =>
+            OrchestratorController.Instance.Wrapper.CurrentPresentationIsSharing(isSharing, (_, presentation) =>
             {
                 tcs.SetResult(presentation);
                 CurrentPresentation.IsSharing = presentation.IsSharing;
-                OrchestratorController.Instance.OnSessionPresentationIsSharingEvent -= fn;
-            };
-
-            OrchestratorController.Instance.OnSessionPresentationIsSharingEvent += fn;
-            OrchestratorController.Instance.SetCurrentPresentationIsSharing(isSharing);
+            });
 
             return tcs.Task;
         }
@@ -445,16 +420,7 @@ namespace Orchestrator.App
         public Task<string> SetSessionStatus(string sessionStatus)
         {
             var tcs = new TaskCompletionSource<string>();
-
-            Action<string> fn = null;
-            fn = (status) =>
-            {
-                tcs.SetResult(status);
-                OrchestratorController.Instance.OnSessionStatusChangedEvent -= fn;
-            };
-
-            OrchestratorController.Instance.OnSessionStatusChangedEvent += fn;
-            OrchestratorController.Instance.ChangeSessionStatus(sessionStatus);
+            OrchestratorController.Instance.Wrapper.SetSessionStatus(sessionStatus, (_, status) => tcs.SetResult(status));
 
             return tcs.Task;
         }
@@ -466,18 +432,11 @@ namespace Orchestrator.App
         public Task<List<User>> GetRaisedHands()
         {
             var tcs = new TaskCompletionSource<List<User>>();
-
-            Action<List<Data.User>> fn = null;
-            fn = (users) =>
+            OrchestratorController.Instance.Wrapper.GetRaisedHands((_, users) =>
             {
                 _sessionData.RaisedHands = users;
                 tcs.SetResult(RaisedHands);
-
-                OrchestratorController.Instance.OnGetRaisedHandsEvent -= fn;
-            };
-
-            OrchestratorController.Instance.OnGetRaisedHandsEvent += fn;
-            OrchestratorController.Instance.GetRaisedHands();
+            });
 
             return tcs.Task;
         }
@@ -492,16 +451,11 @@ namespace Orchestrator.App
         {
             var tcs = new TaskCompletionSource<bool>();
 
-            Action fn = null;
-            fn = async () =>
+            OrchestratorController.Instance.Wrapper.ClearRaisedHand(userId, async (_) =>
             {
                 await GetRaisedHands();
                 tcs.SetResult(true);
-                OrchestratorController.Instance.OnClearRaisedHandEvent -= fn;
-            };
-
-            OrchestratorController.Instance.OnClearRaisedHandEvent += fn;
-            OrchestratorController.Instance.ClearRaisedHand(userId);
+            });
 
             return tcs.Task;
         }
@@ -514,8 +468,10 @@ namespace Orchestrator.App
         {
             var tcs = new TaskCompletionSource<bool>();
 
-            OrchestratorController.Instance.SendMessageToAll(message);
-            tcs.SetResult(true);
+            OrchestratorController.Instance.Wrapper.SendMessageToAll(message, (_) =>
+            {
+                tcs.SetResult(true);
+            });
 
             return tcs.Task;
         }
@@ -527,18 +483,11 @@ namespace Orchestrator.App
         public Task<List<ChatMessage>> GetChatMessages()
         {
             var tcs = new TaskCompletionSource<List<ChatMessage>>();
-
-            Action<List<ChatMessage>> fn = null;
-            fn = (messages) =>
+            OrchestratorController.Instance.Wrapper.GetMessages((_, messages) =>
             {
                 _sessionData.Chat = messages;
                 tcs.SetResult(Chat);
-
-                OrchestratorController.Instance.OnGetMessagesEvent -= fn;
-            };
-
-            OrchestratorController.Instance.OnGetMessagesEvent += fn;
-            OrchestratorController.Instance.GetMessages();
+            });
 
             return tcs.Task;
         }
