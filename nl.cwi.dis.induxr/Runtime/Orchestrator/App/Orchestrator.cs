@@ -150,18 +150,13 @@ namespace Orchestrator.App
         {
             var tcs = new TaskCompletionSource<bool>();
 
-            Action<bool> fn = null;
-            fn = (success) =>
+            OrchestratorController.Instance.Wrapper.Logout((success) =>
             {
                 Self = null;
                 CurrentSession = null;
 
                 tcs.SetResult(success);
-                OrchestratorController.Instance.OnLogoutEvent -= fn;
-            };
-
-            OrchestratorController.Instance.OnLogoutEvent += fn;
-            OrchestratorController.Instance.Logout();
+            });
 
             return tcs.Task;
         }

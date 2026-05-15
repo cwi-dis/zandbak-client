@@ -190,14 +190,14 @@ namespace Orchestrator.Wrapping {
             }
         }
 
-        public void Logout() {
+        public void Logout(Action<bool> callback) {
             lock (this) {
                 _socket.Emit("Logout", (response) => {
                     var data = response.GetValue<OrchestratorResponse<EmptyResponse>>();
                     _myUserID = "";
 
                     UnityThread.executeInUpdate(() => {
-                        _responsesListener?.OnLogoutResponse(data.ResponseStatus);
+                        callback(data.ResponseStatus.Error == 0);
                     });
                 }, new { });
             }

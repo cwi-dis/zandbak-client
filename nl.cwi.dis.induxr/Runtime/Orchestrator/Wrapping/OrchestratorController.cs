@@ -49,9 +49,6 @@ namespace Orchestrator.Wrapping
         private Session _session;
 
         // user Login state
-        private bool _userIsLogged;
-
-        // user Login state
         private bool _userIsMaster;
 
         // orchestrator connection state
@@ -85,11 +82,6 @@ namespace Orchestrator.Wrapping
         /// Invoked whenever a new connection is established
         /// </summary>
         public event Action<bool> OnConnectionEvent;
-
-        /// <summary>
-        /// Invoked when the current user logs out of the Orchestrator, with a boolean indicating success as argument
-        /// </summary>
-        public event Action<bool> OnLogoutEvent;
 
         /// <summary>
         /// Invoked when the current session is being closed remotely
@@ -222,7 +214,6 @@ namespace Orchestrator.Wrapping
 
         public bool ConnectedToOrchestrator => _connectedToOrchestrator;
         public OrchestratorConnectionStatus ConnectionStatus => _connectionStatus;
-        public User SelfUser { get; private set; }
 
         #endregion
 
@@ -324,10 +315,8 @@ namespace Orchestrator.Wrapping
 
         void IOrchestratorResponsesListener.OnDisconnect() {
             Debug.LogWarning($"OrchestratorController: disconnected from orchestrator");
-            SelfUser = null;
             _connectedToOrchestrator = false;
             _connectionStatus = OrchestratorConnectionStatus.Disconnected;
-            _userIsLogged = false;
             SocketUrl = null;
             OnConnectionEvent?.Invoke(false);
         }
@@ -342,29 +331,6 @@ namespace Orchestrator.Wrapping
             DeviceType.AR => "ar",
             _ => "unknown"
         };
-
-        /// <summary>
-        /// Terminates an existing Orchestrator connection.
-        /// Invokes <c>OnLogoutEvent</c> upon completion.
-        /// </summary>
-        [Obsolete("Direct usage of OrchestratorController is deprecated. Use the instance of App.Orchestrator returned by SocketConnectAsync() instead")]
-        public void Logout() {
-            _orchestratorWrapper.Logout();
-        }
-
-        void IOrchestratorResponsesListener.OnLogoutResponse(ResponseStatus status) {
-            bool userLoggedOutSuccessfully = (status.Error == 0);
-
-            if (status.Error != 0) {
-                OnErrorEvent?.Invoke(status);
-                return;
-            }
-
-            SelfUser = null;
-            _userIsLogged = false;
-
-            OnLogoutEvent?.Invoke(userLoggedOutSuccessfully);
-        }
 
         #endregion
 

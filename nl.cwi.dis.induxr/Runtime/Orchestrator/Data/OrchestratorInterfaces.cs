@@ -61,8 +61,6 @@ namespace Orchestrator.Data
         void OnConnecting();
         void OnDisconnect();
 
-        void OnLogoutResponse(ResponseStatus status);
-
         void OnSendMessageResponse(ResponseStatus status);
         void OnRaiseHandResponse(ResponseStatus status);
         void OnClearRaisedHandResponse(ResponseStatus status);
