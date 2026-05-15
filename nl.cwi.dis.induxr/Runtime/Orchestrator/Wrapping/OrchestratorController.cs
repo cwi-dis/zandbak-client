@@ -328,33 +328,6 @@ namespace Orchestrator.Wrapping
         #region Sessions
 
         /// <summary>
-        /// Advances the current presentation to the next slide.
-        /// This method triggers the associated functionality in the OrchestratorWrapper.
-        /// </summary>
-        [Obsolete("Direct usage of OrchestratorController is deprecated. Use the instance of App.Orchestrator returned by SocketConnectAsync() instead")]
-        public void GoToNextPresentation()
-        {
-            _orchestratorWrapper.GoToNextPresentation();
-        }
-
-        /// <summary>
-        /// Sets the current presentation to the given index.
-        /// This method triggers the associated functionality in the OrchestratorWrapper.
-        /// </summary>
-        [Obsolete("Direct usage of OrchestratorController is deprecated. Use the instance of App.Orchestrator returned by SocketConnectAsync() instead")]
-        public void GoToPresentation(int index)
-        {
-            _orchestratorWrapper.GoToPresentation(index);
-        }
-
-        void IOrchestratorResponsesListener.OnGoToNextPresentationResponse(ResponseStatus status, Presentation presentation)
-        {
-            if (status.Error != 0) {
-                OnErrorEvent?.Invoke(status);
-            }
-        }
-
-        /// <summary>
         /// Changes the current slide in the current session presentation by the specified offset.
         /// </summary>
         /// <param name="slideOffset">The offset to apply to the current slide. A positive value moves forward, a negative value moves backward.</param>

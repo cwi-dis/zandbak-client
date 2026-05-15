@@ -466,7 +466,7 @@ namespace Orchestrator.Wrapping {
             }
         }
 
-        public void GoToNextPresentation()
+        public void GoToNextPresentation(Action<ResponseStatus, Presentation> callback)
         {
             lock (this)
             {
@@ -475,13 +475,13 @@ namespace Orchestrator.Wrapping {
                     var data = response.GetValue<OrchestratorResponse<PresentationResponse>>();
 
                     UnityThread.executeInUpdate(() => {
-                        _responsesListener?.OnGoToNextPresentationResponse(data.ResponseStatus, data.Body.Presentation);
+                        callback(data.ResponseStatus, data.Body.Presentation);
                     });
                 }, new {});
             }
         }
 
-        public void GoToPresentation(int presentationIndex)
+        public void GoToPresentation(int presentationIndex, Action<ResponseStatus, Presentation> callback)
         {
             lock (this)
             {

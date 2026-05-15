@@ -332,16 +332,11 @@ namespace Orchestrator.App
         {
             var tcs = new TaskCompletionSource<Presentation>();
 
-            Action<Presentation> fn = null;
-            fn = (presentation) =>
+            OrchestratorController.Instance.Wrapper.GoToNextPresentation((_, presentation) =>
             {
                 tcs.SetResult(presentation);
                 CurrentPresentation = presentation;
-                OrchestratorController.Instance.OnSessionPresentationChangedEvent -= fn;
-            };
-
-            OrchestratorController.Instance.OnSessionPresentationChangedEvent += fn;
-            OrchestratorController.Instance.GoToNextPresentation();
+            });
 
             return tcs.Task;
         }
@@ -354,16 +349,11 @@ namespace Orchestrator.App
         {
             var tcs = new TaskCompletionSource<Presentation>();
 
-            Action<Presentation> fn = null;
-            fn = (presentation) =>
+            OrchestratorController.Instance.Wrapper.GoToPresentation(index, (_, presentation) =>
             {
                 tcs.SetResult(presentation);
                 CurrentPresentation = presentation;
-                OrchestratorController.Instance.OnSessionPresentationChangedEvent -= fn;
-            };
-
-            OrchestratorController.Instance.OnSessionPresentationChangedEvent += fn;
-            OrchestratorController.Instance.GoToPresentation(index);
+            });
 
             return tcs.Task;
         }
