@@ -367,16 +367,11 @@ namespace Orchestrator.App
         {
             var tcs = new TaskCompletionSource<Presentation>();
 
-            Action<Presentation> fn = null;
-            fn = (presentation) =>
+            OrchestratorController.Instance.Wrapper.ChangeSlide(slideOffset, (_, presentation) =>
             {
                 tcs.SetResult(presentation);
                 CurrentPresentation.CurrentSlide = presentation.CurrentSlide;
-                OrchestratorController.Instance.OnSessionPresentationSlideChangedEvent -= fn;
-            };
-
-            OrchestratorController.Instance.OnSessionPresentationSlideChangedEvent += fn;
-            OrchestratorController.Instance.ChangeSlide(slideOffset);
+            });
 
             return tcs.Task;
         }
@@ -390,16 +385,11 @@ namespace Orchestrator.App
         {
             var tcs = new TaskCompletionSource<Presentation>();
 
-            Action<Presentation> fn = null;
-            fn = (presentation) =>
+            OrchestratorController.Instance.Wrapper.SetSlide(slideIndex, (_, presentation) =>
             {
                 tcs.SetResult(presentation);
                 CurrentPresentation.CurrentSlide = presentation.CurrentSlide;
-                OrchestratorController.Instance.OnSessionPresentationSlideChangedEvent -= fn;
-            };
-
-            OrchestratorController.Instance.OnSessionPresentationSlideChangedEvent += fn;
-            OrchestratorController.Instance.SetSlide(slideIndex);
+            });
 
             return tcs.Task;
         }

@@ -328,33 +328,6 @@ namespace Orchestrator.Wrapping
         #region Sessions
 
         /// <summary>
-        /// Changes the current slide in the current session presentation by the specified offset.
-        /// </summary>
-        /// <param name="slideOffset">The offset to apply to the current slide. A positive value moves forward, a negative value moves backward.</param>
-        [Obsolete("Direct usage of OrchestratorController is deprecated. Use the instance of App.Orchestrator returned by SocketConnectAsync() instead")]
-        public void ChangeSlide(int slideOffset)
-        {
-            _orchestratorWrapper.ChangeSlide(slideOffset);
-        }
-
-        /// <summary>
-        /// Changes the current slide in the current session presentation to the given index.
-        /// </summary>
-        /// <param name="slideIndex">The index of the slide to display.</param>
-        [Obsolete("Direct usage of OrchestratorController is deprecated. Use the instance of App.Orchestrator returned by SocketConnectAsync() instead")]
-        public void SetSlide(int slideIndex)
-        {
-            _orchestratorWrapper.SetSlide(slideIndex);
-        }
-
-        void IOrchestratorResponsesListener.OnChangeSlideResponse(ResponseStatus status, Presentation presentation)
-        {
-            if (status.Error != 0) {
-                OnErrorEvent?.Invoke(status);
-            }
-        }
-
-        /// <summary>
         /// Sets whether the current presentation is being shared.
         /// Updates the orchestrator with the sharing status. If the invoking user is not a presenter or administrator,
         /// an error is issued. If there is no current presentation, an error is issued as well. Upon success, all

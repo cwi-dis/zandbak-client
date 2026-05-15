@@ -490,13 +490,13 @@ namespace Orchestrator.Wrapping {
                     var data = response.GetValue<OrchestratorResponse<PresentationResponse>>();
 
                     UnityThread.executeInUpdate(() => {
-                        _responsesListener?.OnGoToNextPresentationResponse(data.ResponseStatus, data.Body.Presentation);
+                        callback(data.ResponseStatus, data.Body.Presentation);
                     });
                 }, new { presentationIndex });
             }
         }
 
-        public void ChangeSlide(int slideOffset)
+        public void ChangeSlide(int slideOffset, Action<ResponseStatus, Presentation> callback)
         {
             lock (this)
             {
@@ -505,13 +505,13 @@ namespace Orchestrator.Wrapping {
                     var data = response.GetValue<OrchestratorResponse<PresentationResponse>>();
 
                     UnityThread.executeInUpdate(() => {
-                        _responsesListener?.OnChangeSlideResponse(data.ResponseStatus, data.Body.Presentation);
+                        callback(data.ResponseStatus, data.Body.Presentation);
                     });
                 }, new { slideOffset });
             }
         }
 
-        public void SetSlide(int slideIndex)
+        public void SetSlide(int slideIndex, Action<ResponseStatus, Presentation> callback)
         {
             lock (this)
             {
@@ -520,7 +520,7 @@ namespace Orchestrator.Wrapping {
                     var data = response.GetValue<OrchestratorResponse<PresentationResponse>>();
 
                     UnityThread.executeInUpdate(() => {
-                        _responsesListener?.OnChangeSlideResponse(data.ResponseStatus, data.Body.Presentation);
+                        callback(data.ResponseStatus, data.Body.Presentation);
                     });
                 }, new { slideIndex });
             }
