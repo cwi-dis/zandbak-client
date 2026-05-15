@@ -432,18 +432,11 @@ namespace Orchestrator.App
         public Task<List<User>> GetRaisedHands()
         {
             var tcs = new TaskCompletionSource<List<User>>();
-
-            Action<List<Data.User>> fn = null;
-            fn = (users) =>
+            OrchestratorController.Instance.Wrapper.GetRaisedHands((_, users) =>
             {
                 _sessionData.RaisedHands = users;
                 tcs.SetResult(RaisedHands);
-
-                OrchestratorController.Instance.OnGetRaisedHandsEvent -= fn;
-            };
-
-            OrchestratorController.Instance.OnGetRaisedHandsEvent += fn;
-            OrchestratorController.Instance.GetRaisedHands();
+            });
 
             return tcs.Task;
         }
@@ -458,16 +451,11 @@ namespace Orchestrator.App
         {
             var tcs = new TaskCompletionSource<bool>();
 
-            Action fn = null;
-            fn = async () =>
+            OrchestratorController.Instance.Wrapper.ClearRaisedHand(userId, async (_) =>
             {
                 await GetRaisedHands();
                 tcs.SetResult(true);
-                OrchestratorController.Instance.OnClearRaisedHandEvent -= fn;
-            };
-
-            OrchestratorController.Instance.OnClearRaisedHandEvent += fn;
-            OrchestratorController.Instance.ClearRaisedHand(userId);
+            });
 
             return tcs.Task;
         }

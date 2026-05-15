@@ -402,7 +402,7 @@ namespace Orchestrator.Wrapping {
             }
         }
 
-        public void RaiseHand()
+        public void RaiseHand(Action<ResponseStatus> callback)
         {
             lock (this)
             {
@@ -411,13 +411,13 @@ namespace Orchestrator.Wrapping {
                     var data = response.GetValue<OrchestratorResponse<EmptyResponse>>();
 
                     UnityThread.executeInUpdate(() => {
-                        _responsesListener?.OnRaiseHandResponse(data.ResponseStatus);
+                        callback(data.ResponseStatus);
                     });
                 }, new {});
             }
         }
 
-        public void ClearRaisedHand(string userId)
+        public void ClearRaisedHand(string userId, Action<ResponseStatus> callback)
         {
             lock (this)
             {
@@ -426,13 +426,13 @@ namespace Orchestrator.Wrapping {
                     var data = response.GetValue<OrchestratorResponse<EmptyResponse>>();
 
                     UnityThread.executeInUpdate(() => {
-                        _responsesListener?.OnClearRaisedHandResponse(data.ResponseStatus);
+                        callback(data.ResponseStatus);
                     });
                 }, new { userId });
             }
         }
 
-        public void ClearRaisedHand()
+        public void ClearRaisedHand(Action<ResponseStatus> callback)
         {
             lock (this)
             {
@@ -441,13 +441,13 @@ namespace Orchestrator.Wrapping {
                     var data = response.GetValue<OrchestratorResponse<EmptyResponse>>();
 
                     UnityThread.executeInUpdate(() => {
-                        _responsesListener?.OnClearRaisedHandResponse(data.ResponseStatus);
+                        callback(data.ResponseStatus);
                     });
                 }, new {});
             }
         }
 
-        public void GetRaisedHands()
+        public void GetRaisedHands(Action<ResponseStatus, List<User>> callback)
         {
             lock (this)
             {
@@ -456,7 +456,7 @@ namespace Orchestrator.Wrapping {
                     var data = response.GetValue<OrchestratorResponse<List<User>>>();
 
                     UnityThread.executeInUpdate(() => {
-                        _responsesListener?.OnGetRaisedHandsResponse(data.ResponseStatus, data.Body);
+                        callback(data.ResponseStatus, data.Body);
                     });
                 }, new {});
             }

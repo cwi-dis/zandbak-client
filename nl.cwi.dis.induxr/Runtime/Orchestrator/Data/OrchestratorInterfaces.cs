@@ -62,9 +62,6 @@ namespace Orchestrator.Data
         void OnDisconnect();
 
         void OnSendMessageResponse(ResponseStatus status);
-        void OnRaiseHandResponse(ResponseStatus status);
-        void OnClearRaisedHandResponse(ResponseStatus status);
-        void OnGetRaisedHandsResponse(ResponseStatus status, List<User> raisedHands);
         void OnSendMessageToAllResponse(ResponseStatus status);
         void OnGetMessagesResponse(ResponseStatus status, List<ChatMessage> messages);
     }
