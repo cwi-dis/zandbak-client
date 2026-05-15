@@ -87,11 +87,6 @@ namespace Orchestrator.Wrapping
         public event Action<bool> OnConnectionEvent;
 
         /// <summary>
-        /// Invoked when the current user logs into the Orchestrator, with a boolean indicating success and the user's ID as arguments
-        /// </summary>
-        public event Action<bool, User> OnLoginEvent;
-
-        /// <summary>
         /// Invoked when the current user logs out of the Orchestrator, with a boolean indicating success as argument
         /// </summary>
         public event Action<bool> OnLogoutEvent;
@@ -341,80 +336,7 @@ namespace Orchestrator.Wrapping
 
         #region Login/Logout
 
-        /// <summary>
-        /// Logs in a user to the Orchestrator with the specified username and the given device type.
-        ///
-        /// Invokes <c>OnLoginEvent</c> upon completion with a boolean parameter indicating whether the login was
-        /// successful and if so, also a string parameter with the user's ID.
-        /// </summary>
-        /// <param name="username">The username of the user to log in.</param>
-        /// <param name="deviceType">The type of device that the user uses to log in</param>
-        [Obsolete("Direct usage of OrchestratorController is deprecated. Use the instance of App.Orchestrator returned by SocketConnectAsync() instead")]
-        public void Login(string username, DeviceType deviceType)
-        {
-            SelfUser = new User
-            {
-                Username = username,
-                DeviceType = DeviceTypeToString(deviceType)
-            };
-
-            _orchestratorWrapper.Login(username, DeviceTypeToString(deviceType));
-        }
-
-        /// <summary>
-        /// Logs in a user to the Orchestrator with the specified username, password and device type. The given
-        /// username and password combination is checked against the Orchestrator's database.
-        ///
-        /// Invokes <c>OnLoginEvent</c> upon completion with a boolean parameter indicating whether the login was
-        /// successful and if so, also a string parameter with the user's ID.
-        /// </summary>
-        /// <param name="username">The username of the user to log in.</param>
-        /// <param name="password">The password of the user to log in</param>
-        /// <param name="deviceType">The deviceType that the user uses to log in</param>
-        [Obsolete("Direct usage of OrchestratorController is deprecated. Use the instance of App.Orchestrator returned by SocketConnectAsync() instead")]
-        public void Login(string username, string password, DeviceType deviceType)
-        {
-            SelfUser = new User
-            {
-                Username = username,
-                Password = password,
-                DeviceType = DeviceTypeToString(deviceType)
-            };
-
-            _orchestratorWrapper.Login(username, password, DeviceTypeToString(deviceType));
-        }
-
-        void IOrchestratorResponsesListener.OnLoginResponse(ResponseStatus status, User userData) {
-            var userLoggedSuccessfully = (status.Error == 0);
-
-            if (status.Error != 0) {
-                OnErrorEvent?.Invoke(status);
-                return;
-            }
-
-            if (!_userIsLogged) {
-                // user was not logged before the request
-                if (userLoggedSuccessfully) {
-                    Log("OrchestratorController: OnLoginResponse: User logged in.");
-
-                    _userIsLogged = true;
-                    SelfUser.Id = userData.Id;
-                } else {
-                    _userIsLogged = false;
-                }
-            } else {
-                // user was logged in previously
-                if (!userLoggedSuccessfully) {
-                    // normal, user previously logged, nothing to do
-                } else {
-                    // should not occur
-                }
-            }
-
-            OnLoginEvent?.Invoke(userLoggedSuccessfully, userData);
-        }
-
-        private static string DeviceTypeToString(DeviceType deviceType) => deviceType switch
+        public static string DeviceTypeToString(DeviceType deviceType) => deviceType switch
         {
             DeviceType.VR => "vr",
             DeviceType.AR => "ar",

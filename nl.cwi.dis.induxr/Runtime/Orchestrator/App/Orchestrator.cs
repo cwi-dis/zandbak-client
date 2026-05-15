@@ -115,10 +115,10 @@ namespace Orchestrator.App
         {
             var tcs = new TaskCompletionSource<User>();
 
-            Action<bool, Data.User> fn = null;
-            fn = (success, userData) =>
+            Action<ResponseStatus, Data.User> fn = null;
+            fn = (response, userData) =>
             {
-                if (success)
+                if (response.Error == 0)
                 {
                     Self = new SelfUser(this, userData);
                     tcs.SetResult(Self);
@@ -127,20 +127,17 @@ namespace Orchestrator.App
                 {
                     tcs.SetException(new Exception("Login failed"));
                 }
-
-                OrchestratorController.Instance.OnLoginEvent -= fn;
             };
-
-            OrchestratorController.Instance.OnLoginEvent += fn;
 
             if (password == null)
             {
-                OrchestratorController.Instance.Login(username, deviceType);
+                OrchestratorController.Instance.Wrapper.Login(username, OrchestratorController.DeviceTypeToString(deviceType), fn);
             }
             else
             {
-                OrchestratorController.Instance.Login(username, password, deviceType);
+                OrchestratorController.Instance.Wrapper.Login(username, password, OrchestratorController.DeviceTypeToString(deviceType), fn);
             }
+
 
             return tcs.Task;
         }

@@ -160,14 +160,14 @@ namespace Orchestrator.Wrapping {
 
         #region login/logout
 
-        public void Login(string userName, string deviceType) {
+        public void Login(string userName, string deviceType, Action<ResponseStatus, User> callback) {
             lock (this) {
                 _socket.Emit("Login", (response) => {
                     var data = response.GetValue<OrchestratorResponse<LoginResponse>>();
                     _myUserID = data.Body.UserId;
 
                     UnityThread.executeInUpdate(() => {
-                        _responsesListener?.OnLoginResponse(data.ResponseStatus, data.Body.UserData);
+                        callback(data.ResponseStatus, data.Body.UserData);
                     });
                 }, new {
                     userName, deviceType
@@ -175,14 +175,14 @@ namespace Orchestrator.Wrapping {
             }
         }
 
-        public void Login(string userName, string password, string deviceType) {
+        public void Login(string userName, string password, string deviceType, Action<ResponseStatus, User> callback) {
             lock (this) {
                 _socket.Emit("Login", (response) => {
                     var data = response.GetValue<OrchestratorResponse<LoginResponse>>();
                     _myUserID = data.Body.UserId;
 
                     UnityThread.executeInUpdate(() => {
-                        _responsesListener?.OnLoginResponse(data.ResponseStatus, data.Body.UserData);
+                        callback(data.ResponseStatus, data.Body.UserData);
                     });
                 }, new {
                     userName, password, deviceType
