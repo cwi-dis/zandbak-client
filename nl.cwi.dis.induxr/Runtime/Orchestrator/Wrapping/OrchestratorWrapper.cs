@@ -30,7 +30,6 @@ namespace Orchestrator.Wrapping {
         private readonly IOrchestratorEventsListener _orchestratorEventListener;
 
         public Action<UserDataStreamPacket> OnDataStreamReceived;
-        private string _myUserID = "";
 
         public OrchestratorWrapper(string orchestratorSocketUrl, IOrchestratorResponsesListener responsesListener, IUserMessagesListener userMessagesListener, IUserSessionEventsListener userSessionEventsListener, IOrchestratorEventsListener orchestratorEventListener, IBubbleEventsListener bubbleEventListener)
         {
@@ -164,7 +163,6 @@ namespace Orchestrator.Wrapping {
             lock (this) {
                 _socket.Emit("Login", (response) => {
                     var data = response.GetValue<OrchestratorResponse<LoginResponse>>();
-                    _myUserID = data.Body.UserId;
 
                     UnityThread.executeInUpdate(() => {
                         callback(data.ResponseStatus, data.Body.UserData);
@@ -179,7 +177,6 @@ namespace Orchestrator.Wrapping {
             lock (this) {
                 _socket.Emit("Login", (response) => {
                     var data = response.GetValue<OrchestratorResponse<LoginResponse>>();
-                    _myUserID = data.Body.UserId;
 
                     UnityThread.executeInUpdate(() => {
                         callback(data.ResponseStatus, data.Body.UserData);
@@ -194,7 +191,6 @@ namespace Orchestrator.Wrapping {
             lock (this) {
                 _socket.Emit("Logout", (response) => {
                     var data = response.GetValue<OrchestratorResponse<EmptyResponse>>();
-                    _myUserID = "";
 
                     UnityThread.executeInUpdate(() => {
                         callback(data.ResponseStatus.Error == 0);
