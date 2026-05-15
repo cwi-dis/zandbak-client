@@ -403,16 +403,11 @@ namespace Orchestrator.App
         {
             var tcs = new TaskCompletionSource<Presentation>();
 
-            Action<Presentation> fn = null;
-            fn = (presentation) =>
+            OrchestratorController.Instance.Wrapper.CurrentPresentationIsSharing(isSharing, (_, presentation) =>
             {
                 tcs.SetResult(presentation);
                 CurrentPresentation.IsSharing = presentation.IsSharing;
-                OrchestratorController.Instance.OnSessionPresentationIsSharingEvent -= fn;
-            };
-
-            OrchestratorController.Instance.OnSessionPresentationIsSharingEvent += fn;
-            OrchestratorController.Instance.SetCurrentPresentationIsSharing(isSharing);
+            });
 
             return tcs.Task;
         }
@@ -425,16 +420,7 @@ namespace Orchestrator.App
         public Task<string> SetSessionStatus(string sessionStatus)
         {
             var tcs = new TaskCompletionSource<string>();
-
-            Action<string> fn = null;
-            fn = (status) =>
-            {
-                tcs.SetResult(status);
-                OrchestratorController.Instance.OnSessionStatusChangedEvent -= fn;
-            };
-
-            OrchestratorController.Instance.OnSessionStatusChangedEvent += fn;
-            OrchestratorController.Instance.ChangeSessionStatus(sessionStatus);
+            OrchestratorController.Instance.Wrapper.SetSessionStatus(sessionStatus, (_, status) => tcs.SetResult(status));
 
             return tcs.Task;
         }

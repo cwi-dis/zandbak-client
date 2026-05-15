@@ -526,7 +526,7 @@ namespace Orchestrator.Wrapping {
             }
         }
 
-        public void CurrentPresentationIsSharing(bool isSharing)
+        public void CurrentPresentationIsSharing(bool isSharing, Action<ResponseStatus, Presentation> callback)
         {
             lock (this)
             {
@@ -535,13 +535,13 @@ namespace Orchestrator.Wrapping {
                     var data = response.GetValue<OrchestratorResponse<PresentationResponse>>();
 
                     UnityThread.executeInUpdate(() => {
-                        _responsesListener?.OnCurrentPresentationIsSharingResponse(data.ResponseStatus, data.Body.Presentation);
+                        callback(data.ResponseStatus, data.Body.Presentation);
                     });
                 }, new { isSharing });
             }
         }
 
-        public void SetSessionStatus(string status)
+        public void SetSessionStatus(string status, Action<ResponseStatus, string> callback)
         {
             lock (this)
             {
@@ -550,13 +550,13 @@ namespace Orchestrator.Wrapping {
                     var data = response.GetValue<OrchestratorResponse<StatusResponse>>();
 
                     UnityThread.executeInUpdate(() => {
-                        _responsesListener?.OnChangeStatusResponse(data.ResponseStatus, data.Body.Status);
+                        callback(data.ResponseStatus, data.Body.Status);
                     });
                 }, new { status });
             }
         }
 
-        public void SetUserStatus(string status)
+        public void SetUserStatus(string status, Action<ResponseStatus, string> callback)
         {
             lock (this)
             {
@@ -565,7 +565,7 @@ namespace Orchestrator.Wrapping {
                     var data = response.GetValue<OrchestratorResponse<StatusResponse>>();
 
                     UnityThread.executeInUpdate(() => {
-                        _responsesListener?.OnChangeUserStatusResponse(data.ResponseStatus, data.Body.Status);
+                        callback(data.ResponseStatus, data.Body.Status);
                     });
                 }, new { status });
             }

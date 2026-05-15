@@ -217,18 +217,11 @@ namespace Orchestrator.App
         {
             var tcs = new TaskCompletionSource<User>();
 
-            Action<Data.User, string> fn = null;
-            fn = (u, newStatus) =>
+            OrchestratorController.Instance.Wrapper.SetUserStatus(status, (_, newStatus) =>
             {
-                if (u.Id != Id) return;
-
                 UserData.Status = newStatus;
                 tcs.SetResult(this);
-                OrchestratorController.Instance.OnUserStatusChangedEvent -= fn;
-            };
-
-            OrchestratorController.Instance.OnUserStatusChangedEvent += fn;
-            OrchestratorController.Instance.ChangeUserStatus(status);
+            });
 
             return tcs.Task;
         }

@@ -327,60 +327,6 @@ namespace Orchestrator.Wrapping
 
         #region Sessions
 
-        /// <summary>
-        /// Sets whether the current presentation is being shared.
-        /// Updates the orchestrator with the sharing status. If the invoking user is not a presenter or administrator,
-        /// an error is issued. If there is no current presentation, an error is issued as well. Upon success, all
-        /// users will receive a session update with the updated presentation.
-        /// </summary>
-        /// <param name="isSharing">A boolean indicating if the current presentation should be marked as sharing.</param>
-        [Obsolete("Direct usage of OrchestratorController is deprecated. Use the instance of App.Orchestrator returned by SocketConnectAsync() instead")]
-        public void SetCurrentPresentationIsSharing(bool isSharing)
-        {
-            _orchestratorWrapper.CurrentPresentationIsSharing(isSharing);
-        }
-
-        void IOrchestratorResponsesListener.OnCurrentPresentationIsSharingResponse(ResponseStatus status, Presentation presentation)
-        {
-            if (status.Error != 0) {
-                OnErrorEvent?.Invoke(status);
-            }
-        }
-
-        /// <summary>
-        /// Updates the current session's status using the specified status string.
-        /// </summary>
-        /// <param name="status">The new status to be applied to the session.</param>
-        [Obsolete("Direct usage of OrchestratorController is deprecated. Use the instance of App.Orchestrator returned by SocketConnectAsync() instead")]
-        public void ChangeSessionStatus(string status)
-        {
-            _orchestratorWrapper.SetSessionStatus(status);
-        }
-
-        void IOrchestratorResponsesListener.OnChangeStatusResponse(ResponseStatus status, string sessionStatus)
-        {
-            if (status.Error != 0) {
-                OnErrorEvent?.Invoke(status);
-            }
-        }
-
-        /// <summary>
-        /// Changes the user's status to the specified value.
-        /// </summary>
-        /// <param name="status">The new status to assign to the user.</param>
-        [Obsolete("Direct usage of OrchestratorController is deprecated. Use the instance of App.Orchestrator returned by SocketConnectAsync() instead")]
-        public void ChangeUserStatus(string status)
-        {
-            _orchestratorWrapper.SetUserStatus(status);
-        }
-
-        void IOrchestratorResponsesListener.OnChangeUserStatusResponse(ResponseStatus status, string userStatus)
-        {
-            if (status.Error != 0) {
-                OnErrorEvent?.Invoke(status);
-            }
-        }
-
         void IUserSessionEventsListener.OnSessionClosed()
         {
             // The session has been closed by the session creator.
