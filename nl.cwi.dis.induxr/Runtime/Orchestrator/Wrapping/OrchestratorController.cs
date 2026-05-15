@@ -109,11 +109,6 @@ namespace Orchestrator.Wrapping
         public event Action<List<ChatMessage>> OnGetMessagesEvent;
 
         /// <summary>
-        /// Invoked in response to the current user setting their isSpeaking flag
-        /// </summary>
-        public event Action<bool> OnIsSpeakingEvent;
-
-        /// <summary>
         /// Invoked when a new user joins the current session, with the user ID as argument
         /// </summary>
         public event Action<string, User> OnUserJoinSessionEvent;
@@ -323,8 +318,6 @@ namespace Orchestrator.Wrapping
 
         #endregion
 
-        #region Login/Logout
-
         public static string DeviceTypeToString(DeviceType deviceType) => deviceType switch
         {
             DeviceType.VR => "vr",
@@ -332,30 +325,7 @@ namespace Orchestrator.Wrapping
             _ => "unknown"
         };
 
-        #endregion
-
         #region Sessions
-
-        /// <summary>
-        /// Sets the current user's <c>isSpeaking</c> flag to the given value.
-        /// Invokes <c>OnIsSpeakingEvent</c> upon completion.
-        /// </summary>
-        /// <param name="isSpeaking">The value to set the flag to</param>
-        [Obsolete("Direct usage of OrchestratorController is deprecated. Use the instance of App.Orchestrator returned by SocketConnectAsync() instead")]
-        public void IsSpeaking(bool isSpeaking)
-        {
-            _orchestratorWrapper.IsSpeaking(isSpeaking);
-        }
-
-        void IOrchestratorResponsesListener.OnIsSpeakingResponse(ResponseStatus status)
-        {
-            if (status.Error != 0) {
-                OnErrorEvent?.Invoke(status);
-                return;
-            }
-
-            OnIsSpeakingEvent?.Invoke(true);
-        }
 
         /// <summary>
         /// Advances the current presentation to the next slide.

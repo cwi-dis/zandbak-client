@@ -241,16 +241,7 @@ namespace Orchestrator.App
         public Task<bool> SetIsSpeaking(bool isSpeaking)
         {
             var tcs = new TaskCompletionSource<bool>();
-
-            Action<bool> fn = null;
-            fn = (result) =>
-            {
-                tcs.SetResult(result);
-                OrchestratorController.Instance.OnIsSpeakingEvent -= fn;
-            };
-
-            OrchestratorController.Instance.OnIsSpeakingEvent += fn;
-            OrchestratorController.Instance.IsSpeaking(isSpeaking);
+            OrchestratorController.Instance.Wrapper.IsSpeaking(isSpeaking, tcs.SetResult);
 
             return tcs.Task;
         }

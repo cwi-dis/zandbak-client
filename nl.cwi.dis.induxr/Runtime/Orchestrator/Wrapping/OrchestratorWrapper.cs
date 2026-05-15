@@ -334,14 +334,14 @@ namespace Orchestrator.Wrapping {
             }
         }
 
-        public void IsSpeaking(bool isSpeaking)
+        public void IsSpeaking(bool isSpeaking, Action<bool> callback)
         {
             lock (this) {
                 _socket.Emit("IsSpeaking", (response) => {
                     var data = response.GetValue<OrchestratorResponse<EmptyResponse>>();
 
                     UnityThread.executeInUpdate(() => {
-                        _responsesListener?.OnIsSpeakingResponse(data.ResponseStatus);
+                        callback(data.ResponseStatus.Error == 0);
                     });
                 }, new {
                     isSpeaking
