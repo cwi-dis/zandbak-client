@@ -60,9 +60,5 @@ namespace Orchestrator.Data
         void OnConnect();
         void OnConnecting();
         void OnDisconnect();
-
-        void OnSendMessageResponse(ResponseStatus status);
-        void OnSendMessageToAllResponse(ResponseStatus status);
-        void OnGetMessagesResponse(ResponseStatus status, List<ChatMessage> messages);
     }
 }

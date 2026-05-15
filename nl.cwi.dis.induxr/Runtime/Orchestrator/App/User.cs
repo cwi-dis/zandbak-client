@@ -129,8 +129,10 @@ namespace Orchestrator.App
         {
             var tcs = new TaskCompletionSource<bool>();
 
-            OrchestratorController.Instance.SendMessage(message, Id);
-            tcs.SetResult(true);
+            OrchestratorController.Instance.Wrapper.SendMessage(message, Id, (_) =>
+            {
+                tcs.SetResult(true);
+            });
 
             return tcs.Task;
         }

@@ -345,13 +345,13 @@ namespace Orchestrator.Wrapping {
             }
         }
 
-        public void SendMessage(string message, string userId) {
+        public void SendMessage(string message, string userId, Action<ResponseStatus> callback) {
             lock (this) {
                 _socket.Emit("SendMessage", (response) => {
                     var data = response.GetValue<OrchestratorResponse<EmptyResponse>>();
 
                     UnityThread.executeInUpdate(() => {
-                        _responsesListener?.OnSendMessageResponse(data.ResponseStatus);
+                        callback(data.ResponseStatus);
                     });
                 }, new {
                     message,
@@ -360,13 +360,13 @@ namespace Orchestrator.Wrapping {
             }
         }
 
-        public void SendMessageToAll(string message) {
+        public void SendMessageToAll(string message, Action<ResponseStatus> callback) {
             lock (this) {
                 _socket.Emit("SendMessageToAll", (response) => {
                     var data = response.GetValue<OrchestratorResponse<EmptyResponse>>();
 
                     UnityThread.executeInUpdate(() => {
-                        _responsesListener?.OnSendMessageToAllResponse(data.ResponseStatus);
+                        callback(data.ResponseStatus);
                     });
                 }, new {
                     message
@@ -374,27 +374,27 @@ namespace Orchestrator.Wrapping {
             }
         }
 
-        public void GetMessages()
+        public void GetMessages(Action<ResponseStatus, List<ChatMessage>> callback)
         {
             lock (this) {
                 _socket.Emit("GetMessages", (response) => {
                     var data = response.GetValue<OrchestratorResponse<List<ChatMessage>>>();
 
                     UnityThread.executeInUpdate(() => {
-                        _responsesListener?.OnGetMessagesResponse(data.ResponseStatus, data.Body);
+                        callback(data.ResponseStatus, data.Body);
                     });
                 }, new {});
             }
         }
 
-        public void GetMessages(int count)
+        public void GetMessages(int count, Action<ResponseStatus, List<ChatMessage>> callback)
         {
             lock (this) {
                 _socket.Emit("GetMessages", (response) => {
                     var data = response.GetValue<OrchestratorResponse<List<ChatMessage>>>();
 
                     UnityThread.executeInUpdate(() => {
-                        _responsesListener?.OnGetMessagesResponse(data.ResponseStatus, data.Body);
+                        callback(data.ResponseStatus, data.Body);
                     });
                 }, new {
                     count

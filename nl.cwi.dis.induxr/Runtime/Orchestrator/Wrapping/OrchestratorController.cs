@@ -433,63 +433,8 @@ namespace Orchestrator.Wrapping
 
         #region Messages
 
-        /// <summary>
-        /// Sends a message to the user identified by the given ID.
-        /// </summary>
-        /// <param name="pMessage">The message to be delivered</param>
-        /// <param name="pUserID">The ID of the user that the message should be delivered to</param>
-        [Obsolete("Direct usage of OrchestratorController is deprecated. Use the instance of App.Orchestrator returned by SocketConnectAsync() instead")]
-        public void SendMessage(string pMessage, string pUserID) {
-            _orchestratorWrapper.SendMessage(pMessage, pUserID);
-        }
-
-        void IOrchestratorResponsesListener.OnSendMessageResponse(ResponseStatus status) {
-            if (status.Error != 0) {
-                OnErrorEvent?.Invoke(status);
-            }
-        }
-
-        /// <summary>
-        /// Sends a message to all users in the current session.
-        /// </summary>
-        /// <param name="pMessage">The message to be delivered</param>
-        [Obsolete("Direct usage of OrchestratorController is deprecated. Use the instance of App.Orchestrator returned by SocketConnectAsync() instead")]
-        public void SendMessageToAll(string pMessage) {
-            _orchestratorWrapper.SendMessageToAll(pMessage);
-        }
-
-        void IOrchestratorResponsesListener.OnSendMessageToAllResponse(ResponseStatus status) {
-            if (status.Error != 0) {
-                OnErrorEvent?.Invoke(status);
-            }
-        }
-
         void IUserMessagesListener.OnUserMessageReceived(ChatMessage userMessage) {
             OnUserMessageReceivedEvent?.Invoke(userMessage);
-        }
-
-        /// <summary>
-        /// Retrieves the recent chat messages from the orchestrator.
-        /// </summary>
-        /// <param name="count">The number of messages to retrieve.</param>
-        [Obsolete("Direct usage of OrchestratorController is deprecated. Use the instance of App.Orchestrator returned by SocketConnectAsync() instead")]
-        public void GetMessages(int count)
-        {
-            _orchestratorWrapper.GetMessages(count);
-        }
-
-        /// <summary>
-        /// Retrieves all chat messages from the orchestrator.
-        /// </summary>
-        [Obsolete("Direct usage of OrchestratorController is deprecated. Use the instance of App.Orchestrator returned by SocketConnectAsync() instead")]
-        public void GetMessages()
-        {
-            _orchestratorWrapper.GetMessages();
-        }
-
-        void IOrchestratorResponsesListener.OnGetMessagesResponse(ResponseStatus status, List<ChatMessage> messages)
-        {
-            OnGetMessagesEvent?.Invoke(messages);
         }
 
         #endregion

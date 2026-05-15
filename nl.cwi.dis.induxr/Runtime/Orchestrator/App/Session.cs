@@ -468,8 +468,10 @@ namespace Orchestrator.App
         {
             var tcs = new TaskCompletionSource<bool>();
 
-            OrchestratorController.Instance.SendMessageToAll(message);
-            tcs.SetResult(true);
+            OrchestratorController.Instance.Wrapper.SendMessageToAll(message, (_) =>
+            {
+                tcs.SetResult(true);
+            });
 
             return tcs.Task;
         }
@@ -481,18 +483,11 @@ namespace Orchestrator.App
         public Task<List<ChatMessage>> GetChatMessages()
         {
             var tcs = new TaskCompletionSource<List<ChatMessage>>();
-
-            Action<List<ChatMessage>> fn = null;
-            fn = (messages) =>
+            OrchestratorController.Instance.Wrapper.GetMessages((_, messages) =>
             {
                 _sessionData.Chat = messages;
                 tcs.SetResult(Chat);
-
-                OrchestratorController.Instance.OnGetMessagesEvent -= fn;
-            };
-
-            OrchestratorController.Instance.OnGetMessagesEvent += fn;
-            OrchestratorController.Instance.GetMessages();
+            });
 
             return tcs.Task;
         }
