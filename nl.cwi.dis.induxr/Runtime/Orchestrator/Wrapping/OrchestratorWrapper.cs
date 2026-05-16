@@ -704,6 +704,28 @@ namespace Orchestrator.Wrapping {
 
         #endregion
 
+        #region shared objects
+
+        public void RegisterSharedObject(string id, Transform initialTransform, Action<ResponseStatus, SharedObject> callback)
+        {
+            var position = new { initialTransform.position.x, initialTransform.position.y, initialTransform.position.z };
+            var rotation = new { initialTransform.rotation.x, initialTransform.rotation.y, initialTransform.rotation.z, initialTransform.rotation.w };
+
+            lock (this)
+            {
+                _socket.Emit("RegisterSharedObject", (response) =>
+                {
+                    var data = response.GetValue<OrchestratorResponse<SharedObject>>();
+                    UnityThread.executeInUpdate(() =>
+                    {
+                        callback(data.ResponseStatus, data.Body);
+                    });
+                }, new { id, position, rotation });
+            }
+        }
+
+        #endregion
+
         #region broadcasts
 
         public void SendBroadcastToChannel(string channel, byte[] pByteArray) {
