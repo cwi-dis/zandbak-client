@@ -1,6 +1,8 @@
 using System;
+using System.Threading.Tasks;
 using Newtonsoft.Json;
 using Orchestrator.Data;
+using Orchestrator.Wrapping;
 using UnityEngine;
 
 namespace Orchestrator.App
@@ -39,6 +41,30 @@ namespace Orchestrator.App
         }
 
         public bool IsOwner(User user) => _sharedObjectData.Owner.Id == user.Id;
+
+        /// <summary>
+        /// Attempts to claim ownership of the shared object for the current user.
+        /// </summary>
+        /// <returns>A task representing the asynchronous operation. The task result indicates whether ownership was successfully claimed.</returns>
+        public Task<bool> ClaimOwnership()
+        {
+            var tcs = new TaskCompletionSource<bool>();
+
+            OrchestratorController.Instance.Wrapper.ClaimObjectOwnership(Id, (response, result) =>
+            {
+                if (response.Error == 0)
+                {
+                    _sharedObjectData = result;
+                    tcs.SetResult(true);
+                }
+                else
+                {
+                    tcs.SetResult(false);
+                }
+            });
+
+            return tcs.Task;
+        }
 
         /// <summary>
         /// Broadcasts transform data to all users in the current session.
