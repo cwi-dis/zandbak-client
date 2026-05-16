@@ -30,5 +30,7 @@ namespace Orchestrator.App
             _orchestrator = orchestrator;
             _sharedObjectData = sharedObjectData;
         }
+
+        public bool IsOwner(User user) => _sharedObjectData.Owner.Id == user.Id;
     }
 }
