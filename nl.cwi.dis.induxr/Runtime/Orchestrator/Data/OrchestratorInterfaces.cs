@@ -49,6 +49,7 @@ namespace Orchestrator.Data
         void OnSessionIsSpeakingChanged(string userId, bool isSpeaking);
         void OnBubbleJoinRequestApproved(string bubbleId, bool approved);
         void OnBubbleInvited(string bubbleId);
+        void OnObjectOwnershipChanged(SharedObject sharedObject);
     }
 
     // Interface for clients that will use the orchestrator wrapper

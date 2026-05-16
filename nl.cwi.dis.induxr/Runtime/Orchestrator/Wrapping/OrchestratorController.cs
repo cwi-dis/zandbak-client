@@ -152,6 +152,8 @@ namespace Orchestrator.Wrapping
         /// </summary>
         public event Action<Session> OnSessionDeletedEvent;
 
+        public event Action<SharedObject> OnObjectOwnershipChanged;
+
         /// <summary>
         /// Invoked when a broadcast is received in the current session
         /// </summary>
@@ -391,6 +393,11 @@ namespace Orchestrator.Wrapping
         void IUserSessionEventsListener.OnBubbleJoinRequestApproved(string bubbleId, bool approved)
         {
             OnBubbleJoinRequestApproved?.Invoke(bubbleId, approved);
+        }
+
+        void IUserSessionEventsListener.OnObjectOwnershipChanged(SharedObject sharedObject)
+        {
+            OnObjectOwnershipChanged?.Invoke(sharedObject);
         }
 
         void IBubbleEventsListener.OnBubbleJoinRequested(User user)
