@@ -662,6 +662,16 @@ namespace Orchestrator.App
         }
 
         /// <summary>
+        /// Retrieves a shared object from the current session's list of shared objects using the specified identifier.
+        /// </summary>
+        /// <param name="id">The unique identifier of the shared object to retrieve.</param>
+        /// <returns>The shared object with the specified identifier, or null if no such object exists.</returns>
+        public SharedObject FindSharedObjectById(string id)
+        {
+            return SharedObjects.Find(so => so.Id == id);
+        }
+
+        /// <summary>
         /// Broadcasts an object to all users in the current session on the given channel.
         /// </summary>
         /// <param name="channel">The channel to broadcast the data on</param>
