@@ -49,7 +49,12 @@ namespace Orchestrator.Behaviour
             _timer -= 1f / updateRate;
 
             // Only transmit updates if the current user owns the object
-            if (!_sharedObject.IsOwner(_orchestrator.Self)) return;
+            if (!_sharedObject.IsOwner(_orchestrator.Self))
+            {
+                // Disable rigidbody and return
+                if (_rb) _rb.isKinematic = true;
+                return;
+            }
 
             var position = gameObject.transform.position;
             var rotation = gameObject.transform.rotation;
