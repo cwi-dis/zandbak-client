@@ -200,6 +200,7 @@ namespace Orchestrator.Data
         [JsonProperty("scenarioId")] public string ScenarioId;
         [JsonProperty("sessionUsers")] public List<string> UserIds;
         [JsonProperty("sessionUserDefinitions")] public List<User> UserDefinitions;
+        [JsonProperty("sessionObjects")] public List<SharedObject> SharedObjects;
         [JsonProperty("sessionProtocol")] public string Protocol;
         [JsonProperty("sessionChannels")] public List<string> Channels;
         [JsonProperty("sessionChat")] public List<ChatMessage> Chat;
