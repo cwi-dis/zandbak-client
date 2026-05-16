@@ -223,6 +223,8 @@ namespace Orchestrator.App
             OrchestratorController.Instance.OnSessionIsSpeakingEvent += IsSpeakingChanged;
             OrchestratorController.Instance.OnUserStatusChangedEvent += UserStatusChanged;
 
+            OrchestratorController.Instance.OnObjectOwnershipChanged += ObjectOwnershipChanged;
+
             OrchestratorController.Instance.OnBroadcastReceivedEvent += BroadcastReceived;
 
             OrchestratorController.Instance.OnBubbleInvited += BubbleInvited;
@@ -810,6 +812,15 @@ namespace Orchestrator.App
             if (foundUser == null) return;
 
             OnIsSpeakingChanged?.Invoke(foundUser, isSpeaking);
+        }
+
+        private void ObjectOwnershipChanged(Data.SharedObject sharedObject)
+        {
+            var foundSharedObject = SharedObjects.Find(so => so.Id == sharedObject.Id);
+            if (foundSharedObject == null) return;
+
+            Debug.Log($"Object owner changed for {foundSharedObject.Id}");
+            foundSharedObject.SharedObjectData = sharedObject;
         }
 
         private void BroadcastReceived(BroadcastData data)
