@@ -45,6 +45,7 @@ namespace Orchestrator.App
 
         public List<User> Users { get; private set; }
         public User Master => Users.Find((u) => u.Id == _sessionData.MasterId);
+        public User Administrator => Users.Find((u) => u.Id == _sessionData.AdministratorId);
         public List<User> VRUsers => Users.FindAll((u) => u.DeviceType == "vr");
         public List<User> ARUsers => Users.FindAll((u) => u.DeviceType == "ar");
 
@@ -323,6 +324,26 @@ namespace Orchestrator.App
             });
 
             return tcs.Task;
+        }
+
+        /// <summary>
+        /// Determines whether the specified user is the administrator of the current session.
+        /// </summary>
+        /// <param name="user">The user to check for administrator privileges.</param>
+        /// <returns>True if the specified user is the administrator, otherwise false.</returns>
+        public bool IsAdministrator(User user)
+        {
+            return user.Id == Administrator.Id;
+        }
+
+        /// <summary>
+        /// Determines whether the specified user is the master of the current session.
+        /// </summary>
+        /// <param name="user">The user to check for master privileges.</param>
+        /// <returns>True if the specified user is the session master, otherwise false.</returns>
+        public bool IsMaster(User user)
+        {
+            return user.Id == Master.Id;
         }
 
         /// <summary>
