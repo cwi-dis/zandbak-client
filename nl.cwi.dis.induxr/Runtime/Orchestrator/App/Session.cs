@@ -6,6 +6,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using Newtonsoft.Json;
 using Orchestrator.Data;
+using Orchestrator.Util;
 using Orchestrator.Wrapping;
 using UnityEngine;
 
@@ -600,6 +601,31 @@ namespace Orchestrator.App
                     CurrentBubble = refreshedBubble;
 
                     tcs.SetResult(true);
+                }
+                else
+                {
+                    tcs.SetException(new Exception(status.Message));
+                }
+            });
+
+            return tcs.Task;
+        }
+
+        /// <summary>
+        /// Registers a shared object in the orchestrator, linking it to the specified game object.
+        /// </summary>
+        /// <param name="gameObject">The game object to be registered as a shared object.</param>
+        /// <returns>A task that represents the asynchronous operation. The task result contains the registered shared object instance.</returns>
+        public Task<SharedObject> RegisterSharedObject(GameObject gameObject)
+        {
+            var tcs = new TaskCompletionSource<SharedObject>();
+            var objectId = StableObjectId.GetSceneObjectId(gameObject);
+
+            OrchestratorController.Instance.Wrapper.RegisterSharedObject(objectId, gameObject.transform, (status, sharedObject) =>
+            {
+                if (status.Error == 0)
+                {
+                    tcs.SetResult(sharedObject);
                 }
                 else
                 {
