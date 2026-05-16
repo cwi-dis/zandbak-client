@@ -886,6 +886,9 @@ namespace Orchestrator.Wrapping {
                     case "BUBBLE_JOIN_INVITED":
                         OnSessionUpdatedWithBubbleId(response);
                         break;
+                    case "OBJECT_OWNERSHIP_CHANGED":
+                        OnSessionUpdatedWithObjectUpdate(response);
+                        break;
                 }
             }
         }
@@ -895,6 +898,16 @@ namespace Orchestrator.Wrapping {
             UnityThread.executeInUpdate(() =>
             {
                 _userSessionEventListener?.OnSessionClosed();
+            });
+        }
+
+        private void OnSessionUpdatedWithObjectUpdate(SocketIOResponse response)
+        {
+            var data = response.GetValue<SessionUpdate<SharedObject>>();
+
+            UnityThread.executeInUpdate(() =>
+            {
+                _userSessionEventListener.OnObjectOwnershipChanged(data.EventData);
             });
         }
 
