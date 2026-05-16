@@ -724,6 +724,21 @@ namespace Orchestrator.Wrapping {
             }
         }
 
+        public void ClaimObjectOwnership(string objectId, Action<ResponseStatus, SharedObject> callback)
+        {
+            lock (this)
+            {
+                _socket.Emit("ClaimOwnership", (response) =>
+                {
+                    var data = response.GetValue<OrchestratorResponse<SharedObject>>();
+                    UnityThread.executeInUpdate(() =>
+                    {
+                        callback(data.ResponseStatus, data.Body);
+                    });
+                }, new { objectId, type = "object" });
+            }
+        }
+
         #endregion
 
         #region broadcasts
