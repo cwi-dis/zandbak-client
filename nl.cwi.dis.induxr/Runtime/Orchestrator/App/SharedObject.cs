@@ -14,6 +14,11 @@ namespace Orchestrator.App
 
         public Session Session => _orchestrator.CurrentSession;
 
+        public Data.SharedObject SharedObjectData
+        {
+            set => _sharedObjectData = value;
+        }
+
         public string Id => _sharedObjectData.Id;
         public User Owner => Session.Users.Find((u) => u.Id == _sharedObjectData.Owner.Id);
 
