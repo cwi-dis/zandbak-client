@@ -18,6 +18,14 @@ namespace Orchestrator.Data
         [JsonProperty("timestamp")] public float Timestamp;
     }
 
+    public class ObjectData
+    {
+        [JsonProperty("id")] public string Id;
+        [JsonProperty("position")] public PositionData Position;
+        [JsonProperty("rotation")] public RotationData Rotation;
+        [JsonProperty("timestamp")] public float Timestamp;
+    }
+
     public class PositionData
     {
         [JsonProperty("x")] public float X;
