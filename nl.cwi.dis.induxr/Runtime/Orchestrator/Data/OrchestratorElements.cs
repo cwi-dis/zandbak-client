@@ -52,11 +52,15 @@ namespace Orchestrator.Data
         [JsonProperty("rot")] public UserQuaternion Rot;
     }
 
-    public class UserTransform : OrchestratorElement
+    public class ObjectTransform : OrchestratorElement
     {
         [JsonProperty("timestamp")] public float Timestamp;
         [JsonProperty("position")] public UserPosition Position;
         [JsonProperty("rotation")] public UserQuaternion Rotation;
+    }
+
+    public class UserTransform : ObjectTransform
+    {
         [JsonProperty("bones")] public Dictionary<string, UserBoneData> Bones;
     }
 
@@ -93,6 +97,13 @@ namespace Orchestrator.Data
         [JsonProperty("microphoneName")] public string MicrophoneName = "";
 
         [JsonProperty("userRepresentationType")] public string UserRepresentationType = "";
+    }
+
+    public class SharedObject : OrchestratorElement
+    {
+        [JsonProperty("id")] public string Id;
+        [JsonProperty("owner")] public User Owner;
+        [JsonProperty("transform")] public ObjectTransform Transform;
     }
 
     public class SfuData : OrchestratorElement
