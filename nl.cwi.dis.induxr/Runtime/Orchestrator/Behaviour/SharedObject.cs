@@ -21,7 +21,7 @@ namespace Orchestrator.Behaviour
             }
 
             var sharedObject = await _orchestrator.CurrentSession.RegisterSharedObject(gameObject);
-            Debug.Log($"Registered shared object ${sharedObject.Id} for owner {sharedObject.Owner.Username} at position {sharedObject.Transform.Position}");
+            Debug.Log($"Registered shared object ${sharedObject.Id} for owner {sharedObject.Owner.Name} at position {sharedObject.Position}");
         }
 
         // Update is called once per frame

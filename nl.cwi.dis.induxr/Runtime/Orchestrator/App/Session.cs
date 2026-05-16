@@ -29,6 +29,8 @@ namespace Orchestrator.App
         public bool Persistent => _sessionData.Persistent;
         public bool IsJoined => _orchestrator.CurrentSession?.Id == Id;
 
+        public List<SharedObject> SharedObjects { get; private set; }
+
         public List<Presentation> Presentations => _sessionData.Presentations.ToList();
         public Presentation CurrentPresentation;
         public bool IsSharing => CurrentPresentation.IsSharing;
@@ -199,6 +201,7 @@ namespace Orchestrator.App
 
             Users = _sessionData.UserDefinitions.Select(u => new User(orchestrator, u)).ToList();
             Bubbles = _sessionData.Bubbles.Select(b => new Bubble(orchestrator, b)).ToList();
+            SharedObjects = _sessionData.SharedObjects.Select(s => new SharedObject(orchestrator, s)).ToList();
             Room = new Room(orchestrator, _sessionData.Room);
 
             OrchestratorController.Instance.OnSessionCloseEvent += SessionClosed;
@@ -642,10 +645,11 @@ namespace Orchestrator.App
             var tcs = new TaskCompletionSource<SharedObject>();
             var objectId = StableObjectId.GetSceneObjectId(gameObject);
 
-            OrchestratorController.Instance.Wrapper.RegisterSharedObject(objectId, gameObject.transform, (status, sharedObject) =>
+            OrchestratorController.Instance.Wrapper.RegisterSharedObject(objectId, gameObject.transform, (status, sharedObjectData) =>
             {
                 if (status.Error == 0)
                 {
+                    var sharedObject = new SharedObject(_orchestrator, sharedObjectData);
                     tcs.SetResult(sharedObject);
                 }
                 else
