@@ -19,7 +19,7 @@ namespace Orchestrator.Behaviour
         private float _timer;
 
         // Start is called once before the first execution of Update after the MonoBehaviour is created
-        async void Start()
+        private async void Start()
         {
             _rb = GetComponent<Rigidbody>();
 
@@ -37,11 +37,17 @@ namespace Orchestrator.Behaviour
 
                 _sharedObject = _orchestrator.CurrentSession.FindSharedObjectById(_id);
                 _sharedObject.OnObjectDataReceived += ProcessObjectUpdate;
+                _sharedObject.EnableBroadcasts();
             }
         }
 
+        private void OnDestroy()
+        {
+            _sharedObject.DisableBroadcasts();
+        }
+
         // Update is called once per frame
-        void Update()
+        private void Update()
         {
             _timer += Time.deltaTime;
 
