@@ -41,11 +41,10 @@ namespace Orchestrator.Behaviour
             else
             {
                 if (_rb) _rb.isKinematic = true;
-
                 _sharedObject = _orchestrator.CurrentSession.FindSharedObjectById(_id);
-                _sharedObject.OnObjectDataReceived += ProcessObjectUpdate;
             }
 
+            _sharedObject.OnObjectDataReceived += ProcessObjectUpdate;
             _sharedObject.EnableBroadcasts();
         }
 
