@@ -1,3 +1,4 @@
+using System.Threading.Tasks;
 using Orchestrator.Data;
 using Orchestrator.Util;
 using Orchestrator.Wrapping;
@@ -67,6 +68,18 @@ namespace Orchestrator.Behaviour
                 Position = new PositionData { X = position.x, Y = position.y, Z = position.z },
                 Rotation = new RotationData { X = rotation.x, Y = rotation.y, Z = rotation.z, W = rotation.w },
             });
+        }
+
+        /// <summary>
+        /// Attempts to claim ownership of the shared object for the current user.
+        /// </summary>
+        /// <returns>
+        /// A task representing the asynchronous operation. The task result indicates whether the ownership of the object
+        /// was successfully claimed or not.
+        /// </returns>
+        public Task<bool> ClaimObject()
+        {
+            return _sharedObject.ClaimOwnership();
         }
 
         private void ProcessObjectUpdate(ObjectData objectData)
