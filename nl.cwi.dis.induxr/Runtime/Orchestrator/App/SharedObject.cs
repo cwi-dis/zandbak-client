@@ -14,6 +14,8 @@ namespace Orchestrator.App
 
         public Session Session => _orchestrator.CurrentSession;
 
+        private bool _broadcastsEnabled = false;
+
         public Data.SharedObject SharedObjectData
         {
             set => _sharedObjectData = value;
@@ -41,11 +43,21 @@ namespace Orchestrator.App
         {
             _orchestrator = orchestrator;
             _sharedObjectData = sharedObjectData;
-
-            _orchestrator.CurrentSession.OnBroadcastDataReceived += BroadcastReceived;
         }
 
         public bool IsOwner(User user) => _sharedObjectData.Owner.Id == user.Id;
+
+        public void EnableBroadcasts()
+        {
+            _broadcastsEnabled = true;
+            _orchestrator.CurrentSession.OnBroadcastDataReceived += BroadcastReceived;
+        }
+
+        public void DisableBroadcasts()
+        {
+            _broadcastsEnabled = false;
+            _orchestrator.CurrentSession.OnBroadcastDataReceived -= BroadcastReceived;
+        }
 
         /// <summary>
         /// Attempts to claim ownership of the shared object for the current user.
@@ -77,12 +89,16 @@ namespace Orchestrator.App
         /// <param name="data">The movement data of the avatar, including user ID, bone data, and timestamp.</param>
         public void BroadcastUpdate(ObjectData data)
         {
+            if (!_broadcastsEnabled) return;
+
             _orchestrator.CurrentSession?.BroadcastTransform("objectTransform", data);
         }
 
         private void BroadcastReceived(BroadcastData data)
         {
+            if (!_broadcastsEnabled) return;
             if (data.Channel != "objectTransform") return;
+
             var objectTransform = JsonConvert.DeserializeObject<ObjectData>(data.Data);
 
             if (objectTransform.Id != Id) return;
