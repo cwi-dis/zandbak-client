@@ -37,8 +37,9 @@ namespace Orchestrator.Behaviour
 
                 _sharedObject = _orchestrator.CurrentSession.FindSharedObjectById(_id);
                 _sharedObject.OnObjectDataReceived += ProcessObjectUpdate;
-                _sharedObject.EnableBroadcasts();
             }
+
+            _sharedObject.EnableBroadcasts();
         }
 
         private void OnDestroy()
