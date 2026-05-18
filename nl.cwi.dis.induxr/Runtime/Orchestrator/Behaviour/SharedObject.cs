@@ -97,8 +97,8 @@ namespace Orchestrator.Behaviour
             var position = new Vector3
             {
                 x = objectData.Position.X,
-                y = objectData.Position.X,
-                z = objectData.Position.X
+                y = objectData.Position.Y,
+                z = objectData.Position.Z
             };
 
             var rotation = new Quaternion
