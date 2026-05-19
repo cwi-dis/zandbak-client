@@ -2088,6 +2088,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: eb647b08597cf459aa0e2a57036d058f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  updateRate: 10
+  linearInterpolationRate: 5
 --- !u!65 &1620091575
 BoxCollider:
   m_ObjectHideFlags: 0

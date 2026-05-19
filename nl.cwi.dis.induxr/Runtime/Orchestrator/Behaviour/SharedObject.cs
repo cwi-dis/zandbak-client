@@ -10,9 +10,8 @@ namespace Orchestrator.Behaviour
     {
         [Tooltip("How many times a second the pose data should be broadcast to the server.")]
         public int updateRate = 10;
-        [Header("Smoothing options")]
-        public bool withSmoothing = true;
-        public int linearInterpolationRate = 10;
+        [Tooltip("Rate (in Hz) at which received pose updates are interpolated. Should roughly match the sender's updateRate.")]
+        public int linearInterpolationRate = 5;
 
         private string _id;
         private App.Orchestrator _orchestrator = OrchestratorController.Instance.Orchestrator;
@@ -21,9 +20,10 @@ namespace Orchestrator.Behaviour
         private Rigidbody _rb;
         private float _timer;
 
-        private ObjectData _previousReceivedData;
         private ObjectData _lastReceivedData;
         private float _lastReceiveTime;
+        private Vector3 _interpStartPos;
+        private Quaternion _interpStartRot;
 
         // Start is called once before the first execution of Update after the MonoBehaviour is created
         private async void Start()
@@ -56,31 +56,31 @@ namespace Orchestrator.Behaviour
         // Update is called once per frame
         private void Update()
         {
-            _timer += Time.deltaTime;
-
-            // Only send the transform update if the interval given by updateRate has elapsed
-            if (!(_timer >= 1f / updateRate)) return;
-            _timer -= 1f / updateRate;
-
             // Only transmit updates if the current user owns the object
-            if (!_sharedObject.IsOwner(_orchestrator.Self))
+            if (_sharedObject.IsOwner(_orchestrator.Self))
             {
-                // Disable rigidbody and return
-                if (_rb) _rb.isKinematic = true;
-                return;
+                BroadcastObjectUpdate();
             }
-
-            var position = gameObject.transform.position;
-            var rotation = gameObject.transform.rotation;
-
-            // Broadcast transform updates to the current session
-            _sharedObject.BroadcastUpdate(new ObjectData
+            else
             {
-                Id = _id,
-                Timestamp = Time.time,
-                Position = new PositionData { X = position.x, Y = position.y, Z = position.z },
-                Rotation = new RotationData { X = rotation.x, Y = rotation.y, Z = rotation.z, W = rotation.w },
-            });
+                if (_lastReceivedData == null) return;
+
+                // t advances from 0 to 1 over the expected interval between updates
+                var t = Mathf.Clamp01((Time.realtimeSinceStartup - _lastReceiveTime) * linearInterpolationRate);
+
+                transform.SetPositionAndRotation(
+                    Vector3.Lerp(
+                        _interpStartPos,
+                        new Vector3(_lastReceivedData.Position.X, _lastReceivedData.Position.Y, _lastReceivedData.Position.Z),
+                        t
+                    ),
+                    Quaternion.Slerp(
+                        _interpStartRot,
+                        new Quaternion(_lastReceivedData.Rotation.X, _lastReceivedData.Rotation.Y, _lastReceivedData.Rotation.Z, _lastReceivedData.Rotation.W),
+                        t
+                    )
+                );
+            }
         }
 
         /// <summary>
@@ -95,66 +95,40 @@ namespace Orchestrator.Behaviour
             return _sharedObject.ClaimOwnership();
         }
 
+        private void BroadcastObjectUpdate()
+        {
+            _timer += Time.deltaTime;
+
+            // Only send the transform update if the interval given by updateRate has elapsed
+            if (!(_timer >= 1f / updateRate)) return;
+            _timer -= 1f / updateRate;
+
+            var position = gameObject.transform.position;
+            var rotation = gameObject.transform.rotation;
+
+            // Broadcast transform updates to the current session
+            _sharedObject.BroadcastUpdate(new ObjectData
+            {
+                Id = _id,
+                Timestamp = Time.time,
+                Position = new PositionData { X = position.x, Y = position.y, Z = position.z },
+                Rotation = new RotationData { X = rotation.x, Y = rotation.y, Z = rotation.z, W = rotation.w },
+            });
+        }
+
         private void ProcessObjectUpdate(ObjectData objectData)
         {
             // Ignore broadcasts if the current user is the owner of the object
             if (_sharedObject.IsOwner(_orchestrator.Self)) return;
 
-            if (withSmoothing)
-            {
-                UpdateObjectWithSmoothing(objectData);
-            }
-            else
-            {
-                UpdateObject(objectData);
-            }
-        }
+            // Snapshot current visible pose so the next interpolation segment starts
+            // from where the object actually is, not from the previously-received target.
+            // This avoids visible snaps when packets arrive earlier or later than expected.
+            _interpStartPos = transform.position;
+            _interpStartRot = transform.rotation;
 
-        private void UpdateObject(ObjectData objectData)
-        {
-            var position = new Vector3
-            {
-                x = objectData.Position.X,
-                y = objectData.Position.Y,
-                z = objectData.Position.Z
-            };
-
-            var rotation = new Quaternion
-            {
-                x = objectData.Rotation.X,
-                y = objectData.Rotation.Y,
-                z = objectData.Rotation.Z,
-                w = objectData.Rotation.W
-            };
-
-            transform.SetPositionAndRotation(position, rotation);
-        }
-
-        private void UpdateObjectWithSmoothing(ObjectData objectData)
-        {
-            // Keep track of last received movement data for linear interpolation
-            _previousReceivedData = _lastReceivedData;
             _lastReceivedData = objectData;
-
-            // Do nothing on the first frame
-            if (_previousReceivedData == null) return;
-
-            // Compute the value of t used in linear interpolation
-            var t = Mathf.Clamp01((Time.realtimeSinceStartup - _lastReceiveTime) / (1.0f / linearInterpolationRate));
             _lastReceiveTime = Time.realtimeSinceStartup;
-
-            transform.SetPositionAndRotation(
-                Vector3.Lerp(
-                    new Vector3(_previousReceivedData.Position.X, _previousReceivedData.Position.Y, _previousReceivedData.Position.Z),
-                    new Vector3(_lastReceivedData.Position.X, _lastReceivedData.Position.Y, _lastReceivedData.Position.Z),
-                    t
-                ),
-                Quaternion.Slerp(
-                    new Quaternion(_previousReceivedData.Rotation.X, _previousReceivedData.Rotation.Y, _previousReceivedData.Rotation.Z, _previousReceivedData.Rotation.W),
-                    new Quaternion(_lastReceivedData.Rotation.X, _lastReceivedData.Rotation.Y, _lastReceivedData.Rotation.Z, _lastReceivedData.Rotation.W),
-                    t
-                )
-            );
         }
     }
 }
