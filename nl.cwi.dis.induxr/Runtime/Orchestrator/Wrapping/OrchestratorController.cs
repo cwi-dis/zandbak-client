@@ -152,6 +152,16 @@ namespace Orchestrator.Wrapping
         /// </summary>
         public event Action<Session> OnSessionDeletedEvent;
 
+        /// <summary>
+        /// Invoked when a shared object is registered within the orchestrator,
+        /// providing the registered shared object as an argument.
+        /// </summary>
+        public event Action<SharedObject> OnObjectRegistered;
+
+        /// <summary>
+        /// Invoked when the ownership of a shared object changes within the orchestrator,
+        /// providing the updated shared object as an argument.
+        /// </summary>
         public event Action<SharedObject> OnObjectOwnershipChanged;
 
         /// <summary>
@@ -398,6 +408,11 @@ namespace Orchestrator.Wrapping
         void IUserSessionEventsListener.OnObjectOwnershipChanged(SharedObject sharedObject)
         {
             OnObjectOwnershipChanged?.Invoke(sharedObject);
+        }
+
+        void IUserSessionEventsListener.OnObjectRegistered(SharedObject sharedObject)
+        {
+            OnObjectRegistered?.Invoke(sharedObject);
         }
 
         void IBubbleEventsListener.OnBubbleJoinRequested(User user)
