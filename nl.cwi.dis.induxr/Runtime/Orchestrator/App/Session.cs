@@ -223,6 +223,7 @@ namespace Orchestrator.App
             OrchestratorController.Instance.OnSessionIsSpeakingEvent += IsSpeakingChanged;
             OrchestratorController.Instance.OnUserStatusChangedEvent += UserStatusChanged;
 
+            OrchestratorController.Instance.OnObjectRegistered += ObjectRegistered;
             OrchestratorController.Instance.OnObjectOwnershipChanged += ObjectOwnershipChanged;
 
             OrchestratorController.Instance.OnBroadcastReceivedEvent += BroadcastReceived;
@@ -812,6 +813,12 @@ namespace Orchestrator.App
             if (foundUser == null) return;
 
             OnIsSpeakingChanged?.Invoke(foundUser, isSpeaking);
+        }
+
+        private void ObjectRegistered(Data.SharedObject sharedObject)
+        {
+            var sharedObjectInstance = new SharedObject(_orchestrator, sharedObject);
+            SharedObjects.Add(sharedObjectInstance);
         }
 
         private void ObjectOwnershipChanged(Data.SharedObject sharedObject)
