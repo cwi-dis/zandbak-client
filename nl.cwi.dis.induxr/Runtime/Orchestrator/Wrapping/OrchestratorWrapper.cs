@@ -886,6 +886,7 @@ namespace Orchestrator.Wrapping {
                     case "BUBBLE_JOIN_INVITED":
                         OnSessionUpdatedWithBubbleId(response);
                         break;
+                    case "OBJECT_REGISTERED":
                     case "OBJECT_OWNERSHIP_CHANGED":
                         OnSessionUpdatedWithObjectUpdate(response);
                         break;
@@ -907,7 +908,15 @@ namespace Orchestrator.Wrapping {
 
             UnityThread.executeInUpdate(() =>
             {
-                _userSessionEventListener.OnObjectOwnershipChanged(data.EventData);
+                switch (data.EventId)
+                {
+                    case "OBJECT_REGISTERED":
+                        _userSessionEventListener.OnObjectRegistered(data.EventData);
+                        break;
+                    case "OBJECT_OWNERSHIP_CHANGED":
+                        _userSessionEventListener.OnObjectOwnershipChanged(data.EventData);
+                        break;
+                }
             });
         }
 
