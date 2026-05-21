@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
 
 namespace Orchestrator.Data
 {
@@ -106,6 +107,13 @@ namespace Orchestrator.Data
         [JsonProperty("transform")] public ObjectTransform Transform;
     }
 
+    public class Trigger : OrchestratorElement
+    {
+        [JsonProperty("id")] public string Id;
+        [JsonProperty("owner")] public User Owner;
+        [JsonProperty("value")] public JObject Value;
+    }
+
     public class SfuData : OrchestratorElement
     {
         [JsonProperty("url_gen")] public string URLGen = "";
@@ -201,6 +209,7 @@ namespace Orchestrator.Data
         [JsonProperty("sessionUsers")] public List<string> UserIds;
         [JsonProperty("sessionUserDefinitions")] public List<User> UserDefinitions;
         [JsonProperty("sessionObjects")] public List<SharedObject> SharedObjects;
+        [JsonProperty("sessionTriggers")] public List<Trigger> Triggers;
         [JsonProperty("sessionProtocol")] public string Protocol;
         [JsonProperty("sessionChannels")] public List<string> Channels;
         [JsonProperty("sessionChat")] public List<ChatMessage> Chat;
