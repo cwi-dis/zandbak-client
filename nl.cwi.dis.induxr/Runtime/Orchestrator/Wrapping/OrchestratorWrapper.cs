@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Text;
+using Newtonsoft.Json.Linq;
 using Orchestrator.Data;
 using SocketIOClient;
 using SocketIOClient.Newtonsoft.Json;
@@ -721,6 +722,21 @@ namespace Orchestrator.Wrapping {
                         callback(data.ResponseStatus, data.Body);
                     });
                 }, new { id, position, rotation });
+            }
+        }
+
+        public void RegisterTrigger(string id, JObject initialValue, Action<ResponseStatus, Trigger> callback)
+        {
+            lock (this)
+            {
+                _socket.Emit("RegisterTrigger", (response) =>
+                {
+                    var data = response.GetValue<OrchestratorResponse<Trigger>>();
+                    UnityThread.executeInUpdate(() =>
+                    {
+                        callback(data.ResponseStatus, data.Body);
+                    });
+                }, new { id, initialValue });
             }
         }
 

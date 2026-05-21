@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
 using Orchestrator.Data;
 using Orchestrator.Util;
 using Orchestrator.Wrapping;
@@ -673,6 +674,33 @@ namespace Orchestrator.App
                 {
                     var sharedObject = new SharedObject(_orchestrator, sharedObjectData);
                     tcs.SetResult(sharedObject);
+                }
+                else
+                {
+                    tcs.SetException(new Exception(status.Message));
+                }
+            });
+
+            return tcs.Task;
+        }
+
+        /// <summary>
+        /// Registers a trigger object in the orchestrator, linking it to the specified game object.
+        /// </summary>
+        /// <param name="gameObject">The game object to be registered as a trigger.</param>
+        /// <param name="initialValue">The initial value for the trigger object.</param>
+        /// <returns>A task that represents the asynchronous operation. The task result contains the registered trigger instance.</returns>
+        public Task<Trigger> RegisterTrigger(GameObject gameObject, JObject initialValue)
+        {
+            var tcs = new TaskCompletionSource<Trigger>();
+            var objectId = StableObjectId.GetSceneObjectId(gameObject);
+
+            OrchestratorController.Instance.Wrapper.RegisterTrigger(objectId, initialValue, (status, triggerData) =>
+            {
+                if (status.Error == 0)
+                {
+                    var triggerObject = new Trigger(_orchestrator, triggerData);
+                    tcs.SetResult(triggerObject);
                 }
                 else
                 {
