@@ -6,7 +6,7 @@ using UnityEngine;
 
 namespace Orchestrator.Behaviour
 {
-    public class SharedObject : MonoBehaviour
+    public class SharedObjectBehaviour : MonoBehaviour
     {
         [Tooltip("How many times a second the pose data should be broadcast to the server.")]
         public int updateRate = 10;
