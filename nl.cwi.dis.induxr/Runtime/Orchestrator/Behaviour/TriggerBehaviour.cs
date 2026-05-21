@@ -1,3 +1,4 @@
+using System;
 using Newtonsoft.Json.Linq;
 using Orchestrator.Util;
 using Orchestrator.Wrapping;
@@ -10,6 +11,8 @@ namespace Orchestrator.Behaviour
         private string _id;
         private readonly App.Orchestrator _orchestrator = OrchestratorController.Instance.Orchestrator;
         private App.Trigger _triggerObject;
+
+        public event Action<JObject> OnTriggerReceived;
 
         private async void Start()
         {
@@ -43,6 +46,7 @@ namespace Orchestrator.Behaviour
         private void ProcessTriggerUpdate(JObject value)
         {
             Debug.Log($"New trigger received with value: {value}");
+            OnTriggerReceived?.Invoke(value);
         }
     }
 }
