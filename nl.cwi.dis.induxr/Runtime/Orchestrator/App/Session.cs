@@ -194,6 +194,22 @@ namespace Orchestrator.App
         /// </remarks>
         public event Action<Bubble, bool> OnBubbleJoinRequestApproved;
 
+        /// <summary>
+        /// Occurs when a new shared object has been registered in the session.
+        /// </summary>
+        /// <remarks>
+        /// This event is triggered after a shared object is successfully registered and added to the session's list of shared objects.
+        /// </remarks>
+        public event Action<SharedObject> OnObjectRegistered;
+
+        /// <summary>
+        /// Occurs when the ownership of a shared object within the session changes.
+        /// </summary>
+        /// <remarks>
+        /// This event is triggered whenever the ownership of a shared object is updated, providing the updated shared object.
+        /// </remarks>
+        public event Action<SharedObject> OnObjectOwnershipChanged;
+
         public Session(Orchestrator orchestrator, Data.Session sessionData)
         {
             _sessionData = sessionData;
@@ -819,6 +835,8 @@ namespace Orchestrator.App
         {
             var sharedObjectInstance = new SharedObject(_orchestrator, sharedObject);
             SharedObjects.Add(sharedObjectInstance);
+
+            OnObjectRegistered?.Invoke(sharedObjectInstance);
         }
 
         private void ObjectOwnershipChanged(Data.SharedObject sharedObject)
@@ -828,6 +846,8 @@ namespace Orchestrator.App
 
             Debug.Log($"Object owner changed for {foundSharedObject.Id}");
             foundSharedObject.SharedObjectData = sharedObject;
+
+            OnObjectOwnershipChanged?.Invoke(foundSharedObject);
         }
 
         private void BroadcastReceived(BroadcastData data)
