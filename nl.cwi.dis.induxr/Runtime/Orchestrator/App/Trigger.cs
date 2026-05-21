@@ -31,14 +31,25 @@ namespace Orchestrator.App
             _triggerData = triggerData;
         }
 
+        /// <summary>
+        /// Determines if the specified user is the owner of the trigger object.
+        /// </summary>
+        /// <param name="user">The user to check ownership against.</param>
+        /// <returns>True if the specified user is the owner of the trigger object; otherwise, false.</returns>
         public bool IsOwner(User user) => _triggerData.Owner.Id == user.Id;
 
+        /// <summary>
+        /// Enables broadcasting of updates related to the trigger object within the current session.
+        /// </summary>
         public void EnableBroadcasts()
         {
             _broadcastsEnabled = true;
             _orchestrator.CurrentSession.OnBroadcastDataReceived += BroadcastReceived;
         }
 
+        /// <summary>
+        /// Disables broadcasting of updates related to the trigger object within the current session.
+        /// </summary>
         public void DisableBroadcasts()
         {
             _broadcastsEnabled = false;
