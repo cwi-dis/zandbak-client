@@ -12,6 +12,14 @@ namespace Orchestrator.Behaviour
         private readonly App.Orchestrator _orchestrator = OrchestratorController.Instance.Orchestrator;
         private App.Trigger _triggerObject;
 
+        /// <summary>
+        /// Event raised when a new trigger payload is received
+        /// </summary>
+        /// <remarks>
+        /// The <c>OnTriggerReceived</c> event is invoked with a <c>JObject</c> parameter containing
+        /// the data for the received trigger. It enables external observers to perform custom operations
+        /// in response to the trigger update event.
+        /// </remarks>
         public event Action<JObject> OnTriggerReceived;
 
         private async void Start()
@@ -38,6 +46,10 @@ namespace Orchestrator.Behaviour
             _triggerObject.OnTriggerReceived -= ProcessTriggerUpdate;
         }
 
+        /// <summary>
+        /// Publishes a trigger event by broadcasting the given parameter to other session participants.
+        /// </summary>
+        /// <param name="value">The JSON object containing the trigger data to be broadcast.</param>
         public void PublishTrigger(JObject value)
         {
             _triggerObject.BroadcastUpdate(value);
