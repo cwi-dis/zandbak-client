@@ -30,6 +30,7 @@ namespace Orchestrator.App
         public bool IsJoined => _orchestrator.CurrentSession?.Id == Id;
 
         public List<SharedObject> SharedObjects { get; private set; }
+        public List<Trigger> Triggers { get; private set; }
 
         public List<Presentation> Presentations => _sessionData.Presentations.ToList();
         public Presentation CurrentPresentation;
@@ -217,8 +218,10 @@ namespace Orchestrator.App
 
             Users = _sessionData.UserDefinitions.Select(u => new User(orchestrator, u)).ToList();
             Bubbles = _sessionData.Bubbles.Select(b => new Bubble(orchestrator, b)).ToList();
-            SharedObjects = _sessionData.SharedObjects.Select(s => new SharedObject(orchestrator, s)).ToList();
             Room = new Room(orchestrator, _sessionData.Room);
+
+            SharedObjects = _sessionData.SharedObjects.Select(s => new SharedObject(orchestrator, s)).ToList();
+            Triggers = _sessionData.Triggers.Select(t => new Trigger(orchestrator, t)).ToList();
 
             OrchestratorController.Instance.OnSessionCloseEvent += SessionClosed;
 
