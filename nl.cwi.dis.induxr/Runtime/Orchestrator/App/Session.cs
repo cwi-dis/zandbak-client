@@ -722,6 +722,16 @@ namespace Orchestrator.App
         }
 
         /// <summary>
+        /// Retrieves a trigger object from the current session's list of triggers using the specified identifier.
+        /// </summary>
+        /// <param name="id">The unique identifier of the trigger object to retrieve.</param>
+        /// <returns>The trigger object with the specified identifier, or null if no such object exists.</returns>
+        public Trigger FindTriggerById(string id)
+        {
+            return Triggers.Find(t => t.Id == id);
+        }
+
+        /// <summary>
         /// Broadcasts an object to all users in the current session on the given channel.
         /// </summary>
         /// <param name="channel">The channel to broadcast the data on</param>
