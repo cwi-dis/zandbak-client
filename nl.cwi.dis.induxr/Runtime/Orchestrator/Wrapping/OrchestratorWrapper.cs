@@ -798,20 +798,20 @@ namespace Orchestrator.Wrapping {
 
         private void OnBroadcastReceived(SocketIOResponse response) {
             lock (this) {
-                if (_userMessagesListener != null)
-                {
-                        var channel = response.GetValue<string>();
-                        string data = Encoding.ASCII.GetString(response.InComingBytes[0], 0, response.InComingBytes[0].Length);
-
-                        UnityThread.executeInUpdate(() =>
-                        {
-                            _userMessagesListener.OnBroadcastReceived(new BroadcastData(channel, data));
-                        });
-                }
-                else
+                if (_userMessagesListener == null)
                 {
                     Debug.LogWarning("No UserMessagesListener");
+                    return;
                 }
+
+                var channel = response.GetValue<string>();
+                var bytes = response.InComingBytes[0];
+
+                UnityThread.executeInUpdate(() =>
+                {
+                    var broadcastData = new BroadcastData(channel, bytes) { Data = Encoding.UTF8.GetString(bytes) };
+                    _userMessagesListener.OnBroadcastReceived(broadcastData);
+                });
             }
         }
 
