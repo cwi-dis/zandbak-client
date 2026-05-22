@@ -2,6 +2,7 @@ using System;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using Orchestrator.Data;
+using UnityEngine;
 
 namespace Orchestrator.App
 {
@@ -23,7 +24,7 @@ namespace Orchestrator.App
         public User Owner => Session.Users.Find((u) => u.Id == _triggerData.Owner.Id);
         public JObject Value => _triggerData.Value;
 
-        public Action<JObject> OnTriggerReceived;
+        public Action<TriggerData> OnTriggerReceived;
 
         public Trigger(Orchestrator orchestrator, Data.Trigger triggerData)
         {
@@ -64,7 +65,12 @@ namespace Orchestrator.App
         {
             if (!_broadcastsEnabled) return;
 
-            _orchestrator.CurrentSession?.BroadcastTransform("trigger", data);
+            _orchestrator.CurrentSession?.BroadcastTransform("trigger", new TriggerData
+            {
+                Id = Id,
+                Timestamp = Time.time,
+                Value = data
+            });
         }
 
         private void BroadcastReceived(BroadcastData data)
@@ -72,9 +78,9 @@ namespace Orchestrator.App
             if (!_broadcastsEnabled) return;
             if (data.Channel != "trigger") return;
 
-            var triggerData = JsonConvert.DeserializeObject<JObject>(data.Data);
+            var triggerData = JsonConvert.DeserializeObject<TriggerData>(data.Data);
 
-            if (triggerData.Value<string>("id") != Id) return;
+            if (triggerData.Id != Id) return;
             OnTriggerReceived?.Invoke(triggerData);
         }
     }

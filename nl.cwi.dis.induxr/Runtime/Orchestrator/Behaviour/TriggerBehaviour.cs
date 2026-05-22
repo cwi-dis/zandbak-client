@@ -1,5 +1,6 @@
 using System;
 using Newtonsoft.Json.Linq;
+using Orchestrator.Data;
 using Orchestrator.Util;
 using Orchestrator.Wrapping;
 using UnityEngine;
@@ -20,7 +21,7 @@ namespace Orchestrator.Behaviour
         /// the data for the received trigger. It enables external observers to perform custom operations
         /// in response to the trigger update event.
         /// </remarks>
-        public event Action<JObject> OnTriggerReceived;
+        public event Action<TriggerData> OnTriggerReceived;
 
         private async void Start()
         {
@@ -63,7 +64,7 @@ namespace Orchestrator.Behaviour
             _triggerObject.BroadcastUpdate(value);
         }
 
-        private void ProcessTriggerUpdate(JObject value)
+        private void ProcessTriggerUpdate(TriggerData value)
         {
             Debug.Log($"New trigger received with value: {value}");
             OnTriggerReceived?.Invoke(value);
