@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
 
 namespace Orchestrator.Data
 {
@@ -24,6 +25,13 @@ namespace Orchestrator.Data
         [JsonProperty("position")] public PositionData Position;
         [JsonProperty("rotation")] public RotationData Rotation;
         [JsonProperty("timestamp")] public float Timestamp;
+    }
+
+    public class TriggerData
+    {
+        [JsonProperty("id")] public string Id;
+        [JsonProperty("timestamp")] public float Timestamp;
+        [JsonProperty("value")] public JObject Value;
     }
 
     public class PositionData
