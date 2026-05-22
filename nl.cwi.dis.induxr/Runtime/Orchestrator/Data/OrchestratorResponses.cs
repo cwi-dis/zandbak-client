@@ -155,11 +155,19 @@ namespace Orchestrator.Data {
         [JsonProperty("channel")] public string Channel;
         [JsonProperty("data")] public string Data;
 
+        // Raw byte payload
+        public byte[] Bytes;
+
         public BroadcastData() { }
 
         public BroadcastData(string channel, string data) {
             Channel = channel;
             Data = data;
+        }
+
+        public BroadcastData(string channel, byte[] bytes) {
+            Channel = channel;
+            Bytes = bytes;
         }
     }
 }
