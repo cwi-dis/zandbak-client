@@ -449,8 +449,8 @@ namespace Orchestrator.Wrapping
         /// <param name="data">Data to be broadcast</param>
         public void Broadcast(string channel, string data)
         {
-            byte[] lData = Encoding.ASCII.GetBytes(data);
-            _orchestratorWrapper.SendBroadcastToChannel(channel, lData);
+            var bytes = Encoding.UTF8.GetBytes(data);
+            _orchestratorWrapper.SendBroadcastToChannel(channel, bytes);
         }
 
         void IUserMessagesListener.OnBroadcastReceived(BroadcastData broadcastData) {
