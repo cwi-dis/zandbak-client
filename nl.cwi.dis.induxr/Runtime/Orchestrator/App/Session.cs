@@ -755,6 +755,16 @@ namespace Orchestrator.App
         }
 
         /// <summary>
+        /// Broadcasts a byte array to a specified channel within the session.
+        /// </summary>
+        /// <param name="channel">The name of the channel to which the bytes will be broadcast.</param>
+        /// <param name="bytes">The byte array containing the data to broadcast.</param>
+        public void BroadcastBytes(string channel, byte[] bytes)
+        {
+            OrchestratorController.Instance.Broadcast(channel, bytes);
+        }
+
+        /// <summary>
         /// Retrieves a user from the session's user list based on the provided user ID.
         /// </summary>
         /// <param name="userId">The unique identifier of the user to retrieve.</param>

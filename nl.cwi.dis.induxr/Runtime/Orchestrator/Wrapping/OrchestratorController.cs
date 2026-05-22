@@ -450,6 +450,16 @@ namespace Orchestrator.Wrapping
         public void Broadcast(string channel, string data)
         {
             var bytes = Encoding.UTF8.GetBytes(data);
+            Broadcast(channel, bytes);
+        }
+
+        /// <summary>
+        /// Broadcasts data to the specified channel.
+        /// </summary>
+        /// <param name="channel">The channel to which the data will be broadcasted.</param>
+        /// <param name="bytes">The data to send, represented as an array of bytes.</param>
+        public void Broadcast(string channel, byte[] bytes)
+        {
             _orchestratorWrapper.SendBroadcastToChannel(channel, bytes);
         }
 
