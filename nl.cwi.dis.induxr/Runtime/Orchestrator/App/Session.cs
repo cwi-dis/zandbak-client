@@ -672,7 +672,19 @@ namespace Orchestrator.App
             {
                 if (status.Error == 0)
                 {
+                    var foundSharedObject = SharedObjects.Find(so => so.Id == sharedObjectData.Id);
+
+                    if (foundSharedObject != null)
+                    {
+                        Debug.Log("Found shared object in list, updating it...");
+                        foundSharedObject.SharedObjectData = sharedObjectData;
+                        tcs.SetResult(foundSharedObject);
+
+                        return;
+                    }
+
                     var sharedObject = new SharedObject(_orchestrator, sharedObjectData);
+                    SharedObjects.Add(sharedObject);
                     tcs.SetResult(sharedObject);
                 }
                 else
@@ -874,8 +886,19 @@ namespace Orchestrator.App
 
         private void ObjectRegistered(Data.SharedObject sharedObject)
         {
-            var sharedObjectInstance = new SharedObject(_orchestrator, sharedObject);
-            SharedObjects.Add(sharedObjectInstance);
+            var sharedObjectInstance = SharedObjects.Find(so => so.Id == sharedObject.Id);
+
+            if (sharedObjectInstance != null)
+            {
+                Debug.Log("Shared object already registered: " + sharedObject.Id);
+                sharedObjectInstance.SharedObjectData = sharedObject;
+            }
+            else
+            {
+                sharedObjectInstance = new SharedObject(_orchestrator, sharedObject);
+                SharedObjects.Add(sharedObjectInstance);
+            }
+            Debug.Log("Shared object registered: " + sharedObject.Id + " n=" + SharedObjects.Count);
 
             OnObjectRegistered?.Invoke(sharedObjectInstance);
         }
@@ -885,8 +908,9 @@ namespace Orchestrator.App
             var foundSharedObject = SharedObjects.Find(so => so.Id == sharedObject.Id);
             if (foundSharedObject == null) return;
 
-            Debug.Log($"Object owner changed for {foundSharedObject.Id}");
+            var oldOwner = foundSharedObject.Owner;
             foundSharedObject.SharedObjectData = sharedObject;
+            Debug.Log($"Object owner changed for {foundSharedObject.Id} from {oldOwner.Name} to {foundSharedObject.Owner.Name}");
 
             OnObjectOwnershipChanged?.Invoke(foundSharedObject);
         }

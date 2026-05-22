@@ -26,7 +26,7 @@ namespace Orchestrator.Behaviour
         private Quaternion _interpStartRot;
 
         // Start is called once before the first execution of Update after the MonoBehaviour is created
-        private async void Start()
+        private async void Awake()
         {
             _rb = GetComponent<Rigidbody>();
 
@@ -119,7 +119,7 @@ namespace Orchestrator.Behaviour
             if (_sharedObject.IsOwner(_orchestrator.Self)) return;
 
             // Snapshot current visible pose so the next interpolation segment starts
-            // from where the object actually is, not from the previously-received target.
+            // from where the object actually is, not from the previously received target.
             // This avoids visible snaps when packets arrive earlier or later than expected.
             _interpStartPos = transform.position;
             _interpStartRot = transform.rotation;
