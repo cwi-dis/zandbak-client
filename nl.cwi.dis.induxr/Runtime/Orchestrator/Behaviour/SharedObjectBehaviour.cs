@@ -107,13 +107,10 @@ namespace Orchestrator.Behaviour
             var rotation = gameObject.transform.rotation;
 
             // Broadcast transform updates to the current session
-            _sharedObject.BroadcastUpdate(new ObjectData
-            {
-                Id = _id,
-                Timestamp = Time.time,
-                Position = new PositionData { X = position.x, Y = position.y, Z = position.z },
-                Rotation = new RotationData { X = rotation.x, Y = rotation.y, Z = rotation.z, W = rotation.w },
-            });
+            _sharedObject.BroadcastUpdate(
+                new PositionData { X = position.x, Y = position.y, Z = position.z },
+                new RotationData { X = rotation.x, Y = rotation.y, Z = rotation.z, W = rotation.w }
+            );
         }
 
         private void ProcessObjectUpdate(ObjectData objectData)

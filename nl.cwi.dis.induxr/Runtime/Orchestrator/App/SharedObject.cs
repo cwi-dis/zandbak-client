@@ -95,14 +95,21 @@ namespace Orchestrator.App
         }
 
         /// <summary>
-        /// Broadcasts transform data to all users in the current session.
+        /// Broadcasts the updated position and rotation of the shared object to the current session.
         /// </summary>
-        /// <param name="data">The movement data of the avatar, including user ID, bone data, and timestamp.</param>
-        public void BroadcastUpdate(ObjectData data)
+        /// <param name="position">The new position data of the shared object.</param>
+        /// <param name="rotation">The new rotation data of the shared object.</param>
+        public void BroadcastUpdate(PositionData position, RotationData rotation)
         {
             if (!_broadcastsEnabled) return;
 
-            _orchestrator.CurrentSession?.BroadcastTransform("objectTransform", data);
+            _orchestrator.CurrentSession?.BroadcastTransform("objectTransform", new ObjectData
+            {
+                Id = Id,
+                Timestamp = Time.time,
+                Position = position,
+                Rotation = rotation
+            });
         }
 
         private void BroadcastReceived(BroadcastData data)
