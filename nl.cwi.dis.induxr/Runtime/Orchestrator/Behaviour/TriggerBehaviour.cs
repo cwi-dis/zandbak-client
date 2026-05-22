@@ -30,11 +30,18 @@ namespace Orchestrator.Behaviour
             if (_orchestrator.CurrentSession.IsAdministrator(_orchestrator.Self))
             {
                 _triggerObject = await _orchestrator.CurrentSession.RegisterTrigger(gameObject, new JObject());
-                Debug.Log($"Registered shared object ${_triggerObject.Id} for owner {_triggerObject.Owner.Name} with initial value {_triggerObject.Value}");
+                Debug.Log($"Registered trigger object ${_triggerObject.Id} for owner {_triggerObject.Owner.Name} with initial value {_triggerObject.Value}");
             }
             else
             {
+                Debug.Log($"Attempting to find trigger object with id {_id}");
                 _triggerObject = _orchestrator.CurrentSession.FindTriggerById(_id);
+
+                if (_triggerObject == null)
+                {
+                    Debug.LogWarning("No trigger object found");
+                    return;
+                }
             }
 
             _triggerObject.OnTriggerReceived += ProcessTriggerUpdate;
@@ -44,6 +51,7 @@ namespace Orchestrator.Behaviour
         private void OnDestroy()
         {
             _triggerObject.OnTriggerReceived -= ProcessTriggerUpdate;
+            _triggerObject.DisableBroadcasts();
         }
 
         /// <summary>

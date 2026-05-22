@@ -70,7 +70,7 @@ namespace Orchestrator.App
         private void BroadcastReceived(BroadcastData data)
         {
             if (!_broadcastsEnabled) return;
-            if (data.Channel != "objectTransform") return;
+            if (data.Channel != "trigger") return;
 
             var triggerData = JsonConvert.DeserializeObject<JObject>(data.Data);
 
