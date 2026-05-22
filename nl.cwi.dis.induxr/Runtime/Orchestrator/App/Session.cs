@@ -749,7 +749,7 @@ namespace Orchestrator.App
         /// <param name="channel">The channel to broadcast the data on</param>
         /// <param name="data">The data object to be broadcast to the session.</param>
         /// <typeparam name="T">The type of the data object being broadcast.</typeparam>
-        public void BroadcastTransform<T>(string channel, T data)
+        public void BroadcastData<T>(string channel, T data)
         {
             OrchestratorController.Instance.Broadcast(channel, JsonConvert.SerializeObject(data));
         }

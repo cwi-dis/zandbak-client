@@ -173,7 +173,7 @@ namespace Orchestrator.App
         /// <param name="data">The movement data of the avatar, including user ID, bone data, and timestamp.</param>
         public void BroadcastAvatarMovement(AvatarMovementData data)
         {
-            _orchestrator.CurrentSession?.BroadcastTransform("transform", data);
+            _orchestrator.CurrentSession?.BroadcastData("transform", data);
         }
 
         private void BroadcastReceived(BroadcastData data)

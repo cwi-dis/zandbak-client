@@ -65,7 +65,7 @@ namespace Orchestrator.App
         {
             if (!_broadcastsEnabled) return;
 
-            _orchestrator.CurrentSession?.BroadcastTransform("trigger", new TriggerData
+            _orchestrator.CurrentSession?.BroadcastData("trigger", new TriggerData
             {
                 Id = Id,
                 Timestamp = Time.time,

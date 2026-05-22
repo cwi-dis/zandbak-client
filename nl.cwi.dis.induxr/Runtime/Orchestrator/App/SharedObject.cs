@@ -103,7 +103,7 @@ namespace Orchestrator.App
         {
             if (!_broadcastsEnabled) return;
 
-            _orchestrator.CurrentSession?.BroadcastTransform("objectTransform", new ObjectData
+            _orchestrator.CurrentSession?.BroadcastData("objectTransform", new ObjectData
             {
                 Id = Id,
                 Timestamp = Time.time,
