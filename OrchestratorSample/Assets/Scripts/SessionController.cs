@@ -50,6 +50,10 @@ public class SessionController : MonoBehaviour
     [Header("Panel Manager")]
     public PanelManager panelManager;
 
+    [Header("Voice")]
+    public VoiceTransmitter voiceTransmitter;
+    public VoiceReceiver voiceReceiver;
+
     private readonly Dictionary<string, GameObject> _activeUsers = new();
     private Session _session;
     private bool _isHandRaised = false;
@@ -91,6 +95,10 @@ public class SessionController : MonoBehaviour
         chatSendButton.interactable = false;
 
         Debug.Log($"User type: {_session.Self.Type}");
+
+        // Bind audio transmitter and receiver
+        voiceTransmitter.Bind(_session);
+        voiceReceiver.Bind(_session);
 
         // Only enable presentation control buttons if there is at least one presentation
         if (_session.Presentations.Count > 0 && _session.Self.Type == "presenter")
