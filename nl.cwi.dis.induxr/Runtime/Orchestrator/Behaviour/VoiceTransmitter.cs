@@ -41,6 +41,7 @@ namespace Orchestrator.Behaviour
 
         private System.Collections.IEnumerator BindRoutine()
         {
+#if !UNITY_EDITOR
             yield return Application.RequestUserAuthorization(UserAuthorization.Microphone);
 
             if (!Application.HasUserAuthorization(UserAuthorization.Microphone))
@@ -48,6 +49,7 @@ namespace Orchestrator.Behaviour
                 Debug.LogError("Microphone permission denied");
                 yield break;
             }
+#endif
 
             if (Microphone.devices.Length == 0)
             {
