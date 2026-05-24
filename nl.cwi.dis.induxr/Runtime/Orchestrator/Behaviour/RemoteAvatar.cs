@@ -31,6 +31,7 @@ namespace Orchestrator.Behaviour
         public void Initialize(User user)
         {
             _user = user;
+            _user.Avatar = gameObject;
         }
 
         private void Awake()

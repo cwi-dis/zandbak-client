@@ -46,6 +46,12 @@ namespace Orchestrator.App
         /// </summary>
         public string Status => UserData.Status;
 
+        /// <summary>
+        /// The GameObject representing this user's avatar in the scene. Assigned by LocalAvatar /
+        /// RemoteAvatar during Initialize.
+        /// </summary>
+        public GameObject Avatar;
+
         public AvatarMovementData Transform => (UserData.Transform == null) ? null : new AvatarMovementData()
         {
             UserId = UserData.Id,
@@ -205,8 +211,6 @@ namespace Orchestrator.App
 
     public class SelfUser : User
     {
-        public GameObject Avatar;
-
         public SelfUser(Orchestrator orchestrator, Data.User userData) : base(orchestrator, userData) {}
 
         /// <summary>
