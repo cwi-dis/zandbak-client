@@ -90,10 +90,11 @@ namespace Orchestrator.Behaviour
         {
             _go = new GameObject($"Voice_{user?.Name ?? "unknown"}");
 
-            var avatar = user?.Avatar;
-            if (avatar)
+            var anchor = ResolveAnchor(user?.Avatar);
+            if (anchor != null)
             {
-                _go.transform.SetParent(avatar.transform, worldPositionStays: false);
+                Debug.Log($"Attaching voice playback for {user.Name} to {anchor.name}");
+                _go.transform.SetParent(anchor, worldPositionStays: false);
             }
             else
             {
@@ -158,6 +159,22 @@ namespace Orchestrator.Behaviour
         public void Dispose()
         {
             if (_go) UnityEngine.Object.Destroy(_go);
+        }
+
+        private static Transform ResolveAnchor(GameObject avatar)
+        {
+            if (avatar == null) return null;
+
+            var smr = avatar.GetComponentInChildren<SkinnedMeshRenderer>();
+            if (smr == null) return avatar.transform;
+
+            foreach (var bone in smr.bones)
+            {
+                if (bone != null && bone.name.IndexOf("Head", StringComparison.OrdinalIgnoreCase) >= 0)
+                    return bone;
+            }
+
+            return smr.rootBone != null ? smr.rootBone : avatar.transform;
         }
     }
 }
