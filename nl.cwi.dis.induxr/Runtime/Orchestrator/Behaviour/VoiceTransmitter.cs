@@ -30,6 +30,9 @@ namespace Orchestrator.Behaviour
         private readonly byte[]  _opus  = new byte[1275];   // max Opus packet
         private ushort _seq;
 
+        public bool IsTalking => pushToTalk && Input.GetKey(talkKey);
+        public float Peak { get; private set; }
+
         public void Bind(Session session)
         {
             _session = session;
@@ -75,6 +78,17 @@ namespace Orchestrator.Behaviour
             while (available >= FrameSamples)
             {
                 _mic.GetData(_frame, _readHead);
+
+                var peak = 0f;
+                for (var i = 0; i < FrameSamples; i++)
+                    peak = Mathf.Max(peak, Mathf.Abs(_frame[i]));
+
+                if (Time.frameCount % 10 == 0)
+                {
+                    Debug.Log($"Peak: {peak:F4}");
+                    Peak = peak;
+                }
+
                 _readHead = (_readHead + FrameSamples) % _mic.samples;
                 available -= FrameSamples;
 
