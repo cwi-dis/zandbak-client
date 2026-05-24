@@ -90,9 +90,21 @@ namespace Orchestrator.Behaviour
         {
             _go = new GameObject($"Voice_{user?.Name ?? "unknown"}");
 
-            // TODO: parent to user's avatar transform for spatialised audio
+            var avatar = user?.Avatar;
+            if (avatar)
+            {
+                _go.transform.SetParent(avatar.transform, worldPositionStays: false);
+            }
+            else
+            {
+                Debug.LogWarning($"Voice playback for {user?.Name ?? "unknown"} has no avatar to follow; using world origin.");
+            }
+
             var source = _go.AddComponent<AudioSource>();
-            source.spatialBlend = 0f;
+            source.spatialBlend = 1f;
+            source.rolloffMode = AudioRolloffMode.Linear;
+            source.minDistance = 1f;
+            source.maxDistance = 20f;
             source.loop = true;
             source.clip = AudioClip.Create("voice_stream", SampleRate, 1, SampleRate, stream: true, OnAudioRead);
             source.Play();
