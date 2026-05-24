@@ -33,19 +33,29 @@ namespace Orchestrator.Behaviour
         public void Bind(Session session)
         {
             _session = session;
+            StartCoroutine(BindRoutine());
+        }
+
+        private System.Collections.IEnumerator BindRoutine()
+        {
+            yield return Application.RequestUserAuthorization(UserAuthorization.Microphone);
+
+            if (!Application.HasUserAuthorization(UserAuthorization.Microphone))
+            {
+                Debug.LogError("Microphone permission denied");
+                yield break;
+            }
 
             if (Microphone.devices.Length == 0)
             {
                 Debug.LogWarning("No mic device");
-                return;
+                yield break;
             }
 
             _device = Microphone.devices[0];
             _mic = Microphone.Start(_device, loop: true, lengthSec: 1, frequency: SampleRate);
-
             _encoder = OpusCodecFactory.CreateEncoder(SampleRate, 1, OpusApplication.OPUS_APPLICATION_VOIP);
             _encoder.Bitrate = bitrate;
-
             _readHead = 0;
         }
 
