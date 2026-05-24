@@ -32,7 +32,11 @@ namespace Orchestrator.Behaviour
             // Ensure the message is for our channel and contains data
             if (data.Channel != Channel || data.Bytes == null) return;
             // Parse the packet
-            if (!TryParse(data.Bytes, out var userId, out var seq, out var off, out var len)) return;
+            if (!TryParse(data.Bytes, out var userId, out var seq, out var off, out var len))
+            {
+                Debug.LogWarning("Failed to parse audio packet");
+                return;
+            }
             // Drop packet if it's from us
             if (userId == _session.Self.Id) return;       // ignore our own loopback
 
@@ -88,7 +92,7 @@ namespace Orchestrator.Behaviour
 
             // TODO: parent to user's avatar transform for spatialised audio
             var source = _go.AddComponent<AudioSource>();
-            source.spatialBlend = 1f;
+            source.spatialBlend = 0f;
             source.loop = true;
             source.clip = AudioClip.Create("voice_stream", SampleRate, 1, SampleRate, stream: true, OnAudioRead);
             source.Play();
@@ -101,7 +105,13 @@ namespace Orchestrator.Behaviour
             _haveLast = true;
 
             var decoded = new float[FrameSamples];
-            _decoder.Decode(pkt.AsSpan(offset, len), decoded, FrameSamples);
+            var n = _decoder.Decode(pkt.AsSpan(offset, len), decoded, FrameSamples);
+
+            if (n <= 0) {
+                Debug.LogWarning($"Opus decode failed: {n}");
+                return;
+            }
+
             lock (_lock) _frames.Enqueue(decoded);
         }
 
