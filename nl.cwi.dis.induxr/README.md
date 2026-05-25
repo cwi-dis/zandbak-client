@@ -30,6 +30,70 @@ The INDUX-R Orchestrator Wrapper is a Unity package designed to facilitate the c
    - Use `OrchestratorController.Instance.SocketConnectAsync(url)` to establish a connection to your Orchestrator backend.
    - The connection returns an `App.Orchestrator` instance which serves as the primary entry point for the API.
 
+## Getting Started (Minimal Application)
+
+Based on the `OrchestratorSample`, here is how to set up a minimal application using the wrapper.
+
+### 1. Establish Connection & Login
+Establish a connection to the Orchestrator and log in with a username.
+
+```csharp
+using Orchestrator.Wrapping;
+// ...
+
+// 1. Connect
+var orchestrator = await OrchestratorController.Instance.SocketConnectAsync("https://your-orchestrator-url");
+
+// 2. Login
+var userId = await orchestrator.Login("Username", "OptionalPassword");
+```
+
+### 2. Session Management
+Once logged in, you can list, create, or join sessions.
+
+```csharp
+// List available sessions
+var sessions = await orchestrator.GetSessions();
+
+// Join the first available session
+if (sessions.Count > 0) {
+    var joinedSession = await orchestrator.JoinSession(sessions[0].Id);
+}
+
+// Or create a new one (requires a Room object, obtainable via GetRooms())
+var rooms = await orchestrator.GetRooms();
+var newSession = await orchestrator.CreateSession("My Session", rooms[0]);
+```
+
+### 3. In-Session Interaction
+After joining a session, you can access it via `OrchestratorController.Instance.Orchestrator.CurrentSession`.
+
+#### Handle Users & Avatars
+Listen for users joining/leaving to manage their representations.
+
+```csharp
+var session = OrchestratorController.Instance.Orchestrator.CurrentSession;
+
+session.OnUserJoined += (user) => {
+    Debug.Log($"{user.Name} joined!");
+    // Instantiate remote avatar
+};
+```
+
+#### Shared Objects & Triggers
+Use `TriggerBehaviour` for event-based synchronization.
+
+```csharp
+// Sending a trigger
+var data = new JObject { { "action", "pulse" } };
+triggerBehaviour.PublishTrigger(data);
+
+// Receiving a trigger
+triggerBehaviour.OnTriggerReceived += (data) => {
+    Debug.Log($"Action received: {data.Value["action"]}");
+};
+```
+
 ## Entry Points & Scripts
 
 ### Primary API
