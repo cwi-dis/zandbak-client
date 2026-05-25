@@ -159,6 +159,12 @@ namespace Orchestrator.Wrapping
         public event Action<SharedObject> OnObjectRegistered;
 
         /// <summary>
+        /// Invoked when a trigger object is registered within the orchestrator,
+        /// providing the registered trigger object as an argument.
+        /// </summary>
+        public event Action<Trigger> OnTriggerRegistered;
+
+        /// <summary>
         /// Invoked when the ownership of a shared object changes within the orchestrator,
         /// providing the updated shared object as an argument.
         /// </summary>
@@ -413,6 +419,11 @@ namespace Orchestrator.Wrapping
         void IUserSessionEventsListener.OnObjectRegistered(SharedObject sharedObject)
         {
             OnObjectRegistered?.Invoke(sharedObject);
+        }
+
+        void IUserSessionEventsListener.OnTriggerRegistered(Trigger trigger)
+        {
+            OnTriggerRegistered?.Invoke(trigger);
         }
 
         void IBubbleEventsListener.OnBubbleJoinRequested(User user)

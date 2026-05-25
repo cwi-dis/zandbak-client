@@ -197,6 +197,14 @@ namespace Orchestrator.App
         public event Action<Bubble, bool> OnBubbleJoinRequestApproved;
 
         /// <summary>
+        /// Occurs when a new trigger object has been registered in the session.
+        /// </summary>
+        /// <remarks>
+        /// This event is triggered after a trigger object is successfully registered and added to the session's list of triggers.
+        /// </remarks>
+        public event Action<Trigger> OnTriggerRegistered;
+
+        /// <summary>
         /// Occurs when a new shared object has been registered in the session.
         /// </summary>
         /// <remarks>
@@ -243,6 +251,7 @@ namespace Orchestrator.App
             OrchestratorController.Instance.OnSessionIsSpeakingEvent += IsSpeakingChanged;
             OrchestratorController.Instance.OnUserStatusChangedEvent += UserStatusChanged;
 
+            OrchestratorController.Instance.OnTriggerRegistered += TriggerRegistered;
             OrchestratorController.Instance.OnObjectRegistered += ObjectRegistered;
             OrchestratorController.Instance.OnObjectOwnershipChanged += ObjectOwnershipChanged;
 
@@ -672,7 +681,7 @@ namespace Orchestrator.App
             {
                 if (status.Error == 0)
                 {
-                    var foundSharedObject = SharedObjects.Find(so => so.Id == sharedObjectData.Id);
+                    var foundSharedObject = FindSharedObjectById(sharedObjectData.Id);
 
                     if (foundSharedObject != null)
                     {
@@ -711,6 +720,17 @@ namespace Orchestrator.App
             {
                 if (status.Error == 0)
                 {
+                    var foundTrigger = FindTriggerById(triggerData.Id);
+
+                    if (foundTrigger != null)
+                    {
+                        Debug.Log("Found shared object in list, updating it...");
+                        foundTrigger.TriggerData = triggerData;
+                        tcs.SetResult(foundTrigger);
+
+                        return;
+                    }
+
                     var triggerObject = new Trigger(_orchestrator, triggerData);
                     tcs.SetResult(triggerObject);
                 }
@@ -911,6 +931,25 @@ namespace Orchestrator.App
             Debug.Log("Shared object registered: " + sharedObject.Id + " n=" + SharedObjects.Count);
 
             OnObjectRegistered?.Invoke(sharedObjectInstance);
+        }
+
+        private void TriggerRegistered(Data.Trigger trigger)
+        {
+            var triggerInstance = FindTriggerById(trigger.Id);
+
+            if (triggerInstance != null)
+            {
+                Debug.Log("Trigger object already registered: " + trigger.Id);
+                triggerInstance.TriggerData = trigger;
+            }
+            else
+            {
+                triggerInstance = new Trigger(_orchestrator, trigger);
+                Triggers.Add(triggerInstance);
+            }
+            Debug.Log("Trigger object registered: " + trigger.Id + " n=" + Triggers.Count);
+
+            OnTriggerRegistered?.Invoke(triggerInstance);
         }
 
         private void ObjectOwnershipChanged(Data.SharedObject sharedObject)

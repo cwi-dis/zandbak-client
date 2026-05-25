@@ -906,6 +906,9 @@ namespace Orchestrator.Wrapping {
                     case "OBJECT_OWNERSHIP_CHANGED":
                         OnSessionUpdatedWithObjectUpdate(response);
                         break;
+                    case "TRIGGER_REGISTERED":
+                        OnSessionUpdatedWithTriggerUpdate(response);
+                        break;
                 }
             }
         }
@@ -931,6 +934,21 @@ namespace Orchestrator.Wrapping {
                         break;
                     case "OBJECT_OWNERSHIP_CHANGED":
                         _userSessionEventListener.OnObjectOwnershipChanged(data.EventData);
+                        break;
+                }
+            });
+        }
+
+        private void OnSessionUpdatedWithTriggerUpdate(SocketIOResponse response)
+        {
+            var data = response.GetValue<SessionUpdate<Trigger>>();
+
+            UnityThread.executeInUpdate(() =>
+            {
+                switch (data.EventId)
+                {
+                    case "TRIGGER_REGISTERED":
+                        _userSessionEventListener.OnTriggerRegistered(data.EventData);
                         break;
                 }
             });
