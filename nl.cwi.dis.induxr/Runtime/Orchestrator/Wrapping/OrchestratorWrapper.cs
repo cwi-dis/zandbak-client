@@ -755,11 +755,11 @@ namespace Orchestrator.Wrapping {
             }
         }
 
-        public void SpawnSharedObject(Transform initialTransform, GameObject prefab, Action<ResponseStatus, SharedObject> callback)
+        public void SpawnSharedObject(GameObject prefab, Vector3 initialPosition, Quaternion initialRotation, Action<ResponseStatus, SharedObject> callback)
         {
             var id = Guid.NewGuid().ToString();
-            var position = new { initialTransform.position.x, initialTransform.position.y, initialTransform.position.z };
-            var rotation = new { initialTransform.rotation.x, initialTransform.rotation.y, initialTransform.rotation.z, initialTransform.rotation.w };
+            var position = new { initialPosition.x, initialPosition.y, initialPosition.z };
+            var rotation = new { initialRotation.x, initialRotation.y, initialRotation.z, initialRotation.w };
 
             lock (this)
             {

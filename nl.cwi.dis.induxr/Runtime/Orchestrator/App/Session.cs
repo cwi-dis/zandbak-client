@@ -744,6 +744,45 @@ namespace Orchestrator.App
         }
 
         /// <summary>
+        /// Spawns a new shared object in the orchestrator.
+        /// </summary>
+        /// <param name="prefab">The prefab to be spawned a shared object.</param>
+        /// <param name="position">The initial position the object should be spawned at.</param>
+        /// <param name="rotation">The initial rotation with which to spawn the object.</param>
+        /// <returns>A task that represents the asynchronous operation. The task result contains the spawned shared object instance.</returns>
+        public Task<SharedObject> SpawnSharedObject(GameObject prefab, Vector3 position, Quaternion rotation)
+        {
+            var tcs = new TaskCompletionSource<SharedObject>();
+
+            OrchestratorController.Instance.Wrapper.SpawnSharedObject(prefab, position, rotation, (status, sharedObjectData) =>
+            {
+                if (status.Error == 0)
+                {
+                    var foundSharedObject = FindSharedObjectById(sharedObjectData.Id);
+
+                    if (foundSharedObject != null)
+                    {
+                        Debug.Log("Found shared object in list, updating it...");
+                        foundSharedObject.SharedObjectData = sharedObjectData;
+                        tcs.SetResult(foundSharedObject);
+
+                        return;
+                    }
+
+                    var sharedObject = new SharedObject(_orchestrator, sharedObjectData);
+                    SharedObjects.Add(sharedObject);
+                    tcs.SetResult(sharedObject);
+                }
+                else
+                {
+                    tcs.SetException(new Exception(status.Message));
+                }
+            });
+
+            return tcs.Task;
+        }
+
+        /// <summary>
         /// Retrieves a shared object from the current session's list of shared objects using the specified identifier.
         /// </summary>
         /// <param name="id">The unique identifier of the shared object to retrieve.</param>
