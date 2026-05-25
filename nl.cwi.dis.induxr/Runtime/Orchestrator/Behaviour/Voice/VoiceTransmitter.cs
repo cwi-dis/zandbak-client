@@ -4,7 +4,7 @@ using Concentus.Enums;
 using Orchestrator.App;
 using UnityEngine;
 
-namespace Orchestrator.Behaviour
+namespace Orchestrator.Behaviour.Voice
 {
     public class VoiceTransmitter : MonoBehaviour
     {

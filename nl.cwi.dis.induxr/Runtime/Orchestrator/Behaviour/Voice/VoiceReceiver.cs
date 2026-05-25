@@ -4,7 +4,7 @@ using Concentus;
 using Orchestrator.Data;
 using UnityEngine;
 
-namespace Orchestrator.Behaviour
+namespace Orchestrator.Behaviour.Voice
 {
     public class VoiceReceiver : MonoBehaviour
     {

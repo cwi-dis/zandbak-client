@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using Orchestrator.Behaviour;
+using Orchestrator.Behaviour.Voice;
 using Orchestrator.Data;
 using Orchestrator.Wrapping;
 using TMPro;

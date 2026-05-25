@@ -1,6 +1,6 @@
-using Orchestrator.Behaviour;
 using TMPro;
 using UnityEngine;
+using Orchestrator.Behaviour.Voice;
 
 public class MicrophoneMeter : MonoBehaviour
 {
