@@ -21,7 +21,7 @@ namespace Orchestrator.Behaviour.Shared
         public int linearInterpolationRate = 5;
 
         private string _id;
-        private readonly App.Orchestrator _orchestrator = OrchestratorController.Instance.Orchestrator;
+        private App.Orchestrator _orchestrator;
         private App.SharedObject _sharedObject;
 
         private Rigidbody _rb;
@@ -37,6 +37,7 @@ namespace Orchestrator.Behaviour.Shared
         {
             _rb = GetComponent<Rigidbody>();
 
+            _orchestrator = OrchestratorController.Instance.Orchestrator;
             _id = StableObjectId.GetSceneObjectId(gameObject);
             Debug.Log($"Generated object id: {_id} for gameObject {gameObject.name}");
 

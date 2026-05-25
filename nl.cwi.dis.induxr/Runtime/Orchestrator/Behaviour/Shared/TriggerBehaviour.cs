@@ -10,7 +10,7 @@ namespace Orchestrator.Behaviour.Shared
     public class TriggerBehaviour : MonoBehaviour
     {
         private string _id;
-        private readonly App.Orchestrator _orchestrator = OrchestratorController.Instance.Orchestrator;
+        private App.Orchestrator _orchestrator;
         private App.Trigger _triggerObject;
 
         /// <summary>
@@ -25,6 +25,8 @@ namespace Orchestrator.Behaviour.Shared
 
         private async void Start()
         {
+            _orchestrator = OrchestratorController.Instance.Orchestrator;
+
             _id = StableObjectId.GetSceneObjectId(gameObject);
             Debug.Log($"Generated object id: {_id} for gameObject {gameObject.name}");
 
