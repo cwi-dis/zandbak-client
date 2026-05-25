@@ -1,6 +1,6 @@
 # INDUX-R Orchestrator Wrapper
 
-The INDUX-R Orchestrator Wrapper is a Unity package designed to facilitate the creation of networked, shared social VR experiences. it provides a high-level API for interacting with the Orchestrator backend, managing sessions, user synchronization, shared objects, and real-time communication.
+The INDUX-R Orchestrator Wrapper is a Unity package designed to facilitate the creation of networked, shared social VR experiences. It provides a high-level API for interacting with the Orchestrator backend, managing sessions, user synchronization, shared objects, and real-time communication.
 
 ## Features
 
@@ -39,6 +39,7 @@ Establish a connection to the Orchestrator and log in with a username.
 
 ```csharp
 using Orchestrator.Wrapping;
+using Newtonsoft.Json.Linq;
 // ...
 
 // 1. Connect
@@ -121,30 +122,100 @@ localAvatar.Initialize(user);
 
 The `LocalAvatar` component will automatically start broadcasting bone transformations from the `SkinnedMeshRenderer` to other participants at the specified `updateRate`.
 
-## Entry Points & Scripts
+### 5. Shared Objects (Transform Sync)
+`SharedObjectBehaviour` synchronizes the position and rotation of GameObjects across all participants.
 
-### Primary API
-- `Orchestrator.App.Orchestrator`: The main class for handling login, sessions, and room management.
-- `Orchestrator.Wrapping.OrchestratorController`: A MonoBehaviour singleton that manages the socket connection and dispatches events to the API.
+#### Setup
+1. Attach `SharedObjectBehaviour` to your GameObject.
+2. **Stable Identity**: Ensure the GameObject has a unique name or a stable path in the scene hierarchy. The package uses `StableObjectId.GetSceneObjectId(gameObject)` to generate a persistent ID for synchronization.
+3. **Physics**: (Optional) Attach a `Rigidbody`. When a client does not own the object, the behaviour automatically sets `isKinematic = true` to prevent physics conflicts during interpolation.
 
-### Key Behaviours
-- `SharedObjectBehaviour`: Attach to any GameObject to synchronize its position and rotation.
-- `TriggerBehaviour`: Attach to GameObjects to enable event-based communication via `PublishTrigger`.
-- `VoiceTransmitter` / `VoiceReceiver`: Components for handling real-time audio communication.
-- `LocalAvatar` / `RemoteAvatar`: Behaviours for synchronizing player avatars.
+#### Ownership Management
+Only the owner can broadcast transform updates. Others will interpolate towards the received data. You can request ownership using `ClaimObject()`:
 
-## Scripts & Automation
-- Currently, no external scripts or CI/CD scripts are bundled directly within the package folder.
-- TODO: Add build or deployment scripts if applicable.
+```csharp
+using Orchestrator.Behaviour.Shared;
+// ...
 
-## Environment Variables
-- This package does not rely on system environment variables. Configuration is typically handled via code when calling `SocketConnectAsync(url)`.
-- TODO: Document any backend-specific env vars if relevant for local testing.
+private async void OnMouseDown() {
+    var sharedObject = GetComponent<SharedObjectBehaviour>();
+    
+    // Request ownership from the server
+    bool success = await sharedObject.ClaimObject();
+    if (success) {
+        // You are now the owner and can move the object locally
+        Debug.Log("Ownership claimed!");
+    }
+}
+```
 
-## Tests
-- TODO: Automated tests are not currently present in the package directory. Manual verification is required using the sample scenes in the parent project.
+*Note: For XR, use the provided `XRClaimOnGrab` helper component to handle ownership automatically when using the XR Interaction Toolkit.*
 
-## Project Structure
+### 6. Triggers (Event Sync)
+`TriggerBehaviour` synchronizes discrete events or state changes using JSON (`JObject`) payloads.
+
+#### Setup
+1. Attach `TriggerBehaviour` to a GameObject.
+2. Like shared objects, these rely on stable scene paths for identification.
+
+#### Publishing & Receiving
+```csharp
+using Orchestrator.Behaviour.Shared;
+using Orchestrator.Data;
+using Newtonsoft.Json.Linq;
+// ...
+
+private TriggerBehaviour _trigger;
+
+void Start() {
+    _trigger = GetComponent<TriggerBehaviour>();
+    // Subscribe to events
+    _trigger.OnTriggerReceived += (TriggerData data) => {
+        int counter = data.Value.Value<int>("counter");
+        Debug.Log($"Counter updated to: {counter}");
+    };
+}
+
+// Publish an event (e.g., on collision)
+void OnTriggerEnter(Collider other) {
+    var payload = new JObject { { "counter", 1 } };
+    _trigger.PublishTrigger(payload);
+}
+```
+
+## Behaviour Feature Overview
+
+The package provides several MonoBehaviours categorized by their functional area in `Runtime/Orchestrator/Behaviour/`.
+
+### Avatar
+Synchronizes player representations across the network.
+- **LocalAvatar**: Attached to the local player's prefab. It captures bone transformations from a `SkinnedMeshRenderer` and broadcasts them to the session. Supports hand-raising notifications.
+- **RemoteAvatar**: Attached to remote player representations. It receives bone transformation data and applies it to the local mesh, with optional linear interpolation (smoothing) to handle network jitter. Supports name plaques and speaking indicators.
+
+### Shared
+Core synchronization components for scene objects.
+- **SharedObjectBehaviour**: Provides continuous transform (position/rotation) synchronization for any GameObject. Uses ownership-based broadcasting where only the current "owner" sends updates.
+- **TriggerBehaviour**: Enables event-driven synchronization. Allows sending and receiving arbitrary JSON payloads (`JObject`) linked to a specific GameObject, useful for interactions like button presses or state changes.
+
+### Grab
+Helpers for managing ownership during user interactions.
+- **ClaimOnGrab**: A mouse/touch interaction helper that automatically calls `ClaimObject()` on a `SharedObjectBehaviour` when the object is clicked and dragged.
+- **XRClaimOnGrab**: An XR-specific helper that integrates with the *Unity XR Interaction Toolkit*. It automatically requests ownership when an interactable is selected (grabbed) and cancels the interaction if the claim fails.
+
+### Voice
+High-quality, low-latency audio communication utilizing the Opus codec.
+- **VoiceTransmitter**: Captures audio from the local microphone, encodes it using Concentus (Opus), and broadcasts it to the "voice" channel in the session. Supports push-to-talk and peak level monitoring.
+- **VoiceReceiver**: Listens for audio broadcasts from other participants. It dynamically creates 3D spatialized audio sources for each user and attaches them to their corresponding avatars.
+
+## Core Entry Points
+- `Orchestrator.App.Orchestrator`: The main class for handling login, sessions, and room management. Obtain an instance via `OrchestratorController.Instance.Orchestrator`.
+- `Orchestrator.Wrapping.OrchestratorController`: A MonoBehaviour singleton that manages the socket connection and dispatches events. Add the `OrchestratorController` prefab to your scene to get started.
+
+## Configuration & Automation
+- **Backend URL**: Typically configured via code when calling `SocketConnectAsync(url)`.
+- **Scripts**: No external build or deployment scripts are bundled directly within the package folder.
+
+## Package Structure
 
 ```text
 nl.cwi.dis.induxr/
@@ -153,10 +224,8 @@ nl.cwi.dis.induxr/
 │   └── Orchestrator/
 │       ├── App/        # High-level Application API
 │       ├── Behaviour/  # Unity MonoBehaviours (Shared Objects, Voice, Avatars)
-│       ├── Data/       # Data models and Interfaces
 │       ├── Prefabs/    # Ready-to-use Unity Prefabs
 │       ├── Util/       # Utilities (Versioning, ID generation)
-│       └── Wrapping/   # Low-level Socket.IO wrapper and Controller
 └── package.json        # Package manifest
 ```
 
