@@ -19,26 +19,20 @@ namespace Orchestrator.Behaviour
             _shared = GetComponent<SharedObjectBehaviour>();
             _interactable = GetComponent<XRBaseInteractable>();
 
-            if (_interactable == null)
-            {
+            if (!_interactable)
                 Debug.LogError($"XRClaimOnGrab on {name} requires an XRBaseInteractable component (e.g., XRGrabInteractable).", this);
-            }
         }
 
         private void OnEnable()
         {
-            if (_interactable != null)
-            {
+            if (_interactable)
                 _interactable.selectEntered.AddListener(OnSelectEntered);
-            }
         }
 
         private void OnDisable()
         {
-            if (_interactable != null)
-            {
+            if (_interactable)
                 _interactable.selectEntered.RemoveListener(OnSelectEntered);
-            }
         }
 
         private async void OnSelectEntered(SelectEnterEventArgs args)
@@ -46,15 +40,14 @@ namespace Orchestrator.Behaviour
             // Ask the server for ownership.
             // Note: We don't prevent the grab itself from starting locally, but SharedObjectBehaviour
             // will only start broadcasting updates once ownership is confirmed.
-            if (!await _shared.ClaimObject())
-            {
-                Debug.Log($"Could not claim ownership of {name} — another client got it first.", this);
+            if (await _shared.ClaimObject()) return;
 
-                // If claim fails, we force the interaction manager to cancel the selection.
-                if (args.manager != null)
-                {
-                    args.manager.CancelInteractableSelection(args.interactableObject);
-                }
+            Debug.Log($"Could not claim ownership of {name} — another client got it first.", this);
+
+            // If claim fails, we force the interaction manager to cancel the selection.
+            if (args.manager)
+            {
+                args.manager.CancelInteractableSelection(args.interactableObject);
             }
         }
     }
