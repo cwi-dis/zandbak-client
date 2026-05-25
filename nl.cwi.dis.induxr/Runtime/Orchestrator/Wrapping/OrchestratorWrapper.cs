@@ -755,6 +755,29 @@ namespace Orchestrator.Wrapping {
             }
         }
 
+        public void SpawnSharedObject(Transform initialTransform, GameObject prefab, Action<ResponseStatus, SharedObject> callback)
+        {
+            var id = Guid.NewGuid().ToString();
+            var position = new { initialTransform.position.x, initialTransform.position.y, initialTransform.position.z };
+            var rotation = new { initialTransform.rotation.x, initialTransform.rotation.y, initialTransform.rotation.z, initialTransform.rotation.w };
+
+            lock (this)
+            {
+                _socket.Emit("SpawnSharedObject", response =>
+                {
+                    var data = response.GetValue<OrchestratorResponse<SharedObject>>();
+                    UnityThread.executeInUpdate(() =>
+                    {
+                        callback(data.ResponseStatus, data.Body);
+                    });
+                }, new
+                {
+                    id, position, rotation,
+                    prefabName = prefab.name
+                });
+            }
+        }
+
         #endregion
 
         #region broadcasts
