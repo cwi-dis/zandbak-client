@@ -2,7 +2,8 @@
     "name": "Orchestrator",
     "rootNamespace": "",
     "references": [
-        "GUID:ac740251aebda49e8bf622aa1652e9e3"
+        "GUID:ac740251aebda49e8bf622aa1652e9e3",
+        "Unity.XR.Interaction.Toolkit"
     ],
     "includePlatforms": [],
     "excludePlatforms": [],
