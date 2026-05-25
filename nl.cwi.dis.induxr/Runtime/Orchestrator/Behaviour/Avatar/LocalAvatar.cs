@@ -3,7 +3,7 @@ using Orchestrator.Data;
 using UnityEngine;
 using SelfUser = Orchestrator.App.SelfUser;
 
-namespace Orchestrator.Behaviour
+namespace Orchestrator.Behaviour.Avatar
 {
     public class LocalAvatar : MonoBehaviour
     {

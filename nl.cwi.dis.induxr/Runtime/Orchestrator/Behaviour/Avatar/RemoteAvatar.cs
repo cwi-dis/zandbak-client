@@ -2,7 +2,7 @@ using Orchestrator.Data;
 using UnityEngine;
 using User = Orchestrator.App.User;
 
-namespace Orchestrator.Behaviour
+namespace Orchestrator.Behaviour.Avatar
 {
     public class RemoteAvatar : MonoBehaviour
     {
