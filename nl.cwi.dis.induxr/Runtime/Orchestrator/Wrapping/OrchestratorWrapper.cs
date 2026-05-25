@@ -927,6 +927,7 @@ namespace Orchestrator.Wrapping {
                         break;
                     case "OBJECT_REGISTERED":
                     case "OBJECT_OWNERSHIP_CHANGED":
+                    case "OBJECT_SPAWNED":
                         OnSessionUpdatedWithObjectUpdate(response);
                         break;
                     case "TRIGGER_REGISTERED":
@@ -957,6 +958,9 @@ namespace Orchestrator.Wrapping {
                         break;
                     case "OBJECT_OWNERSHIP_CHANGED":
                         _userSessionEventListener.OnObjectOwnershipChanged(data.EventData);
+                        break;
+                    case "OBJECT_SPAWNED":
+                        _userSessionEventListener.OnObjectSpawned(data.EventData);
                         break;
                 }
             });

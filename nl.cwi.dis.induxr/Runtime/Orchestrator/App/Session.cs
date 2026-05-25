@@ -213,6 +213,14 @@ namespace Orchestrator.App
         public event Action<SharedObject> OnObjectRegistered;
 
         /// <summary>
+        /// Occurs when a new shared object has been spawned in the session.
+        /// </summary>
+        /// <remarks>
+        /// This event is triggered after a shared object is successfully spawned and added to the session's list of shared objects.
+        /// </remarks>
+        public event Action<SharedObject> OnObjectSpawned;
+
+        /// <summary>
         /// Occurs when the ownership of a shared object within the session changes.
         /// </summary>
         /// <remarks>
@@ -253,6 +261,7 @@ namespace Orchestrator.App
 
             OrchestratorController.Instance.OnTriggerRegistered += TriggerRegistered;
             OrchestratorController.Instance.OnObjectRegistered += ObjectRegistered;
+            OrchestratorController.Instance.OnObjectSpawned += ObjectSpawned;
             OrchestratorController.Instance.OnObjectOwnershipChanged += ObjectOwnershipChanged;
 
             OrchestratorController.Instance.OnBroadcastReceivedEvent += BroadcastReceived;
@@ -970,6 +979,25 @@ namespace Orchestrator.App
             Debug.Log("Shared object registered: " + sharedObject.Id + " n=" + SharedObjects.Count);
 
             OnObjectRegistered?.Invoke(sharedObjectInstance);
+        }
+
+        private void ObjectSpawned(Data.SharedObject sharedObject)
+        {
+            var sharedObjectInstance = SharedObjects.Find(so => so.Id == sharedObject.Id);
+
+            if (sharedObjectInstance != null)
+            {
+                Debug.Log("Spawned shared object already registered: " + sharedObject.Id);
+                sharedObjectInstance.SharedObjectData = sharedObject;
+            }
+            else
+            {
+                sharedObjectInstance = new SharedObject(_orchestrator, sharedObject);
+                SharedObjects.Add(sharedObjectInstance);
+            }
+            Debug.Log("Shared object spawned: " + sharedObject.Id + " n=" + SharedObjects.Count);
+
+            OnObjectSpawned?.Invoke(sharedObjectInstance);
         }
 
         private void TriggerRegistered(Data.Trigger trigger)

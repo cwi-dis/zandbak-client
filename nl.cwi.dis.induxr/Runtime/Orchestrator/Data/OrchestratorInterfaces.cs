@@ -49,6 +49,7 @@ namespace Orchestrator.Data
         void OnBubbleInvited(string bubbleId);
         void OnTriggerRegistered(Trigger trigger);
         void OnObjectRegistered(SharedObject sharedObject);
+        void OnObjectSpawned(SharedObject sharedObject);
         void OnObjectOwnershipChanged(SharedObject sharedObject);
     }
 

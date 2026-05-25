@@ -159,6 +159,12 @@ namespace Orchestrator.Wrapping
         public event Action<SharedObject> OnObjectRegistered;
 
         /// <summary>
+        /// Invoked when a new shared object is spawned within the orchestrator,
+        /// providing the registered shared object as an argument.
+        /// </summary>
+        public event Action<SharedObject> OnObjectSpawned;
+
+        /// <summary>
         /// Invoked when a trigger object is registered within the orchestrator,
         /// providing the registered trigger object as an argument.
         /// </summary>
@@ -419,6 +425,11 @@ namespace Orchestrator.Wrapping
         void IUserSessionEventsListener.OnObjectRegistered(SharedObject sharedObject)
         {
             OnObjectRegistered?.Invoke(sharedObject);
+        }
+
+        void IUserSessionEventsListener.OnObjectSpawned(SharedObject sharedObject)
+        {
+            OnObjectSpawned?.Invoke(sharedObject);
         }
 
         void IUserSessionEventsListener.OnTriggerRegistered(Trigger trigger)
