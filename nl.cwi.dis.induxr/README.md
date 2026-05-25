@@ -94,6 +94,33 @@ triggerBehaviour.OnTriggerReceived += (data) => {
 };
 ```
 
+### 4. Local Avatar Setup
+To synchronize your movement with other participants, you need to set up a local avatar.
+
+#### Create an Avatar Prefab
+1. Create a 3D model with a `SkinnedMeshRenderer`.
+2. Attach the `LocalAvatar` component to the prefab.
+3. (Optional) Assign a `Notification` object to be shown when the user's hand is raised.
+
+#### Instantiate & Initialize
+After joining a session, instantiate your avatar and link it to the current user.
+
+```csharp
+using Orchestrator.Behaviour.Avatar;
+// ...
+
+var session = OrchestratorController.Instance.Orchestrator.CurrentSession;
+var user = session.Self;
+
+// Instantiate the prefab
+var localAvatar = Instantiate(localPlayerPrefab, spawnPos, Quaternion.identity).GetComponent<LocalAvatar>();
+
+// Initialize with the SelfUser object
+localAvatar.Initialize(user);
+```
+
+The `LocalAvatar` component will automatically start broadcasting bone transformations from the `SkinnedMeshRenderer` to other participants at the specified `updateRate`.
+
 ## Entry Points & Scripts
 
 ### Primary API
@@ -134,4 +161,7 @@ nl.cwi.dis.induxr/
 ```
 
 ## License
-- TODO: Identify and include the specific license for this library. (Check the root project or internal documentation).
+
+This project is licensed under the BSD 2-Clause License. See the [LICENSE](LICENSE) file for details.
+
+Copyright (c) 2026, Thomas Röggla, cwi-dis. All rights reserved.
