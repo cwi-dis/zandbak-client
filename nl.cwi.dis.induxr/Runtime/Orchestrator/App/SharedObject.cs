@@ -24,6 +24,8 @@ namespace Orchestrator.App
         public string Id => _sharedObjectData.Id;
         public User Owner => Session.Users.Find((u) => u.Id == _sharedObjectData.Owner.Id);
 
+        public string PrefabName => _sharedObjectData.PrefabName;
+
         public Action<ObjectData> OnObjectDataReceived;
 
         public Vector3 Position => new(

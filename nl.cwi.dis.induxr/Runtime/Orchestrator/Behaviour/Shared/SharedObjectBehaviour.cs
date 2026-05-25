@@ -32,7 +32,6 @@ namespace Orchestrator.Behaviour.Shared
         private Vector3 _interpStartPos;
         private Quaternion _interpStartRot;
 
-        // Start is called once before the first execution of Update after the MonoBehaviour is created
         private async void Awake()
         {
             _rb = GetComponent<Rigidbody>();
