@@ -1,6 +1,6 @@
 using UnityEngine;
 
-namespace Orchestrator.Behaviour
+namespace Orchestrator.Behaviour.Grab
 {
     [RequireComponent(typeof(Collider), typeof(SharedObjectBehaviour))]
     public class ClaimOnGrab : MonoBehaviour

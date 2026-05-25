@@ -2,7 +2,7 @@ using UnityEngine;
 using UnityEngine.XR.Interaction.Toolkit;
 using UnityEngine.XR.Interaction.Toolkit.Interactables;
 
-namespace Orchestrator.Behaviour
+namespace Orchestrator.Behaviour.Grab
 {
     /// <summary>
     /// Equivalent of ClaimOnGrab for XR interactions.
