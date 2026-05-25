@@ -5,7 +5,7 @@ using Orchestrator.Data;
 using UnityEngine;
 using UnityEngine.Networking;
 
-namespace Orchestrator.Behaviour
+namespace Orchestrator.Behaviour.Util
 {
     public class SlideLoader : MonoBehaviour
     {

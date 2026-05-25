@@ -1,6 +1,6 @@
 using UnityEngine;
 
-namespace Orchestrator.Behaviour
+namespace Orchestrator.Behaviour.Util
 {
     public class CameraFollow : MonoBehaviour
     {

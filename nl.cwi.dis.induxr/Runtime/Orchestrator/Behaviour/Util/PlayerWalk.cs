@@ -1,6 +1,6 @@
 ﻿using UnityEngine;
 
-namespace Orchestrator.Behaviour
+namespace Orchestrator.Behaviour.Util
 {
 	public class PlayerWalk : MonoBehaviour {
 		private static readonly int Jump = Animator.StringToHash("Jump");
