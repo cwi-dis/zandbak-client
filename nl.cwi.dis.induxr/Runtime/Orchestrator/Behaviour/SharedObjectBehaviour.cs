@@ -6,6 +6,13 @@ using UnityEngine;
 
 namespace Orchestrator.Behaviour
 {
+    /// <summary>
+    /// Represents a behaviour associated with a shared object in a collaborative environment.
+    /// </summary>
+    /// <remarks>
+    /// This class is designed to manage ownership and updates for a shared object in a multi-user system.
+    /// It facilitates the broadcasting and interpolation of pose data based on defined update rates.
+    /// </remarks>
     public class SharedObjectBehaviour : MonoBehaviour
     {
         [Tooltip("How many times a second the pose data should be broadcast to the server.")]
@@ -14,7 +21,7 @@ namespace Orchestrator.Behaviour
         public int linearInterpolationRate = 5;
 
         private string _id;
-        private App.Orchestrator _orchestrator = OrchestratorController.Instance.Orchestrator;
+        private readonly App.Orchestrator _orchestrator = OrchestratorController.Instance.Orchestrator;
         private App.SharedObject _sharedObject;
 
         private Rigidbody _rb;
@@ -40,6 +47,7 @@ namespace Orchestrator.Behaviour
             }
             else
             {
+                // If the object has a Rigidbody component, disable it so it isn't affected by physics
                 if (_rb) _rb.isKinematic = true;
                 _sharedObject = _orchestrator.CurrentSession.FindSharedObjectById(_id);
             }
@@ -63,6 +71,8 @@ namespace Orchestrator.Behaviour
             }
             else
             {
+                // If the object has a Rigidbody component, disable it so it isn't affected by physics while it's not owned
+                if (_rb) _rb.isKinematic = true;
                 if (_lastReceivedData == null) return;
 
                 // t advances from 0 to 1 over the expected interval between updates
@@ -103,6 +113,7 @@ namespace Orchestrator.Behaviour
             if (!(_timer >= 1f / updateRate)) return;
             _timer -= 1f / updateRate;
 
+            // Get position and rotation
             var position = gameObject.transform.position;
             var rotation = gameObject.transform.rotation;
 
