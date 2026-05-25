@@ -48,7 +48,7 @@ namespace Orchestrator.App
 
         /// <summary>
         /// The GameObject representing this user's avatar in the scene. Assigned by LocalAvatar /
-        /// RemoteAvatar during Initialize.
+        /// RemoteAvatar during initialisation.
         /// </summary>
         public GameObject Avatar;
 

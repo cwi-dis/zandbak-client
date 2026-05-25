@@ -93,7 +93,7 @@ namespace Orchestrator.Behaviour.Voice
             var anchor = ResolveAnchor(user?.Avatar);
             if (anchor != null)
             {
-                Debug.Log($"Attaching voice playback for {user.Name} to {anchor.name}");
+                Debug.Log($"Attaching voice playback for {user?.Name} to {anchor.name}");
                 _go.transform.SetParent(anchor, worldPositionStays: false);
             }
             else

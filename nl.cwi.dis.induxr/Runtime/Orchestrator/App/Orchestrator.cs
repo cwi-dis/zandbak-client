@@ -55,7 +55,7 @@ namespace Orchestrator.App
         /// </summary>
         /// <remarks>
         /// - This property provides information about the user that is currently authenticated in the application.
-        /// - The <c>Self</c> object is initialized during a successful login and may include the user's session information.
+        /// - The <c>Self</c> object is initialised during a successful login and may include the user's session information.
         /// - It is essential for performing user-related operations within the Orchestrator, such as tracking the active session or user identity.
         /// - If no user is authenticated, <c>Self</c> will be null.
         /// </remarks>
@@ -115,8 +115,7 @@ namespace Orchestrator.App
         {
             var tcs = new TaskCompletionSource<User>();
 
-            Action<ResponseStatus, Data.User> fn = null;
-            fn = (response, userData) =>
+            Action<ResponseStatus, Data.User> fn = (response, userData) =>
             {
                 if (response.Error == 0)
                 {
@@ -137,7 +136,6 @@ namespace Orchestrator.App
             {
                 OrchestratorController.Instance.Wrapper.Login(username, password, OrchestratorController.DeviceTypeToString(deviceType), fn);
             }
-
 
             return tcs.Task;
         }

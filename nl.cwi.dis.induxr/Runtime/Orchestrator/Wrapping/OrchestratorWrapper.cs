@@ -11,7 +11,7 @@ using UnityEngine;
 namespace Orchestrator.Wrapping {
     public class OrchestratorWrapper : IOrchestratorConnectionListener
     {
-        private SocketIOUnity _socket;
+        private readonly SocketIOUnity _socket;
         private readonly object _sendLock = new();
 
         private static OrchestratorWrapper _instance;

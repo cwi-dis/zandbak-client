@@ -53,7 +53,7 @@ namespace Orchestrator.Wrapping
         // orchestrator connection state
         private bool _connectedToOrchestrator;
 
-        private TaskCompletionSource<App.Orchestrator> _connectionTaskCompletionSource = new();
+        private readonly TaskCompletionSource<App.Orchestrator> _connectionTaskCompletionSource = new();
 
         //Orchestrator Controller Singleton
         public static OrchestratorController Instance {

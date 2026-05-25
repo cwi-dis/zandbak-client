@@ -6,7 +6,7 @@ namespace Orchestrator.Data {
     // class that describes the status for the response from the orchestrator
     public class ResponseStatus
     {
-        public static int Ok = 0;
+        public const int Ok = 0;
 
         public readonly int Error;
         public readonly string Message;
@@ -156,7 +156,7 @@ namespace Orchestrator.Data {
         [JsonProperty("data")] public string Data;
 
         // Raw byte payload
-        public byte[] Bytes;
+        public readonly byte[] Bytes;
 
         public BroadcastData() { }
 

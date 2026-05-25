@@ -12,7 +12,7 @@ namespace Orchestrator.Util
         /// <returns>A string representing the stable and unique identifier of the GameObject based on its hierarchy and scene context.</returns>
         public static string GetSceneObjectId(GameObject obj)
         {
-            // Build the hierarchy path (e.g., "Environment/Rooms/Table_3")
+            // Build the hierarchy path (e.g. "Environment/Rooms/Table_3")
             string path = obj.name;
             Transform parent = obj.transform.parent;
 

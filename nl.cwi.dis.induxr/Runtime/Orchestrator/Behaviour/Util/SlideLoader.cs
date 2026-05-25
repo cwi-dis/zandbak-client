@@ -18,7 +18,7 @@ namespace Orchestrator.Behaviour.Util
         // Start is called once before the first execution of Update after the MonoBehaviour is created
         private void Start()
         {
-            // Get the renderer for the object this behavior is attached to
+            // Get the renderer for the object this behaviour is attached to
             _targetRenderer = GetComponent<MeshRenderer>();
 
             _orchestrator = OrchestratorController.Instance.Orchestrator;
@@ -56,7 +56,7 @@ namespace Orchestrator.Behaviour.Util
         {
             _currentPresentation = presentation;
 
-            // Return if there is no presentation, or we're not sharing anymore
+            // Return if there is no presentation, or we're not sharing any more
             if (presentation == null || presentation.IsSharing == false)
             {
                 return;
@@ -127,7 +127,7 @@ namespace Orchestrator.Behaviour.Util
                 Destroy(_slideMaterial);
             }
 
-            // Initialize a new material with the downloaded texture
+            // Initialise a new material with the downloaded texture
             _slideMaterial = new Material(Shader.Find("Unlit/Texture"))
             {
                 mainTexture = texture

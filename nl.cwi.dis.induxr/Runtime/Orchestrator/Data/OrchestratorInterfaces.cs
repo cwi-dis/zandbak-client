@@ -1,6 +1,4 @@
-﻿using System.Collections.Generic;
-
-//Interfaces to be implemented to supervise the orchestrator
+﻿//Interfaces to be implemented to supervise the orchestrator
 namespace Orchestrator.Data
 {
     public interface IOrchestratorConnectionListener
