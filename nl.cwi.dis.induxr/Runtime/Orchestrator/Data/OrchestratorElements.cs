@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using JetBrains.Annotations;
 using UnityEngine;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
@@ -105,6 +106,7 @@ namespace Orchestrator.Data
         [JsonProperty("id")] public string Id;
         [JsonProperty("owner")] public User Owner;
         [JsonProperty("transform")] public ObjectTransform Transform;
+        [JsonProperty("prefabName")] [CanBeNull] public string PrefabName;
     }
 
     public class Trigger : OrchestratorElement
