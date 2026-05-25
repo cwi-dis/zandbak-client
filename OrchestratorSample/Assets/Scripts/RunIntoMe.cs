@@ -1,6 +1,6 @@
 using System;
 using Newtonsoft.Json.Linq;
-using Orchestrator.Behaviour;
+using Orchestrator.Behaviour.Shared;
 using Orchestrator.Data;
 using UnityEngine;
 
@@ -14,12 +14,6 @@ public class RunIntoMe : MonoBehaviour
     {
         _triggerBehaviour = GetComponent<TriggerBehaviour>();
         _triggerBehaviour.OnTriggerReceived += TriggerReceived;
-    }
-
-    // Update is called once per frame
-    void Update()
-    {
-
     }
 
     private void TriggerReceived(TriggerData data)

@@ -5,7 +5,7 @@ using Orchestrator.Util;
 using Orchestrator.Wrapping;
 using UnityEngine;
 
-namespace Orchestrator.Behaviour
+namespace Orchestrator.Behaviour.Shared
 {
     public class TriggerBehaviour : MonoBehaviour
     {

@@ -4,7 +4,7 @@ using Orchestrator.Util;
 using Orchestrator.Wrapping;
 using UnityEngine;
 
-namespace Orchestrator.Behaviour
+namespace Orchestrator.Behaviour.Shared
 {
     /// <summary>
     /// Represents a behaviour associated with a shared object in a collaborative environment.
