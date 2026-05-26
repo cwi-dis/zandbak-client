@@ -221,6 +221,14 @@ namespace Orchestrator.App
         public event Action<SharedObject> OnObjectSpawned;
 
         /// <summary>
+        /// Occurs when a new shared object has been destroyed in the session.
+        /// </summary>
+        /// <remarks>
+        /// This event is triggered after a shared object is destroyed and removed from the session's list of shared objects.
+        /// </remarks>
+        public event Action<SharedObject> OnObjectDestroyed;
+
+        /// <summary>
         /// Occurs when the ownership of a shared object within the session changes.
         /// </summary>
         /// <remarks>
@@ -262,6 +270,7 @@ namespace Orchestrator.App
             OrchestratorController.Instance.OnTriggerRegistered += TriggerRegistered;
             OrchestratorController.Instance.OnObjectRegistered += ObjectRegistered;
             OrchestratorController.Instance.OnObjectSpawned += ObjectSpawned;
+            OrchestratorController.Instance.OnObjectDestroyed += ObjectDestroyed;
             OrchestratorController.Instance.OnObjectOwnershipChanged += ObjectOwnershipChanged;
 
             OrchestratorController.Instance.OnBroadcastReceivedEvent += BroadcastReceived;
@@ -1018,6 +1027,18 @@ namespace Orchestrator.App
             Debug.Log("Shared object spawned: " + sharedObject.Id + " n=" + SharedObjects.Count);
 
             OnObjectSpawned?.Invoke(sharedObjectInstance);
+        }
+
+        private void ObjectDestroyed(Data.SharedObject sharedObject)
+        {
+            var sharedObjectInstance = SharedObjects.Find(so => so.Id == sharedObject.Id);
+
+            if (sharedObjectInstance != null)
+            {
+                SharedObjects.Remove(sharedObjectInstance);
+                Debug.Log("Shared object destroyed: " + sharedObject.Id + " n=" + SharedObjects.Count);
+                OnObjectDestroyed?.Invoke(sharedObjectInstance);
+            }
         }
 
         private void TriggerRegistered(Data.Trigger trigger)
