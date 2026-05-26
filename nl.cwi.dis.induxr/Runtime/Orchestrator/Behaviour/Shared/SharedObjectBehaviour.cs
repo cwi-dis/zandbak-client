@@ -60,6 +60,7 @@ namespace Orchestrator.Behaviour.Shared
 
         private void OnDestroy()
         {
+            _sharedObject.OnObjectDataReceived -= ProcessObjectUpdate;
             _sharedObject.DisableBroadcasts();
         }
 
