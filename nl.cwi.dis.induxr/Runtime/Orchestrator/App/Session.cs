@@ -802,6 +802,16 @@ namespace Orchestrator.App
         }
 
         /// <summary>
+        /// Determines whether a shared object with the specified identifier exists within the session.
+        /// </summary>
+        /// <param name="id">The unique identifier of the shared object to locate.</param>
+        /// <returns>True if a shared object with the given identifier exists; otherwise, false.</returns>
+        public bool HasSharedObject(string id)
+        {
+            return FindSharedObjectById(id) != null;
+        }
+
+        /// <summary>
         /// Retrieves a trigger object from the current session's list of triggers using the specified identifier.
         /// </summary>
         /// <param name="id">The unique identifier of the trigger object to retrieve.</param>
