@@ -755,7 +755,7 @@ namespace Orchestrator.Wrapping {
             }
         }
 
-        public void SpawnSharedObject(GameObject prefab, Vector3 initialPosition, Quaternion initialRotation, Action<ResponseStatus, SharedObject> callback)
+        public void SpawnSharedObject(string prefabPath, Vector3 initialPosition, Quaternion initialRotation, Action<ResponseStatus, SharedObject> callback)
         {
             var id = Guid.NewGuid().ToString();
             var position = new { initialPosition.x, initialPosition.y, initialPosition.z };
@@ -773,7 +773,7 @@ namespace Orchestrator.Wrapping {
                 }, new
                 {
                     id, position, rotation,
-                    prefabName = prefab.name
+                    prefabName = prefabPath
                 });
             }
         }

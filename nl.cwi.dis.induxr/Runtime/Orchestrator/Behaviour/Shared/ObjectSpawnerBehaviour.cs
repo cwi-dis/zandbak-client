@@ -24,15 +24,17 @@ namespace Orchestrator.Behaviour.Shared
 
         private void ObjectSpawned(SharedObject spawnedObject)
         {
-            var prefab = Resources.Load<GameObject>($"Prefabs/{spawnedObject.PrefabName}");
+            Debug.Log("Trying to spawn new object with path " + spawnedObject.PrefabName);
+            var prefab = Resources.Load<GameObject>(spawnedObject.PrefabName);
 
             if (prefab)
             {
+                Debug.Log("Spawning object...");
                 Instantiate(prefab, spawnedObject.Position, spawnedObject.Rotation);
             }
             else
             {
-                Debug.LogError($"Could not find prefab {spawnedObject.PrefabName} in Resources/Prefabs");
+                Debug.LogError($"Could not find prefab {spawnedObject.PrefabName} in Resources/ folder");
             }
         }
     }

@@ -755,15 +755,15 @@ namespace Orchestrator.App
         /// <summary>
         /// Spawns a new shared object in the orchestrator.
         /// </summary>
-        /// <param name="prefab">The prefab to be spawned a shared object.</param>
+        /// <param name="prefabPath">The path to the prefab to be spawned in the Resources/ folder.</param>
         /// <param name="position">The initial position the object should be spawned at.</param>
         /// <param name="rotation">The initial rotation with which to spawn the object.</param>
         /// <returns>A task that represents the asynchronous operation. The task result contains the spawned shared object instance.</returns>
-        public Task<SharedObject> SpawnSharedObject(GameObject prefab, Vector3 position, Quaternion rotation)
+        public Task<SharedObject> SpawnSharedObject(string prefabPath, Vector3 position, Quaternion rotation)
         {
             var tcs = new TaskCompletionSource<SharedObject>();
 
-            OrchestratorController.Instance.Wrapper.SpawnSharedObject(prefab, position, rotation, (status, sharedObjectData) =>
+            OrchestratorController.Instance.Wrapper.SpawnSharedObject(prefabPath, position, rotation, (status, sharedObjectData) =>
             {
                 if (status.Error == 0)
                 {
