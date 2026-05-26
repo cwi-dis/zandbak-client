@@ -812,6 +812,16 @@ namespace Orchestrator.App
         }
 
         /// <summary>
+        /// Determines whether a trigger object with the specified identifier exists within the session.
+        /// </summary>
+        /// <param name="id">The unique identifier of the trigger object to locate.</param>
+        /// <returns>True if a trigger object with the given identifier exists; otherwise, false.</returns>
+        public bool HasTrigger(string id)
+        {
+            return FindTriggerById(id) != null;
+        }
+
+        /// <summary>
         /// Retrieves a trigger object from the current session's list of triggers using the specified identifier.
         /// </summary>
         /// <param name="id">The unique identifier of the trigger object to retrieve.</param>
