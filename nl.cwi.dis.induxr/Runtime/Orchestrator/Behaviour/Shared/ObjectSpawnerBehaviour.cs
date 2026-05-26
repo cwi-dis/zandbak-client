@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using Orchestrator.App;
 using Orchestrator.Wrapping;
 using UnityEngine;
@@ -8,6 +9,8 @@ namespace Orchestrator.Behaviour.Shared
     {
         private App.Orchestrator _orchestrator;
         private Session _session;
+
+        private Dictionary<string, GameObject> _spawnedObjects = new();
 
         private void Awake()
         {
@@ -30,7 +33,8 @@ namespace Orchestrator.Behaviour.Shared
             if (prefab)
             {
                 Debug.Log("Spawning object...");
-                Instantiate(prefab, spawnedObject.Position, spawnedObject.Rotation);
+                var obj = Instantiate(prefab, spawnedObject.Position, spawnedObject.Rotation);
+                _spawnedObjects.Add(spawnedObject.Id, obj);
             }
             else
             {
