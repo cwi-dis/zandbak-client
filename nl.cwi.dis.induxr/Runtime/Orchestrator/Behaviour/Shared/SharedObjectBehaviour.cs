@@ -37,10 +37,12 @@ namespace Orchestrator.Behaviour.Shared
             _rb = GetComponent<Rigidbody>();
 
             _orchestrator = OrchestratorController.Instance.Orchestrator;
+            var session = _orchestrator.CurrentSession;
+
             _id = StableObjectId.GetSceneObjectId(gameObject);
             Debug.Log($"Generated object id: {_id} for gameObject {gameObject.name}");
 
-            if (_orchestrator.CurrentSession.IsAdministrator(_orchestrator.Self))
+            if (!session.HasSharedObject(_id) && session.IsAdministrator(_orchestrator.Self))
             {
                 _sharedObject = await _orchestrator.CurrentSession.RegisterSharedObject(gameObject);
                 Debug.Log($"Registered shared object ${_sharedObject.Id} for owner {_sharedObject.Owner.Name} at position {_sharedObject.Position}");
