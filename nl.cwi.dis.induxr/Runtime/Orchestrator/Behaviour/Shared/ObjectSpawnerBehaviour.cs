@@ -18,6 +18,7 @@ namespace Orchestrator.Behaviour.Shared
             _session = _orchestrator.CurrentSession;
 
             _session.OnObjectSpawned += ObjectSpawned;
+            _session.OnObjectDestroyed += ObjectDestroyed;
         }
 
         private void OnDestroy()
@@ -39,6 +40,23 @@ namespace Orchestrator.Behaviour.Shared
             else
             {
                 Debug.LogError($"Could not find prefab {spawnedObject.PrefabName} in Resources/ folder");
+            }
+        }
+
+        private void ObjectDestroyed(SharedObject sharedObject)
+        {
+            Debug.Log("Destroying object with id: " + sharedObject.Id);
+
+            if (_spawnedObjects.TryGetValue(sharedObject.Id, out var obj))
+            {
+                Destroy(obj);
+                _spawnedObjects.Remove(sharedObject.Id);
+
+                Debug.Log($"Object with ID {sharedObject.Id} destroyed");
+            }
+            else
+            {
+                Debug.LogWarning($"Object with id {sharedObject.Id} not found in spawned objects dictionary");
             }
         }
     }
