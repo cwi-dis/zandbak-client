@@ -117,7 +117,7 @@ namespace Orchestrator.App
 
             Action<ResponseStatus, Data.User> fn = (response, userData) =>
             {
-                if (response.Error == 0)
+                if (response.IsOk)
                 {
                     Self = new SelfUser(this, userData);
                     tcs.SetResult(Self);

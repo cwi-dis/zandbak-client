@@ -618,7 +618,7 @@ namespace Orchestrator.App
 
             OrchestratorController.Instance.Wrapper.RequestBubbleJoin(bubble.Id, (status) =>
             {
-                if (status.Error == 0)
+                if (status.IsOk)
                 {
                     tcs.SetResult(true);
                 }
@@ -643,7 +643,7 @@ namespace Orchestrator.App
 
             OrchestratorController.Instance.Wrapper.GetBubble(bubbleId, (status, body) =>
             {
-                if (status.Error == 0)
+                if (status.IsOk)
                 {
                     Bubbles = Bubbles.Select(b => b.Id == bubbleId ? new Bubble(_orchestrator, body) : b).ToList();
                     tcs.SetResult(Bubbles.Find(b => b.Id == bubbleId));
@@ -669,7 +669,7 @@ namespace Orchestrator.App
 
             OrchestratorController.Instance.Wrapper.JoinBubble(bubble.Id, async (status) =>
             {
-                if (status.Error == 0)
+                if (status.IsOk)
                 {
                     var refreshedBubble = await GetBubble(bubble.Id);
                     CurrentBubble = refreshedBubble;
@@ -697,7 +697,7 @@ namespace Orchestrator.App
 
             OrchestratorController.Instance.Wrapper.RegisterSharedObject(objectId, gameObject.transform, (status, sharedObjectData) =>
             {
-                if (status.Error == 0)
+                if (status.IsOk)
                 {
                     var foundSharedObject = FindSharedObjectById(sharedObjectData.Id);
 
@@ -736,7 +736,7 @@ namespace Orchestrator.App
 
             OrchestratorController.Instance.Wrapper.RegisterTrigger(objectId, initialValue, (status, triggerData) =>
             {
-                if (status.Error == 0)
+                if (status.IsOk)
                 {
                     var foundTrigger = FindTriggerById(triggerData.Id);
 
@@ -774,7 +774,7 @@ namespace Orchestrator.App
 
             OrchestratorController.Instance.Wrapper.SpawnSharedObject(prefabPath, position, rotation, (status, sharedObjectData) =>
             {
-                if (status.Error == 0)
+                if (status.IsOk)
                 {
                     var foundSharedObject = FindSharedObjectById(sharedObjectData.Id);
 

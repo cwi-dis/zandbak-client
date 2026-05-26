@@ -194,7 +194,7 @@ namespace Orchestrator.Wrapping {
                     var data = response.GetValue<OrchestratorResponse<EmptyResponse>>();
 
                     UnityThread.executeInUpdate(() => {
-                        callback(data.ResponseStatus.Error == 0);
+                        callback(data.ResponseStatus.IsOk);
                     });
                 }, new { });
             }
@@ -338,7 +338,7 @@ namespace Orchestrator.Wrapping {
                     var data = response.GetValue<OrchestratorResponse<EmptyResponse>>();
 
                     UnityThread.executeInUpdate(() => {
-                        callback(data.ResponseStatus.Error == 0);
+                        callback(data.ResponseStatus.IsOk);
                     });
                 }, new {
                     isSpeaking

@@ -103,7 +103,7 @@ namespace Orchestrator.App
 
             OrchestratorController.Instance.Wrapper.ClaimObjectOwnership(Id, (response, result) =>
             {
-                if (response.Error == 0)
+                if (response.IsOk)
                 {
                     _sharedObjectData = result;
                     tcs.SetResult(true);
