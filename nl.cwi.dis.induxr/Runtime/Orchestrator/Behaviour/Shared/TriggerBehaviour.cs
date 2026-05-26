@@ -26,11 +26,12 @@ namespace Orchestrator.Behaviour.Shared
         private async void Start()
         {
             _orchestrator = OrchestratorController.Instance.Orchestrator;
+            var session = _orchestrator.CurrentSession;
 
             _id = StableObjectId.GetSceneObjectId(gameObject);
             Debug.Log($"Generated object id: {_id} for gameObject {gameObject.name}");
 
-            if (_orchestrator.CurrentSession.IsAdministrator(_orchestrator.Self))
+            if (!session.HasTrigger(_id) && session.IsAdministrator(_orchestrator.Self))
             {
                 _triggerObject = await _orchestrator.CurrentSession.RegisterTrigger(gameObject, new JObject());
                 Debug.Log($"Registered trigger object ${_triggerObject.Id} for owner {_triggerObject.Owner.Name} with initial value {_triggerObject.Value}");
