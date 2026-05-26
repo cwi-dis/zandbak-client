@@ -3,6 +3,7 @@ using System.Threading.Tasks;
 using Newtonsoft.Json;
 using Orchestrator.Data;
 using Orchestrator.Wrapping;
+using UnityEditor;
 using UnityEngine;
 
 namespace Orchestrator.App
@@ -70,6 +71,26 @@ namespace Orchestrator.App
         {
             _broadcastsEnabled = false;
             _orchestrator.CurrentSession.OnBroadcastDataReceived -= BroadcastReceived;
+        }
+
+        public Task<bool> Destroy()
+        {
+            var tcs = new TaskCompletionSource<bool>();
+
+            OrchestratorController.Instance.Wrapper.DestroySharedObject(_sharedObjectData, (status, sharedObjectData) =>
+            {
+                if (status.IsOk)
+                {
+                    Session.SharedObjects.Remove(this);
+                    tcs.SetResult(true);
+                }
+                else
+                {
+                    tcs.SetResult(false);
+                }
+            });
+
+            return tcs.Task;
         }
 
         /// <summary>

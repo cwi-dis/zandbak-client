@@ -778,6 +778,24 @@ namespace Orchestrator.Wrapping {
             }
         }
 
+        public void DestroySharedObject(SharedObject sharedObject, Action<ResponseStatus, SharedObject> callback)
+        {
+            lock (this)
+            {
+                _socket.Emit("DestroySharedObject", response =>
+                {
+                    var data = response.GetValue<OrchestratorResponse<SharedObject>>();
+                    UnityThread.executeInUpdate(() =>
+                    {
+                        callback(data.ResponseStatus, data.Body);
+                    });
+                }, new
+                {
+                    id = sharedObject.Id
+                });
+            }
+        }
+
         #endregion
 
         #region broadcasts
