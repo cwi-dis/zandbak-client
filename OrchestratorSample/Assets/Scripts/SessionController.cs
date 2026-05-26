@@ -158,6 +158,9 @@ public class SessionController : MonoBehaviour
 
         // Printing a welcome message
         notificationField.text += $"Welcome to <i>{_session.Name}</i>\nThis room uses room model {_session.Room.Name}\n\n";
+
+        Debug.Log("Spawning shared object at (2, 1, 2) with rotation (0, 0, 0, 1)");
+        _session.SpawnSharedObject("Prefabs/TiltedCubePrefab", new Vector3(2, 1, 2), Quaternion.identity);
     }
 
     private async void NextPresentation()
