@@ -11,6 +11,8 @@ namespace Orchestrator.Data {
         public readonly int Error;
         public readonly string Message;
 
+        public bool IsOk => Error == Ok;
+
         public ResponseStatus(int error, string message)
         {
             Error = error;
