@@ -50,6 +50,7 @@ namespace Orchestrator.Data
         void OnTriggerRegistered(Trigger trigger);
         void OnObjectRegistered(SharedObject sharedObject);
         void OnObjectSpawned(SharedObject sharedObject);
+        void OnObjectDestroyed(SharedObject sharedObject);
         void OnObjectOwnershipChanged(SharedObject sharedObject);
     }
 

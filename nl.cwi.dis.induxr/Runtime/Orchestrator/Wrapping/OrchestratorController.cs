@@ -165,6 +165,12 @@ namespace Orchestrator.Wrapping
         public event Action<SharedObject> OnObjectSpawned;
 
         /// <summary>
+        /// Invoked when a shared object is destroyed within the orchestrator,
+        /// providing the destroyed shared object as an argument.
+        /// </summary>
+        public event Action<SharedObject> OnObjectDestroyed;
+
+        /// <summary>
         /// Invoked when a trigger object is registered within the orchestrator,
         /// providing the registered trigger object as an argument.
         /// </summary>
@@ -430,6 +436,11 @@ namespace Orchestrator.Wrapping
         void IUserSessionEventsListener.OnObjectSpawned(SharedObject sharedObject)
         {
             OnObjectSpawned?.Invoke(sharedObject);
+        }
+
+        void IUserSessionEventsListener.OnObjectDestroyed(SharedObject sharedObject)
+        {
+            OnObjectDestroyed?.Invoke(sharedObject);
         }
 
         void IUserSessionEventsListener.OnTriggerRegistered(Trigger trigger)
