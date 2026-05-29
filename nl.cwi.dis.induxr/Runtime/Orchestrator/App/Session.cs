@@ -31,6 +31,7 @@ namespace Orchestrator.App
         public bool IsJoined => _orchestrator.CurrentSession?.Id == Id;
 
         public List<SharedObject> SharedObjects { get; private set; }
+        public List<SharedObject> DynamicSharedObjects => SharedObjects.Where(so => so.Dynamic).ToList();
         public List<Trigger> Triggers { get; private set; }
 
         public List<Presentation> Presentations => _sessionData.Presentations.ToList();
