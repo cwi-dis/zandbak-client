@@ -106,6 +106,7 @@ namespace Orchestrator.Data
         [JsonProperty("id")] public string Id;
         [JsonProperty("owner")] public User Owner;
         [JsonProperty("transform")] public ObjectTransform Transform;
+        [JsonProperty("dynamic")] public bool Dynamic;
         [JsonProperty("prefabName")] [CanBeNull] public string PrefabName;
     }
 

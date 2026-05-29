@@ -12,10 +12,9 @@ namespace Orchestrator.App
     {
         private readonly Orchestrator _orchestrator;
         private Data.SharedObject _sharedObjectData;
+        private bool _broadcastsEnabled = false;
 
         public Session Session => _orchestrator.CurrentSession;
-
-        private bool _broadcastsEnabled = false;
 
         public Data.SharedObject SharedObjectData
         {
@@ -24,8 +23,8 @@ namespace Orchestrator.App
 
         public string Id => _sharedObjectData.Id;
         public User Owner => Session.Users.Find((u) => u.Id == _sharedObjectData.Owner.Id);
-
         public string PrefabName => _sharedObjectData.PrefabName;
+        public bool Dynamic => _sharedObjectData.Dynamic;
 
         public Action<ObjectData> OnObjectDataReceived;
 
