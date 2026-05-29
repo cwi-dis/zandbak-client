@@ -17,6 +17,8 @@ namespace Orchestrator.Behaviour.Shared
             _orchestrator = OrchestratorController.Instance.Orchestrator;
             _session = _orchestrator.CurrentSession;
 
+            _session.DynamicSharedObjects.ForEach(ObjectSpawned);
+
             _session.OnObjectSpawned += ObjectSpawned;
             _session.OnObjectDestroyed += ObjectDestroyed;
         }
