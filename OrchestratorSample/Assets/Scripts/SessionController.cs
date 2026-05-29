@@ -4,6 +4,7 @@ using Orchestrator.Behaviour.Voice;
 using Orchestrator.Data;
 using Orchestrator.Wrapping;
 using TMPro;
+using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 using UnityEngine.UI;
@@ -154,13 +155,11 @@ public class SessionController : MonoBehaviour
         Debug.Log($"Spawning local player at {spawnPosition}");
         // Spawning local avatar prefab and injecting current user dependency
         var localAvatar = Instantiate(localPlayerPrefab, spawnPosition, Quaternion.identity).GetComponent<LocalAvatar>();
+        localAvatar.AddComponent<SpawnOnButtonPress>();
         localAvatar.Initialize(user);
 
         // Printing a welcome message
         notificationField.text += $"Welcome to <i>{_session.Name}</i>\nThis room uses room model {_session.Room.Name}\n\n";
-
-        Debug.Log("Spawning shared object at (2, 1, 2) with rotation (0, 0, 0, 1)");
-        _session.SpawnSharedObject("Prefabs/TiltedCubePrefab", new Vector3(2, 1, 2), Quaternion.identity);
     }
 
     private async void NextPresentation()
