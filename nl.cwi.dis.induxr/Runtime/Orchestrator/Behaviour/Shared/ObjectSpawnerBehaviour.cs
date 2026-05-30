@@ -9,7 +9,7 @@ namespace Orchestrator.Behaviour.Shared
     public class ObjectSpawnerBehaviour : MonoBehaviour
     {
         [SerializeField]
-        private SharedPrefabRegistry prefabRegistry;
+        private SharedObjectPrefabRegistry prefabRegistry;
 
         [SerializeField]
         private GameObject remotePlayerPrefab;

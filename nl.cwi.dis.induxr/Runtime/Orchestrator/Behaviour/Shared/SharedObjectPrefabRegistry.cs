@@ -3,8 +3,8 @@ using UnityEngine;
 
 namespace Orchestrator.Behaviour.Shared
 {
-    [CreateAssetMenu(fileName = "NetworkPrefabRegistry", menuName = "Networking/Shared Prefab Registry")]
-    public class SharedPrefabRegistry : ScriptableObject
+    [CreateAssetMenu(fileName = "SharedObjectPrefabRegistry", menuName = "Networking/Shared Object Prefab Registry")]
+    public class SharedObjectPrefabRegistry : ScriptableObject
     {
         [System.Serializable]
         public struct PrefabRegistryEntry
