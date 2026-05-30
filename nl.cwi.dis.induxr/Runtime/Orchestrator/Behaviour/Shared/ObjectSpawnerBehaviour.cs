@@ -7,6 +7,9 @@ namespace Orchestrator.Behaviour.Shared
 {
     public class ObjectSpawnerBehaviour : MonoBehaviour
     {
+        [SerializeField]
+        private SharedPrefabRegistry prefabRegistry;
+
         private App.Orchestrator _orchestrator;
         private Session _session;
 
@@ -30,8 +33,8 @@ namespace Orchestrator.Behaviour.Shared
 
         private void ObjectSpawned(SharedObject spawnedObject)
         {
-            Debug.Log("Trying to spawn new object with path " + spawnedObject.PrefabName);
-            var prefab = Resources.Load<GameObject>(spawnedObject.PrefabName);
+            Debug.Log("Trying to spawn new object with name " + spawnedObject.PrefabName);
+            var prefab = prefabRegistry.GetPrefab(spawnedObject.PrefabName);
 
             if (prefab)
             {
@@ -41,7 +44,7 @@ namespace Orchestrator.Behaviour.Shared
             }
             else
             {
-                Debug.LogError($"Could not find prefab {spawnedObject.PrefabName} in Resources/ folder");
+                Debug.LogError($"Could not find prefab {spawnedObject.PrefabName} in prefab registry");
             }
         }
 
