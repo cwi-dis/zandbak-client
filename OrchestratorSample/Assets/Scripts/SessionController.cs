@@ -57,6 +57,7 @@ public class SessionController : MonoBehaviour
     public VoiceReceiver voiceReceiver;
 
     private readonly Dictionary<string, GameObject> _activeUsers = new();
+    private NotificationBuffer _notificationBuffer;
     private Session _session;
     private bool _isHandRaised = false;
     private bool _isSharingPresentation = false;
@@ -158,8 +159,9 @@ public class SessionController : MonoBehaviour
         localAvatar.AddComponent<SpawnOnButtonPress>();
         localAvatar.Initialize(user);
 
-        // Printing a welcome message
-        notificationField.text += $"Welcome to <i>{_session.Name}</i>\nThis room uses room model {_session.Room.Name}\n\n";
+        // Initialise notification buffer and print welcome message
+        _notificationBuffer = new NotificationBuffer(30, notificationField);
+        _notificationBuffer.AddNotification($"Welcome to <i>{_session.Name}</i>\nThis room uses room model {_session.Room.Name}\n");
     }
 
     private async void NextPresentation()
@@ -269,7 +271,7 @@ public class SessionController : MonoBehaviour
         bubble.OnJoinRequested += async (user) =>
         {
             Debug.Log($"User {user.Name} requests to join bubble");
-            notificationField.text += $"<i>{user.Name} requests to join your bubble</i>\n";
+            _notificationBuffer.AddNotification($"<i>{user.Name} requests to join your bubble</i>");
 
             await bubble.ApproveBubbleJoinRequest(user, true);
         };
@@ -302,13 +304,13 @@ public class SessionController : MonoBehaviour
         bubble.OnUserJoined += (user) =>
         {
             Debug.Log($"User {user.Name} joined bubble");
-            notificationField.text += $"<i>{user.Name} joined your bubble!</i>\n";
+            _notificationBuffer.AddNotification($"<i>{user.Name} joined your bubble!</i>");
         };
 
         bubble.OnUserLeft += (user) =>
         {
             Debug.Log($"User {user.Name} left bubble");
-            notificationField.text += $"<i>{user.Name} left your bubble!</i>\n";
+            _notificationBuffer.AddNotification($"<i>{user.Name} left your bubble!</i>\n");
         };
     }
 
@@ -361,14 +363,14 @@ public class SessionController : MonoBehaviour
     private void OnUserClearedRaisedHand(User user)
     {
         // Some user raised their hand, add notification and refresh the list of raised hands
-        notificationField.text += $"<i>{user.Name} lowered their hand!</i>\n";
+        _notificationBuffer.AddNotification($"<i>{user.Name} lowered their hand!</i>\n");
         RenderRaisedHands();
     }
 
     private void OnUserRaisedHand(User user)
     {
         // Some user lowered their hand, add notification and refresh the list of raised hands
-        notificationField.text += $"<i>{user.Name} raised their hand!</i>\n";
+        _notificationBuffer.AddNotification($"<i>{user.Name} raised their hand!</i>\n");
         RenderRaisedHands();
     }
 
@@ -395,7 +397,7 @@ public class SessionController : MonoBehaviour
     private void OnMessageReceived(ChatMessage message)
     {
         // Append the received chat message to the notification field
-        notificationField.text += $"{message.Sender.Username}: {message.Message}\n";
+        _notificationBuffer.AddNotification($"{message.Sender.Username}: {message.Message}\n");
     }
 
     private void OnUserJoined(User user)
@@ -406,7 +408,7 @@ public class SessionController : MonoBehaviour
 
         Debug.Log("Spawning new user with id " + user.Id);
         // Add join notification and add the new user game object to the active user dictionary
-        notificationField.text += $"<i>{user.Name} joined the session!</i>\n";
+        _notificationBuffer.AddNotification($"<i>{user.Name} joined the session!</i>\n");
         _activeUsers.Add(user.Id, remoteAvatar.gameObject);
     }
 
@@ -437,7 +439,7 @@ public class SessionController : MonoBehaviour
 
             // Remove user from the active user dictionary, add notification and destroy the object
             _activeUsers.Remove(user.Id);
-            notificationField.text += $"<i>{user.Name} left the session!</i>\n";
+            _notificationBuffer.AddNotification($"<i>{user.Name} left the session!</i>\n");
             Destroy(obj);
         }
         else
@@ -457,7 +459,7 @@ public class SessionController : MonoBehaviour
         if (presentation == null)
         {
             presentationInfo.text = "No more presentations";
-            notificationField.text += $"<i>No more presentations</i>\n";
+            _notificationBuffer.AddNotification($"<i>No more presentations</i>\n");
 
             // Disable all presentation control buttons
             nextPresentationButton.interactable = false;
@@ -483,7 +485,7 @@ public class SessionController : MonoBehaviour
         // Find the user object for the presenter and update text fields
         var presenterUser = _session.FindUserById(presentation.Presenter);
         presentationInfo.text = $"<i>{presentation.Name}</i>\nby {presenterUser.Name}\n\n({presentation.NumSlides} slides)";
-        notificationField.text += $"<i>Upcoming presentation: {presentation.Name}</i>\n";
+        _notificationBuffer.AddNotification($"<i>Upcoming presentation: {presentation.Name}</i>\n");
     }
 
     private void OnSlideChanged(Presentation presentation)
@@ -491,7 +493,7 @@ public class SessionController : MonoBehaviour
         // Find the user object for the presenter and update text fields
         var presenterUser = _session.FindUserById(presentation.Presenter);
         presentationInfo.text = $"<i>{presentation.Name}</i>\nby {presenterUser.Name}\n\n({presentation.NumSlides} slides)";
-        notificationField.text += $"<i>Presentation slide changed to {presentation.CurrentSlide}</i>\n";
+        _notificationBuffer.AddNotification($"<i>Presentation slide changed to {presentation.CurrentSlide}</i>\n");
     }
 
     private void OnPresentationShared(Presentation presentation)
@@ -502,7 +504,7 @@ public class SessionController : MonoBehaviour
         // Find the user object for the presenter and update text fields
         var presenterUser = _session.FindUserById(presentation.Presenter);
         presentationInfo.text = $"<i>{presentation.Name}</i>\nby {presenterUser.Name}\n\n({presentation.NumSlides} slides)";
-        notificationField.text += $"<i>Started presentation sharing</i>\n";
+        _notificationBuffer.AddNotification($"<i>Started presentation sharing</i>\n");
 
         presentationCanvas.gameObject.SetActive(_isSharingPresentation);
     }
@@ -511,13 +513,13 @@ public class SessionController : MonoBehaviour
     {
         // Post notification if a user in the session changes their status
         Debug.Log("User " + user.Name + " changed their status to: " + user.Status);
-        notificationField.text += $"<i>{user.Name} changed their status to {user.Status}!</i>\n";
+        _notificationBuffer.AddNotification($"<i>{user.Name} changed their status to {user.Status}!</i>\n");
     }
 
     private void OnBubbleInvited(Bubble bubble)
     {
         Debug.Log("You have been invited to join the bubble: " + bubble.Name);
-        notificationField.text += $"<i>You have been invited to join the bubble '{bubble.Name}' by {bubble.Owner.Name}</i>\n";
+        _notificationBuffer.AddNotification($"<i>You have been invited to join the bubble '{bubble.Name}' by {bubble.Owner.Name}</i>\n");
 
         _session.JoinBubble(bubble);
     }
