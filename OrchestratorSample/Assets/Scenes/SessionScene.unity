@@ -4202,7 +4202,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   localPlayerPrefab: {fileID: 4720975125625051107, guid: 39867c4e3dd9c4fa0a3068fa9b32e0b6, type: 3}
-  remotePlayerPrefab: {fileID: 6845995891581318185, guid: 345fa6eb72b9e456aa9f9f0e3573fb0d, type: 3}
   notificationField: {fileID: 7343296706360571554}
   chatInputField: {fileID: 2283049132325655652}
   chatSendButton: {fileID: 9004885715101206004}
@@ -4375,6 +4374,10 @@ PrefabInstance:
       propertyPath: prefabRegistry
       value: 
       objectReference: {fileID: 11400000, guid: c2f348d36dff24e83b2748f04cc47c84, type: 2}
+    - target: {fileID: 8572388678010883611, guid: c680e019de77e408f82849dba3dbcdf7, type: 3}
+      propertyPath: avatarPrefabRegistry
+      value: 
+      objectReference: {fileID: 11400000, guid: 0b2a45ca39a204cf9b3120180d20c47b, type: 2}
     - target: {fileID: 8899896827674003946, guid: c680e019de77e408f82849dba3dbcdf7, type: 3}
       propertyPath: m_LocalPosition.x
       value: 0

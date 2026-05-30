@@ -1,0 +1,16 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 516a72a9a04d43d58650b57e24c91f74, type: 3}
+  m_Name: AvatarPrefabRegistry
+  m_EditorClassIdentifier: 
+  registryEntries: []
+  defaultAvatar: {fileID: 6845995891581318185, guid: 345fa6eb72b9e456aa9f9f0e3573fb0d, type: 3}
