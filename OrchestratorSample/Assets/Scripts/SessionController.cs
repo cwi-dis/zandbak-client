@@ -17,7 +17,6 @@ public class SessionController : MonoBehaviour
 {
     [Header("Prefabs")]
     public GameObject localPlayerPrefab;
-    public GameObject remotePlayerPrefab;
 
     [Header("Notifications")]
     public TMP_Text notificationField;
@@ -57,7 +56,6 @@ public class SessionController : MonoBehaviour
     public VoiceTransmitter voiceTransmitter;
     public VoiceReceiver voiceReceiver;
 
-    private readonly Dictionary<string, GameObject> _activeUsers = new();
     private NotificationBuffer _notificationBuffer;
     private Session _session;
     private bool _isHandRaised = false;
@@ -131,22 +129,6 @@ public class SessionController : MonoBehaviour
 
         var user = _session.Self;
         Debug.Log($"Building session for user: {user.Name} ({user.Type}). Session has {_session.Users.Count} users already.");
-
-        // Spawning avatars for users already in the session
-        foreach (var remoteUser in _session.Users)
-        {
-            // Not spawning an avatar for self
-            if (remoteUser.Id != user.Id)
-            {
-                Debug.Log($"Adding remote user {remoteUser.Name} ({remoteUser.Type}) with {remoteUser.Transform?.Bones?.Count} bones to session.");
-
-                // Spawning remote avatar prefab and injecting user object dependency
-                var remoteAvatar = Instantiate(remotePlayerPrefab).GetComponent<RemoteAvatar>();
-                remoteAvatar.Initialize(remoteUser);
-                // Adding instantiated user prefab to active user dictionary
-                _activeUsers.Add(remoteUser.Id, remoteAvatar.gameObject);
-            }
-        }
 
         // Getting random spawn position for self
         var spawnPosition = new Vector3(
@@ -404,14 +386,9 @@ public class SessionController : MonoBehaviour
 
     private void OnUserJoined(User user)
     {
-        // A new user has joined, instantiate remote avatar prefab and inject the user object
-        var remoteAvatar = Instantiate(remotePlayerPrefab).GetComponent<RemoteAvatar>();
-        remoteAvatar.Initialize(user);
-
         Debug.Log("Spawning new user with id " + user.Id);
-        // Add join notification and add the new user game object to the active user dictionary
+        // Add join notification
         _notificationBuffer.AddNotification($"<i>{user.Name} joined the session!</i>\n");
-        _activeUsers.Add(user.Id, remoteAvatar.gameObject);
     }
 
     private void OnUserLeft(User user, bool force) {
@@ -434,20 +411,8 @@ public class SessionController : MonoBehaviour
             }
         }
 
-        // Check if the user is in active user dictionary, if so, remove and destroy the player object
-        if (_activeUsers.TryGetValue(user.Id, out var obj))
-        {
-            Debug.Log("User found, removing and destroying player object");
-
-            // Remove user from the active user dictionary, add notification and destroy the object
-            _activeUsers.Remove(user.Id);
-            _notificationBuffer.AddNotification($"<i>{user.Name} left the session!</i>\n");
-            Destroy(obj);
-        }
-        else
-        {
-            Debug.LogWarning("Could not find object for user with id " + user.Id);
-        }
+        // Add notification
+        _notificationBuffer.AddNotification($"<i>{user.Name} left the session!</i>\n");
     }
 
     private async void OnPresentationChanged(Presentation presentation)
