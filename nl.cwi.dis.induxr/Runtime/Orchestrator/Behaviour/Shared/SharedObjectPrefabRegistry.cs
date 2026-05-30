@@ -16,8 +16,8 @@ namespace Orchestrator.Behaviour.Shared
         [SerializeField]
         public List<PrefabRegistryEntry> registryEntries = new();
 
-        private readonly Dictionary<string, PrefabRegistryEntry> _registryCache = new();
-        private bool _isInitialized = false;
+        protected readonly Dictionary<string, PrefabRegistryEntry> _registryCache = new();
+        protected bool _isInitialized = false;
 
         public void Initialize()
         {
