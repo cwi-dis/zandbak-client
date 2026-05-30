@@ -12,7 +12,7 @@ namespace Orchestrator.Behaviour.Shared
         private SharedObjectPrefabRegistry prefabRegistry;
 
         [SerializeField]
-        private GameObject remotePlayerPrefab;
+        private AvatarPrefabRegistry avatarPrefabRegistry;
 
         private App.Orchestrator _orchestrator;
         private Session _session;
@@ -85,6 +85,9 @@ namespace Orchestrator.Behaviour.Shared
             if (user.Id == _session.Self.Id) return;
 
             Debug.Log("Spawning new user with id " + user.Id);
+
+            // TODO get avatar from joined user and try to load it
+            var remotePlayerPrefab = avatarPrefabRegistry.GetPrefab("");
             var remoteAvatar = Instantiate(remotePlayerPrefab).GetComponent<RemoteAvatar>();
             remoteAvatar.Initialize(user);
 
