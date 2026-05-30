@@ -22,7 +22,7 @@ public class SpawnOnButtonPress : MonoBehaviour
         if (Input.GetKeyDown(spawnKey))
         {
             Debug.Log($"Spawning shared object at {transform.position} with rotation {transform.rotation}");
-            _session.SpawnSharedObject("Prefabs/TiltedCubePrefab", transform.position, Quaternion.identity);
+            _session.SpawnSharedObject("tiltedCube", transform.position, Quaternion.identity);
         }
     }
 }
