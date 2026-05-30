@@ -11,6 +11,7 @@ using UnityEngine.UI;
 using User = Orchestrator.App.User;
 using Session = Orchestrator.App.Session;
 using Bubble = Orchestrator.App.Bubble;
+using SharedObject = Orchestrator.App.SharedObject;
 
 public class SessionController : MonoBehaviour
 {
@@ -81,6 +82,7 @@ public class SessionController : MonoBehaviour
         _session.OnUserStatusChanged += OnUserStatusChanged;
         _session.OnBubbleInvited += OnBubbleInvited;
         _session.OnBubbleJoinRequestApproved += OnBubbleJoinRequestApproved;
+        _session.OnObjectSpawned += OnObjectSpawned;
 
         // Adding listeners for UI elements
         leaveButton.onClick.AddListener(LeaveSession);
@@ -534,6 +536,11 @@ public class SessionController : MonoBehaviour
 
         Debug.Log($"You have been added to the bubble: {_session.CurrentBubble?.Name}");
         MoveToBubble(bubble);
+    }
+
+    private void OnObjectSpawned(SharedObject obj)
+    {
+        _notificationBuffer.AddNotification($"<i>Object '{obj.PrefabName}' spawned</i>");
     }
 }
 
