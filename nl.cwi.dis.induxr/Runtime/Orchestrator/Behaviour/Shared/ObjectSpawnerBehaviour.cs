@@ -31,13 +31,7 @@ namespace Orchestrator.Behaviour.Shared
             _session.OnObjectDestroyed += ObjectDestroyed;
 
             // Spawning avatars for users already in the session
-            foreach (var remoteUser in _session.Users)
-            {
-                if (remoteUser.Id != _session.Self.Id)
-                {
-                    UserJoined(remoteUser);
-                }
-            }
+            _session.Users.ForEach(UserJoined);
 
             _session.OnUserJoined += UserJoined;
             _session.OnUserLeft += UserLeft;
