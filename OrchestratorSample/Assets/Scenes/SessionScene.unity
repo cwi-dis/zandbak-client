@@ -4371,6 +4371,10 @@ PrefabInstance:
       propertyPath: m_Name
       value: ObjectSpawner
       objectReference: {fileID: 0}
+    - target: {fileID: 8572388678010883611, guid: c680e019de77e408f82849dba3dbcdf7, type: 3}
+      propertyPath: prefabRegistry
+      value: 
+      objectReference: {fileID: 11400000, guid: c2f348d36dff24e83b2748f04cc47c84, type: 2}
     - target: {fileID: 8899896827674003946, guid: c680e019de77e408f82849dba3dbcdf7, type: 3}
       propertyPath: m_LocalPosition.x
       value: 0
