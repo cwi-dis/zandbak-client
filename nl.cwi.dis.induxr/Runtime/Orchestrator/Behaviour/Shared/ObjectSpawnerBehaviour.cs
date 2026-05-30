@@ -29,6 +29,7 @@ namespace Orchestrator.Behaviour.Shared
         private void OnDestroy()
         {
             _session.OnObjectSpawned -= ObjectSpawned;
+            _session.OnObjectDestroyed -= ObjectDestroyed;
         }
 
         private void ObjectSpawned(SharedObject spawnedObject)
