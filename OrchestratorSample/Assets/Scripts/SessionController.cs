@@ -534,3 +534,61 @@ public class SessionController : MonoBehaviour
         MoveToBubble(bubble);
     }
 }
+
+internal class NotificationBuffer
+{
+    private readonly RingBuffer<string> _buffer;
+    private readonly TMP_Text _output;
+
+    public NotificationBuffer(int capacity, TMP_Text output)
+    {
+        _buffer = new RingBuffer<string>(capacity);
+        _output = output;
+    }
+
+    public void AddNotification(string line)
+    {
+        _buffer.Add(line);
+        _output.text = ToString();
+    }
+
+    public override string ToString()
+    {
+        return string.Join("\n", _buffer.ToArray());
+    }
+}
+
+internal class RingBuffer<T>
+{
+    private readonly int _capacity;
+
+    public int Count => Items.Count;
+    public List<T> Items { get; }
+
+    public RingBuffer(int capacity)
+    {
+        _capacity = capacity;
+        Items = new List<T>(capacity);
+    }
+
+    public void Add(T item)
+    {
+        if (Items.Count >= _capacity) Items.RemoveAt(0);
+        Items.Add(item);
+    }
+
+    public void RemoveAt(int index)
+    {
+        Items.RemoveAt(index);
+    }
+
+    public void Clear()
+    {
+        Items.Clear();
+    }
+
+    public T[] ToArray()
+    {
+        return Items.ToArray();
+    }
+}
