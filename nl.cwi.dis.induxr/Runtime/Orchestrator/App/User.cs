@@ -56,7 +56,7 @@ namespace Orchestrator.App
         {
             UserId = UserData.Id,
             Timestamp = UserData.Transform.Timestamp,
-            Bones = UserData.Transform.Bones.Select((pair) => new { pair.Key, Value = new BoneData()
+            Transforms = UserData.Transform.Transforms.Select((pair) => new { pair.Key, Value = new BoneData()
             {
                 Pos = new PositionData() { X = pair.Value.Pos.X, Y = pair.Value.Pos.Y, Z = pair.Value.Pos.Z },
                 Rot = new RotationData() { X = pair.Value.Rot.X, Y = pair.Value.Rot.Y, Z = pair.Value.Rot.Z, W = pair.Value.Rot.W }

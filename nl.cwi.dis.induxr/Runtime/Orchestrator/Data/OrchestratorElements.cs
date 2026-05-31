@@ -63,7 +63,7 @@ namespace Orchestrator.Data
 
     public class UserTransform : ObjectTransform
     {
-        [JsonProperty("bones")] public Dictionary<string, UserBoneData> Bones;
+        [JsonProperty("transforms")] public Dictionary<string, UserBoneData> Transforms;
     }
 
     public class User: OrchestratorElement

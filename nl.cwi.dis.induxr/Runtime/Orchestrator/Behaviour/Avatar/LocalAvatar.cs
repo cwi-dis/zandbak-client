@@ -77,7 +77,7 @@ namespace Orchestrator.Behaviour.Avatar
             return new AvatarMovementData {
                 UserId = _user.Id,
                 Timestamp = Time.time,
-                Bones = boneData
+                Transforms = boneData
             };
         }
     }

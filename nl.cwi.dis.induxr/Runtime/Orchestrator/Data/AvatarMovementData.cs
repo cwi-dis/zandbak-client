@@ -7,7 +7,7 @@ namespace Orchestrator.Data
     public class AvatarMovementData
     {
         [JsonProperty("userId")] public string UserId;
-        [JsonProperty("bones")] public Dictionary<string, BoneData> Bones;
+        [JsonProperty("transforms")] public Dictionary<string, BoneData> Transforms;
         [JsonProperty("timestamp")] public float Timestamp;
     }
 

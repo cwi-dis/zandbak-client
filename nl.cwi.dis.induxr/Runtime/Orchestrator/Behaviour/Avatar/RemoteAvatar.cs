@@ -109,7 +109,7 @@ namespace Orchestrator.Behaviour.Avatar
             foreach (var bone in _mesh.bones)
             {
                 // Update bone if the received data and the previously received data contain a value for the given bone
-                if (_lastReceivedData.Bones.TryGetValue(bone.name, out var lastFoundBone) && _previousReceivedData.Bones.TryGetValue(bone.name, out var prevFoundBone))
+                if (_lastReceivedData.Transforms.TryGetValue(bone.name, out var lastFoundBone) && _previousReceivedData.Transforms.TryGetValue(bone.name, out var prevFoundBone))
                 {
                     // Update the position and rotation of the given bone using linear interpolation
                     bone.SetPositionAndRotation(
@@ -134,7 +134,7 @@ namespace Orchestrator.Behaviour.Avatar
             foreach (var bone in _mesh.bones)
             {
                 // Update bone if the received data contains a value for the given bone
-                if (movement.Bones.TryGetValue(bone.name, out var foundBone)) {
+                if (movement.Transforms.TryGetValue(bone.name, out var foundBone)) {
                     // Update the position and rotation of the given bone
                     bone.SetPositionAndRotation(new Vector3(
                         foundBone.Pos.X,
