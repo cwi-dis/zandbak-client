@@ -24,18 +24,22 @@ namespace Orchestrator.App
 
         public string Id => UserData.Id;
         public string Name => UserData.Username;
+
         /// <summary>
         /// Indicates whether the user is currently speaking
         /// </summary>
         public bool IsSpeaking => UserData.IsSpeaking;
+
         /// <summary>
         /// Returns the type of user (e.g. presenter, moderator, user)
         /// </summary>
         public string Type => UserData.UserType;
+
         /// <summary>
         /// Indicates whether the user has their hand raised currently
         /// </summary>
         public bool HasHandRaised => UserData.HasHandRaised;
+
         /// <summary>
         /// Returns the type of device that the user has used to connect
         /// </summary>
@@ -45,6 +49,11 @@ namespace Orchestrator.App
         /// Returns the user's current status (e.g. 'available', 'in a meeting', ...)
         /// </summary>
         public string Status => UserData.Status;
+
+        /// <summary>
+        /// Specifies the name of the prefab associated with this user.
+        /// </summary>
+        public string PrefabName => UserData.PrefabName;
 
         /// <summary>
         /// The GameObject representing this user's avatar in the scene. Assigned by LocalAvatar /

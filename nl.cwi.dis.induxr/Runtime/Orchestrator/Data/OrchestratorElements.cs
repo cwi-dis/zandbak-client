@@ -56,6 +56,7 @@ namespace Orchestrator.Data
         [JsonProperty("hasHandRaised")] public bool HasHandRaised;
         [JsonProperty("isSpeaking")] public bool IsSpeaking;
         [JsonProperty("status")] public string Status;
+        [JsonProperty("prefabName")] public string PrefabName;
     }
 
     public class UserData: IOrchestratorElement
