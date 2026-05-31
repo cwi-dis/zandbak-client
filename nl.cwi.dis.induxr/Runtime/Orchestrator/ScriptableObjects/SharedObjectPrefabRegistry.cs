@@ -1,7 +1,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-namespace Orchestrator.Behaviour.Shared
+namespace Orchestrator.ScriptableObjects
 {
     [CreateAssetMenu(fileName = "SharedObjectPrefabRegistry", menuName = "Networking/Shared Object Prefab Registry")]
     public class SharedObjectPrefabRegistry : ScriptableObject

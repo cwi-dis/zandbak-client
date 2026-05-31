@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using Orchestrator.App;
 using Orchestrator.Behaviour.Avatar;
+using Orchestrator.ScriptableObjects;
 using Orchestrator.Wrapping;
 using UnityEngine;
 
@@ -17,8 +18,8 @@ namespace Orchestrator.Behaviour.Shared
         private App.Orchestrator _orchestrator;
         private Session _session;
 
-        private Dictionary<string, GameObject> _spawnedObjects = new();
-        private Dictionary<string, GameObject> _spawnedAvatars = new();
+        private readonly Dictionary<string, GameObject> _spawnedObjects = new();
+        private readonly Dictionary<string, GameObject> _spawnedAvatars = new();
 
         private void Awake()
         {
