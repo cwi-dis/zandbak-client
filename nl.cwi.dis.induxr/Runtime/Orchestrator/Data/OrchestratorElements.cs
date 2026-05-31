@@ -8,30 +8,7 @@ using Newtonsoft.Json.Linq;
 namespace Orchestrator.Data
 {
     // Base class for the elements returned by the orchestrator
-    public class OrchestratorElement
-    {
-        // used to retrieve the ID
-        public virtual string GetId()
-        {
-            return string.Empty;
-        }
-
-        //used to display the element for Gui
-        public virtual string GetGuiRepresentation()
-        {
-            return string.Empty;
-        }
-
-        public static T ParseJsonString<T>(string data)
-        {
-            return JsonUtility.FromJson<T>(data);
-        }
-
-        public string AsJsonString()
-        {
-            return JsonUtility.ToJson(this);
-        }
-    }
+    public class OrchestratorElement {}
 
     public class UserPosition : OrchestratorElement
     {
@@ -79,16 +56,6 @@ namespace Orchestrator.Data
         [JsonProperty("hasHandRaised")] public bool HasHandRaised;
         [JsonProperty("isSpeaking")] public bool IsSpeaking;
         [JsonProperty("status")] public string Status;
-
-        public override string GetId()
-        {
-            return Id;
-        }
-
-        public override string GetGuiRepresentation()
-        {
-            return Username;
-        }
     }
 
     public class UserData: OrchestratorElement
@@ -223,37 +190,5 @@ namespace Orchestrator.Data
         [JsonProperty("sessionRoom")] public Room Room;
         [JsonProperty("sessionStatus")] public string Status;
         [JsonProperty("sessionPersistent")] public bool Persistent;
-
-        public override string GetId()
-        {
-            return Id;
-        }
-
-        public override string GetGuiRepresentation()
-        {
-            return Name + " (" + Description + ")";
-        }
-
-        public List<User> GetUsers()
-        {
-            return UserDefinitions;
-        }
-
-        public User GetUser(string userID)
-        {
-            foreach(var userDefinition in UserDefinitions)
-            {
-                if (userDefinition.Id == userID)
-                {
-                    return userDefinition;
-                }
-            }
-            return null;
-        }
-
-        public int GetUserCount()
-        {
-            return UserDefinitions.Count;
-        }
     }
 }
