@@ -160,7 +160,7 @@ namespace Orchestrator.Wrapping {
 
         #region login/logout
 
-        public void Login(string userName, string deviceType, Action<ResponseStatus, User> callback) {
+        public void Login(string userName, string deviceType, string prefabName, Action<ResponseStatus, User> callback) {
             lock (this) {
                 _socket.Emit("Login", (response) => {
                     var data = response.GetValue<OrchestratorResponse<LoginResponse>>();
@@ -169,12 +169,12 @@ namespace Orchestrator.Wrapping {
                         callback(data.ResponseStatus, data.Body.UserData);
                     });
                 }, new {
-                    userName, deviceType
+                    userName, deviceType, prefabName
                 });
             }
         }
 
-        public void Login(string userName, string password, string deviceType, Action<ResponseStatus, User> callback) {
+        public void Login(string userName, string password, string deviceType, string prefabName, Action<ResponseStatus, User> callback) {
             lock (this) {
                 _socket.Emit("Login", (response) => {
                     var data = response.GetValue<OrchestratorResponse<LoginResponse>>();
@@ -183,7 +183,7 @@ namespace Orchestrator.Wrapping {
                         callback(data.ResponseStatus, data.Body.UserData);
                     });
                 }, new {
-                    userName, password, deviceType
+                    userName, password, deviceType, prefabName
                 });
             }
         }
