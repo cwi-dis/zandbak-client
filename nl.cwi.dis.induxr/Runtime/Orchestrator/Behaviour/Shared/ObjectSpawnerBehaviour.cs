@@ -87,8 +87,7 @@ namespace Orchestrator.Behaviour.Shared
 
             Debug.Log("Spawning new user with id " + user.Id);
 
-            // TODO get avatar from joined user and try to load it
-            var remotePlayerPrefab = avatarPrefabRegistry.GetPrefab("");
+            var remotePlayerPrefab = avatarPrefabRegistry.GetPrefab(user.PrefabName);
             var remoteAvatar = Instantiate(remotePlayerPrefab).GetComponent<RemoteAvatar>();
             remoteAvatar.Initialize(user);
 
