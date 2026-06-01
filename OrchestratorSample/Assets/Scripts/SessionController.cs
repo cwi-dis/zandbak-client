@@ -17,8 +17,7 @@ using SharedObject = Orchestrator.App.SharedObject;
 public class SessionController : MonoBehaviour
 {
     [Header("Avatar Registry")]
-    public AvatarPrefabRegistry avatarRegistry;
-    public string avatarPrefabName = "riggedAvatar";
+    public AvatarPrefabRegistry avatarPrefabRegistry;
 
     [Header("Notifications")]
     public TMP_Text notificationField;
@@ -139,8 +138,8 @@ public class SessionController : MonoBehaviour
             Random.Range(-8, 8)
         );
 
-        var localPlayerPrefab = avatarRegistry.GetPrefab(avatarPrefabName);
-        Debug.Log($"Spawning local player at {spawnPosition} with avatar {avatarPrefabName}");
+        var localPlayerPrefab = avatarPrefabRegistry.GetPrefab(user.PrefabName);
+        Debug.Log($"Spawning local player at {spawnPosition} with avatar {user.PrefabName}");
 
         // Spawning local avatar prefab and injecting current user dependency
         var localAvatar = Instantiate(localPlayerPrefab, spawnPosition, Quaternion.identity).GetComponent<AvatarBehaviour>();

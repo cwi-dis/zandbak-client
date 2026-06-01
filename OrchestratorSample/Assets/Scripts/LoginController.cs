@@ -69,7 +69,7 @@ public class LoginController : MonoBehaviour
         Debug.Log("Performing login using: " + username + " " + password);
 
         // Attempt to log sin using the provided credentials. Pass null for the password if the password string is empty
-        var userId = await _orchestrator.Login(username, (password != "") ? password : null);
+        var userId = await _orchestrator.Login(username, (password != "") ? password : null, OrchestratorController.DeviceType.Unknown, "riggedAvatar");
         Debug.Log("Login successful. User ID: " + userId);
 
         // Upon success, destroy this object and load the session selector scene
