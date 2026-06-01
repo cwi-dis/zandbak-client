@@ -12,5 +12,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 516a72a9a04d43d58650b57e24c91f74, type: 3}
   m_Name: AvatarPrefabRegistry
   m_EditorClassIdentifier: 
-  registryEntries: []
+  registryEntries:
+  - prefabName: simpleAvatar
+    prefab: {fileID: 5171808935100316256, guid: 0580b64174c674f51865390454364378, type: 3}
+  - prefabName: riggedAvatar
+    prefab: {fileID: 6845995891581318185, guid: 345fa6eb72b9e456aa9f9f0e3573fb0d, type: 3}
   defaultAvatar: {fileID: 6845995891581318185, guid: 345fa6eb72b9e456aa9f9f0e3573fb0d, type: 3}
