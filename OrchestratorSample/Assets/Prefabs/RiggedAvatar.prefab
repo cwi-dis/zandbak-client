@@ -1093,8 +1093,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   smoothSpeed: 0.125
-  locationOffset: {x: 0, y: 0, z: 0}
-  rotationOffset: {x: 0, y: 0, z: 0}
+  locationOffset: {x: 0, y: 3, z: -4}
+  rotationOffset: {x: 15, y: 0, z: 0}
 --- !u!1 &6970046974558139594
 GameObject:
   m_ObjectHideFlags: 0
