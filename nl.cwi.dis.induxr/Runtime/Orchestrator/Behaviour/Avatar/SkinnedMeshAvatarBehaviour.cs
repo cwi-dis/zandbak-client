@@ -67,7 +67,13 @@ namespace Orchestrator.Behaviour.Avatar
                 _user.OnHandRaised += (isRaised) => notification.SetActive(isRaised);
             }
 
-            if (!_isLocal)
+            if (_isLocal)
+            {
+                // hide username plaque for the local user
+                Debug.Log("Hiding username plaque for local user");
+                usernamePlaque?.gameObject.SetActive(false);
+            }
+            else
             {
                 _lastReceiveTime = Time.realtimeSinceStartup;
 
