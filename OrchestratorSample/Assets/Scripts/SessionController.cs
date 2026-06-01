@@ -2,6 +2,7 @@ using System.Collections.Generic;
 using Orchestrator.Behaviour.Avatar;
 using Orchestrator.Behaviour.Voice;
 using Orchestrator.Data;
+using Orchestrator.ScriptableObjects;
 using Orchestrator.Wrapping;
 using TMPro;
 using Unity.VisualScripting;
@@ -15,8 +16,9 @@ using SharedObject = Orchestrator.App.SharedObject;
 
 public class SessionController : MonoBehaviour
 {
-    [Header("Prefabs")]
-    public GameObject localPlayerPrefab;
+    [Header("Avatar Registry")]
+    public AvatarPrefabRegistry avatarRegistry;
+    public string avatarPrefabName = "riggedAvatar";
 
     [Header("Notifications")]
     public TMP_Text notificationField;
@@ -137,7 +139,9 @@ public class SessionController : MonoBehaviour
             Random.Range(-8, 8)
         );
 
-        Debug.Log($"Spawning local player at {spawnPosition}");
+        var localPlayerPrefab = avatarRegistry.GetPrefab(avatarPrefabName);
+        Debug.Log($"Spawning local player at {spawnPosition} with avatar {avatarPrefabName}");
+
         // Spawning local avatar prefab and injecting current user dependency
         var localAvatar = Instantiate(localPlayerPrefab, spawnPosition, Quaternion.identity).GetComponent<AvatarBehaviour>();
         localAvatar.AddComponent<SpawnOnButtonPress>();
