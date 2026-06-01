@@ -1001,6 +1001,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 4136189638546900604}
+  - component: {fileID: 2372490342044592480}
   - component: {fileID: 8842009133711521992}
   - component: {fileID: 1203697933048234516}
   - component: {fileID: -4615902045001963997}
@@ -1029,6 +1030,29 @@ Transform:
   - {fileID: 4928501238491410856}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!136 &2372490342044592480
+CapsuleCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6845995891581318185}
+  m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_LayerOverridePriority: 0
+  m_IsTrigger: 0
+  m_ProvidesContacts: 0
+  m_Enabled: 1
+  serializedVersion: 2
+  m_Radius: 0.24205616
+  m_Height: 1.8581877
+  m_Direction: 1
+  m_Center: {x: -0.004228562, y: 0.91115284, z: 0}
 --- !u!95 &8842009133711521992
 Animator:
   serializedVersion: 7
@@ -1066,7 +1090,6 @@ MonoBehaviour:
   notification: {fileID: 2841989240273872575}
   usernamePlaque: {fileID: 7837896549635684832}
   updateRate: 10
-  withSmoothing: 1
   linearInterpolationRate: 10
 --- !u!114 &-4615902045001963997
 MonoBehaviour:
