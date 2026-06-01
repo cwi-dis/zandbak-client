@@ -1,3 +1,4 @@
+using System;
 using System.Linq;
 using Orchestrator.Data;
 using UnityEngine;
@@ -5,6 +6,7 @@ using SelfUser = Orchestrator.App.SelfUser;
 
 namespace Orchestrator.Behaviour.Avatar
 {
+    [Obsolete]
     public class LocalAvatar : MonoBehaviour
     {
         [Tooltip("How many times a second the pose data should be broadcast to the server.")]

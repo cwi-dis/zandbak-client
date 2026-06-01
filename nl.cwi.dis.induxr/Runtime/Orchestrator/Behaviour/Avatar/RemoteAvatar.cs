@@ -1,9 +1,11 @@
+using System;
 using Orchestrator.Data;
 using UnityEngine;
 using User = Orchestrator.App.User;
 
 namespace Orchestrator.Behaviour.Avatar
 {
+    [Obsolete]
     public class RemoteAvatar : MonoBehaviour
     {
         [Header("Smoothing options")]
