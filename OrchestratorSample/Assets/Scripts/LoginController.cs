@@ -6,9 +6,15 @@ using UnityEngine.UI;
 
 public class LoginController : MonoBehaviour
 {
+    [SerializeField]
+    public string avatarPrefabName = "riggedAvatar";
+    [SerializeField]
     public TMP_InputField usernameField;
+    [SerializeField]
     public TMP_InputField passwordField;
+    [SerializeField]
     public Button loginButton;
+    [SerializeField]
     public TMP_Text connectionStatusText;
 
     private Orchestrator.App.Orchestrator _orchestrator;
@@ -69,7 +75,7 @@ public class LoginController : MonoBehaviour
         Debug.Log("Performing login using: " + username + " " + password);
 
         // Attempt to log sin using the provided credentials. Pass null for the password if the password string is empty
-        var userId = await _orchestrator.Login(username, (password != "") ? password : null, OrchestratorController.DeviceType.Unknown, "riggedAvatar");
+        var userId = await _orchestrator.Login(username, (password != "") ? password : null, OrchestratorController.DeviceType.Unknown, avatarPrefabName);
         Debug.Log("Login successful. User ID: " + userId);
 
         // Upon success, destroy this object and load the session selector scene
