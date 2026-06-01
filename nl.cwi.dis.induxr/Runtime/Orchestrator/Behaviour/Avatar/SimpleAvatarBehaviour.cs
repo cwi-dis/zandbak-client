@@ -74,7 +74,7 @@ namespace Orchestrator.Behaviour.Avatar
                 _user.OnIsSpeaking += (isSpeaking) => Debug.Log($"{_user.Name} is speaking: {isSpeaking}");
 
                 // Disable all other behaviours for remote avatars
-                foreach (var comp in GetComponents<MonoBehaviour>())
+                foreach (var comp in GetComponents<UnityEngine.Behaviour>())
                 {
                     if (comp != this) comp.enabled = false;
                 }
