@@ -6,7 +6,7 @@ using User = Orchestrator.App.User;
 
 namespace Orchestrator.Behaviour.Avatar
 {
-    public class SimpleAvatarBehaviour : MonoBehaviour
+    public class SimpleAvatarBehaviour : AvatarBehaviour
     {
         [Header("General Options")]
         [Tooltip("A reference to the object to be used as notification icon. If given, the notification icon will be shown when the user's hand is raised.")]
@@ -35,7 +35,7 @@ namespace Orchestrator.Behaviour.Avatar
         private AvatarMovementData _lastReceivedData;
         private float _lastReceiveTime;
 
-        public void Initialize(User user)
+        public override void Initialize(User user)
         {
             _user = user;
             _user.Avatar = gameObject;
