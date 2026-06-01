@@ -4201,7 +4201,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 2bba69e48be504a85878db96b4848e4c, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  localPlayerPrefab: {fileID: 4720975125625051107, guid: 39867c4e3dd9c4fa0a3068fa9b32e0b6, type: 3}
+  localPlayerPrefab: {fileID: 6845995891581318185, guid: 345fa6eb72b9e456aa9f9f0e3573fb0d, type: 3}
   notificationField: {fileID: 7343296706360571554}
   chatInputField: {fileID: 2283049132325655652}
   chatSendButton: {fileID: 9004885715101206004}
