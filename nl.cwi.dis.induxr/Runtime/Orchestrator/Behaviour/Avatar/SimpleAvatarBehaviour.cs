@@ -19,8 +19,7 @@ namespace Orchestrator.Behaviour.Avatar
         public int updateRate = 10;
 
         [Header("Remote Options (Smoothing)")]
-        public bool withSmoothing = false;
-        public int linearInterpolationRate = 10;
+        public int linearInterpolationRate = 5;
 
         private const string TransformBoneName = "root";
 
@@ -31,9 +30,10 @@ namespace Orchestrator.Behaviour.Avatar
         private float _updateTimer;
 
         // Remote state
-        private AvatarMovementData _previousReceivedData;
         private AvatarMovementData _lastReceivedData;
         private float _lastReceiveTime;
+        private Vector3 _interpStartPos;
+        private Quaternion _interpStartRot;
 
         public override void Initialize(User user)
         {
@@ -95,6 +95,10 @@ namespace Orchestrator.Behaviour.Avatar
             {
                 BroadcastPosition();
             }
+            else
+            {
+                ApplyPosition();
+            }
         }
 
         private void BroadcastPosition()
@@ -106,6 +110,30 @@ namespace Orchestrator.Behaviour.Avatar
                 _updateTimer -= 1f / updateRate;
                 var data = GetPositionData();
                 ((SelfUser)_user).BroadcastAvatarMovement(data);
+            }
+        }
+
+        private void ApplyPosition()
+        {
+            if (_lastReceivedData == null)
+                return;
+
+            var t = Mathf.Clamp01((Time.realtimeSinceStartup - _lastReceiveTime) / (1.0f / linearInterpolationRate));
+
+            if (_lastReceivedData.Transforms.TryGetValue(TransformBoneName, out var lastFoundBone))
+            {
+                transform.SetPositionAndRotation(
+                    Vector3.Lerp(
+                        _interpStartPos,
+                        new Vector3(lastFoundBone.Pos.X, lastFoundBone.Pos.Y, lastFoundBone.Pos.Z),
+                        t
+                    ),
+                    Quaternion.Slerp(
+                        _interpStartRot,
+                        new Quaternion(lastFoundBone.Rot.X, lastFoundBone.Rot.Y, lastFoundBone.Rot.Z, lastFoundBone.Rot.W),
+                        t
+                    )
+                );
             }
         }
 
@@ -132,41 +160,11 @@ namespace Orchestrator.Behaviour.Avatar
 
         private void PositionReceived(AvatarMovementData movement)
         {
-            if (withSmoothing)
-            {
-                UpdatePositionWithSmoothing(movement);
-            }
-            else
-            {
-                UpdatePosition(movement);
-            }
-        }
+            _interpStartPos = transform.position;
+            _interpStartRot = transform.rotation;
 
-        private void UpdatePositionWithSmoothing(AvatarMovementData movement)
-        {
-            _previousReceivedData = _lastReceivedData;
             _lastReceivedData = movement;
-
-            if (_previousReceivedData == null) return;
-
-            var t = Mathf.Clamp01((Time.realtimeSinceStartup - _lastReceiveTime) / (1.0f / linearInterpolationRate));
             _lastReceiveTime = Time.realtimeSinceStartup;
-
-            if (_lastReceivedData.Transforms.TryGetValue(TransformBoneName, out var lastFoundBone) && _previousReceivedData.Transforms.TryGetValue(TransformBoneName, out var prevFoundBone))
-            {
-                transform.SetPositionAndRotation(
-                    Vector3.Lerp(
-                        new Vector3(prevFoundBone.Pos.X, prevFoundBone.Pos.Y, prevFoundBone.Pos.Z),
-                        new Vector3(lastFoundBone.Pos.X, lastFoundBone.Pos.Y, lastFoundBone.Pos.Z),
-                        t
-                    ),
-                    Quaternion.Slerp(
-                        new Quaternion(prevFoundBone.Rot.X, prevFoundBone.Rot.Y, prevFoundBone.Rot.Z, prevFoundBone.Rot.W),
-                        new Quaternion(lastFoundBone.Rot.X, lastFoundBone.Rot.Y, lastFoundBone.Rot.Z, lastFoundBone.Rot.W),
-                        t
-                    )
-                );
-            }
         }
 
         private void UpdatePosition(AvatarMovementData movement)

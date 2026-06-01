@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using System.Linq;
 using Orchestrator.Data;
 using UnityEngine;
@@ -19,8 +20,7 @@ namespace Orchestrator.Behaviour.Avatar
         public int updateRate = 10;
 
         [Header("Remote Options (Smoothing)")]
-        public bool withSmoothing = false;
-        public int linearInterpolationRate = 10;
+        public int linearInterpolationRate = 5;
 
         private User _user;
         private bool _isLocal;
@@ -31,8 +31,12 @@ namespace Orchestrator.Behaviour.Avatar
 
         // Remote state
         private AvatarMovementData _previousReceivedData;
+
         private AvatarMovementData _lastReceivedData;
         private float _lastReceiveTime;
+        private Dictionary<string, Vector3> _interpolationBonePosition = new();
+        private Dictionary<string, Quaternion> _interpolationBoneRotation = new();
+
 
         public override void Initialize(User user)
         {
@@ -102,6 +106,10 @@ namespace Orchestrator.Behaviour.Avatar
             {
                 BroadcastPose();
             }
+            else
+            {
+                ApplyPose();
+            }
         }
 
         private void BroadcastPose()
@@ -113,6 +121,33 @@ namespace Orchestrator.Behaviour.Avatar
                 _updateTimer -= 1f / updateRate;
                 var data = GetBoneData();
                 ((SelfUser)_user).BroadcastAvatarMovement(data);
+            }
+        }
+
+        private void ApplyPose()
+        {
+            if (_lastReceivedData == null)
+                return;
+
+            var t = Mathf.Clamp01((Time.realtimeSinceStartup - _lastReceiveTime) * linearInterpolationRate);
+
+            foreach (var bone in _mesh.bones)
+            {
+                if (_lastReceivedData.Transforms.TryGetValue(bone.name, out var lastFoundBone) && _interpolationBonePosition.TryGetValue(bone.name, out var currentBonePosition) && _interpolationBoneRotation.TryGetValue(bone.name, out var currentBoneRotation))
+                {
+                    bone.SetPositionAndRotation(
+                        Vector3.Lerp(
+                            currentBonePosition,
+                            new Vector3(lastFoundBone.Pos.X, lastFoundBone.Pos.Y, lastFoundBone.Pos.Z),
+                            t
+                        ),
+                        Quaternion.Slerp(
+                            currentBoneRotation,
+                            new Quaternion(lastFoundBone.Rot.X, lastFoundBone.Rot.Y, lastFoundBone.Rot.Z, lastFoundBone.Rot.W),
+                            t
+                        )
+                    );
+                }
             }
         }
 
@@ -133,43 +168,14 @@ namespace Orchestrator.Behaviour.Avatar
 
         private void PoseReceived(AvatarMovementData movement)
         {
-            if (withSmoothing)
-            {
-                UpdatePoseWithSmoothing(movement);
-            }
-            else
-            {
-                UpdatePose(movement);
-            }
-        }
-
-        private void UpdatePoseWithSmoothing(AvatarMovementData movement)
-        {
-            _previousReceivedData = _lastReceivedData;
             _lastReceivedData = movement;
-
-            if (_previousReceivedData == null) return;
-
-            var t = Mathf.Clamp01((Time.realtimeSinceStartup - _lastReceiveTime) / (1.0f / linearInterpolationRate));
             _lastReceiveTime = Time.realtimeSinceStartup;
 
             foreach (var bone in _mesh.bones)
             {
-                if (_lastReceivedData.Transforms.TryGetValue(bone.name, out var lastFoundBone) && _previousReceivedData.Transforms.TryGetValue(bone.name, out var prevFoundBone))
-                {
-                    bone.SetPositionAndRotation(
-                        Vector3.Lerp(
-                            new Vector3(prevFoundBone.Pos.X, prevFoundBone.Pos.Y, prevFoundBone.Pos.Z),
-                            new Vector3(lastFoundBone.Pos.X, lastFoundBone.Pos.Y, lastFoundBone.Pos.Z),
-                            t
-                        ),
-                        Quaternion.Slerp(
-                            new Quaternion(prevFoundBone.Rot.X, prevFoundBone.Rot.Y, prevFoundBone.Rot.Z, prevFoundBone.Rot.W),
-                            new Quaternion(lastFoundBone.Rot.X, lastFoundBone.Rot.Y, lastFoundBone.Rot.Z, lastFoundBone.Rot.W),
-                            t
-                        )
-                    );
-                }
+                // Snapshot current position and rotation for the bone
+                _interpolationBonePosition[bone.name] = bone.position;
+                _interpolationBoneRotation[bone.name] = bone.rotation;
             }
         }
 
