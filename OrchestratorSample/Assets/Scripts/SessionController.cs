@@ -139,7 +139,7 @@ public class SessionController : MonoBehaviour
 
         Debug.Log($"Spawning local player at {spawnPosition}");
         // Spawning local avatar prefab and injecting current user dependency
-        var localAvatar = Instantiate(localPlayerPrefab, spawnPosition, Quaternion.identity).GetComponent<LocalAvatar>();
+        var localAvatar = Instantiate(localPlayerPrefab, spawnPosition, Quaternion.identity).GetComponent<AvatarBehaviour>();
         localAvatar.AddComponent<SpawnOnButtonPress>();
         localAvatar.Initialize(user);
 

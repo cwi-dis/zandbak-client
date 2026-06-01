@@ -88,7 +88,7 @@ namespace Orchestrator.Behaviour.Shared
             Debug.Log("Spawning new user with id " + user.Id);
 
             var remotePlayerPrefab = avatarPrefabRegistry.GetPrefab(user.PrefabName);
-            var remoteAvatar = Instantiate(remotePlayerPrefab).GetComponent<RemoteAvatar>();
+            var remoteAvatar = Instantiate(remotePlayerPrefab).GetComponent<AvatarBehaviour>();
             remoteAvatar.Initialize(user);
 
             _spawnedAvatars.Add(user.Id, remoteAvatar.gameObject);
