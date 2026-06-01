@@ -344,6 +344,7 @@ GameObject:
   - component: {fileID: 2167269548958499325}
   - component: {fileID: 7366287571351253593}
   - component: {fileID: 6702295699878478832}
+  - component: {fileID: 4183253506923158163}
   m_Layer: 0
   m_Name: SimpleAvatar
   m_TagString: Untagged
@@ -360,7 +361,7 @@ Transform:
   m_GameObject: {fileID: 5171808935100316256}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalPosition: {x: 0, y: -0.262, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
@@ -409,8 +410,20 @@ MonoBehaviour:
   notification: {fileID: 4817838160226250118}
   usernamePlaque: {fileID: 7547680020607526508}
   updateRate: 10
-  withSmoothing: 1
   linearInterpolationRate: 10
+--- !u!114 &4183253506923158163
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5171808935100316256}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ee7103114fff49039b7047420e48c1dd, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  speed: 5
 --- !u!1 &7399295660099633170
 GameObject:
   m_ObjectHideFlags: 0
