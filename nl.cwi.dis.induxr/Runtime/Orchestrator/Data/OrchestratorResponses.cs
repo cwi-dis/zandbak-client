@@ -18,6 +18,7 @@ namespace Orchestrator.Data {
             Error = error;
             Message = message;
         }
+
         public ResponseStatus() : this(0, "OK") { }
     }
 
