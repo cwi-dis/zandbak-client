@@ -10,9 +10,6 @@ namespace Orchestrator.App
     {
         private readonly Orchestrator _orchestrator;
         private Data.Trigger _triggerData;
-
-        public Session Session => _orchestrator.CurrentSession;
-
         private bool _broadcastsEnabled = false;
 
         public Data.Trigger TriggerData
@@ -23,6 +20,7 @@ namespace Orchestrator.App
         public string Id => _triggerData.Id;
         public User Owner => Session.Users.Find((u) => u.Id == _triggerData.Owner.Id);
         public JObject Value => _triggerData.Value;
+        public Session Session => _orchestrator.CurrentSession;
 
         public Action<TriggerData> OnTriggerReceived;
 
@@ -79,8 +77,9 @@ namespace Orchestrator.App
             if (data.Channel != "trigger") return;
 
             var triggerData = JsonConvert.DeserializeObject<TriggerData>(data.Data);
-
             if (triggerData.Id != Id) return;
+
+            _triggerData.Value = triggerData.Value;
             OnTriggerReceived?.Invoke(triggerData);
         }
     }
