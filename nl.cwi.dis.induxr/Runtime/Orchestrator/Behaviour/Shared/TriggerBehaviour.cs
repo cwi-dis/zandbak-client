@@ -17,6 +17,8 @@ namespace Orchestrator.Behaviour.Shared
         private App.Orchestrator _orchestrator;
         private App.Trigger _triggerObject;
 
+        public JObject Value => _triggerObject?.Value;
+
         private async void Start()
         {
             _orchestrator = OrchestratorController.Instance.Orchestrator;

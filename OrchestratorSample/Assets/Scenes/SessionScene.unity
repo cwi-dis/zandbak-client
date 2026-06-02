@@ -643,6 +643,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 1ce10a4b9be94cd5b759bde9d3f53f8b, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  onTriggerReceived:
+    m_PersistentCalls:
+      m_Calls: []
 --- !u!54 &410842090
 Rigidbody:
   m_ObjectHideFlags: 0
@@ -787,7 +790,7 @@ MonoBehaviour:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 533216125}
-  m_Enabled: 1
+  m_Enabled: 0
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 93adf609f76444d8c8c2a7c5c6fc4655, type: 3}
   m_Name: 

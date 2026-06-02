@@ -1,6 +1,5 @@
 using Newtonsoft.Json.Linq;
 using Orchestrator.Behaviour.Shared;
-using Orchestrator.Data;
 using UnityEngine;
 
 public class RunIntoMe : MonoBehaviour
@@ -13,6 +12,10 @@ public class RunIntoMe : MonoBehaviour
     {
         _triggerBehaviour = GetComponent<TriggerBehaviour>();
         _triggerBehaviour.onTriggerReceived.AddListener(TriggerReceived);
+
+        var value = _triggerBehaviour.Value;
+        if (value != null)
+            _counter = value.Value<int>("counter");
     }
 
     private void TriggerReceived(float timestamp, JObject data)
