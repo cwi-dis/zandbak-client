@@ -846,10 +846,11 @@ namespace Orchestrator.App
         /// </summary>
         /// <param name="channel">The channel to broadcast the data on</param>
         /// <param name="data">The data object to be broadcast to the session.</param>
+        /// <param name="deliverToCaller">Whether to deliver the broadcast to the caller as well</param>
         /// <typeparam name="T">The type of the data object being broadcast.</typeparam>
-        public void BroadcastData<T>(string channel, T data)
+        public void BroadcastData<T>(string channel, T data, bool deliverToCaller = false)
         {
-            OrchestratorController.Instance.Broadcast(channel, JsonConvert.SerializeObject(data));
+            OrchestratorController.Instance.Broadcast(channel, JsonConvert.SerializeObject(data), deliverToCaller);
         }
 
         /// <summary>

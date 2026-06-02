@@ -800,11 +800,12 @@ namespace Orchestrator.Wrapping {
 
         #region broadcasts
 
-        public void SendBroadcastToChannel(string channel, byte[] pByteArray) {
+        public void SendBroadcastToChannel(string channel, byte[] pByteArray, bool deliverToCaller = false) {
             lock (_sendLock) {
                 _socket.Emit("Broadcast",
                     channel,
-                    pByteArray
+                    pByteArray,
+                    deliverToCaller
                 );
             }
         }

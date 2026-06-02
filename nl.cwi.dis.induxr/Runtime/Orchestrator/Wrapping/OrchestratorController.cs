@@ -480,10 +480,11 @@ namespace Orchestrator.Wrapping
         /// </summary>
         /// <param name="channel">Channel to broadcast the message to</param>
         /// <param name="data">Data to be broadcast</param>
-        public void Broadcast(string channel, string data)
+        /// <param name="deliverToCaller">Whether to deliver the broadcast to the caller as well</param>
+        public void Broadcast(string channel, string data, bool deliverToCaller = false)
         {
             var bytes = Encoding.UTF8.GetBytes(data);
-            Broadcast(channel, bytes);
+            Broadcast(channel, bytes, deliverToCaller);
         }
 
         /// <summary>
@@ -491,9 +492,10 @@ namespace Orchestrator.Wrapping
         /// </summary>
         /// <param name="channel">The channel to which the data will be broadcasted.</param>
         /// <param name="bytes">The data to send, represented as an array of bytes.</param>
-        public void Broadcast(string channel, byte[] bytes)
+        /// <param name="deliverToCaller">Whether to deliver the broadcast to the caller as well</param>
+        public void Broadcast(string channel, byte[] bytes, bool deliverToCaller = false)
         {
-            _orchestratorWrapper.SendBroadcastToChannel(channel, bytes);
+            _orchestratorWrapper.SendBroadcastToChannel(channel, bytes, deliverToCaller);
         }
 
         void IUserMessagesListener.OnBroadcastReceived(BroadcastData broadcastData) {
