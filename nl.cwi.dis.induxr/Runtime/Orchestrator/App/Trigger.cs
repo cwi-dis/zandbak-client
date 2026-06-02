@@ -56,7 +56,7 @@ namespace Orchestrator.App
         }
 
         /// <summary>
-        /// Broadcasts transform data to all users in the current session.
+        /// Broadcasts trigger data to all users in the current session and the caller itself
         /// </summary>
         /// <param name="data">The movement data of the avatar, including user ID, bone data, and timestamp.</param>
         public void BroadcastUpdate(JObject data)
@@ -68,7 +68,7 @@ namespace Orchestrator.App
                 Id = Id,
                 Timestamp = Time.time,
                 Value = data
-            });
+            }, true);
         }
 
         private void BroadcastReceived(BroadcastData data)
