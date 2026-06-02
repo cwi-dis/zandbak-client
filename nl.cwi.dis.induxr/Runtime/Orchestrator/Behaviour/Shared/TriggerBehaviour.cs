@@ -4,24 +4,18 @@ using Orchestrator.Data;
 using Orchestrator.Util;
 using Orchestrator.Wrapping;
 using UnityEngine;
+using UnityEngine.Events;
 
 namespace Orchestrator.Behaviour.Shared
 {
     public class TriggerBehaviour : MonoBehaviour
     {
+        [SerializeField]
+        public UnityEvent<float, JObject> onTriggerReceived;
+
         private string _id;
         private App.Orchestrator _orchestrator;
         private App.Trigger _triggerObject;
-
-        /// <summary>
-        /// Event raised when a new trigger payload is received
-        /// </summary>
-        /// <remarks>
-        /// The <c>OnTriggerReceived</c> event is invoked with a <c>JObject</c> parameter containing
-        /// the data for the received trigger. It enables external observers to perform custom operations
-        /// in response to the trigger update event.
-        /// </remarks>
-        public event Action<TriggerData> OnTriggerReceived;
 
         private async void Start()
         {
@@ -70,7 +64,7 @@ namespace Orchestrator.Behaviour.Shared
         private void ProcessTriggerUpdate(TriggerData value)
         {
             Debug.Log($"New trigger received with value: {value}");
-            OnTriggerReceived?.Invoke(value);
+            onTriggerReceived?.Invoke(value.Timestamp, value.Value);
         }
     }
 }

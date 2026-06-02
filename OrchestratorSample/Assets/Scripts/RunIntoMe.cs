@@ -12,13 +12,13 @@ public class RunIntoMe : MonoBehaviour
     private void Start()
     {
         _triggerBehaviour = GetComponent<TriggerBehaviour>();
-        _triggerBehaviour.OnTriggerReceived += TriggerReceived;
+        _triggerBehaviour.onTriggerReceived.AddListener(TriggerReceived);
     }
 
-    private void TriggerReceived(TriggerData data)
+    private void TriggerReceived(float timestamp, JObject data)
     {
-        _counter = data.Value.Value<int>("counter");
-        Debug.Log($"Trigger received {_counter}");
+        _counter = data.Value<int>("counter");
+        Debug.Log($"Trigger received {_counter} at time {timestamp}");
     }
 
     private void OnTriggerEnter(Collider other)
