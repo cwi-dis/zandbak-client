@@ -7,10 +7,15 @@ public class WASDMovement : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        float horizontal = Input.GetAxis("Horizontal");
-        float vertical = Input.GetAxis("Vertical");
+        var horizontal = Input.GetAxis("Horizontal");
+        var vertical = Input.GetAxis("Vertical");
 
-        Vector3 movement = new Vector3(horizontal, 0, vertical) * speed * Time.deltaTime;
-        transform.Translate(movement, Space.Self);
+        Vector3 direction = new Vector3(horizontal, 0, vertical).normalized;
+
+        if (direction.magnitude > 0.1f)
+        {
+            transform.rotation = Quaternion.LookRotation(direction);
+            transform.Translate(direction * speed * Time.deltaTime, Space.World);
+        }
     }
 }
