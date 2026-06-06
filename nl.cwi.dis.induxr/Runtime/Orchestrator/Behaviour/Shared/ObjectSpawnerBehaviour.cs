@@ -84,6 +84,8 @@ namespace Orchestrator.Behaviour.Shared
         private void UserJoined(User user)
         {
             if (user.Id == _session.Self.Id) return;
+            // If user is of a type that cannot be spawned, ignore
+            if (!user.DeviceTypeConfig.CanSpawn) return;
 
             Debug.Log("Spawning new user with id " + user.Id);
 
