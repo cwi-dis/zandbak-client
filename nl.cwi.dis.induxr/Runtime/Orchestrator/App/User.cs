@@ -46,6 +46,11 @@ namespace Orchestrator.App
         public string DeviceType => UserData.DeviceType;
 
         /// <summary>
+        /// Represents the configuration for the type of device associated with the user.
+        /// </summary>
+        public OrchestratorController.DeviceType DeviceTypeConfig => OrchestratorController.DeviceType.CreateFromString(UserData.DeviceType);
+
+        /// <summary>
         /// Returns the user's current status (e.g. 'available', 'in a meeting', ...)
         /// </summary>
         public string Status => UserData.Status;
