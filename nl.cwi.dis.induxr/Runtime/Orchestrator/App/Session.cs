@@ -300,7 +300,7 @@ namespace Orchestrator.App
 
         /// <summary>
         /// Joins the current session by associating the calling user and the orchestrator with the session.
-        /// Updates the session state and enables movement broadcast listeners for all users within the session.
+        /// Updates the session state and enables pose broadcast listeners for all users within the session.
         /// </summary>
         public async void Join()
         {

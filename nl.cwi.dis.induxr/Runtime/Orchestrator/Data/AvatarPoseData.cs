@@ -4,18 +4,10 @@ using Newtonsoft.Json.Linq;
 
 namespace Orchestrator.Data
 {
-    public class AvatarMovementData
+    public class AvatarPoseData
     {
         [JsonProperty("userId")] public string UserId;
         [JsonProperty("transforms")] public Dictionary<string, BoneData> Transforms;
-        [JsonProperty("timestamp")] public float Timestamp;
-    }
-
-    public class MovementData
-    {
-        [JsonProperty("userId")] public string UserId;
-        [JsonProperty("position")] public PositionData Position;
-        [JsonProperty("rotation")] public RotationData Rotation;
         [JsonProperty("timestamp")] public float Timestamp;
     }
 

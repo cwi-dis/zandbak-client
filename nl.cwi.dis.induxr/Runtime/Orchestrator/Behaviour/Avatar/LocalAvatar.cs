@@ -58,14 +58,14 @@ namespace Orchestrator.Behaviour.Avatar
             {
                 _timer -= 1f / updateRate;
 
-                // Get bone data
-                var data = GetBoneData();
+                // Get pose data
+                var data = GetPoseData();
                 // Broadcast bone transforms to the current session
-                _user.BroadcastAvatarMovement(data);
+                _user.BroadcastAvatarPose(data);
             }
         }
 
-        private AvatarMovementData GetBoneData()
+        private AvatarPoseData GetPoseData()
         {
             // Get the bones from the SkinnedMeshRenderer and create a dictionary with the bone name as a key and the
             // position and rotation of the bone as value
@@ -75,8 +75,8 @@ namespace Orchestrator.Behaviour.Avatar
                 Rot = new RotationData { X = bone.rotation.x, Y = bone.rotation.y, Z = bone.rotation.z, W = bone.rotation.w },
             });
 
-            // Return AvatarMovementData object with user id, timestamp and bone data
-            return new AvatarMovementData {
+            // Return AvatarPoseData object with user id, timestamp and bone data
+            return new AvatarPoseData {
                 UserId = _user.Id,
                 Timestamp = Time.time,
                 Transforms = boneData

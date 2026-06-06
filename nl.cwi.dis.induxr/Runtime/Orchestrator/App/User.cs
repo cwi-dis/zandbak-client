@@ -66,7 +66,7 @@ namespace Orchestrator.App
         /// </summary>
         public GameObject Avatar;
 
-        public AvatarMovementData Transform => (UserData.Transform == null) ? null : new AvatarMovementData()
+        public AvatarPoseData Transform => (UserData.Transform == null) ? null : new AvatarPoseData()
         {
             UserId = UserData.Id,
             Timestamp = UserData.Transform.Timestamp,
@@ -78,9 +78,9 @@ namespace Orchestrator.App
         };
 
         /// <summary>
-        /// Event triggered when avatar movement data is received for this user.
+        /// Event triggered when avatar pose data is received for this user.
         /// </summary>
-        public event Action<AvatarMovementData> OnAvatarMovementReceived;
+        public event Action<AvatarPoseData> OnAvatarPoseReceived;
 
         /// <summary>
         /// Event triggered when the user raises or clears their raised hand. The boolean parameter indicates whether
@@ -117,7 +117,7 @@ namespace Orchestrator.App
                 if (Id != _orchestrator.Self.Id)
                 {
                     Debug.Log($"Enabling broadcasts for {Name}");
-                    EnableMovementBroadcastListener();
+                    EnablePoseBroadcastListener();
                 }
             }
             else
@@ -137,7 +137,7 @@ namespace Orchestrator.App
                 session.OnIsSpeakingChanged -= IsSpeakingChanged;
             }
 
-            DisableMovementBroadcastListener();
+            DisablePoseBroadcastListener();
         }
 
         /// <summary>
@@ -158,10 +158,10 @@ namespace Orchestrator.App
         }
 
         /// <summary>
-        /// Enables the reception of avatar movement broadcasts for the user in the current session. If the user is not
+        /// Enables the reception of avatar pose broadcasts for the user in the current session. If the user is not
         /// in any session, broadcasts will not be enabled and a warning is logged.
         /// </summary>
-        private void EnableMovementBroadcastListener()
+        private void EnablePoseBroadcastListener()
         {
             var session = _orchestrator.CurrentSession;
 
@@ -176,10 +176,10 @@ namespace Orchestrator.App
         }
 
         /// <summary>
-        /// Disables the reception of avatar movement broadcasts for the user in the current session.
+        /// Disables the reception of avatar pose broadcasts for the user in the current session.
         /// This stops the session from raising broadcast-related events for the user.
         /// </summary>
-        private void DisableMovementBroadcastListener()
+        private void DisablePoseBroadcastListener()
         {
             if (_orchestrator.CurrentSession == null)
                 return;
@@ -188,10 +188,10 @@ namespace Orchestrator.App
         }
 
         /// <summary>
-        /// Broadcasts avatar movement data to all users in the current session.
+        /// Broadcasts avatar pose data to all users in the current session.
         /// </summary>
-        /// <param name="data">The movement data of the avatar, including user ID, bone data, and timestamp.</param>
-        public void BroadcastAvatarMovement<T>(T data)
+        /// <param name="data">The pose data of the avatar, including user ID, bone data, and timestamp.</param>
+        public void BroadcastAvatarPose<T>(T data)
         {
             _orchestrator.CurrentSession?.BroadcastData("transform", data);
         }
@@ -199,10 +199,10 @@ namespace Orchestrator.App
         private void BroadcastReceived(BroadcastData data)
         {
             if (data.Channel != "transform") return;
-            var movement = JsonConvert.DeserializeObject<AvatarMovementData>(data.Data);
+            var pose = JsonConvert.DeserializeObject<AvatarPoseData>(data.Data);
 
-            if (movement.UserId != Id) return;
-            OnAvatarMovementReceived?.Invoke(movement);
+            if (pose.UserId != Id) return;
+            OnAvatarPoseReceived?.Invoke(pose);
         }
 
         private void HandRaised(User user)

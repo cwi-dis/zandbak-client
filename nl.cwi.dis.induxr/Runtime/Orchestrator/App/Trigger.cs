@@ -56,9 +56,9 @@ namespace Orchestrator.App
         }
 
         /// <summary>
-        /// Broadcasts trigger data to all users in the current session and the caller itself
+        /// Broadcasts trigger updates to all users in the current session.
         /// </summary>
-        /// <param name="data">The movement data of the avatar, including user ID, bone data, and timestamp.</param>
+        /// <param name="data">The trigger data to be broadcast to the session.</param>
         public void BroadcastUpdate(JObject data)
         {
             if (!_broadcastsEnabled) return;
