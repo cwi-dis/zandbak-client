@@ -9,50 +9,13 @@ namespace Orchestrator.Behaviour.Avatar
 {
     public class SkinnedMeshAvatarBehaviour : AvatarBehaviour
     {
-        [Header("General Options")]
-        [Tooltip("A reference to the object to be used as notification icon. If given, the notification icon will be shown when the user's hand is raised.")]
-        public GameObject notification;
-        [Tooltip("A reference to a text object to be used for displaying the user's username.")]
-        public TextMesh usernamePlaque;
-
-        [Header("Local Options")]
-        [Tooltip("How many times a second the pose data should be broadcast to the server.")]
-        public int updateRate = 10;
-
-        [Header("Remote Options (Smoothing)")]
-        public int linearInterpolationRate = 5;
-
-        private User _user;
-        private bool _isLocal;
         private SkinnedMeshRenderer _mesh;
 
-        // Local state
-        private float _updateTimer;
-
-        // Remote state
-        private AvatarMovementData _previousReceivedData;
-
-        private AvatarMovementData _lastReceivedData;
-        private float _lastReceiveTime;
         private Dictionary<string, Vector3> _interpolationBonePosition = new();
         private Dictionary<string, Quaternion> _interpolationBoneRotation = new();
 
-
-        public override void Initialize(User user)
+        protected override void Start()
         {
-            _user = user;
-            _user.Avatar = gameObject;
-            _isLocal = user is SelfUser;
-        }
-
-        private void Start()
-        {
-            if (_user == null)
-            {
-                Debug.LogError("User is null. Make sure to call Initialize()");
-                return;
-            }
-
             _mesh = GetComponentInChildren<SkinnedMeshRenderer>();
 
             if (!_mesh)
@@ -61,79 +24,25 @@ namespace Orchestrator.Behaviour.Avatar
                 return;
             }
 
-            if (usernamePlaque != null)
-            {
-                usernamePlaque.text = _user.Name;
-            }
-
-            if (notification != null)
-            {
-                _user.OnHandRaised += (isRaised) => notification.SetActive(isRaised);
-            }
-
-            if (_isLocal)
-            {
-                // hide username plaque for the local user
-                Debug.Log("Hiding username plaque for local user");
-                usernamePlaque?.gameObject.SetActive(false);
-            }
-            else
-            {
-                _lastReceiveTime = Time.realtimeSinceStartup;
-
-                if (_user.Transform != null)
-                {
-                    UpdatePose(_user.Transform);
-                }
-
-                _user.OnAvatarMovementReceived += PoseReceived;
-                _user.OnIsSpeaking += (isSpeaking) => Debug.Log($"{_user.Name} is speaking: {isSpeaking}");
-
-                // Disable all other behaviours for remote avatars
-                foreach (var comp in GetComponents<UnityEngine.Behaviour>())
-                {
-                    if (comp != this) comp.enabled = false;
-                }
-            }
+            base.Start();
         }
 
-        private void Update()
+        protected override void Update()
         {
-            if (_user == null) return;
             if (!_mesh) return;
-
-            if (_isLocal)
-            {
-                BroadcastPose();
-            }
-            else
-            {
-                ApplyPose();
-            }
+            base.Update();
         }
 
-        private void BroadcastPose()
+        protected override void InterpolatePose()
         {
-            _updateTimer += Time.deltaTime;
-
-            if (_updateTimer >= 1f / updateRate)
-            {
-                _updateTimer -= 1f / updateRate;
-                var data = GetBoneData();
-                ((SelfUser)_user).BroadcastAvatarMovement(data);
-            }
-        }
-
-        private void ApplyPose()
-        {
-            if (_lastReceivedData == null)
+            if (LastReceivedData == null)
                 return;
 
-            var t = Mathf.Clamp01((Time.realtimeSinceStartup - _lastReceiveTime) * linearInterpolationRate);
+            var t = Mathf.Clamp01((Time.realtimeSinceStartup - LastReceivedTime) * linearInterpolationRate);
 
             foreach (var bone in _mesh.bones)
             {
-                if (_lastReceivedData.Transforms.TryGetValue(bone.name, out var lastFoundBone) && _interpolationBonePosition.TryGetValue(bone.name, out var currentBonePosition) && _interpolationBoneRotation.TryGetValue(bone.name, out var currentBoneRotation))
+                if (LastReceivedData.Transforms.TryGetValue(bone.name, out var lastFoundBone) && _interpolationBonePosition.TryGetValue(bone.name, out var currentBonePosition) && _interpolationBoneRotation.TryGetValue(bone.name, out var currentBoneRotation))
                 {
                     bone.SetPositionAndRotation(
                         Vector3.Lerp(
@@ -151,7 +60,7 @@ namespace Orchestrator.Behaviour.Avatar
             }
         }
 
-        private AvatarMovementData GetBoneData()
+        protected override AvatarPoseData CollectPoseData()
         {
             var boneData = _mesh.bones.ToDictionary(bone => bone.name, bone => new BoneData
             {
@@ -159,31 +68,29 @@ namespace Orchestrator.Behaviour.Avatar
                 Rot = new RotationData { X = bone.rotation.x, Y = bone.rotation.y, Z = bone.rotation.z, W = bone.rotation.w },
             });
 
-            return new AvatarMovementData {
-                UserId = _user.Id,
+            return new AvatarPoseData {
+                UserId = User.Id,
                 Timestamp = Time.time,
                 Transforms = boneData
             };
         }
 
-        private void PoseReceived(AvatarMovementData movement)
+        protected override void OnPoseReceived(AvatarPoseData pose)
         {
-            _lastReceivedData = movement;
-            _lastReceiveTime = Time.realtimeSinceStartup;
-
             foreach (var bone in _mesh.bones)
             {
                 // Snapshot current position and rotation for the bone
                 _interpolationBonePosition[bone.name] = bone.position;
                 _interpolationBoneRotation[bone.name] = bone.rotation;
             }
+            base.OnPoseReceived(pose);
         }
 
-        private void UpdatePose(AvatarMovementData movement)
+        protected override void SetPose(AvatarPoseData pose)
         {
             foreach (var bone in _mesh.bones)
             {
-                if (movement.Transforms.TryGetValue(bone.name, out var foundBone)) {
+                if (pose.Transforms.TryGetValue(bone.name, out var foundBone)) {
                     bone.SetPositionAndRotation(new Vector3(
                         foundBone.Pos.X,
                         foundBone.Pos.Y,
