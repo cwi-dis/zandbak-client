@@ -26,11 +26,36 @@ namespace Orchestrator.Wrapping
             Connected
         }
 
-        public enum DeviceType
+        public struct DeviceType
         {
-            VR,
-            AR,
-            Unknown
+            public static DeviceType VR => new ("VR", true);
+            public static DeviceType AR => new ("AR", true);
+            public static DeviceType Desktop => new("desktop", true);
+            public static DeviceType Unknown => new("unknown", false);
+            public static DeviceType Headless => new("headless", false);
+
+            public bool CanSpawn { get; private set; }
+            public string Name { get; private set; }
+
+            private DeviceType(string name, bool canSpawn)
+            {
+                Name = name;
+                CanSpawn = canSpawn;
+            }
+
+            public static DeviceType CreateFromString(string deviceType)
+            {
+                return deviceType switch
+                {
+                    "vr" => VR,
+                    "ar" => AR,
+                    "desktop" => Desktop,
+                    "headless" => Headless,
+                    _ => Unknown
+                };
+            }
+
+            public override string ToString() => Name;
         }
 
         // the wrapper for the orchestrator
@@ -326,13 +351,6 @@ namespace Orchestrator.Wrapping
         }
 
         #endregion
-
-        public static string DeviceTypeToString(DeviceType deviceType) => deviceType switch
-        {
-            DeviceType.VR => "vr",
-            DeviceType.AR => "ar",
-            _ => "unknown"
-        };
 
         #region Sessions
 
