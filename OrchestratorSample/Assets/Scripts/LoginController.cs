@@ -1,3 +1,5 @@
+using Orchestrator.Attributes;
+using Orchestrator.ScriptableObjects;
 using Orchestrator.Wrapping;
 using TMPro;
 using UnityEngine;
@@ -6,14 +8,22 @@ using UnityEngine.UI;
 
 public class LoginController : MonoBehaviour
 {
+    [Header("Avatar Prefab")]
     [SerializeField]
+    public AvatarPrefabRegistry prefabRegistry;
+    [SerializeField]
+    [PrefabNameSelection(nameof(prefabRegistry))]
     public string avatarPrefabName = "riggedAvatar";
+
+    [Header("Login Form Components")]
     [SerializeField]
     public TMP_InputField usernameField;
     [SerializeField]
     public TMP_InputField passwordField;
     [SerializeField]
     public Button loginButton;
+
+    [Header("Connection Status Field")]
     [SerializeField]
     public TMP_Text connectionStatusText;
 
