@@ -82,7 +82,7 @@ namespace Orchestrator.Data
     {
         [JsonProperty("id")] public string Id;
         [JsonProperty("owner")] public User Owner;
-        [JsonProperty("value")] public JObject Value;
+        [JsonProperty("value")] public TriggerData Value;
     }
 
     public class SfuData : IOrchestratorElement
