@@ -12,10 +12,18 @@ public class RunIntoMe : MonoBehaviour
     {
         _triggerBehaviour = GetComponent<TriggerBehaviour>();
         _triggerBehaviour.onTriggerReceived.AddListener(TriggerReceived);
+        _triggerBehaviour.onInitialized.AddListener(OnTriggerInitialized);
+    }
 
-        var value = _triggerBehaviour.Value;
-        if (value != null)
-            _counter = value.Value<int>("counter");
+    private void OnTriggerInitialized()
+    {
+        var triggerData = _triggerBehaviour.Data;
+
+        if (triggerData != null)
+        {
+            _counter = triggerData.Value.Value<int>("counter");
+            Debug.Log($"Initialised counter to {_counter}");
+        }
     }
 
     private void TriggerReceived(float timestamp, JObject data)
