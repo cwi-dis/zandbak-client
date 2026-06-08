@@ -743,7 +743,7 @@ namespace Orchestrator.App
 
                     if (foundTrigger != null)
                     {
-                        Debug.Log("Found shared object in list, updating it...");
+                        Debug.Log("Found trigger in list, updating it...");
                         foundTrigger.TriggerData = triggerData;
                         tcs.SetResult(foundTrigger);
 
@@ -752,6 +752,42 @@ namespace Orchestrator.App
 
                     var triggerObject = new Trigger(_orchestrator, triggerData);
                     tcs.SetResult(triggerObject);
+                }
+                else
+                {
+                    tcs.SetException(new Exception(status.Message));
+                }
+            });
+
+            return tcs.Task;
+        }
+
+        /// <summary>
+        /// Retrieves a trigger by its unique identifier from the orchestrator session. If the trigger is found locally,
+        /// its data is updated with the data retrieved from the orchestrator.
+        /// </summary>
+        /// <param name="id">The unique identifier of the trigger to retrieve.</param>
+        /// <returns>A task that represents the asynchronous operation. The task result contains the trigger
+        /// with updated data if found, or throws an exception if the trigger is not found locally or if an error occurs.</returns>
+        public Task<Trigger> GetTrigger(string id)
+        {
+            var tcs = new TaskCompletionSource<Trigger>();
+
+            OrchestratorController.Instance.Wrapper.GetTrigger(id, (status, triggerData) =>
+            {
+                if (status.IsOk)
+                {
+                    var foundTrigger = FindTriggerById(triggerData.Id);
+
+                    if (foundTrigger != null)
+                    {
+                        foundTrigger.TriggerData = triggerData;
+                        tcs.SetResult(foundTrigger);
+                    }
+                    else
+                    {
+                        tcs.SetException(new Exception("Trigger not found locally"));
+                    }
                 }
                 else
                 {
