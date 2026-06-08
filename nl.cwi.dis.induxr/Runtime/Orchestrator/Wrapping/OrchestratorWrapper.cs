@@ -740,6 +740,21 @@ namespace Orchestrator.Wrapping {
             }
         }
 
+        public void GetTrigger(string id, Action<ResponseStatus, Trigger> callback)
+        {
+            lock (this)
+            {
+                _socket.Emit("GetTrigger", (response) =>
+                {
+                    var data = response.GetValue<OrchestratorResponse<Trigger>>();
+                    UnityThread.executeInUpdate(() =>
+                    {
+                        callback(data.ResponseStatus, data.Body);
+                    });
+                }, new { id });
+            }
+        }
+
         public void ClaimObjectOwnership(string objectId, Action<ResponseStatus, SharedObject> callback)
         {
             lock (this)
