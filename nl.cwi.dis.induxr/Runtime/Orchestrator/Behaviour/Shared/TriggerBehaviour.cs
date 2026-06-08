@@ -1,4 +1,5 @@
 using System;
+using System.Threading.Tasks;
 using Newtonsoft.Json.Linq;
 using Orchestrator.Data;
 using Orchestrator.Util;
@@ -11,13 +12,16 @@ namespace Orchestrator.Behaviour.Shared
     public class TriggerBehaviour : MonoBehaviour
     {
         [SerializeField]
+        public UnityEvent onInitialized;
+
+        [SerializeField]
         public UnityEvent<float, JObject> onTriggerReceived;
 
         private string _id;
         private App.Orchestrator _orchestrator;
         private App.Trigger _triggerObject;
 
-        public JObject Value => _triggerObject?.Value;
+        public TriggerData Data => _triggerObject?.Data;
 
         private async void Start()
         {
@@ -30,12 +34,12 @@ namespace Orchestrator.Behaviour.Shared
             if (!session.HasTrigger(_id) && session.IsAdministrator(_orchestrator.Self))
             {
                 _triggerObject = await _orchestrator.CurrentSession.RegisterTrigger(gameObject, new JObject());
-                Debug.Log($"Registered trigger object ${_triggerObject.Id} for owner {_triggerObject.Owner.Name} with initial value {_triggerObject.Value}");
+                Debug.Log($"Registered trigger object ${_triggerObject.Id} for owner {_triggerObject.Owner.Name} with initial value {_triggerObject.Data}");
             }
             else
             {
                 Debug.Log($"Attempting to find trigger object with id {_id}");
-                _triggerObject = _orchestrator.CurrentSession.FindTriggerById(_id);
+                _triggerObject = await _orchestrator.CurrentSession.GetTrigger(_id);
 
                 if (_triggerObject == null)
                 {
@@ -46,6 +50,8 @@ namespace Orchestrator.Behaviour.Shared
 
             _triggerObject.OnTriggerReceived += ProcessTriggerUpdate;
             _triggerObject.EnableBroadcasts();
+
+            onInitialized?.Invoke();
         }
 
         private void OnDestroy()
@@ -63,10 +69,10 @@ namespace Orchestrator.Behaviour.Shared
             _triggerObject.BroadcastUpdate(value);
         }
 
-        private void ProcessTriggerUpdate(TriggerData value)
+        private void ProcessTriggerUpdate(TriggerData triggerData)
         {
-            Debug.Log($"New trigger received with value: {value}");
-            onTriggerReceived?.Invoke(value.Timestamp, value.Value);
+            Debug.Log($"New trigger received with value: {triggerData.Value}");
+            onTriggerReceived?.Invoke(triggerData.Timestamp, triggerData.Value);
         }
     }
 }
