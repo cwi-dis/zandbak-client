@@ -799,6 +799,42 @@ namespace Orchestrator.App
         }
 
         /// <summary>
+        /// Retrieves a shared object by its unique identifier from the orchestrator session. If the shared object is
+        /// found locally, its data is updated with the data retrieved from the orchestrator.
+        /// </summary>
+        /// <param name="id">The unique identifier of the shared object to retrieve.</param>
+        /// <returns>A task that represents the asynchronous operation. The task result contains the shared object
+        /// with updated data if found, or throws an exception if the shared object is not found locally or if an error occurs.</returns>
+        public Task<SharedObject> GetSharedObject(string id)
+        {
+            var tcs = new TaskCompletionSource<SharedObject>();
+
+            OrchestratorController.Instance.Wrapper.GetSharedObject(id, (status, sharedObjectData) =>
+            {
+                if (status.IsOk)
+                {
+                    var foundSharedObject = FindSharedObjectById(sharedObjectData.Id);
+
+                    if (foundSharedObject != null)
+                    {
+                        foundSharedObject.SharedObjectData = sharedObjectData;
+                        tcs.SetResult(foundSharedObject);
+                    }
+                    else
+                    {
+                        tcs.SetException(new Exception("Shared Object not found locally"));
+                    }
+                }
+                else
+                {
+                    tcs.SetException(new Exception(status.Message));
+                }
+            });
+
+            return tcs.Task;
+        }
+
+        /// <summary>
         /// Spawns a new shared object in the orchestrator.
         /// </summary>
         /// <param name="prefabPath">The path to the prefab to be spawned in the Resources/ folder.</param>
