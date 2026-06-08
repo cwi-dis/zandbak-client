@@ -755,6 +755,21 @@ namespace Orchestrator.Wrapping {
             }
         }
 
+        public void GetSharedObject(string id, Action<ResponseStatus, SharedObject> callback)
+        {
+            lock (this)
+            {
+                _socket.Emit("GetSharedObject", (response) =>
+                {
+                    var data = response.GetValue<OrchestratorResponse<SharedObject>>();
+                    UnityThread.executeInUpdate(() =>
+                    {
+                        callback(data.ResponseStatus, data.Body);
+                    });
+                }, new { id });
+            }
+        }
+
         public void ClaimObjectOwnership(string objectId, Action<ResponseStatus, SharedObject> callback)
         {
             lock (this)
