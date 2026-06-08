@@ -3,6 +3,7 @@ using Orchestrator.Data;
 using Orchestrator.Util;
 using Orchestrator.Wrapping;
 using UnityEngine;
+using UnityEngine.Events;
 
 namespace Orchestrator.Behaviour.Shared
 {
@@ -15,10 +16,15 @@ namespace Orchestrator.Behaviour.Shared
     /// </remarks>
     public class SharedObjectBehaviour : MonoBehaviour
     {
+        [SerializeField]
         [Tooltip("How many times a second the pose data should be broadcast to the server.")]
         public int updateRate = 10;
+        [SerializeField]
         [Tooltip("Rate (in Hz) at which received pose updates are interpolated. Should roughly match the sender's updateRate.")]
         public int linearInterpolationRate = 5;
+        [SerializeField]
+        [Tooltip("Callback invoked when the shared object is initialized and ready for use.")]
+        public UnityEvent onInitialized;
 
         private string _id;
         private App.Orchestrator _orchestrator;
@@ -56,6 +62,8 @@ namespace Orchestrator.Behaviour.Shared
 
             _sharedObject.OnObjectDataReceived += ProcessObjectUpdate;
             _sharedObject.EnableBroadcasts();
+
+            onInitialized?.Invoke();
         }
 
         private void OnDestroy()

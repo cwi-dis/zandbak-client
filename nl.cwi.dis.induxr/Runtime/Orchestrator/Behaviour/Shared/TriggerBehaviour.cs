@@ -12,9 +12,11 @@ namespace Orchestrator.Behaviour.Shared
     public class TriggerBehaviour : MonoBehaviour
     {
         [SerializeField]
+        [Tooltip("Callback invoked when the shared object is initialized and ready for use.")]
         public UnityEvent onInitialized;
 
         [SerializeField]
+        [Tooltip("Callback invoked when a trigger value is received from the server.")]
         public UnityEvent<float, JObject> onTriggerReceived;
 
         private string _id;
