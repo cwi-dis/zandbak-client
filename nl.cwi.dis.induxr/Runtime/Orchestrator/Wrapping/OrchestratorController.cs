@@ -140,7 +140,7 @@ namespace Orchestrator.Wrapping
         /// <summary>
         /// Invoked when the status of a user changes
         /// </summary>
-        public event Action<User, string> OnUserStatusChangedEvent;
+        public event Action<string, string> OnUserStatusChangedEvent;
 
         /// <summary>
         /// Invoked when the current presentation of the current session changes
@@ -165,7 +165,7 @@ namespace Orchestrator.Wrapping
         /// <summary>
         /// Invoked when a user changes their `isSpeaking` property
         /// </summary>
-        public event Action<User, bool> OnSessionIsSpeakingEvent;
+        public event Action<string, bool> OnSessionIsSpeakingEvent;
 
         /// <summary>
         /// Invoked when a new session is created
@@ -404,20 +404,12 @@ namespace Orchestrator.Wrapping
 
         void IUserSessionEventsListener.OnSessionIsSpeakingChanged(string userId, bool isSpeaking)
         {
-            var user = _session.UserDefinitions.Find((u) => u.Id == userId);
-            if (user == null) return;
-
-            user.IsSpeaking = isSpeaking;
-            OnSessionIsSpeakingEvent?.Invoke(user, isSpeaking);
+            OnSessionIsSpeakingEvent?.Invoke(userId, isSpeaking);
         }
 
         void IUserSessionEventsListener.OnUserStatusChanged(string userId, string status)
         {
-            var user = _session.UserDefinitions.Find((u) => u.Id == userId);
-            if (user == null) return;
-
-            user.Status = status;
-            OnUserStatusChangedEvent?.Invoke(user, status);
+            OnUserStatusChangedEvent?.Invoke(userId, status);
         }
 
         void IOrchestratorEventsListener.OnSessionCreated(Session session)

@@ -978,9 +978,9 @@ namespace Orchestrator.App
             }
         }
 
-        private void UserStatusChanged(Data.User user, string status)
+        private void UserStatusChanged(string userId, string status)
         {
-            var foundUser = Users.Find(u => u.Id == user.Id);
+            var foundUser = Users.Find(u => u.Id == userId);
             foundUser.UserData.Status = status;
 
             OnUserStatusChanged?.Invoke(foundUser);
@@ -1057,9 +1057,9 @@ namespace Orchestrator.App
             OnMessageReceived?.Invoke(message);
         }
 
-        private void IsSpeakingChanged(Data.User user, bool isSpeaking)
+        private void IsSpeakingChanged(string userId, bool isSpeaking)
         {
-            var foundUser = Users.Find(u => u.Id == user.Id);
+            var foundUser = Users.Find(u => u.Id == userId);
             if (foundUser == null) return;
 
             OnIsSpeakingChanged?.Invoke(foundUser, isSpeaking);
