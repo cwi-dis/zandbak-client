@@ -54,40 +54,54 @@ namespace Orchestrator.Behaviour.Avatar
                 return;
             }
 
-            if (usernamePlaque != null)
-            {
-                usernamePlaque.text = User.Name;
-            }
-
             if (notification != null)
             {
-                User.OnHandRaised += (isRaised) => notification.SetActive(isRaised);
+                User.OnHandRaised += HandRaised;
             }
 
             if (_isLocal)
             {
-                // hide username plaque for the local user
-                Debug.Log("Hiding username plaque for local user");
-                usernamePlaque?.gameObject.SetActive(false);
+                StartLocal();
             }
             else
             {
-                // Remote specific setup
-                LastReceivedTime = Time.realtimeSinceStartup;
+                StartRemote();
+            }
+        }
 
-                if (User.Transform != null)
-                {
-                    SetPose(User.Transform);
-                }
+        private void OnDestroy()
+        {
+            if (User != null)
+                User.OnHandRaised -= HandRaised;
+        }
 
-                User.OnAvatarPoseReceived += OnPoseReceived;
-                User.OnIsSpeaking += (isSpeaking) => Debug.Log($"{User.Name} is speaking: {isSpeaking}");
+        protected virtual void StartLocal()
+        {
+            // hide username plaque for the local user
+            Debug.Log("Hiding username plaque for local user");
+            usernamePlaque?.gameObject.SetActive(false);
+        }
 
-                // Disable all other behaviours for remote avatars
-                foreach (var comp in GetComponents<UnityEngine.Behaviour>())
-                {
-                    if (comp != this) comp.enabled = false;
-                }
+        protected virtual void StartRemote()
+        {
+            if (usernamePlaque != null)
+                usernamePlaque.text = User.Name;
+
+            // Remote specific setup
+            LastReceivedTime = Time.realtimeSinceStartup;
+
+            if (User.Transform != null)
+            {
+                SetPose(User.Transform);
+            }
+
+            User.OnAvatarPoseReceived += OnPoseReceived;
+            User.OnIsSpeaking += (isSpeaking) => Debug.Log($"{User.Name} is speaking: {isSpeaking}");
+
+            // Disable all other behaviours for remote avatars
+            foreach (var comp in GetComponents<UnityEngine.Behaviour>())
+            {
+                if (comp != this) comp.enabled = false;
             }
         }
 
@@ -149,5 +163,7 @@ namespace Orchestrator.Behaviour.Avatar
             LastReceivedData = pose;
             LastReceivedTime = Time.realtimeSinceStartup;
         }
+
+        private void HandRaised(bool isRaised) => notification.SetActive(isRaised);
     }
 }
