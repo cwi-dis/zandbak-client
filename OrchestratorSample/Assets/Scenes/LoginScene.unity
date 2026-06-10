@@ -570,14 +570,6 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 0}
     m_Modifications:
-    - target: {fileID: 1294139776792562445, guid: ca6362ea069d94cd191cf23222deb399, type: 3}
-      propertyPath: prefabRegistry
-      value: 
-      objectReference: {fileID: 11400000, guid: 0b2a45ca39a204cf9b3120180d20c47b, type: 2}
-    - target: {fileID: 1294139776792562445, guid: ca6362ea069d94cd191cf23222deb399, type: 3}
-      propertyPath: avatarPrefabName
-      value: simpleAvatar
-      objectReference: {fileID: 0}
     - target: {fileID: 7571488305789904799, guid: ca6362ea069d94cd191cf23222deb399, type: 3}
       propertyPath: m_Name
       value: LoginUI

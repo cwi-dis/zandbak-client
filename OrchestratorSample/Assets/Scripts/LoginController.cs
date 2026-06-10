@@ -1,3 +1,4 @@
+using System.Linq;
 using Orchestrator.Attributes;
 using Orchestrator.ScriptableObjects;
 using Orchestrator.Wrapping;
@@ -11,15 +12,14 @@ public class LoginController : MonoBehaviour
     [Header("Avatar Prefab")]
     [SerializeField]
     public AvatarPrefabRegistry prefabRegistry;
-    [SerializeField]
-    [PrefabNameSelection(nameof(prefabRegistry))]
-    public string avatarPrefabName = "riggedAvatar";
 
     [Header("Login Form Components")]
     [SerializeField]
     public TMP_InputField usernameField;
     [SerializeField]
     public TMP_InputField passwordField;
+    [SerializeField]
+    public TMP_Dropdown avatarDropdown;
     [SerializeField]
     public Button loginButton;
 
@@ -69,6 +69,9 @@ public class LoginController : MonoBehaviour
         // Enable text input fields
         usernameField.interactable = true;
         passwordField.interactable = true;
+
+        // Populate the avatar dropdown with the available avatar names from the avatar prefab registry
+        avatarDropdown.AddOptions(prefabRegistry.GetPrefabNames().ToList());
     }
 
     public async void OnLoginClicked()
@@ -82,9 +85,10 @@ public class LoginController : MonoBehaviour
             return;
         }
 
-        Debug.Log("Performing login using: " + username + " " + password);
+        var avatarPrefabName = avatarDropdown.options[avatarDropdown.value].text;
+        Debug.Log($"Performing login using: {username} {password} {avatarPrefabName}");
 
-        // Attempt to log sin using the provided credentials. Pass null for the password if the password string is empty
+        // Attempt to log in using the provided credentials. Pass null for the password if the password string is empty
         var user = await _orchestrator.Login(username, (password != "") ? password : null, OrchestratorController.DeviceType.Desktop, avatarPrefabName);
         Debug.Log("Login successful. User ID: " + user.Id);
 
