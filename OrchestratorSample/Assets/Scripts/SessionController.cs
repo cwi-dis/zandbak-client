@@ -149,6 +149,12 @@ public class SessionController : MonoBehaviour
         // Initialise notification buffer and print welcome message
         _notificationBuffer = new NotificationBuffer(30, notificationField);
         _notificationBuffer.AddNotification($"Welcome to <i>{_session.Name}</i>\nThis room uses room model {_session.Room.Name}\n");
+
+        if (_session.CurrentPresentation != null)
+        {
+            _isSharingPresentation = _session.CurrentPresentation.IsSharing;
+            presentationCanvas.gameObject.SetActive(_isSharingPresentation);
+        }
     }
 
     private async void NextPresentation()
