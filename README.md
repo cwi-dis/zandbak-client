@@ -1,6 +1,6 @@
 ![](client_lib_logo.png)
 
-The Zandbak Client Library is a Unity package designed to facilitate the creation of networked, shared social VR experiences. It provides a high-level API for interacting with the [Orchestrator backend](https://github.com/cwi-dis/zandbak-orchestrator), managing sessions, user synchronization, shared objects, and real-time communication.
+The Zandbak Client Library is a Unity package designed to facilitate the creation of networked, shared social VR experiences. It provides a high-level API for interacting with the [Orchestrator backend](https://github.com/cwi-dis/zandbak-orchestrator), managing sessions, user synchronization, shared objects, and real-time communication. This repository contains the library itself under `nl.cwi.dis.induxr/` and a minimal sample application under `OrchestratorSample/`.
 
 ## Features
 
@@ -24,7 +24,9 @@ The Zandbak Client Library is a Unity package designed to facilitate the creatio
 
 ## Setup
 
-1. **Installation**: Add this package to your Unity project via the Package Manager (using the git URL or local path).
+Before you start, make sure to get and set up the [Zandbak Orchestrator](https://github.com/cwi-dis/zandbak-orchestrator), as this library is designed to work in tandem with it.
+
+1. **Installation**: Add the package in `nl.cwi.dis.induxr/` to your Unity project via the Package Manager (using the git URL or local path).
 2. **Orchestrator Controller**: Add the `OrchestratorController` prefab (found in `Runtime/Orchestrator/Prefabs`) to your initial scene.
 3. **Configuration**:
    - Use `OrchestratorController.Instance.SocketConnectAsync(url)` to establish a connection to your Orchestrator backend.
@@ -32,7 +34,7 @@ The Zandbak Client Library is a Unity package designed to facilitate the creatio
 
 ## Getting Started (Minimal Application)
 
-Based on the `OrchestratorSample`, here is how to set up a minimal application using the wrapper.
+The folder `OrchestratorSample/` provides a minimal sample application. You can run it by adding the folder as a new project in Unity Hub. The following sections give a high-level overview of its functionality:
 
 ### 1. Establish Connection & Login
 Establish a connection to the Orchestrator and log in with a username.
