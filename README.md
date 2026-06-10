@@ -11,7 +11,7 @@ The Zandbak Client Library is a Unity package designed to facilitate the creatio
 - **Conversation Bubbles**: Dynamic group management for focused interactions (e.g., spatial audio groups).
 - **Real-time Broadcasts**: Send and receive custom data messages over Socket.IO channels.
 - **Voice Support**: Integrated voice transmitter and receiver components (utilizing Concentus for Opus).
-- **Avatar Synchronization**: Base behaviours for local and remote avatars.
+- **Avatar Synchronization**: Base behaviours for local and remote avatars, including support for Skinned Meshes and XR Origins.
 
 ## Requirements
 
@@ -20,6 +20,7 @@ The Zandbak Client Library is a Unity package designed to facilitate the creatio
   - `com.itisnajim.socketiounity` (1.1.4)
   - `com.unity.nuget.newtonsoft-json` (3.2.1)
   - `com.unity.xr.interaction.toolkit` (3.3.1)
+  - `com.unity.xr.core-utils` (for XR Origin support)
   - **Concentus**: Included in the `Plugins` folder (Opus codec implementation).
 
 ## Setup
@@ -153,6 +154,12 @@ private async void OnMouseDown() {
 
 *Note: For XR, use the provided `XRClaimOnGrab` helper component to handle ownership automatically when using the XR Interaction Toolkit.*
 
+#### Prefab Registries
+The library uses `ScriptableObject` registries to manage prefabs for shared objects and avatars.
+- **SharedObjectPrefabRegistry**: Maps prefab names to `GameObject` assets.
+- **AvatarPrefabRegistry**: Specialized registry for avatars, allowing for a default avatar if a specific one is not found.
+- **Prefab Selection**: Use the `[PrefabNameSelection(nameof(registryField))]` attribute on string fields to provide a dropdown of available prefab names in the Inspector.
+
 ### 6. Triggers (Event Sync)
 `TriggerBehaviour` synchronizes discrete events or state changes using JSON (`JObject`) payloads.
 
@@ -190,9 +197,11 @@ void OnTriggerEnter(Collider other) {
 The package provides several MonoBehaviours categorized by their functional area in `Runtime/Orchestrator/Behaviour/`.
 
 ### Avatar
-Synchronizes player representations across the network.
-- **LocalAvatar**: Attached to the local player's prefab. It captures bone transformations from a `SkinnedMeshRenderer` and broadcasts them to the session. Supports hand-raising notifications.
-- **RemoteAvatar**: Attached to remote player representations. It receives bone transformation data and applies it to the local mesh, with optional linear interpolation (smoothing) to handle network jitter. Supports name plaques and speaking indicators.
+Synchronizes player representations across the network. All avatars should inherit from `AvatarBehaviour` and be initialized via `Initialize(user)`.
+- **SimpleAvatarBehaviour**: Synchronizes the root transform (position and rotation). Ideal for simple 3D representations or early prototyping.
+- **SkinnedMeshAvatarBehaviour**: Captures and synchronizes bone transformations from a `SkinnedMeshRenderer`. 
+- **XRAvatarBehaviour**: Specifically for XR Origins. Synchronizes the root, head (camera), and both hands.
+- **LocalAvatar**: (Legacy/Obsolete) Attached to the local player's prefab. It captures bone transformations from a `SkinnedMeshRenderer` and broadcasts them to the session. Supports hand-raising notifications.
 
 ### Shared
 Core synchronization components for scene objects.
