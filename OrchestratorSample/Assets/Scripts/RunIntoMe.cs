@@ -19,7 +19,7 @@ public class RunIntoMe : MonoBehaviour
     {
         var triggerData = _triggerBehaviour.Data;
 
-        if (triggerData != null)
+        if (triggerData != null && triggerData.IsPopulated)
         {
             _counter = triggerData.Value.Value<int>("counter");
             Debug.Log($"Initialised counter to {_counter}");

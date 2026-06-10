@@ -24,6 +24,8 @@ namespace Orchestrator.Data
         [JsonProperty("id")] public string Id;
         [JsonProperty("timestamp")] public float Timestamp;
         [JsonProperty("value")] public JObject Value;
+
+        public bool IsPopulated => Value != null && Id != null && Timestamp > 0;
     }
 
     public class PositionData
