@@ -248,6 +248,7 @@ namespace Orchestrator.App
 
             SharedObjects = _sessionData.SharedObjects.Select(s => new SharedObject(orchestrator, s)).ToList();
             Triggers = _sessionData.Triggers.Select(t => new Trigger(orchestrator, t)).ToList();
+            CurrentPresentation = _sessionData.CurrentPresentation;
 
             OrchestratorController.Instance.OnSessionCloseEvent += SessionClosed;
 
