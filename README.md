@@ -1,6 +1,6 @@
 ![](client_lib_logo.png)
 
-The Zandbak Client Library is a Unity package designed to facilitate the creation of networked, shared social VR experiences. It provides a high-level API for interacting with the Orchestrator backend, managing sessions, user synchronization, shared objects, and real-time communication.
+The Zandbak Client Library is a Unity package designed to facilitate the creation of networked, shared social VR experiences. It provides a high-level API for interacting with the [Orchestrator backend](https://github.com/cwi-dis/zandbak-orchestrator), managing sessions, user synchronization, shared objects, and real-time communication.
 
 ## Features
 
