@@ -31,6 +31,7 @@ namespace Orchestrator.Behaviour.Shared
         private App.SharedObject _sharedObject;
 
         private Rigidbody _rb;
+        private bool _rigidbodyIsKinematic;
         private float _timer;
 
         private ObjectData _lastReceivedData;
@@ -41,6 +42,10 @@ namespace Orchestrator.Behaviour.Shared
         private async void Awake()
         {
             _rb = GetComponent<Rigidbody>();
+
+            // Store original kinematic state if the object has a Rigidbody component
+            if (_rb)
+                _rigidbodyIsKinematic = _rb.isKinematic;
 
             _orchestrator = OrchestratorController.Instance.Orchestrator;
             var session = _orchestrator.CurrentSession;
@@ -55,8 +60,9 @@ namespace Orchestrator.Behaviour.Shared
             }
             else
             {
-                // If the object has a Rigidbody component, disable it so it isn't affected by physics
-                if (_rb) _rb.isKinematic = true;
+                // If the object has a Rigidbody component, disable it so it isn't affected by physics if we're not the owner
+                if (_rb)
+                    _rb.isKinematic = true;
                 _sharedObject = _orchestrator.CurrentSession.FindSharedObjectById(_id);
             }
 
@@ -78,6 +84,10 @@ namespace Orchestrator.Behaviour.Shared
             // Only transmit updates if the current user owns the object
             if (_sharedObject.IsOwner(_orchestrator.Self))
             {
+                // Restore original kinematic state if the object has a Rigidbody component
+                if (_rb)
+                    _rb.isKinematic = _rigidbodyIsKinematic;
+
                 BroadcastObjectUpdate();
             }
             else
