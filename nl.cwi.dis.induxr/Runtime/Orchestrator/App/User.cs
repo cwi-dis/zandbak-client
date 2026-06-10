@@ -24,33 +24,53 @@ namespace Orchestrator.App
 
         public string Id => UserData.Id;
         public string Name => UserData.Username;
+
         /// <summary>
         /// Indicates whether the user is currently speaking
         /// </summary>
         public bool IsSpeaking => UserData.IsSpeaking;
+
         /// <summary>
         /// Returns the type of user (e.g. presenter, moderator, user)
         /// </summary>
         public string Type => UserData.UserType;
+
         /// <summary>
         /// Indicates whether the user has their hand raised currently
         /// </summary>
         public bool HasHandRaised => UserData.HasHandRaised;
+
         /// <summary>
         /// Returns the type of device that the user has used to connect
         /// </summary>
         public string DeviceType => UserData.DeviceType;
 
         /// <summary>
+        /// Represents the configuration for the type of device associated with the user.
+        /// </summary>
+        public OrchestratorController.DeviceType DeviceTypeConfig => OrchestratorController.DeviceType.CreateFromString(UserData.DeviceType);
+
+        /// <summary>
         /// Returns the user's current status (e.g. 'available', 'in a meeting', ...)
         /// </summary>
         public string Status => UserData.Status;
 
-        public AvatarMovementData Transform => (UserData.Transform == null) ? null : new AvatarMovementData()
+        /// <summary>
+        /// Specifies the name of the prefab associated with this user.
+        /// </summary>
+        public string PrefabName => UserData.PrefabName;
+
+        /// <summary>
+        /// The GameObject representing this user's avatar in the scene. Assigned by LocalAvatar /
+        /// RemoteAvatar during initialisation.
+        /// </summary>
+        public GameObject Avatar;
+
+        public AvatarPoseData Transform => (UserData.Transform == null) ? null : new AvatarPoseData()
         {
             UserId = UserData.Id,
             Timestamp = UserData.Transform.Timestamp,
-            Bones = UserData.Transform.Bones.Select((pair) => new { pair.Key, Value = new BoneData()
+            Transforms = UserData.Transform.Transforms.Select((pair) => new { pair.Key, Value = new BoneData()
             {
                 Pos = new PositionData() { X = pair.Value.Pos.X, Y = pair.Value.Pos.Y, Z = pair.Value.Pos.Z },
                 Rot = new RotationData() { X = pair.Value.Rot.X, Y = pair.Value.Rot.Y, Z = pair.Value.Rot.Z, W = pair.Value.Rot.W }
@@ -58,9 +78,9 @@ namespace Orchestrator.App
         };
 
         /// <summary>
-        /// Event triggered when avatar movement data is received for this user.
+        /// Event triggered when avatar pose data is received for this user.
         /// </summary>
-        public event Action<AvatarMovementData> OnAvatarMovementReceived;
+        public event Action<AvatarPoseData> OnAvatarPoseReceived;
 
         /// <summary>
         /// Event triggered when the user raises or clears their raised hand. The boolean parameter indicates whether
@@ -97,7 +117,7 @@ namespace Orchestrator.App
                 if (Id != _orchestrator.Self.Id)
                 {
                     Debug.Log($"Enabling broadcasts for {Name}");
-                    EnableMovementBroadcastListener();
+                    EnablePoseBroadcastListener();
                 }
             }
             else
@@ -117,7 +137,7 @@ namespace Orchestrator.App
                 session.OnIsSpeakingChanged -= IsSpeakingChanged;
             }
 
-            DisableMovementBroadcastListener();
+            DisablePoseBroadcastListener();
         }
 
         /// <summary>
@@ -138,10 +158,10 @@ namespace Orchestrator.App
         }
 
         /// <summary>
-        /// Enables the reception of avatar movement broadcasts for the user in the current session. If the user is not
+        /// Enables the reception of avatar pose broadcasts for the user in the current session. If the user is not
         /// in any session, broadcasts will not be enabled and a warning is logged.
         /// </summary>
-        private void EnableMovementBroadcastListener()
+        private void EnablePoseBroadcastListener()
         {
             var session = _orchestrator.CurrentSession;
 
@@ -156,10 +176,10 @@ namespace Orchestrator.App
         }
 
         /// <summary>
-        /// Disables the reception of avatar movement broadcasts for the user in the current session.
+        /// Disables the reception of avatar pose broadcasts for the user in the current session.
         /// This stops the session from raising broadcast-related events for the user.
         /// </summary>
-        private void DisableMovementBroadcastListener()
+        private void DisablePoseBroadcastListener()
         {
             if (_orchestrator.CurrentSession == null)
                 return;
@@ -168,21 +188,21 @@ namespace Orchestrator.App
         }
 
         /// <summary>
-        /// Broadcasts avatar movement data to all users in the current session.
+        /// Broadcasts avatar pose data to all users in the current session.
         /// </summary>
-        /// <param name="data">The movement data of the avatar, including user ID, bone data, and timestamp.</param>
-        public void BroadcastAvatarMovement(AvatarMovementData data)
+        /// <param name="data">The pose data of the avatar, including user ID, bone data, and timestamp.</param>
+        public void BroadcastAvatarPose<T>(T data)
         {
-            _orchestrator.CurrentSession?.BroadcastTransform(data);
+            _orchestrator.CurrentSession?.BroadcastData("transform", data);
         }
 
         private void BroadcastReceived(BroadcastData data)
         {
             if (data.Channel != "transform") return;
-            var movement = JsonConvert.DeserializeObject<AvatarMovementData>(data.Data);
+            var pose = JsonConvert.DeserializeObject<AvatarPoseData>(data.Data);
 
-            if (movement.UserId != Id) return;
-            OnAvatarMovementReceived?.Invoke(movement);
+            if (pose.UserId != Id) return;
+            OnAvatarPoseReceived?.Invoke(pose);
         }
 
         private void HandRaised(User user)
@@ -205,8 +225,6 @@ namespace Orchestrator.App
 
     public class SelfUser : User
     {
-        public GameObject Avatar;
-
         public SelfUser(Orchestrator orchestrator, Data.User userData) : base(orchestrator, userData) {}
 
         /// <summary>

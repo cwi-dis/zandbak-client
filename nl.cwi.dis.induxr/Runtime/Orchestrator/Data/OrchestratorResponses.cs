@@ -6,16 +6,19 @@ namespace Orchestrator.Data {
     // class that describes the status for the response from the orchestrator
     public class ResponseStatus
     {
-        public static int Ok = 0;
+        public const int Ok = 0;
 
         public readonly int Error;
         public readonly string Message;
+
+        public bool IsOk => Error == Ok;
 
         public ResponseStatus(int error, string message)
         {
             Error = error;
             Message = message;
         }
+
         public ResponseStatus() : this(0, "OK") { }
     }
 
@@ -155,11 +158,19 @@ namespace Orchestrator.Data {
         [JsonProperty("channel")] public string Channel;
         [JsonProperty("data")] public string Data;
 
+        // Raw byte payload
+        public readonly byte[] Bytes;
+
         public BroadcastData() { }
 
         public BroadcastData(string channel, string data) {
             Channel = channel;
             Data = data;
+        }
+
+        public BroadcastData(string channel, byte[] bytes) {
+            Channel = channel;
+            Bytes = bytes;
         }
     }
 }

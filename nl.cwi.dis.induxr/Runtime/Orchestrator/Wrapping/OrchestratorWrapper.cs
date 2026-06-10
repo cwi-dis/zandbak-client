@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Text;
+using Newtonsoft.Json.Linq;
 using Orchestrator.Data;
 using SocketIOClient;
 using SocketIOClient.Newtonsoft.Json;
@@ -10,7 +11,7 @@ using UnityEngine;
 namespace Orchestrator.Wrapping {
     public class OrchestratorWrapper : IOrchestratorConnectionListener
     {
-        private SocketIOUnity _socket;
+        private readonly SocketIOUnity _socket;
         private readonly object _sendLock = new();
 
         private static OrchestratorWrapper _instance;
@@ -159,7 +160,7 @@ namespace Orchestrator.Wrapping {
 
         #region login/logout
 
-        public void Login(string userName, string deviceType, Action<ResponseStatus, User> callback) {
+        public void Login(string userName, string deviceType, string prefabName, Action<ResponseStatus, User> callback) {
             lock (this) {
                 _socket.Emit("Login", (response) => {
                     var data = response.GetValue<OrchestratorResponse<LoginResponse>>();
@@ -168,12 +169,12 @@ namespace Orchestrator.Wrapping {
                         callback(data.ResponseStatus, data.Body.UserData);
                     });
                 }, new {
-                    userName, deviceType
+                    userName, deviceType, prefabName
                 });
             }
         }
 
-        public void Login(string userName, string password, string deviceType, Action<ResponseStatus, User> callback) {
+        public void Login(string userName, string password, string deviceType, string prefabName, Action<ResponseStatus, User> callback) {
             lock (this) {
                 _socket.Emit("Login", (response) => {
                     var data = response.GetValue<OrchestratorResponse<LoginResponse>>();
@@ -182,7 +183,7 @@ namespace Orchestrator.Wrapping {
                         callback(data.ResponseStatus, data.Body.UserData);
                     });
                 }, new {
-                    userName, password, deviceType
+                    userName, password, deviceType, prefabName
                 });
             }
         }
@@ -193,7 +194,7 @@ namespace Orchestrator.Wrapping {
                     var data = response.GetValue<OrchestratorResponse<EmptyResponse>>();
 
                     UnityThread.executeInUpdate(() => {
-                        callback(data.ResponseStatus.Error == 0);
+                        callback(data.ResponseStatus.IsOk);
                     });
                 }, new { });
             }
@@ -337,7 +338,7 @@ namespace Orchestrator.Wrapping {
                     var data = response.GetValue<OrchestratorResponse<EmptyResponse>>();
 
                     UnityThread.executeInUpdate(() => {
-                        callback(data.ResponseStatus.Error == 0);
+                        callback(data.ResponseStatus.IsOk);
                     });
                 }, new {
                     isSpeaking
@@ -704,13 +705,137 @@ namespace Orchestrator.Wrapping {
 
         #endregion
 
+        #region shared objects
+
+        public void RegisterSharedObject(string id, Transform initialTransform, Action<ResponseStatus, SharedObject> callback)
+        {
+            var position = new { initialTransform.position.x, initialTransform.position.y, initialTransform.position.z };
+            var rotation = new { initialTransform.rotation.x, initialTransform.rotation.y, initialTransform.rotation.z, initialTransform.rotation.w };
+
+            lock (this)
+            {
+                _socket.Emit("RegisterSharedObject", (response) =>
+                {
+                    var data = response.GetValue<OrchestratorResponse<SharedObject>>();
+                    UnityThread.executeInUpdate(() =>
+                    {
+                        callback(data.ResponseStatus, data.Body);
+                    });
+                }, new { id, position, rotation });
+            }
+        }
+
+        public void RegisterTrigger(string id, JObject initialValue, Action<ResponseStatus, Trigger> callback)
+        {
+            lock (this)
+            {
+                _socket.Emit("RegisterTrigger", (response) =>
+                {
+                    var data = response.GetValue<OrchestratorResponse<Trigger>>();
+                    UnityThread.executeInUpdate(() =>
+                    {
+                        callback(data.ResponseStatus, data.Body);
+                    });
+                }, new { id, initialValue });
+            }
+        }
+
+        public void GetTrigger(string id, Action<ResponseStatus, Trigger> callback)
+        {
+            lock (this)
+            {
+                _socket.Emit("GetTrigger", (response) =>
+                {
+                    var data = response.GetValue<OrchestratorResponse<Trigger>>();
+                    UnityThread.executeInUpdate(() =>
+                    {
+                        callback(data.ResponseStatus, data.Body);
+                    });
+                }, new { id });
+            }
+        }
+
+        public void GetSharedObject(string id, Action<ResponseStatus, SharedObject> callback)
+        {
+            lock (this)
+            {
+                _socket.Emit("GetSharedObject", (response) =>
+                {
+                    var data = response.GetValue<OrchestratorResponse<SharedObject>>();
+                    UnityThread.executeInUpdate(() =>
+                    {
+                        callback(data.ResponseStatus, data.Body);
+                    });
+                }, new { id });
+            }
+        }
+
+        public void ClaimObjectOwnership(string objectId, Action<ResponseStatus, SharedObject> callback)
+        {
+            lock (this)
+            {
+                _socket.Emit("ClaimOwnership", (response) =>
+                {
+                    var data = response.GetValue<OrchestratorResponse<SharedObject>>();
+                    UnityThread.executeInUpdate(() =>
+                    {
+                        callback(data.ResponseStatus, data.Body);
+                    });
+                }, new { objectId, type = "object" });
+            }
+        }
+
+        public void SpawnSharedObject(string prefabPath, Vector3 initialPosition, Quaternion initialRotation, Action<ResponseStatus, SharedObject> callback)
+        {
+            var id = Guid.NewGuid().ToString();
+            var position = new { initialPosition.x, initialPosition.y, initialPosition.z };
+            var rotation = new { initialRotation.x, initialRotation.y, initialRotation.z, initialRotation.w };
+
+            lock (this)
+            {
+                _socket.Emit("SpawnSharedObject", response =>
+                {
+                    var data = response.GetValue<OrchestratorResponse<SharedObject>>();
+                    UnityThread.executeInUpdate(() =>
+                    {
+                        callback(data.ResponseStatus, data.Body);
+                    });
+                }, new
+                {
+                    id, position, rotation,
+                    prefabName = prefabPath
+                });
+            }
+        }
+
+        public void DestroySharedObject(SharedObject sharedObject, Action<ResponseStatus, SharedObject> callback)
+        {
+            lock (this)
+            {
+                _socket.Emit("DestroySharedObject", response =>
+                {
+                    var data = response.GetValue<OrchestratorResponse<SharedObject>>();
+                    UnityThread.executeInUpdate(() =>
+                    {
+                        callback(data.ResponseStatus, data.Body);
+                    });
+                }, new
+                {
+                    id = sharedObject.Id
+                });
+            }
+        }
+
+        #endregion
+
         #region broadcasts
 
-        public void SendBroadcastToChannel(string channel, byte[] pByteArray) {
+        public void SendBroadcastToChannel(string channel, byte[] pByteArray, bool deliverToCaller = false) {
             lock (_sendLock) {
                 _socket.Emit("Broadcast",
                     channel,
-                    pByteArray
+                    pByteArray,
+                    deliverToCaller
                 );
             }
         }
@@ -745,20 +870,20 @@ namespace Orchestrator.Wrapping {
 
         private void OnBroadcastReceived(SocketIOResponse response) {
             lock (this) {
-                if (_userMessagesListener != null)
-                {
-                        var channel = response.GetValue<string>();
-                        string data = Encoding.ASCII.GetString(response.InComingBytes[0], 0, response.InComingBytes[0].Length);
-
-                        UnityThread.executeInUpdate(() =>
-                        {
-                            _userMessagesListener.OnBroadcastReceived(new BroadcastData(channel, data));
-                        });
-                }
-                else
+                if (_userMessagesListener == null)
                 {
                     Debug.LogWarning("No UserMessagesListener");
+                    return;
                 }
+
+                var channel = response.GetValue<string>();
+                var bytes = response.InComingBytes[0];
+
+                UnityThread.executeInUpdate(() =>
+                {
+                    var broadcastData = new BroadcastData(channel, bytes) { Data = Encoding.UTF8.GetString(bytes) };
+                    _userMessagesListener.OnBroadcastReceived(broadcastData);
+                });
             }
         }
 
@@ -849,6 +974,15 @@ namespace Orchestrator.Wrapping {
                     case "BUBBLE_JOIN_INVITED":
                         OnSessionUpdatedWithBubbleId(response);
                         break;
+                    case "OBJECT_REGISTERED":
+                    case "OBJECT_OWNERSHIP_CHANGED":
+                    case "OBJECT_SPAWNED":
+                    case "OBJECT_DESTROYED":
+                        OnSessionUpdatedWithObjectUpdate(response);
+                        break;
+                    case "TRIGGER_REGISTERED":
+                        OnSessionUpdatedWithTriggerUpdate(response);
+                        break;
                 }
             }
         }
@@ -858,6 +992,45 @@ namespace Orchestrator.Wrapping {
             UnityThread.executeInUpdate(() =>
             {
                 _userSessionEventListener?.OnSessionClosed();
+            });
+        }
+
+        private void OnSessionUpdatedWithObjectUpdate(SocketIOResponse response)
+        {
+            var data = response.GetValue<SessionUpdate<SharedObject>>();
+
+            UnityThread.executeInUpdate(() =>
+            {
+                switch (data.EventId)
+                {
+                    case "OBJECT_REGISTERED":
+                        _userSessionEventListener.OnObjectRegistered(data.EventData);
+                        break;
+                    case "OBJECT_OWNERSHIP_CHANGED":
+                        _userSessionEventListener.OnObjectOwnershipChanged(data.EventData);
+                        break;
+                    case "OBJECT_SPAWNED":
+                        _userSessionEventListener.OnObjectSpawned(data.EventData);
+                        break;
+                    case "OBJECT_DESTROYED":
+                        _userSessionEventListener.OnObjectDestroyed(data.EventData);
+                        break;
+                }
+            });
+        }
+
+        private void OnSessionUpdatedWithTriggerUpdate(SocketIOResponse response)
+        {
+            var data = response.GetValue<SessionUpdate<Trigger>>();
+
+            UnityThread.executeInUpdate(() =>
+            {
+                switch (data.EventId)
+                {
+                    case "TRIGGER_REGISTERED":
+                        _userSessionEventListener.OnTriggerRegistered(data.EventData);
+                        break;
+                }
             });
         }
 

@@ -5,7 +5,9 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
 using Orchestrator.Data;
+using Orchestrator.Util;
 using Orchestrator.Wrapping;
 using UnityEngine;
 
@@ -28,6 +30,10 @@ namespace Orchestrator.App
         public bool Persistent => _sessionData.Persistent;
         public bool IsJoined => _orchestrator.CurrentSession?.Id == Id;
 
+        public List<SharedObject> SharedObjects { get; private set; }
+        public List<SharedObject> DynamicSharedObjects => SharedObjects.Where(so => so.Dynamic).ToList();
+        public List<Trigger> Triggers { get; private set; }
+
         public List<Presentation> Presentations => _sessionData.Presentations.ToList();
         public Presentation CurrentPresentation;
         public bool IsSharing => CurrentPresentation.IsSharing;
@@ -44,6 +50,7 @@ namespace Orchestrator.App
 
         public List<User> Users { get; private set; }
         public User Master => Users.Find((u) => u.Id == _sessionData.MasterId);
+        public User Administrator => Users.Find((u) => u.Id == _sessionData.AdministratorId);
         public List<User> VRUsers => Users.FindAll((u) => u.DeviceType == "vr");
         public List<User> ARUsers => Users.FindAll((u) => u.DeviceType == "ar");
 
@@ -190,6 +197,46 @@ namespace Orchestrator.App
         /// </remarks>
         public event Action<Bubble, bool> OnBubbleJoinRequestApproved;
 
+        /// <summary>
+        /// Occurs when a new trigger object has been registered in the session.
+        /// </summary>
+        /// <remarks>
+        /// This event is triggered after a trigger object is successfully registered and added to the session's list of triggers.
+        /// </remarks>
+        public event Action<Trigger> OnTriggerRegistered;
+
+        /// <summary>
+        /// Occurs when a new shared object has been registered in the session.
+        /// </summary>
+        /// <remarks>
+        /// This event is triggered after a shared object is successfully registered and added to the session's list of shared objects.
+        /// </remarks>
+        public event Action<SharedObject> OnObjectRegistered;
+
+        /// <summary>
+        /// Occurs when a new shared object has been spawned in the session.
+        /// </summary>
+        /// <remarks>
+        /// This event is triggered after a shared object is successfully spawned and added to the session's list of shared objects.
+        /// </remarks>
+        public event Action<SharedObject> OnObjectSpawned;
+
+        /// <summary>
+        /// Occurs when a new shared object has been destroyed in the session.
+        /// </summary>
+        /// <remarks>
+        /// This event is triggered after a shared object is destroyed and removed from the session's list of shared objects.
+        /// </remarks>
+        public event Action<SharedObject> OnObjectDestroyed;
+
+        /// <summary>
+        /// Occurs when the ownership of a shared object within the session changes.
+        /// </summary>
+        /// <remarks>
+        /// This event is triggered whenever the ownership of a shared object is updated, providing the updated shared object.
+        /// </remarks>
+        public event Action<SharedObject> OnObjectOwnershipChanged;
+
         public Session(Orchestrator orchestrator, Data.Session sessionData)
         {
             _sessionData = sessionData;
@@ -198,6 +245,9 @@ namespace Orchestrator.App
             Users = _sessionData.UserDefinitions.Select(u => new User(orchestrator, u)).ToList();
             Bubbles = _sessionData.Bubbles.Select(b => new Bubble(orchestrator, b)).ToList();
             Room = new Room(orchestrator, _sessionData.Room);
+
+            SharedObjects = _sessionData.SharedObjects.Select(s => new SharedObject(orchestrator, s)).ToList();
+            Triggers = _sessionData.Triggers.Select(t => new Trigger(orchestrator, t)).ToList();
 
             OrchestratorController.Instance.OnSessionCloseEvent += SessionClosed;
 
@@ -217,6 +267,12 @@ namespace Orchestrator.App
 
             OrchestratorController.Instance.OnSessionIsSpeakingEvent += IsSpeakingChanged;
             OrchestratorController.Instance.OnUserStatusChangedEvent += UserStatusChanged;
+
+            OrchestratorController.Instance.OnTriggerRegistered += TriggerRegistered;
+            OrchestratorController.Instance.OnObjectRegistered += ObjectRegistered;
+            OrchestratorController.Instance.OnObjectSpawned += ObjectSpawned;
+            OrchestratorController.Instance.OnObjectDestroyed += ObjectDestroyed;
+            OrchestratorController.Instance.OnObjectOwnershipChanged += ObjectOwnershipChanged;
 
             OrchestratorController.Instance.OnBroadcastReceivedEvent += BroadcastReceived;
 
@@ -244,7 +300,7 @@ namespace Orchestrator.App
 
         /// <summary>
         /// Joins the current session by associating the calling user and the orchestrator with the session.
-        /// Updates the session state and enables movement broadcast listeners for all users within the session.
+        /// Updates the session state and enables pose broadcast listeners for all users within the session.
         /// </summary>
         public async void Join()
         {
@@ -322,6 +378,26 @@ namespace Orchestrator.App
             });
 
             return tcs.Task;
+        }
+
+        /// <summary>
+        /// Determines whether the specified user is the administrator of the current session.
+        /// </summary>
+        /// <param name="user">The user to check for administrator privileges.</param>
+        /// <returns>True if the specified user is the administrator, otherwise false.</returns>
+        public bool IsAdministrator(User user)
+        {
+            return user.Id == Administrator.Id;
+        }
+
+        /// <summary>
+        /// Determines whether the specified user is the master of the current session.
+        /// </summary>
+        /// <param name="user">The user to check for master privileges.</param>
+        /// <returns>True if the specified user is the session master, otherwise false.</returns>
+        public bool IsMaster(User user)
+        {
+            return user.Id == Master.Id;
         }
 
         /// <summary>
@@ -543,7 +619,7 @@ namespace Orchestrator.App
 
             OrchestratorController.Instance.Wrapper.RequestBubbleJoin(bubble.Id, (status) =>
             {
-                if (status.Error == 0)
+                if (status.IsOk)
                 {
                     tcs.SetResult(true);
                 }
@@ -568,7 +644,7 @@ namespace Orchestrator.App
 
             OrchestratorController.Instance.Wrapper.GetBubble(bubbleId, (status, body) =>
             {
-                if (status.Error == 0)
+                if (status.IsOk)
                 {
                     Bubbles = Bubbles.Select(b => b.Id == bubbleId ? new Bubble(_orchestrator, body) : b).ToList();
                     tcs.SetResult(Bubbles.Find(b => b.Id == bubbleId));
@@ -594,7 +670,7 @@ namespace Orchestrator.App
 
             OrchestratorController.Instance.Wrapper.JoinBubble(bubble.Id, async (status) =>
             {
-                if (status.Error == 0)
+                if (status.IsOk)
                 {
                     var refreshedBubble = await GetBubble(bubble.Id);
                     CurrentBubble = refreshedBubble;
@@ -611,13 +687,252 @@ namespace Orchestrator.App
         }
 
         /// <summary>
-        /// Broadcasts an object containing transform data to all users in the current session.
+        /// Registers a shared object in the orchestrator, linking it to the specified game object.
         /// </summary>
-        /// <param name="data">The transform data object to be broadcast to the session.</param>
-        /// <typeparam name="T">The type of the data object being broadcast.</typeparam>
-        public void BroadcastTransform<T>(T data)
+        /// <param name="gameObject">The game object to be registered as a shared object.</param>
+        /// <returns>A task that represents the asynchronous operation. The task result contains the registered shared object instance.</returns>
+        public Task<SharedObject> RegisterSharedObject(GameObject gameObject)
         {
-            OrchestratorController.Instance.Broadcast("transform", JsonConvert.SerializeObject(data));
+            var tcs = new TaskCompletionSource<SharedObject>();
+            var objectId = StableObjectId.GetSceneObjectId(gameObject);
+
+            OrchestratorController.Instance.Wrapper.RegisterSharedObject(objectId, gameObject.transform, (status, sharedObjectData) =>
+            {
+                if (status.IsOk)
+                {
+                    var foundSharedObject = FindSharedObjectById(sharedObjectData.Id);
+
+                    if (foundSharedObject != null)
+                    {
+                        Debug.Log("Found shared object in list, updating it...");
+                        foundSharedObject.SharedObjectData = sharedObjectData;
+                        tcs.SetResult(foundSharedObject);
+
+                        return;
+                    }
+
+                    var sharedObject = new SharedObject(_orchestrator, sharedObjectData);
+                    SharedObjects.Add(sharedObject);
+                    tcs.SetResult(sharedObject);
+                }
+                else
+                {
+                    tcs.SetException(new Exception(status.Message));
+                }
+            });
+
+            return tcs.Task;
+        }
+
+        /// <summary>
+        /// Registers a trigger object in the orchestrator, linking it to the specified game object.
+        /// </summary>
+        /// <param name="gameObject">The game object to be registered as a trigger.</param>
+        /// <param name="initialValue">The initial value for the trigger object.</param>
+        /// <returns>A task that represents the asynchronous operation. The task result contains the registered trigger instance.</returns>
+        public Task<Trigger> RegisterTrigger(GameObject gameObject, JObject initialValue)
+        {
+            var tcs = new TaskCompletionSource<Trigger>();
+            var objectId = StableObjectId.GetSceneObjectId(gameObject);
+
+            OrchestratorController.Instance.Wrapper.RegisterTrigger(objectId, initialValue, (status, triggerData) =>
+            {
+                if (status.IsOk)
+                {
+                    var foundTrigger = FindTriggerById(triggerData.Id);
+
+                    if (foundTrigger != null)
+                    {
+                        Debug.Log("Found trigger in list, updating it...");
+                        foundTrigger.TriggerData = triggerData;
+                        tcs.SetResult(foundTrigger);
+
+                        return;
+                    }
+
+                    var triggerObject = new Trigger(_orchestrator, triggerData);
+                    tcs.SetResult(triggerObject);
+                }
+                else
+                {
+                    tcs.SetException(new Exception(status.Message));
+                }
+            });
+
+            return tcs.Task;
+        }
+
+        /// <summary>
+        /// Retrieves a trigger by its unique identifier from the orchestrator session. If the trigger is found locally,
+        /// its data is updated with the data retrieved from the orchestrator.
+        /// </summary>
+        /// <param name="id">The unique identifier of the trigger to retrieve.</param>
+        /// <returns>A task that represents the asynchronous operation. The task result contains the trigger
+        /// with updated data if found, or throws an exception if the trigger is not found locally or if an error occurs.</returns>
+        public Task<Trigger> GetTrigger(string id)
+        {
+            var tcs = new TaskCompletionSource<Trigger>();
+
+            OrchestratorController.Instance.Wrapper.GetTrigger(id, (status, triggerData) =>
+            {
+                if (status.IsOk)
+                {
+                    var foundTrigger = FindTriggerById(triggerData.Id);
+
+                    if (foundTrigger != null)
+                    {
+                        foundTrigger.TriggerData = triggerData;
+                        tcs.SetResult(foundTrigger);
+                    }
+                    else
+                    {
+                        tcs.SetException(new Exception("Trigger not found locally"));
+                    }
+                }
+                else
+                {
+                    tcs.SetException(new Exception(status.Message));
+                }
+            });
+
+            return tcs.Task;
+        }
+
+        /// <summary>
+        /// Retrieves a shared object by its unique identifier from the orchestrator session. If the shared object is
+        /// found locally, its data is updated with the data retrieved from the orchestrator.
+        /// </summary>
+        /// <param name="id">The unique identifier of the shared object to retrieve.</param>
+        /// <returns>A task that represents the asynchronous operation. The task result contains the shared object
+        /// with updated data if found, or throws an exception if the shared object is not found locally or if an error occurs.</returns>
+        public Task<SharedObject> GetSharedObject(string id)
+        {
+            var tcs = new TaskCompletionSource<SharedObject>();
+
+            OrchestratorController.Instance.Wrapper.GetSharedObject(id, (status, sharedObjectData) =>
+            {
+                if (status.IsOk)
+                {
+                    var foundSharedObject = FindSharedObjectById(sharedObjectData.Id);
+
+                    if (foundSharedObject != null)
+                    {
+                        foundSharedObject.SharedObjectData = sharedObjectData;
+                        tcs.SetResult(foundSharedObject);
+                    }
+                    else
+                    {
+                        tcs.SetException(new Exception("Shared Object not found locally"));
+                    }
+                }
+                else
+                {
+                    tcs.SetException(new Exception(status.Message));
+                }
+            });
+
+            return tcs.Task;
+        }
+
+        /// <summary>
+        /// Spawns a new shared object in the orchestrator.
+        /// </summary>
+        /// <param name="prefabPath">The path to the prefab to be spawned in the Resources/ folder.</param>
+        /// <param name="position">The initial position the object should be spawned at.</param>
+        /// <param name="rotation">The initial rotation with which to spawn the object.</param>
+        /// <returns>A task that represents the asynchronous operation. The task result contains the spawned shared object instance.</returns>
+        public Task<SharedObject> SpawnSharedObject(string prefabPath, Vector3 position, Quaternion rotation)
+        {
+            var tcs = new TaskCompletionSource<SharedObject>();
+
+            OrchestratorController.Instance.Wrapper.SpawnSharedObject(prefabPath, position, rotation, (status, sharedObjectData) =>
+            {
+                if (status.IsOk)
+                {
+                    var foundSharedObject = FindSharedObjectById(sharedObjectData.Id);
+
+                    if (foundSharedObject != null)
+                    {
+                        Debug.Log("Found shared object in list, updating it...");
+                        foundSharedObject.SharedObjectData = sharedObjectData;
+                        tcs.SetResult(foundSharedObject);
+
+                        return;
+                    }
+
+                    var sharedObject = new SharedObject(_orchestrator, sharedObjectData);
+                    SharedObjects.Add(sharedObject);
+                    tcs.SetResult(sharedObject);
+                }
+                else
+                {
+                    tcs.SetException(new Exception(status.Message));
+                }
+            });
+
+            return tcs.Task;
+        }
+
+        /// <summary>
+        /// Retrieves a shared object from the current session's list of shared objects using the specified identifier.
+        /// </summary>
+        /// <param name="id">The unique identifier of the shared object to retrieve.</param>
+        /// <returns>The shared object with the specified identifier, or null if no such object exists.</returns>
+        public SharedObject FindSharedObjectById(string id)
+        {
+            return SharedObjects.Find(so => so.Id == id);
+        }
+
+        /// <summary>
+        /// Determines whether a shared object with the specified identifier exists within the session.
+        /// </summary>
+        /// <param name="id">The unique identifier of the shared object to locate.</param>
+        /// <returns>True if a shared object with the given identifier exists; otherwise, false.</returns>
+        public bool HasSharedObject(string id)
+        {
+            return FindSharedObjectById(id) != null;
+        }
+
+        /// <summary>
+        /// Determines whether a trigger object with the specified identifier exists within the session.
+        /// </summary>
+        /// <param name="id">The unique identifier of the trigger object to locate.</param>
+        /// <returns>True if a trigger object with the given identifier exists; otherwise, false.</returns>
+        public bool HasTrigger(string id)
+        {
+            return FindTriggerById(id) != null;
+        }
+
+        /// <summary>
+        /// Retrieves a trigger object from the current session's list of triggers using the specified identifier.
+        /// </summary>
+        /// <param name="id">The unique identifier of the trigger object to retrieve.</param>
+        /// <returns>The trigger object with the specified identifier, or null if no such object exists.</returns>
+        public Trigger FindTriggerById(string id)
+        {
+            return Triggers.Find(t => t.Id == id);
+        }
+
+        /// <summary>
+        /// Broadcasts an object to all users in the current session on the given channel.
+        /// </summary>
+        /// <param name="channel">The channel to broadcast the data on</param>
+        /// <param name="data">The data object to be broadcast to the session.</param>
+        /// <param name="deliverToCaller">Whether to deliver the broadcast to the caller as well</param>
+        /// <typeparam name="T">The type of the data object being broadcast.</typeparam>
+        public void BroadcastData<T>(string channel, T data, bool deliverToCaller = false)
+        {
+            OrchestratorController.Instance.Broadcast(channel, JsonConvert.SerializeObject(data), deliverToCaller);
+        }
+
+        /// <summary>
+        /// Broadcasts a byte array to a specified channel within the session.
+        /// </summary>
+        /// <param name="channel">The name of the channel to which the bytes will be broadcast.</param>
+        /// <param name="bytes">The byte array containing the data to broadcast.</param>
+        public void BroadcastBytes(string channel, byte[] bytes)
+        {
+            OrchestratorController.Instance.Broadcast(channel, bytes);
         }
 
         /// <summary>
@@ -663,9 +978,9 @@ namespace Orchestrator.App
             }
         }
 
-        private void UserStatusChanged(Data.User user, string status)
+        private void UserStatusChanged(string userId, string status)
         {
-            var foundUser = Users.Find(u => u.Id == user.Id);
+            var foundUser = Users.Find(u => u.Id == userId);
             foundUser.UserData.Status = status;
 
             OnUserStatusChanged?.Invoke(foundUser);
@@ -742,12 +1057,93 @@ namespace Orchestrator.App
             OnMessageReceived?.Invoke(message);
         }
 
-        private void IsSpeakingChanged(Data.User user, bool isSpeaking)
+        private void IsSpeakingChanged(string userId, bool isSpeaking)
         {
-            var foundUser = Users.Find(u => u.Id == user.Id);
+            var foundUser = Users.Find(u => u.Id == userId);
             if (foundUser == null) return;
 
             OnIsSpeakingChanged?.Invoke(foundUser, isSpeaking);
+        }
+
+        private void ObjectRegistered(Data.SharedObject sharedObject)
+        {
+            var sharedObjectInstance = SharedObjects.Find(so => so.Id == sharedObject.Id);
+
+            if (sharedObjectInstance != null)
+            {
+                Debug.Log("Shared object already registered: " + sharedObject.Id);
+                sharedObjectInstance.SharedObjectData = sharedObject;
+            }
+            else
+            {
+                sharedObjectInstance = new SharedObject(_orchestrator, sharedObject);
+                SharedObjects.Add(sharedObjectInstance);
+            }
+            Debug.Log("Shared object registered: " + sharedObject.Id + " n=" + SharedObjects.Count);
+
+            OnObjectRegistered?.Invoke(sharedObjectInstance);
+        }
+
+        private void ObjectSpawned(Data.SharedObject sharedObject)
+        {
+            var sharedObjectInstance = SharedObjects.Find(so => so.Id == sharedObject.Id);
+
+            if (sharedObjectInstance != null)
+            {
+                Debug.Log("Spawned shared object already registered: " + sharedObject.Id);
+                sharedObjectInstance.SharedObjectData = sharedObject;
+            }
+            else
+            {
+                sharedObjectInstance = new SharedObject(_orchestrator, sharedObject);
+                SharedObjects.Add(sharedObjectInstance);
+            }
+            Debug.Log("Shared object spawned: " + sharedObject.Id + " n=" + SharedObjects.Count);
+
+            OnObjectSpawned?.Invoke(sharedObjectInstance);
+        }
+
+        private void ObjectDestroyed(Data.SharedObject sharedObject)
+        {
+            var sharedObjectInstance = SharedObjects.Find(so => so.Id == sharedObject.Id);
+
+            if (sharedObjectInstance != null)
+            {
+                SharedObjects.Remove(sharedObjectInstance);
+                Debug.Log("Shared object destroyed: " + sharedObject.Id + " n=" + SharedObjects.Count);
+                OnObjectDestroyed?.Invoke(sharedObjectInstance);
+            }
+        }
+
+        private void TriggerRegistered(Data.Trigger trigger)
+        {
+            var triggerInstance = FindTriggerById(trigger.Id);
+
+            if (triggerInstance != null)
+            {
+                Debug.Log("Trigger object already registered: " + trigger.Id);
+                triggerInstance.TriggerData = trigger;
+            }
+            else
+            {
+                triggerInstance = new Trigger(_orchestrator, trigger);
+                Triggers.Add(triggerInstance);
+            }
+            Debug.Log("Trigger object registered: " + trigger.Id + " n=" + Triggers.Count);
+
+            OnTriggerRegistered?.Invoke(triggerInstance);
+        }
+
+        private void ObjectOwnershipChanged(Data.SharedObject sharedObject)
+        {
+            var foundSharedObject = SharedObjects.Find(so => so.Id == sharedObject.Id);
+            if (foundSharedObject == null) return;
+
+            var oldOwner = foundSharedObject.Owner;
+            foundSharedObject.SharedObjectData = sharedObject;
+            Debug.Log($"Object owner changed for {foundSharedObject.Id} from {oldOwner.Name} to {foundSharedObject.Owner.Name}");
+
+            OnObjectOwnershipChanged?.Invoke(foundSharedObject);
         }
 
         private void BroadcastReceived(BroadcastData data)

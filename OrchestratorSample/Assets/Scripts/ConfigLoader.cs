@@ -33,7 +33,7 @@ public class ConfigLoader : MonoBehaviour
         // Get the current working directory
         var basePath = Path.GetDirectoryName(Application.dataPath);
 
-        // Go up one level on macOS, to make sure we are outside the app bundle
+        // Go up one level on macOS to make sure we are outside the app bundle
         if (Application.platform == RuntimePlatform.OSXPlayer)
         {
             basePath = Path.GetDirectoryName(basePath);

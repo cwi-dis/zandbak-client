@@ -70,7 +70,7 @@ namespace Orchestrator.App
 
             OrchestratorController.Instance.Wrapper.LeaveBubble((status, _) =>
             {
-                if (status.Error == ResponseStatus.Ok)
+                if (status.IsOk)
                 {
                     Session.CurrentBubble = null;
                     tcs.SetResult(true);
@@ -102,7 +102,7 @@ namespace Orchestrator.App
 
             OrchestratorController.Instance.Wrapper.ApproveBubbleJoinRequest(user.Id, Id, approve, (status) =>
             {
-                if (status.Error == ResponseStatus.Ok)
+                if (status.IsOk)
                 {
                     tcs.SetResult(true);
                 }
@@ -128,7 +128,7 @@ namespace Orchestrator.App
 
             OrchestratorController.Instance.Wrapper.InviteToBubble(u.Id, (status) =>
             {
-                if (status.Error == ResponseStatus.Ok)
+                if (status.IsOk)
                 {
                     tcs.SetResult(true);
                 }

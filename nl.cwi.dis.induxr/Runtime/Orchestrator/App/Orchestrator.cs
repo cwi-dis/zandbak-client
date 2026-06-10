@@ -55,7 +55,7 @@ namespace Orchestrator.App
         /// </summary>
         /// <remarks>
         /// - This property provides information about the user that is currently authenticated in the application.
-        /// - The <c>Self</c> object is initialized during a successful login and may include the user's session information.
+        /// - The <c>Self</c> object is initialised during a successful login and may include the user's session information.
         /// - It is essential for performing user-related operations within the Orchestrator, such as tracking the active session or user identity.
         /// - If no user is authenticated, <c>Self</c> will be null.
         /// </remarks>
@@ -110,15 +110,16 @@ namespace Orchestrator.App
         /// <param name="username">The username of the user attempting to log in.</param>
         /// <param name="password">The password of the user, if required. Defaults to null for passwordless login.</param>
         /// <param name="deviceType">The type of the device that the user uses to log in. Defaults to "unknown".</param>
+        /// <param name="prefabName">The name of the prefab associated with the user. Defaults to "default".</param>
         /// <returns>A task representing the asynchronous operation. The task result contains the user ID as a string if the login was successful.</returns>
-        public Task<User> Login(string username, string password = null, DeviceType deviceType = DeviceType.Unknown)
+        public Task<User> Login(string username, string password = null, DeviceType? deviceType = null, string prefabName = "default")
         {
             var tcs = new TaskCompletionSource<User>();
+            var device = deviceType ?? DeviceType.Unknown;
 
-            Action<ResponseStatus, Data.User> fn = null;
-            fn = (response, userData) =>
+            Action<ResponseStatus, Data.User> fn = (response, userData) =>
             {
-                if (response.Error == 0)
+                if (response.IsOk)
                 {
                     Self = new SelfUser(this, userData);
                     tcs.SetResult(Self);
@@ -131,13 +132,12 @@ namespace Orchestrator.App
 
             if (password == null)
             {
-                OrchestratorController.Instance.Wrapper.Login(username, OrchestratorController.DeviceTypeToString(deviceType), fn);
+                OrchestratorController.Instance.Wrapper.Login(username, device.ToString(), prefabName, fn);
             }
             else
             {
-                OrchestratorController.Instance.Wrapper.Login(username, password, OrchestratorController.DeviceTypeToString(deviceType), fn);
+                OrchestratorController.Instance.Wrapper.Login(username, password, device.ToString(), prefabName, fn);
             }
-
 
             return tcs.Task;
         }

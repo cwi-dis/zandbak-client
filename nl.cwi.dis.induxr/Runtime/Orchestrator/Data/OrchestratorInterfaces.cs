@@ -1,6 +1,4 @@
-﻿using System.Collections.Generic;
-
-//Interfaces to be implemented to supervise the orchestrator
+﻿//Interfaces to be implemented to supervise the orchestrator
 namespace Orchestrator.Data
 {
     public interface IOrchestratorConnectionListener
@@ -49,6 +47,11 @@ namespace Orchestrator.Data
         void OnSessionIsSpeakingChanged(string userId, bool isSpeaking);
         void OnBubbleJoinRequestApproved(string bubbleId, bool approved);
         void OnBubbleInvited(string bubbleId);
+        void OnTriggerRegistered(Trigger trigger);
+        void OnObjectRegistered(SharedObject sharedObject);
+        void OnObjectSpawned(SharedObject sharedObject);
+        void OnObjectDestroyed(SharedObject sharedObject);
+        void OnObjectOwnershipChanged(SharedObject sharedObject);
     }
 
     // Interface for clients that will use the orchestrator wrapper

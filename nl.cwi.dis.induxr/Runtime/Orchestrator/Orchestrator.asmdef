@@ -2,14 +2,16 @@
     "name": "Orchestrator",
     "rootNamespace": "",
     "references": [
-        "GUID:ac740251aebda49e8bf622aa1652e9e3"
+        "GUID:ac740251aebda49e8bf622aa1652e9e3",
+        "Unity.XR.Interaction.Toolkit"
     ],
     "includePlatforms": [],
     "excludePlatforms": [],
     "allowUnsafeCode": false,
     "overrideReferences": true,
     "precompiledReferences": [
-        "Newtonsoft.Json.dll"
+        "Newtonsoft.Json.dll",
+        "Concentus.dll"
     ],
     "autoReferenced": true,
     "defineConstraints": [],

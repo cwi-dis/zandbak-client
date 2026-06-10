@@ -26,11 +26,36 @@ namespace Orchestrator.Wrapping
             Connected
         }
 
-        public enum DeviceType
+        public struct DeviceType
         {
-            VR,
-            AR,
-            Unknown
+            public static DeviceType VR => new ("VR", true);
+            public static DeviceType AR => new ("AR", true);
+            public static DeviceType Desktop => new("desktop", true);
+            public static DeviceType Unknown => new("unknown", false);
+            public static DeviceType Headless => new("headless", false);
+
+            public bool CanSpawn { get; private set; }
+            public string Name { get; private set; }
+
+            private DeviceType(string name, bool canSpawn)
+            {
+                Name = name;
+                CanSpawn = canSpawn;
+            }
+
+            public static DeviceType CreateFromString(string deviceType)
+            {
+                return deviceType switch
+                {
+                    "vr" => VR,
+                    "ar" => AR,
+                    "desktop" => Desktop,
+                    "headless" => Headless,
+                    _ => Unknown
+                };
+            }
+
+            public override string ToString() => Name;
         }
 
         // the wrapper for the orchestrator
@@ -44,16 +69,10 @@ namespace Orchestrator.Wrapping
         public OrchestratorWrapper Wrapper => _orchestratorWrapper;
         public Uri SocketUrl { get; private set; }
 
-        //Session
-        private Session _session;
-
-        // user Login state
-        private bool _userIsMaster;
-
         // orchestrator connection state
         private bool _connectedToOrchestrator;
 
-        private TaskCompletionSource<App.Orchestrator> _connectionTaskCompletionSource = new();
+        private readonly TaskCompletionSource<App.Orchestrator> _connectionTaskCompletionSource = new();
 
         //Orchestrator Controller Singleton
         public static OrchestratorController Instance {
@@ -115,7 +134,7 @@ namespace Orchestrator.Wrapping
         /// <summary>
         /// Invoked when the status of a user changes
         /// </summary>
-        public event Action<User, string> OnUserStatusChangedEvent;
+        public event Action<string, string> OnUserStatusChangedEvent;
 
         /// <summary>
         /// Invoked when the current presentation of the current session changes
@@ -140,7 +159,7 @@ namespace Orchestrator.Wrapping
         /// <summary>
         /// Invoked when a user changes their `isSpeaking` property
         /// </summary>
-        public event Action<User, bool> OnSessionIsSpeakingEvent;
+        public event Action<string, bool> OnSessionIsSpeakingEvent;
 
         /// <summary>
         /// Invoked when a new session is created
@@ -151,6 +170,36 @@ namespace Orchestrator.Wrapping
         /// Invoked when a new session is deleted
         /// </summary>
         public event Action<Session> OnSessionDeletedEvent;
+
+        /// <summary>
+        /// Invoked when a shared object is registered within the orchestrator,
+        /// providing the registered shared object as an argument.
+        /// </summary>
+        public event Action<SharedObject> OnObjectRegistered;
+
+        /// <summary>
+        /// Invoked when a new shared object is spawned within the orchestrator,
+        /// providing the registered shared object as an argument.
+        /// </summary>
+        public event Action<SharedObject> OnObjectSpawned;
+
+        /// <summary>
+        /// Invoked when a shared object is destroyed within the orchestrator,
+        /// providing the destroyed shared object as an argument.
+        /// </summary>
+        public event Action<SharedObject> OnObjectDestroyed;
+
+        /// <summary>
+        /// Invoked when a trigger object is registered within the orchestrator,
+        /// providing the registered trigger object as an argument.
+        /// </summary>
+        public event Action<Trigger> OnTriggerRegistered;
+
+        /// <summary>
+        /// Invoked when the ownership of a shared object changes within the orchestrator,
+        /// providing the updated shared object as an argument.
+        /// </summary>
+        public event Action<SharedObject> OnObjectOwnershipChanged;
 
         /// <summary>
         /// Invoked when a broadcast is received in the current session
@@ -297,13 +346,6 @@ namespace Orchestrator.Wrapping
 
         #endregion
 
-        public static string DeviceTypeToString(DeviceType deviceType) => deviceType switch
-        {
-            DeviceType.VR => "vr",
-            DeviceType.AR => "ar",
-            _ => "unknown"
-        };
-
         #region Sessions
 
         void IUserSessionEventsListener.OnSessionClosed()
@@ -356,20 +398,12 @@ namespace Orchestrator.Wrapping
 
         void IUserSessionEventsListener.OnSessionIsSpeakingChanged(string userId, bool isSpeaking)
         {
-            var user = _session.UserDefinitions.Find((u) => u.Id == userId);
-            if (user == null) return;
-
-            user.IsSpeaking = isSpeaking;
-            OnSessionIsSpeakingEvent?.Invoke(user, isSpeaking);
+            OnSessionIsSpeakingEvent?.Invoke(userId, isSpeaking);
         }
 
         void IUserSessionEventsListener.OnUserStatusChanged(string userId, string status)
         {
-            var user = _session.UserDefinitions.Find((u) => u.Id == userId);
-            if (user == null) return;
-
-            user.Status = status;
-            OnUserStatusChangedEvent?.Invoke(user, status);
+            OnUserStatusChangedEvent?.Invoke(userId, status);
         }
 
         void IOrchestratorEventsListener.OnSessionCreated(Session session)
@@ -391,6 +425,31 @@ namespace Orchestrator.Wrapping
         void IUserSessionEventsListener.OnBubbleJoinRequestApproved(string bubbleId, bool approved)
         {
             OnBubbleJoinRequestApproved?.Invoke(bubbleId, approved);
+        }
+
+        void IUserSessionEventsListener.OnObjectOwnershipChanged(SharedObject sharedObject)
+        {
+            OnObjectOwnershipChanged?.Invoke(sharedObject);
+        }
+
+        void IUserSessionEventsListener.OnObjectRegistered(SharedObject sharedObject)
+        {
+            OnObjectRegistered?.Invoke(sharedObject);
+        }
+
+        void IUserSessionEventsListener.OnObjectSpawned(SharedObject sharedObject)
+        {
+            OnObjectSpawned?.Invoke(sharedObject);
+        }
+
+        void IUserSessionEventsListener.OnObjectDestroyed(SharedObject sharedObject)
+        {
+            OnObjectDestroyed?.Invoke(sharedObject);
+        }
+
+        void IUserSessionEventsListener.OnTriggerRegistered(Trigger trigger)
+        {
+            OnTriggerRegistered?.Invoke(trigger);
         }
 
         void IBubbleEventsListener.OnBubbleJoinRequested(User user)
@@ -425,10 +484,22 @@ namespace Orchestrator.Wrapping
         /// </summary>
         /// <param name="channel">Channel to broadcast the message to</param>
         /// <param name="data">Data to be broadcast</param>
-        public void Broadcast(string channel, string data)
+        /// <param name="deliverToCaller">Whether to deliver the broadcast to the caller as well</param>
+        public void Broadcast(string channel, string data, bool deliverToCaller = false)
         {
-            byte[] lData = Encoding.ASCII.GetBytes(data);
-            _orchestratorWrapper.SendBroadcastToChannel(channel, lData);
+            var bytes = Encoding.UTF8.GetBytes(data);
+            Broadcast(channel, bytes, deliverToCaller);
+        }
+
+        /// <summary>
+        /// Broadcasts data to the specified channel.
+        /// </summary>
+        /// <param name="channel">The channel to which the data will be broadcasted.</param>
+        /// <param name="bytes">The data to send, represented as an array of bytes.</param>
+        /// <param name="deliverToCaller">Whether to deliver the broadcast to the caller as well</param>
+        public void Broadcast(string channel, byte[] bytes, bool deliverToCaller = false)
+        {
+            _orchestratorWrapper.SendBroadcastToChannel(channel, bytes, deliverToCaller);
         }
 
         void IUserMessagesListener.OnBroadcastReceived(BroadcastData broadcastData) {

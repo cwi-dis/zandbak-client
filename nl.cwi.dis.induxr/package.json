@@ -5,7 +5,8 @@
   "description" : "Create networked shared social VR experiences in Unity.",
   "dependencies": {
     "com.itisnajim.socketiounity": "1.1.4",
-    "com.unity.nuget.newtonsoft-json": "3.2.1"
+    "com.unity.nuget.newtonsoft-json": "3.2.1",
+    "com.unity.xr.interaction.toolkit": "3.3.1"
   },
   "unity" : "6000.0"
 }

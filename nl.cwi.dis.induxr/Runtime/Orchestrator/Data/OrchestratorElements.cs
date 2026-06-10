@@ -1,44 +1,23 @@
 ﻿using System;
 using System.Collections.Generic;
+using JetBrains.Annotations;
 using UnityEngine;
 using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
 
 namespace Orchestrator.Data
 {
     // Base class for the elements returned by the orchestrator
-    public class OrchestratorElement
-    {
-        // used to retrieve the ID
-        public virtual string GetId()
-        {
-            return string.Empty;
-        }
+    public interface IOrchestratorElement {}
 
-        //used to display the element for Gui
-        public virtual string GetGuiRepresentation()
-        {
-            return string.Empty;
-        }
-
-        public static T ParseJsonString<T>(string data)
-        {
-            return JsonUtility.FromJson<T>(data);
-        }
-
-        public string AsJsonString()
-        {
-            return JsonUtility.ToJson(this);
-        }
-    }
-
-    public class UserPosition : OrchestratorElement
+    public class UserPosition : IOrchestratorElement
     {
         [JsonProperty("x")] public float X;
         [JsonProperty("y")] public float Y;
         [JsonProperty("z")] public float Z;
     }
 
-    public class UserQuaternion : OrchestratorElement
+    public class UserQuaternion : IOrchestratorElement
     {
         [JsonProperty("x")] public float X;
         [JsonProperty("y")] public float Y;
@@ -52,15 +31,19 @@ namespace Orchestrator.Data
         [JsonProperty("rot")] public UserQuaternion Rot;
     }
 
-    public class UserTransform : OrchestratorElement
+    public class ObjectTransform : IOrchestratorElement
     {
         [JsonProperty("timestamp")] public float Timestamp;
         [JsonProperty("position")] public UserPosition Position;
         [JsonProperty("rotation")] public UserQuaternion Rotation;
-        [JsonProperty("bones")] public Dictionary<string, UserBoneData> Bones;
     }
 
-    public class User: OrchestratorElement
+    public class UserTransform : ObjectTransform
+    {
+        [JsonProperty("transforms")] public Dictionary<string, UserBoneData> Transforms;
+    }
+
+    public class User: IOrchestratorElement
     {
         [JsonProperty("userId")] public string Id;
         [JsonProperty("userName")] public string Username;
@@ -73,19 +56,10 @@ namespace Orchestrator.Data
         [JsonProperty("hasHandRaised")] public bool HasHandRaised;
         [JsonProperty("isSpeaking")] public bool IsSpeaking;
         [JsonProperty("status")] public string Status;
-
-        public override string GetId()
-        {
-            return Id;
-        }
-
-        public override string GetGuiRepresentation()
-        {
-            return Username;
-        }
+        [JsonProperty("prefabName")] public string PrefabName;
     }
 
-    public class UserData: OrchestratorElement
+    public class UserData: IOrchestratorElement
     {
         [JsonProperty("userAudioUrl")] public string UserAudioUrl = "";
 
@@ -95,21 +69,37 @@ namespace Orchestrator.Data
         [JsonProperty("userRepresentationType")] public string UserRepresentationType = "";
     }
 
-    public class SfuData : OrchestratorElement
+    public class SharedObject : IOrchestratorElement
+    {
+        [JsonProperty("id")] public string Id;
+        [JsonProperty("owner")] public User Owner;
+        [JsonProperty("transform")] public ObjectTransform Transform;
+        [JsonProperty("dynamic")] public bool Dynamic;
+        [JsonProperty("prefabName")] [CanBeNull] public string PrefabName;
+    }
+
+    public class Trigger : IOrchestratorElement
+    {
+        [JsonProperty("id")] public string Id;
+        [JsonProperty("owner")] public User Owner;
+        [JsonProperty("value")] public TriggerData Value;
+    }
+
+    public class SfuData : IOrchestratorElement
     {
         [JsonProperty("url_gen")] public string URLGen = "";
         [JsonProperty("url_audio")] public string URLAudio = "";
         [JsonProperty("url_pcc")] public string URLPcc = "";
     }
 
-    public class DataStream : OrchestratorElement
+    public class DataStream : IOrchestratorElement
     {
         [JsonProperty("dataStreamUserId")] public string UserId = "";
         [JsonProperty("dataStreamKind")] public string StreamKind = "";
         [JsonProperty("dataStreamDescription")] public string Description = "";
     }
 
-    public class NtpClock: OrchestratorElement
+    public class NtpClock: IOrchestratorElement
     {
         [JsonProperty("ntpDate")] public string NtpDate;
         [JsonProperty("ntpTimeMs")] public long NtpTimeMs;
@@ -117,7 +107,7 @@ namespace Orchestrator.Data
         public double Timestamp => NtpTimeMs / 1000.0;
     }
 
-    public class ChatMessage : OrchestratorElement
+    public class ChatMessage : IOrchestratorElement
     {
         [JsonProperty("id")] public string Id;
         [JsonProperty("sender")] public User Sender;
@@ -126,7 +116,7 @@ namespace Orchestrator.Data
         [JsonProperty("private")] public bool Private;
     }
 
-    public class Presentation : OrchestratorElement
+    public class Presentation : IOrchestratorElement
     {
         [JsonProperty("id")] public string Id;
         [JsonProperty("name")] public string Name;
@@ -138,7 +128,7 @@ namespace Orchestrator.Data
         [JsonProperty("isSharing")] public bool IsSharing;
     }
 
-    public class ScheduledPresentation : OrchestratorElement
+    public class ScheduledPresentation : IOrchestratorElement
     {
         [JsonProperty("name")] public string Name;
         [JsonProperty("description")] public string Description;
@@ -148,7 +138,7 @@ namespace Orchestrator.Data
         [JsonProperty("updatedAt")] public DateTime UpdatedAt;
     }
 
-    public class Bubble : OrchestratorElement
+    public class Bubble : IOrchestratorElement
     {
         [JsonProperty("id")] public string Id;
         [JsonProperty("name")] public string Name;
@@ -156,7 +146,7 @@ namespace Orchestrator.Data
         [JsonProperty("users")] public List<User> Users;
     }
 
-    public class Room : OrchestratorElement
+    public class Room : IOrchestratorElement
     {
         [JsonProperty("id")] public string Id;
         [JsonProperty("name")] public string Name;
@@ -164,7 +154,7 @@ namespace Orchestrator.Data
         [JsonProperty("model")] public string Model;
     }
 
-    public class ScheduledSession : OrchestratorElement
+    public class ScheduledSession : IOrchestratorElement
     {
         [JsonProperty("id")] public string Id;
         [JsonProperty("title")] public string Title;
@@ -179,7 +169,7 @@ namespace Orchestrator.Data
         [JsonProperty("room")] public Room Room;
     }
 
-    public class Session : OrchestratorElement
+    public class Session : IOrchestratorElement
     {
         [JsonProperty("sessionId")] public string Id;
         [JsonProperty("sessionName")] public string Name;
@@ -189,6 +179,8 @@ namespace Orchestrator.Data
         [JsonProperty("scenarioId")] public string ScenarioId;
         [JsonProperty("sessionUsers")] public List<string> UserIds;
         [JsonProperty("sessionUserDefinitions")] public List<User> UserDefinitions;
+        [JsonProperty("sessionObjects")] public List<SharedObject> SharedObjects;
+        [JsonProperty("sessionTriggers")] public List<Trigger> Triggers;
         [JsonProperty("sessionProtocol")] public string Protocol;
         [JsonProperty("sessionChannels")] public List<string> Channels;
         [JsonProperty("sessionChat")] public List<ChatMessage> Chat;
@@ -199,37 +191,5 @@ namespace Orchestrator.Data
         [JsonProperty("sessionRoom")] public Room Room;
         [JsonProperty("sessionStatus")] public string Status;
         [JsonProperty("sessionPersistent")] public bool Persistent;
-
-        public override string GetId()
-        {
-            return Id;
-        }
-
-        public override string GetGuiRepresentation()
-        {
-            return Name + " (" + Description + ")";
-        }
-
-        public List<User> GetUsers()
-        {
-            return UserDefinitions;
-        }
-
-        public User GetUser(string userID)
-        {
-            foreach(var userDefinition in UserDefinitions)
-            {
-                if (userDefinition.Id == userID)
-                {
-                    return userDefinition;
-                }
-            }
-            return null;
-        }
-
-        public int GetUserCount()
-        {
-            return UserDefinitions.Count;
-        }
     }
 }
