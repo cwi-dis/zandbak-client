@@ -259,6 +259,13 @@ Synchronizes player representations across the network. All avatars should inher
 Core synchronization components for scene objects.
 - **SharedObjectBehaviour**: Provides continuous transform (position/rotation) synchronization for any GameObject. Uses ownership-based broadcasting where only the current "owner" sends updates.
 - **TriggerBehaviour**: Enables event-driven synchronization. Allows sending and receiving arbitrary JSON payloads (`JObject`) linked to a specific GameObject, useful for interactions like button presses or state changes.
+- **ObjectSpawnerBehaviour**: Automatically manages the instantiation and destruction of networked objects and avatars in the session. It monitors the session state and uses prefab registries to spawn the appropriate representations for new shared objects or joining users.
+
+### Prefabs
+
+Ready-to-use prefabs for common functionality.
+- **OrchestratorController**: The core singleton prefab that manages the backend connection. Must be present in the initial scene.
+- **ObjectSpawner**: A helper prefab containing the `ObjectSpawnerBehaviour`. Add this to your session scene to automate the visual representation of networked entities.
 
 ### Grab
 
