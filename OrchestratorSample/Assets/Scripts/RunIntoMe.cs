@@ -1,9 +1,13 @@
 using Newtonsoft.Json.Linq;
 using Orchestrator.Behaviour.Shared;
+using TMPro;
 using UnityEngine;
 
 public class RunIntoMe : MonoBehaviour
 {
+    [SerializeField]
+    public TMP_Text counterText;
+
     private TriggerBehaviour _triggerBehaviour;
     private int _counter = 0;
 
@@ -30,6 +34,7 @@ public class RunIntoMe : MonoBehaviour
     {
         _counter = data.Value<int>("counter");
         Debug.Log($"Trigger received {_counter} at time {timestamp}");
+        counterText.text = _counter.ToString();
     }
 
     private void OnTriggerEnter(Collider other)
