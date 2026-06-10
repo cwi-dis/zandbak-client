@@ -69,12 +69,6 @@ namespace Orchestrator.Wrapping
         public OrchestratorWrapper Wrapper => _orchestratorWrapper;
         public Uri SocketUrl { get; private set; }
 
-        //Session
-        private Session _session;
-
-        // user Login state
-        private bool _userIsMaster;
-
         // orchestrator connection state
         private bool _connectedToOrchestrator;
 
