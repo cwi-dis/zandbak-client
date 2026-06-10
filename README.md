@@ -340,5 +340,9 @@ nl.cwi.dis.induxr/
 ## License
 
 This project is licensed under the BSD 2-Clause License. See the [LICENSE](LICENSE) file for details.
-
 Copyright (c) 2026, Thomas Röggla, cwi-dis. All rights reserved.
+
+## Acknowledgements
+
+This work is supported by the European Union as part of the Horizon Europe
+Framework Program under grant agreement No. 101135556 (INDUX-R).
