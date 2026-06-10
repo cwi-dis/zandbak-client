@@ -14,10 +14,15 @@ namespace Orchestrator.ScriptableObjects
         }
 
         [SerializeField]
-        public List<PrefabRegistryEntry> registryEntries = new();
+        public List<PrefabRegistryEntry> registryEntries;
 
         protected readonly Dictionary<string, PrefabRegistryEntry> _registryCache = new();
         protected bool _isInitialized = false;
+
+        private void OnEnable()
+        {
+            _isInitialized = false;
+        }
 
         public void Initialize()
         {
@@ -27,7 +32,13 @@ namespace Orchestrator.ScriptableObjects
             foreach (var entry in registryEntries)
             {
                 if (entry.prefab == null)
+                {
+                    if (!string.IsNullOrEmpty(entry.prefabName))
+                    {
+                        Debug.LogWarning($"Prefab registry entry '{entry.prefabName}' has no prefab assigned. Skipping.");
+                    }
                     continue;
+                }
 
                 if (string.IsNullOrEmpty(entry.prefabName))
                 {
@@ -37,7 +48,7 @@ namespace Orchestrator.ScriptableObjects
 
                 if (_registryCache.ContainsKey(entry.prefabName))
                 {
-                    Debug.LogError("Duplicate prefab registry entry for name: {entry.prefabName}");
+                    Debug.LogError($"Duplicate prefab registry entry for name: {entry.prefabName}");
                     continue;
                 }
 
@@ -47,7 +58,7 @@ namespace Orchestrator.ScriptableObjects
             _isInitialized = true;
         }
 
-        public GameObject GetPrefab(string prefabName)
+        public virtual GameObject GetPrefab(string prefabName)
         {
             if (!_isInitialized)
                 Initialize();
@@ -57,6 +68,13 @@ namespace Orchestrator.ScriptableObjects
 
             Debug.LogWarning($"Prefab not found in registry: {prefabName}");
             return null;
+        }
+
+        public IEnumerable<string> GetPrefabNames()
+        {
+            if (!_isInitialized)
+                Initialize();
+            return _registryCache.Keys;
         }
     }
 }
