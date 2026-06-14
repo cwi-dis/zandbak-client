@@ -16,8 +16,9 @@ using SharedObject = Orchestrator.App.SharedObject;
 
 public class SessionController : MonoBehaviour
 {
-    [Header("Avatar Registry")]
+    [Header("Prefab Registries")]
     public AvatarPrefabRegistry avatarPrefabRegistry;
+    public SharedObjectPrefabRegistry sharedObjectPrefabRegistry;
 
     [Header("Notifications")]
     public TMP_Text notificationField;
@@ -145,6 +146,9 @@ public class SessionController : MonoBehaviour
         var localAvatar = Instantiate(localPlayerPrefab, spawnPosition, Quaternion.identity).GetComponent<AvatarBehaviour>();
         localAvatar.AddComponent<SpawnOnButtonPress>();
         localAvatar.Initialize(user);
+
+        var spawnOnButtonPress = localAvatar.GetComponent<SpawnOnButtonPress>();
+        spawnOnButtonPress.sharedObjectPrefabRegistry = sharedObjectPrefabRegistry;
 
         // Initialise notification buffer and print welcome message
         _notificationBuffer = new NotificationBuffer(30, notificationField);

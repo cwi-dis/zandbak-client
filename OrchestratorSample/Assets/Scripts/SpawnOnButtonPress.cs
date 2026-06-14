@@ -8,10 +8,10 @@ public class SpawnOnButtonPress : MonoBehaviour
     private Orchestrator.App.Orchestrator _orchestrator;
     private Session _session;
 
-    [SerializeField] private SharedObjectPrefabRegistry sharedObjectPrefabRegistry;
-    [SerializeField] private string prefabName = "tiltedCube";
-    [SerializeField] private KeyCode spawnKey = KeyCode.B;
-    [SerializeField] private float spawnOffset = 2.0f;
+    [SerializeField] public SharedObjectPrefabRegistry sharedObjectPrefabRegistry;
+    [SerializeField] public string prefabName = "tiltedCube";
+    [SerializeField] public KeyCode spawnKey = KeyCode.B;
+    [SerializeField] public float spawnOffset = 2.0f;
 
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     private void Start()
