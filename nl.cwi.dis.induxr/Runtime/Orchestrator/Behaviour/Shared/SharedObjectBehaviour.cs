@@ -26,7 +26,12 @@ namespace Orchestrator.Behaviour.Shared
         [Tooltip("Callback invoked when the shared object is initialized and ready for use.")]
         public UnityEvent onInitialized;
 
-        private string _id;
+        private string _id = null;
+
+        public string Id {
+            set => _id = value;
+        }
+
         private App.Orchestrator _orchestrator;
         private App.SharedObject _sharedObject;
 
@@ -39,7 +44,7 @@ namespace Orchestrator.Behaviour.Shared
         private Vector3 _interpStartPos;
         private Quaternion _interpStartRot;
 
-        private async void Awake()
+        private async void Start()
         {
             _rb = GetComponent<Rigidbody>();
 
@@ -50,8 +55,15 @@ namespace Orchestrator.Behaviour.Shared
             _orchestrator = OrchestratorController.Instance.Orchestrator;
             var session = _orchestrator.CurrentSession;
 
-            _id = StableObjectId.GetSceneObjectId(gameObject);
-            Debug.Log($"Generated object id: {_id} for gameObject {gameObject.name}");
+            if (_id == null)
+            {
+                _id = StableObjectId.GetSceneObjectId(gameObject);
+                Debug.Log($"Generated object id: {_id} for gameObject {gameObject.name}");
+            }
+            else
+            {
+                Debug.Log($"Using object id: {_id} for gameObject {gameObject.name}");
+            }
 
             if (!session.HasSharedObject(_id) && session.IsAdministrator(_orchestrator.Self))
             {

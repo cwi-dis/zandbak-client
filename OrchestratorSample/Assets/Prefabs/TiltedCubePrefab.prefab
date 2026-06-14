@@ -119,6 +119,8 @@ GameObject:
   - component: {fileID: 6043647895740384450}
   - component: {fileID: 5135427482864969971}
   - component: {fileID: 624583017251588222}
+  - component: {fileID: 9136328287866055628}
+  - component: {fileID: 5970743018852050664}
   m_Layer: 0
   m_Name: TiltedCubePrefab
   m_TagString: Untagged
@@ -190,3 +192,32 @@ BoxCollider:
   serializedVersion: 3
   m_Size: {x: 1, y: 1, z: 1}
   m_Center: {x: 0, y: 0, z: 0}
+--- !u!114 &9136328287866055628
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1986992647056603223}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: eb647b08597cf459aa0e2a57036d058f, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  updateRate: 10
+  linearInterpolationRate: 5
+  onInitialized:
+    m_PersistentCalls:
+      m_Calls: []
+--- !u!114 &5970743018852050664
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1986992647056603223}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 93adf609f76444d8c8c2a7c5c6fc4655, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 

@@ -55,7 +55,14 @@ namespace Orchestrator.Behaviour.Shared
             if (prefab)
             {
                 Debug.Log("Spawning object...");
+
                 var obj = Instantiate(prefab, spawnedObject.Position, spawnedObject.Rotation);
+                var sharedObjectBehavior = obj.GetComponent<SharedObjectBehaviour>();
+                if (sharedObjectBehavior)
+                {
+                    sharedObjectBehavior.Id = spawnedObject.Id;
+                }
+
                 _spawnedObjects.Add(spawnedObject.Id, obj);
             }
             else
