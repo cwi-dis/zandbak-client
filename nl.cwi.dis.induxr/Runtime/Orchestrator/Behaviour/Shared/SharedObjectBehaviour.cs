@@ -93,6 +93,9 @@ namespace Orchestrator.Behaviour.Shared
         // Update is called once per frame
         private void Update()
         {
+            if (_sharedObject == null)
+                return;
+
             // Only transmit updates if the current user owns the object
             if (_sharedObject.IsOwner(_orchestrator.Self))
             {
