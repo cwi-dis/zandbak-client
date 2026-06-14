@@ -8,6 +8,7 @@ public class SpawnOnButtonPress : MonoBehaviour
     private Session _session;
 
     [SerializeField] private KeyCode spawnKey = KeyCode.B;
+    [SerializeField] private float spawnOffset = 2.0f;
 
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
@@ -21,8 +22,12 @@ public class SpawnOnButtonPress : MonoBehaviour
     {
         if (Input.GetKeyDown(spawnKey))
         {
-            Debug.Log($"Spawning shared object at {transform.position} with rotation {transform.rotation}");
-            _session.SpawnSharedObject("tiltedCube", transform.position, Quaternion.identity);
+            var spawnPosition = transform.position + transform.forward * spawnOffset;
+            spawnPosition.y = 1;
+
+            Debug.Log($"Spawning shared object at {spawnPosition} with rotation {transform.rotation}");
+
+            _session.SpawnSharedObject("tiltedCube", spawnPosition, Quaternion.identity);
         }
     }
 }
