@@ -13,15 +13,14 @@ namespace Orchestrator.ScriptableObjects
 
         public override GameObject GetPrefab(string prefabName)
         {
-            if (!_isInitialized)
+            if (!IsInitialized)
                 Initialize();
 
-            if (_registryCache.TryGetValue(prefabName, out var entry))
+            if (RegistryCache.TryGetValue(prefabName, out var entry))
                 return entry.prefab;
 
             Debug.LogWarning($"Prefab '{prefabName}' not found in registry, returning default");
             return defaultAvatar;
         }
-
     }
 }

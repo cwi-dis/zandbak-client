@@ -16,18 +16,18 @@ namespace Orchestrator.ScriptableObjects
         [SerializeField]
         public List<PrefabRegistryEntry> registryEntries;
 
-        protected readonly Dictionary<string, PrefabRegistryEntry> _registryCache = new();
-        protected bool _isInitialized = false;
+        protected readonly Dictionary<string, PrefabRegistryEntry> RegistryCache = new();
+        protected bool IsInitialized = false;
 
         private void OnEnable()
         {
-            _isInitialized = false;
+            IsInitialized = false;
         }
 
         public void Initialize()
         {
-            if (_isInitialized) return;
-            _registryCache.Clear();
+            if (IsInitialized) return;
+            RegistryCache.Clear();
 
             foreach (var entry in registryEntries)
             {
@@ -46,35 +46,49 @@ namespace Orchestrator.ScriptableObjects
                     continue;
                 }
 
-                if (_registryCache.ContainsKey(entry.prefabName))
+                if (RegistryCache.ContainsKey(entry.prefabName))
                 {
                     Debug.LogError($"Duplicate prefab registry entry for name: {entry.prefabName}");
                     continue;
                 }
 
-                _registryCache[entry.prefabName] = entry;
+                RegistryCache[entry.prefabName] = entry;
             }
 
-            _isInitialized = true;
+            IsInitialized = true;
         }
 
         public virtual GameObject GetPrefab(string prefabName)
         {
-            if (!_isInitialized)
+            if (!IsInitialized)
                 Initialize();
 
-            if (_registryCache.TryGetValue(prefabName, out var entry))
+            if (RegistryCache.TryGetValue(prefabName, out var entry))
                 return entry.prefab;
 
             Debug.LogWarning($"Prefab not found in registry: {prefabName}");
             return null;
         }
 
+        public virtual bool GetPrefab(string prefabName, out GameObject prefab)
+        {
+            prefab = GetPrefab(prefabName);
+            return prefab is not null;
+        }
+
+        public virtual bool HasPrefab(string prefabName)
+        {
+            if (!IsInitialized)
+                Initialize();
+
+            return RegistryCache.ContainsKey(prefabName);
+        }
+
         public IEnumerable<string> GetPrefabNames()
         {
-            if (!_isInitialized)
+            if (!IsInitialized)
                 Initialize();
-            return _registryCache.Keys;
+            return RegistryCache.Keys;
         }
     }
 }
