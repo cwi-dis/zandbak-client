@@ -1,5 +1,6 @@
 using Orchestrator.Wrapping;
 using Orchestrator.App;
+using Orchestrator.ScriptableObjects;
 using UnityEngine;
 
 public class SpawnOnButtonPress : MonoBehaviour
@@ -7,27 +8,35 @@ public class SpawnOnButtonPress : MonoBehaviour
     private Orchestrator.App.Orchestrator _orchestrator;
     private Session _session;
 
+    [SerializeField] private SharedObjectPrefabRegistry sharedObjectPrefabRegistry;
+    [SerializeField] private string prefabName = "tiltedCube";
     [SerializeField] private KeyCode spawnKey = KeyCode.B;
     [SerializeField] private float spawnOffset = 2.0f;
 
     // Start is called once before the first execution of Update after the MonoBehaviour is created
-    void Start()
+    private void Start()
     {
         _orchestrator = OrchestratorController.Instance.Orchestrator;
         _session = _orchestrator.CurrentSession;
     }
 
     // Update is called once per frame
-    void Update()
+    private void Update()
     {
-        if (Input.GetKeyDown(spawnKey))
+        if (!Input.GetKeyDown(spawnKey))
+            return;
+
+        if (!sharedObjectPrefabRegistry.HasPrefab(prefabName))
         {
-            var spawnPosition = transform.position + transform.forward * spawnOffset;
-            spawnPosition.y = 1;
-
-            Debug.Log($"Spawning shared object at {spawnPosition} with rotation {transform.rotation}");
-
-            _session.SpawnSharedObject("tiltedCube", spawnPosition, Quaternion.identity);
+            Debug.LogWarning($"Prefab '{prefabName}' not found in shared object prefab registry.");
+            return;
         }
+
+        var spawnPosition = transform.position + transform.forward * spawnOffset;
+        spawnPosition.y = 1;
+
+        Debug.Log($"Spawning shared object at {spawnPosition} with rotation {transform.rotation}");
+
+        _session.SpawnSharedObject(prefabName, spawnPosition, Quaternion.identity);
     }
 }
