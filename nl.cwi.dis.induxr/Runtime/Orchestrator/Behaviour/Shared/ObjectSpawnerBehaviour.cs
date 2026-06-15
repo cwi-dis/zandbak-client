@@ -57,6 +57,8 @@ namespace Orchestrator.Behaviour.Shared
                 Debug.Log("Spawning object...");
 
                 var obj = Instantiate(prefab, spawnedObject.Position, spawnedObject.Rotation);
+                obj.name = $"{obj.name} ({spawnedObject.Id})";
+
                 var sharedObjectBehavior = obj.GetComponent<SharedObjectBehaviour>();
                 if (sharedObjectBehavior)
                 {
@@ -75,11 +77,9 @@ namespace Orchestrator.Behaviour.Shared
         {
             Debug.Log("Destroying object with id: " + sharedObject.Id);
 
-            if (_spawnedObjects.TryGetValue(sharedObject.Id, out var obj))
+            if (_spawnedObjects.Remove(sharedObject.Id, out var obj))
             {
                 Destroy(obj);
-                _spawnedObjects.Remove(sharedObject.Id);
-
                 Debug.Log($"Object with ID {sharedObject.Id} destroyed");
             }
             else
@@ -98,6 +98,8 @@ namespace Orchestrator.Behaviour.Shared
 
             var remotePlayerPrefab = avatarPrefabRegistry.GetPrefab(user.PrefabName);
             var remoteAvatar = Instantiate(remotePlayerPrefab).GetComponent<AvatarBehaviour>();
+
+            remoteAvatar.name = $"{remoteAvatar.name} ({user.Id}: {remoteAvatar.name})";
             remoteAvatar.Initialize(user);
 
             _spawnedAvatars.Add(user.Id, remoteAvatar.gameObject);
@@ -105,11 +107,10 @@ namespace Orchestrator.Behaviour.Shared
 
         private void UserLeft(User user, bool force)
         {
-            if (_spawnedAvatars.TryGetValue(user.Id, out var obj))
+            if (_spawnedAvatars.Remove(user.Id, out var obj))
             {
-                Debug.Log("User found, removing and destroying player object");
-                _spawnedAvatars.Remove(user.Id);
                 Destroy(obj);
+                Debug.Log("User found, removing and destroying player object");
             }
         }
     }
