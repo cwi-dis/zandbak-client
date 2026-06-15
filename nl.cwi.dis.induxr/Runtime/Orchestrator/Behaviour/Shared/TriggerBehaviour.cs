@@ -11,11 +11,11 @@ namespace Orchestrator.Behaviour.Shared
     {
         [SerializeField]
         [Tooltip("Callback invoked when the shared object is initialized and ready for use.")]
-        public UnityEvent onInitialized;
+        public UnityEvent<App.Trigger> onInitialized;
 
         [SerializeField]
         [Tooltip("Callback invoked when a trigger value is received from the server.")]
-        public UnityEvent<float, JObject> onTriggerReceived;
+        public UnityEvent<App.Trigger> onTriggerReceived;
 
         private string _id;
         private App.Orchestrator _orchestrator;
@@ -51,7 +51,7 @@ namespace Orchestrator.Behaviour.Shared
             _triggerObject.OnTriggerReceived += ProcessTriggerUpdate;
             _triggerObject.EnableBroadcasts();
 
-            onInitialized?.Invoke();
+            onInitialized?.Invoke(_triggerObject);
         }
 
         private void OnDestroy()
@@ -63,8 +63,8 @@ namespace Orchestrator.Behaviour.Shared
         /// <summary>
         /// Publishes a trigger event by broadcasting the given parameter to other session participants.
         /// </summary>
-        /// <param name="value">The JSON object containing the trigger data to be broadcast.</param>
-        public void PublishTrigger(JObject value)
+        /// <param name="value">The data containing the trigger data to be broadcast.</param>
+        public void PublishTrigger<T>(T value)
         {
             _triggerObject.BroadcastUpdate(value);
         }
@@ -72,7 +72,7 @@ namespace Orchestrator.Behaviour.Shared
         private void ProcessTriggerUpdate(TriggerData triggerData)
         {
             Debug.Log($"New trigger received with value: {triggerData.Value}");
-            onTriggerReceived?.Invoke(triggerData.Timestamp, triggerData.Value);
+            onTriggerReceived?.Invoke(_triggerObject);
         }
     }
 }

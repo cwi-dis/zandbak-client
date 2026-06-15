@@ -23,7 +23,7 @@ namespace Orchestrator.Data
     {
         [JsonProperty("id")] public string Id;
         [JsonProperty("timestamp")] public float Timestamp;
-        [JsonProperty("value")] public JObject Value;
+        [JsonProperty("value")] public JToken Value;
 
         public bool IsPopulated => Value != null && Id != null && Timestamp > 0;
     }

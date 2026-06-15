@@ -731,12 +731,12 @@ namespace Orchestrator.App
         /// <param name="gameObject">The game object to be registered as a trigger.</param>
         /// <param name="initialValue">The initial value for the trigger object.</param>
         /// <returns>A task that represents the asynchronous operation. The task result contains the registered trigger instance.</returns>
-        public Task<Trigger> RegisterTrigger(GameObject gameObject, JObject initialValue)
+        public Task<Trigger> RegisterTrigger<T>(GameObject gameObject, T initialValue)
         {
             var tcs = new TaskCompletionSource<Trigger>();
             var objectId = StableObjectId.GetSceneObjectId(gameObject);
 
-            OrchestratorController.Instance.Wrapper.RegisterTrigger(objectId, initialValue, (status, triggerData) =>
+            OrchestratorController.Instance.Wrapper.RegisterTrigger(objectId, JObject.FromObject(initialValue), (status, triggerData) =>
             {
                 if (status.IsOk)
                 {

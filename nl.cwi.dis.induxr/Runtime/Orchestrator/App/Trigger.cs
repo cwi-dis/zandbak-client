@@ -31,6 +31,16 @@ namespace Orchestrator.App
         }
 
         /// <summary>
+        /// Retrieves the value stored in the trigger data as an instance of the specified type.
+        /// </summary>
+        /// <typeparam name="T">The type to which the trigger data value should be converted.</typeparam>
+        /// <returns>The value converted to the specified type, or the default value of the type if the trigger data is null or cannot be converted.</returns>
+        public T GetValue<T>()
+        {
+            return _triggerData.Value?.Value == null ? default : _triggerData.Value.Value.ToObject<T>();
+        }
+
+        /// <summary>
         /// Determines if the specified user is the owner of the trigger object.
         /// </summary>
         /// <param name="user">The user to check ownership against.</param>
@@ -59,7 +69,7 @@ namespace Orchestrator.App
         /// Broadcasts trigger updates to all users in the current session.
         /// </summary>
         /// <param name="data">The trigger data to be broadcast to the session.</param>
-        public void BroadcastUpdate(JObject data)
+        public void BroadcastUpdate<T>(T data)
         {
             if (!_broadcastsEnabled) return;
 
@@ -67,7 +77,7 @@ namespace Orchestrator.App
             {
                 Id = Id,
                 Timestamp = Time.time,
-                Value = data
+                Value = JToken.FromObject(data)
             }, true);
         }
 
