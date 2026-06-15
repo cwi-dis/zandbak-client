@@ -34,6 +34,7 @@ public class RunIntoMe : MonoBehaviour
 
         _counter = data.Counter;
         Debug.Log($"Initialised counter to {_counter}");
+        counterText.text = _counter.ToString();
     }
 
     private void TriggerReceived(Trigger trigger)
