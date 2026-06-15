@@ -32,6 +32,8 @@ namespace Orchestrator.Behaviour.Shared
             set => _id = value;
         }
 
+        public App.SharedObject SharedObject => _sharedObject;
+
         private App.Orchestrator _orchestrator;
         private App.SharedObject _sharedObject;
 

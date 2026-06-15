@@ -22,6 +22,7 @@ namespace Orchestrator.Behaviour.Shared
         private App.Trigger _triggerObject;
 
         public TriggerData Data => _triggerObject?.Data;
+        public App.Trigger TriggerObject => _triggerObject;
 
         private async void Start()
         {
