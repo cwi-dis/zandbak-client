@@ -103,6 +103,12 @@ namespace Orchestrator.Behaviour.Avatar
             {
                 if (comp != this) comp.enabled = false;
             }
+
+            // Disable all colliders for remote avatars
+            foreach (var col in GetComponentsInChildren<Collider>())
+            {
+                col.enabled = false;
+            }
         }
 
         /// <summary>
