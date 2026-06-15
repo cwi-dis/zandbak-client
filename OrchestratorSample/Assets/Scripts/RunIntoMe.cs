@@ -42,7 +42,6 @@ public class RunIntoMe : MonoBehaviour
         var data = trigger.GetValue<CounterMessage>();
         _counter = data.Counter;
 
-        Debug.Log($"Trigger received {_counter}");
         counterText.text = _counter.ToString();
     }
 

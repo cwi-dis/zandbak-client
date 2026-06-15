@@ -71,7 +71,6 @@ namespace Orchestrator.Behaviour.Shared
 
         private void ProcessTriggerUpdate(TriggerData triggerData)
         {
-            Debug.Log($"New trigger received with value: {triggerData.Value}");
             onTriggerReceived?.Invoke(_triggerObject);
         }
     }
