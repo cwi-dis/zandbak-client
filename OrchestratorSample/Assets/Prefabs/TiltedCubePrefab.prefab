@@ -121,6 +121,7 @@ GameObject:
   - component: {fileID: 624583017251588222}
   - component: {fileID: 9136328287866055628}
   - component: {fileID: 5970743018852050664}
+  - component: {fileID: -2988090988980988299}
   m_Layer: 0
   m_Name: TiltedCubePrefab
   m_TagString: Untagged
@@ -221,3 +222,16 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 93adf609f76444d8c8c2a7c5c6fc4655, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+--- !u!114 &-2988090988980988299
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1986992647056603223}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ac8b59efc99494fa78a64477d3be709c, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  secondsUntilDespawn: 5
