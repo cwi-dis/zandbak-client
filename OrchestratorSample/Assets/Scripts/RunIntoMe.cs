@@ -1,4 +1,4 @@
-using Newtonsoft.Json.Linq;
+using System.Collections;
 using Orchestrator.Behaviour.Shared;
 using Orchestrator.App;
 using TMPro;
@@ -8,6 +8,11 @@ public class RunIntoMe : MonoBehaviour
 {
     [SerializeField]
     public TMP_Text counterText;
+
+    [Header("Particle System")]
+    [SerializeField]
+    public ParticleSystem particleEmitter;
+    public float particleDuration = 1f;
 
     private TriggerBehaviour _triggerBehaviour;
     private int _counter = 0;
@@ -23,6 +28,8 @@ public class RunIntoMe : MonoBehaviour
         _triggerBehaviour = GetComponent<TriggerBehaviour>();
         _triggerBehaviour.onTriggerReceived.AddListener(TriggerReceived);
         _triggerBehaviour.onInitialized.AddListener(OnTriggerInitialized);
+
+        particleEmitter.Stop();
     }
 
     private void OnTriggerInitialized(Trigger trigger)
@@ -43,11 +50,22 @@ public class RunIntoMe : MonoBehaviour
         _counter = data.Counter;
 
         counterText.text = _counter.ToString();
+        StartCoroutine(PlayParticles());
     }
 
     private void OnTriggerEnter(Collider other)
     {
         Debug.Log("Triggered");
         _triggerBehaviour.PublishTrigger(new CounterMessage { Counter = _counter + 1 });
+    }
+
+    private IEnumerator PlayParticles()
+    {
+        if (!particleEmitter)
+            yield return null;
+
+        particleEmitter.Play();
+        yield return new WaitForSeconds(particleDuration);
+        particleEmitter.Stop();
     }
 }
