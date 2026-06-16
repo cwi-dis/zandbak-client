@@ -1,10 +1,12 @@
+using Orchestrator.Attributes;
 using Orchestrator.Behaviour.Shared;
 using UnityEngine;
 
 namespace Orchestrator.Behaviour.Grab
 {
+    [EnabledOnRemote]
     [RequireComponent(typeof(Collider), typeof(SharedObjectBehaviour))]
-    public class ClaimOnGrab : MonoBehaviour, IClaimObject
+    public class ClaimOnGrab : MonoBehaviour
     {
         private SharedObjectBehaviour _shared;
         private Camera _camera;

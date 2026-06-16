@@ -1,4 +1,5 @@
 using Newtonsoft.Json.Linq;
+using Orchestrator.Attributes;
 using Orchestrator.Data;
 using Orchestrator.Util;
 using Orchestrator.Wrapping;
@@ -7,7 +8,8 @@ using UnityEngine.Events;
 
 namespace Orchestrator.Behaviour.Shared
 {
-    public class TriggerBehaviour : MonoBehaviour, IEnabledOnRemote
+    [EnabledOnRemote]
+    public class TriggerBehaviour : MonoBehaviour
     {
         [SerializeField]
         [Tooltip("Callback invoked when the shared object is initialized and ready for use.")]

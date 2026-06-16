@@ -1,3 +1,4 @@
+using Orchestrator.Attributes;
 using Orchestrator.Behaviour.Shared;
 using UnityEngine;
 using UnityEngine.XR.Interaction.Toolkit;
@@ -9,8 +10,9 @@ namespace Orchestrator.Behaviour.Grab
     /// Equivalent of ClaimOnGrab for XR interactions.
     /// Claims ownership of a SharedObjectBehaviour when the object is grabbed via XR.
     /// </summary>
+    [EnabledOnRemote]
     [RequireComponent(typeof(SharedObjectBehaviour))]
-    public class XRClaimOnGrab : MonoBehaviour, IClaimObject
+    public class XRClaimOnGrab : MonoBehaviour
     {
         private SharedObjectBehaviour _shared;
         private XRBaseInteractable _interactable;

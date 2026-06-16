@@ -1,5 +1,7 @@
+using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using Orchestrator.Attributes;
 using Orchestrator.Data;
 using Orchestrator.Util;
 using Orchestrator.Wrapping;
@@ -15,7 +17,8 @@ namespace Orchestrator.Behaviour.Shared
     /// This class is designed to manage ownership and updates for a shared object in a multi-user system.
     /// It facilitates the broadcasting and interpolation of pose data based on defined update rates.
     /// </remarks>
-    public class SharedObjectBehaviour : MonoBehaviour, IEnabledOnRemote
+    [EnabledOnRemote]
+    public class SharedObjectBehaviour : MonoBehaviour
     {
         [SerializeField]
         [Tooltip("How many times a second the pose data should be broadcast to the server.")]
@@ -200,7 +203,7 @@ namespace Orchestrator.Behaviour.Shared
             // Reset all other behaviours that don't implement IEnabledOnRemote to their initial state
             foreach (var comp in GetComponents<UnityEngine.Behaviour>())
             {
-                if (comp == this || comp is IEnabledOnRemote)
+                if (comp == this || Attribute.IsDefined(comp.GetType(), typeof(EnabledOnRemoteAttribute)))
                     continue;
 
                 if (_initialComponentStates.TryGetValue(comp, out var originalValue))
@@ -215,7 +218,7 @@ namespace Orchestrator.Behaviour.Shared
             // Disable all other behaviours that don't implement IEnabledOnRemote
             foreach (var comp in GetComponents<UnityEngine.Behaviour>())
             {
-                if (comp == this || comp is IEnabledOnRemote)
+                if (comp == this || Attribute.IsDefined(comp.GetType(), typeof(EnabledOnRemoteAttribute)))
                     continue;
 
                 _initialComponentStates[comp] = comp.enabled;
