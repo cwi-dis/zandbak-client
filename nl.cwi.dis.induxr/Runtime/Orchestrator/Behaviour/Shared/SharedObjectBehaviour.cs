@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using System.Threading.Tasks;
 using Orchestrator.Data;
 using Orchestrator.Util;
@@ -49,6 +50,8 @@ namespace Orchestrator.Behaviour.Shared
         private Vector3 _interpStartPos;
         private Quaternion _interpStartRot;
 
+        private readonly Dictionary<UnityEngine.Behaviour, bool> _initialComponentStates = new();
+
         private async void Start()
         {
             _rb = GetComponent<Rigidbody>();
@@ -80,10 +83,14 @@ namespace Orchestrator.Behaviour.Shared
                 // If the object has a Rigidbody component, disable it so it isn't affected by physics if we're not the owner
                 if (_rb)
                     _rb.isKinematic = true;
+
                 _sharedObject = _orchestrator.CurrentSession.FindSharedObjectById(_id);
+                ObjectOwnershipLost();
             }
 
             _sharedObject.OnObjectDataReceived += ProcessObjectUpdate;
+            _sharedObject.OnOwnershipClaimed += ObjectOwnershipClaimed;
+            _sharedObject.OnOwnershipLost += ObjectOwnershipLost;
             _sharedObject.EnableBroadcasts();
 
             onInitialized?.Invoke();
@@ -92,6 +99,8 @@ namespace Orchestrator.Behaviour.Shared
         private void OnDestroy()
         {
             _sharedObject.OnObjectDataReceived -= ProcessObjectUpdate;
+            _sharedObject.OnOwnershipClaimed -= ObjectOwnershipClaimed;
+            _sharedObject.OnOwnershipLost -= ObjectOwnershipLost;
             _sharedObject.DisableBroadcasts();
         }
 
@@ -178,6 +187,37 @@ namespace Orchestrator.Behaviour.Shared
 
             _lastReceivedData = objectData;
             _lastReceiveTime = Time.realtimeSinceStartup;
+        }
+
+        private void ObjectOwnershipClaimed()
+        {
+            if (_initialComponentStates.Count == 0)
+                return;
+
+            // Reset all other behaviours that don't implement IEnabledOnRemote to their initial state
+            foreach (var comp in GetComponents<UnityEngine.Behaviour>())
+            {
+                if (comp == this || comp is IEnabledOnRemote)
+                    continue;
+
+                if (_initialComponentStates.TryGetValue(comp, out var originalValue))
+                {
+                    comp.enabled = originalValue;
+                }
+            }
+        }
+
+        private void ObjectOwnershipLost()
+        {
+            // Disable all other behaviours that don't implement IEnabledOnRemote
+            foreach (var comp in GetComponents<UnityEngine.Behaviour>())
+            {
+                if (comp == this || comp is IEnabledOnRemote)
+                    continue;
+
+                _initialComponentStates[comp] = comp.enabled;
+                comp.enabled = false;
+            }
         }
     }
 }
