@@ -85,8 +85,10 @@ namespace Orchestrator.Behaviour.Shared
                     _rb.isKinematic = true;
 
                 _sharedObject = _orchestrator.CurrentSession.FindSharedObjectById(_id);
-                ObjectOwnershipLost();
             }
+
+            if (_sharedObject.Owner.Id != _orchestrator.Self.Id)
+                ObjectOwnershipLost();
 
             _sharedObject.OnObjectDataReceived += ProcessObjectUpdate;
             _sharedObject.OnOwnershipClaimed += ObjectOwnershipClaimed;
@@ -193,6 +195,7 @@ namespace Orchestrator.Behaviour.Shared
         {
             if (_initialComponentStates.Count == 0)
                 return;
+
 
             // Reset all other behaviours that don't implement IEnabledOnRemote to their initial state
             foreach (var comp in GetComponents<UnityEngine.Behaviour>())
