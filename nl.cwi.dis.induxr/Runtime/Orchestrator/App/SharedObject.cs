@@ -27,6 +27,8 @@ namespace Orchestrator.App
         public bool Dynamic => _sharedObjectData.Dynamic;
 
         public Action<ObjectData> OnObjectDataReceived;
+        public Action OnOwnershipClaimed;
+        public Action OnOwnershipLost;
 
         public Vector3 Position => new(
             _sharedObjectData.Transform.Position.X,
@@ -61,6 +63,7 @@ namespace Orchestrator.App
         {
             _broadcastsEnabled = true;
             _orchestrator.CurrentSession.OnBroadcastDataReceived += BroadcastReceived;
+            _orchestrator.CurrentSession.OnObjectOwnershipChanged += ObjectOwnershipChanged;
         }
 
         /// <summary>
@@ -143,6 +146,17 @@ namespace Orchestrator.App
 
             if (objectTransform.Id != Id) return;
             OnObjectDataReceived?.Invoke(objectTransform);
+        }
+
+        private void ObjectOwnershipChanged(SharedObject obj)
+        {
+            if (obj.Id != Id)
+                return;
+
+            if (obj.Owner.Id == _orchestrator.Self.Id)
+                OnOwnershipClaimed?.Invoke();
+            else
+                OnOwnershipLost?.Invoke();
         }
     }
 }
