@@ -10,7 +10,7 @@ namespace Orchestrator.Behaviour.Grab
     /// Claims ownership of a SharedObjectBehaviour when the object is grabbed via XR.
     /// </summary>
     [RequireComponent(typeof(SharedObjectBehaviour))]
-    public class XRClaimOnGrab : MonoBehaviour
+    public class XRClaimOnGrab : MonoBehaviour, IClaimObject
     {
         private SharedObjectBehaviour _shared;
         private XRBaseInteractable _interactable;

@@ -4,7 +4,7 @@ using UnityEngine;
 namespace Orchestrator.Behaviour.Grab
 {
     [RequireComponent(typeof(Collider), typeof(SharedObjectBehaviour))]
-    public class ClaimOnGrab : MonoBehaviour
+    public class ClaimOnGrab : MonoBehaviour, IClaimObject
     {
         private SharedObjectBehaviour _shared;
         private Camera _camera;

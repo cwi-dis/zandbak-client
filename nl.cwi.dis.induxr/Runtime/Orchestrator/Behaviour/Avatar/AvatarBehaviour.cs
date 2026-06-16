@@ -1,11 +1,12 @@
 using Orchestrator.App;
+using Orchestrator.Behaviour.Shared;
 using Orchestrator.Data;
 using UnityEngine;
 using User = Orchestrator.App.User;
 
 namespace Orchestrator.Behaviour.Avatar
 {
-    public abstract class AvatarBehaviour : MonoBehaviour
+    public abstract class AvatarBehaviour : MonoBehaviour, IEnabledOnRemote
     {
         [Header("General Options")]
         [Tooltip("A reference to the object to be used as notification icon. If given, the notification icon will be shown when the user's hand is raised.")]
@@ -101,7 +102,7 @@ namespace Orchestrator.Behaviour.Avatar
             // Disable all other behaviours for remote avatars
             foreach (var comp in GetComponents<UnityEngine.Behaviour>())
             {
-                if (comp != this) comp.enabled = false;
+                if (comp != this && comp is not IEnabledOnRemote) comp.enabled = false;
             }
 
             // Disable all colliders for remote avatars

@@ -7,7 +7,7 @@ using UnityEngine.Events;
 
 namespace Orchestrator.Behaviour.Shared
 {
-    public class TriggerBehaviour : MonoBehaviour
+    public class TriggerBehaviour : MonoBehaviour, IEnabledOnRemote
     {
         [SerializeField]
         [Tooltip("Callback invoked when the shared object is initialized and ready for use.")]

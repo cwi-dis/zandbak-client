@@ -14,21 +14,24 @@ namespace Orchestrator.Behaviour.Shared
     /// This class is designed to manage ownership and updates for a shared object in a multi-user system.
     /// It facilitates the broadcasting and interpolation of pose data based on defined update rates.
     /// </remarks>
-    public class SharedObjectBehaviour : MonoBehaviour
+    public class SharedObjectBehaviour : MonoBehaviour, IEnabledOnRemote
     {
         [SerializeField]
         [Tooltip("How many times a second the pose data should be broadcast to the server.")]
         public int updateRate = 10;
+
         [SerializeField]
         [Tooltip("Rate (in Hz) at which received pose updates are interpolated. Should roughly match the sender's updateRate.")]
         public int linearInterpolationRate = 5;
+
         [SerializeField]
         [Tooltip("Callback invoked when the shared object is initialized and ready for use.")]
         public UnityEvent onInitialized;
 
         private string _id = null;
 
-        public string Id {
+        public string Id
+        {
             set => _id = value;
         }
 
