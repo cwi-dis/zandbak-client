@@ -132,24 +132,6 @@ public class SessionController : MonoBehaviour
         var user = _session.Self;
         Debug.Log($"Building session for user: {user.Name} ({user.Type}). Session has {_session.Users.Count} users already.");
 
-        // Getting random spawn position for self
-        var spawnPosition = new Vector3(
-            Random.Range(-8, 8),
-            0,
-            Random.Range(-8, 8)
-        );
-
-        var localPlayerPrefab = avatarPrefabRegistry.GetPrefab(user.PrefabName);
-        Debug.Log($"Spawning local player at {spawnPosition} with avatar {user.PrefabName}");
-
-        // Spawning local avatar prefab and injecting current user dependency
-        var localAvatar = Instantiate(localPlayerPrefab, spawnPosition, Quaternion.identity).GetComponent<AvatarBehaviour>();
-        localAvatar.AddComponent<SpawnOnButtonPress>();
-        localAvatar.Initialize(user);
-
-        var spawnOnButtonPress = localAvatar.GetComponent<SpawnOnButtonPress>();
-        spawnOnButtonPress.sharedObjectPrefabRegistry = sharedObjectPrefabRegistry;
-
         // Initialise notification buffer and print welcome message
         _notificationBuffer = new NotificationBuffer(30, notificationField);
         _notificationBuffer.AddNotification($"Welcome to <i>{_session.Name}</i>\nThis room uses room model {_session.Room.Name}\n");

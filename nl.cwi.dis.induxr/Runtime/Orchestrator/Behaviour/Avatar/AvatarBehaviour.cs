@@ -105,8 +105,13 @@ namespace Orchestrator.Behaviour.Avatar
             // Disable all other behaviours for remote avatars
             foreach (var comp in GetComponents<UnityEngine.Behaviour>())
             {
-                if (comp != this && !Attribute.IsDefined(comp.GetType(), typeof(EnabledOnRemoteAttribute)))
-                    comp.enabled = false;
+                if (comp == this)
+                    continue;
+
+                if (Attribute.IsDefined(comp.GetType(), typeof(EnabledOnRemoteAttribute)))
+                    continue;
+
+                comp.enabled = false;
             }
 
             // Disable all colliders for remote avatars

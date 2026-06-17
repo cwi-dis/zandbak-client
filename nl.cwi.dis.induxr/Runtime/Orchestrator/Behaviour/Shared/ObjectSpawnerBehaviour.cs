@@ -38,6 +38,12 @@ namespace Orchestrator.Behaviour.Shared
             _session.OnUserLeft += UserLeft;
         }
 
+        private void Start()
+        {
+            // Spawn local avatar
+            SpawnLocalAvatar();
+        }
+
         private void OnDestroy()
         {
             _session.OnObjectSpawned -= ObjectSpawned;
@@ -112,6 +118,25 @@ namespace Orchestrator.Behaviour.Shared
                 Destroy(obj);
                 Debug.Log("User found, removing and destroying player object");
             }
+        }
+
+        private void SpawnLocalAvatar()
+        {
+            var user = _orchestrator.Self;
+
+            // Getting random spawn position for self
+            var spawnPosition = new Vector3(
+                Random.Range(-8, 8),
+                0,
+                Random.Range(-8, 8)
+            );
+
+            var localPlayerPrefab = avatarPrefabRegistry.GetPrefab(user.PrefabName);
+            Debug.Log($"Spawning local player at {spawnPosition} with avatar {user.PrefabName}");
+
+            // Spawning local avatar prefab and injecting current user dependency
+            var localAvatar = Instantiate(localPlayerPrefab, spawnPosition, Quaternion.identity).GetComponent<AvatarBehaviour>();
+            localAvatar.Initialize(user);
         }
     }
 }
