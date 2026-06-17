@@ -300,6 +300,7 @@ GameObject:
   - component: {fileID: 6702295699878478832}
   - component: {fileID: 4183253506923158163}
   - component: {fileID: 9197415462857501024}
+  - component: {fileID: -1656724993581202670}
   m_Layer: 0
   m_Name: SimpleAvatar
   m_TagString: Untagged
@@ -393,6 +394,22 @@ MonoBehaviour:
   smoothSpeed: 0.125
   locationOffset: {x: 0, y: 3, z: -4}
   rotationOffset: {x: 15, y: 0, z: 0}
+--- !u!114 &-1656724993581202670
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5171808935100316256}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9dc27b67e16704f878c49d0acd38303d, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  sharedObjectPrefabRegistry: {fileID: 11400000, guid: c2f348d36dff24e83b2748f04cc47c84, type: 2}
+  prefabName: tiltedCube
+  spawnKey: 98
+  spawnOffset: 2
 --- !u!1 &7399295660099633170
 GameObject:
   m_ObjectHideFlags: 0
