@@ -105,16 +105,10 @@ namespace Orchestrator.Wrapping {
 
         public void OnSocketDisconnect()
         {
-            if (_responsesListener == null)
+            UnityThread.executeInUpdate(() =>
             {
-                Debug.LogWarning($"OrchestratorWrapper: OnSocketDisconnect: no ResponsesListener");
-            }
-            else
-            {
-                UnityThread.executeInUpdate(() => {
-                    _responsesListener.OnDisconnect();
-                });
-            }
+                _responsesListener?.OnDisconnect();
+            });
         }
 
         public void OnSocketConnecting()

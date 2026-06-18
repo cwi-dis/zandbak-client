@@ -66,9 +66,6 @@ namespace Orchestrator.Wrapping
         public OrchestratorWrapper Wrapper => _orchestratorWrapper;
         public Uri SocketUrl { get; private set; }
 
-        // orchestrator connection state
-        private bool _connectedToOrchestrator;
-
         private readonly TaskCompletionSource<App.Orchestrator> _connectionTaskCompletionSource = new();
 
         //Orchestrator Controller Singleton
@@ -232,7 +229,7 @@ namespace Orchestrator.Wrapping
 
         #region public properties
 
-        public bool ConnectedToOrchestrator => _connectedToOrchestrator;
+        public bool ConnectedToOrchestrator => _connectionStatus == OrchestratorConnectionStatus.Connected;
         public OrchestratorConnectionStatus ConnectionStatus => _connectionStatus;
 
         #endregion
@@ -299,7 +296,6 @@ namespace Orchestrator.Wrapping
             VerifyOrchestratorVersion();
             #endif
 
-            _connectedToOrchestrator = true;
             _connectionStatus = OrchestratorConnectionStatus.Connected;
 
             Orchestrator = new App.Orchestrator();
@@ -335,7 +331,6 @@ namespace Orchestrator.Wrapping
 
         void IOrchestratorResponsesListener.OnDisconnect() {
             Debug.LogWarning($"OrchestratorController: disconnected from orchestrator");
-            _connectedToOrchestrator = false;
             _connectionStatus = OrchestratorConnectionStatus.Disconnected;
             SocketUrl = null;
             OnConnectionEvent?.Invoke(false);
