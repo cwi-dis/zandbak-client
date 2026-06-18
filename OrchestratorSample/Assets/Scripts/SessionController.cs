@@ -50,6 +50,7 @@ public class SessionController : MonoBehaviour
     public Button inviteToBubbleButton;
     public Button leaveBubbleButton;
     public Button requestBubbleAccessButton;
+    public GameObject bubbleModel;
 
     [Header("Panel Manager")]
     public PanelManager panelManager;
@@ -261,13 +262,11 @@ public class SessionController : MonoBehaviour
     private void MoveToBubble(Bubble bubble)
     {
         // Set the position of the avatar to the position of the bubble plane
-        var bubblePlane = GameObject.Find("BubblePlane");
-
-        if (bubblePlane != null)
+        if (bubbleModel != null)
         {
             // Get plane position and size
-            var planePosition = bubblePlane.transform.position;
-            var planeSize = bubblePlane.GetComponent<Renderer>().bounds.size;
+            var planePosition = bubbleModel.transform.position;
+            var planeSize = bubbleModel.GetComponent<Renderer>().bounds.size;
 
             // Pick random position within bubble plane
             planePosition.x += Random.Range(-planeSize.x / 2, planeSize.x / 2);
