@@ -53,7 +53,7 @@ namespace Orchestrator.Wrapping
             public override string ToString() => Name;
         }
 
-        private readonly TaskCompletionSource<App.Orchestrator> _connectionTaskCompletionSource = new();
+        private TaskCompletionSource<App.Orchestrator> _connectionTaskCompletionSource;
 
         public App.Orchestrator Orchestrator { get; private set; }
         public OrchestratorWrapper Wrapper { get; private set; }
@@ -264,6 +264,7 @@ namespace Orchestrator.Wrapping
         public Task<App.Orchestrator> SocketConnectAsync(string url)
         {
             Debug.Log($"OrchestratorController: connect to {url}");
+            _connectionTaskCompletionSource = new TaskCompletionSource<App.Orchestrator>();
 
             SocketUrl = new Uri(url);
             Wrapper = new OrchestratorWrapper(url, this, this, this, this, this);
