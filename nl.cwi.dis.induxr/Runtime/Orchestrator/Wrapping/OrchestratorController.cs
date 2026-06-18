@@ -1,6 +1,4 @@
-﻿#pragma warning disable CS0618
-
-using System;
+﻿using System;
 using System.Text;
 using System.Threading.Tasks;
 using Orchestrator.Data;
@@ -55,25 +53,26 @@ namespace Orchestrator.Wrapping
             public override string ToString() => Name;
         }
 
-        // the wrapper for the orchestrator
-        private OrchestratorWrapper _orchestratorWrapper;
-        // the reference controller for singleton
-        private static OrchestratorController _instance;
-
-        private OrchestratorConnectionStatus _connectionStatus;
+        private readonly TaskCompletionSource<App.Orchestrator> _connectionTaskCompletionSource = new();
 
         public App.Orchestrator Orchestrator { get; private set; }
-        public OrchestratorWrapper Wrapper => _orchestratorWrapper;
+        public OrchestratorWrapper Wrapper { get; private set; }
+        public bool ConnectedToOrchestrator => ConnectionStatus == OrchestratorConnectionStatus.Connected;
+        public OrchestratorConnectionStatus ConnectionStatus { get; private set; }
         public Uri SocketUrl { get; private set; }
 
-        private readonly TaskCompletionSource<App.Orchestrator> _connectionTaskCompletionSource = new();
+        // the wrapper for the orchestrator
+        // the reference controller for singleton
+        private static OrchestratorController _instance;
 
         //Orchestrator Controller Singleton
         public static OrchestratorController Instance {
             get {
-                if (_instance is null) {
+                if (_instance is null)
+                {
                     Debug.LogError("OrchestratorController.Instance: No OrchestratorController yet");
                 }
+
                 return _instance;
             }
         }
@@ -227,24 +226,19 @@ namespace Orchestrator.Wrapping
 
         #endregion
 
-        #region public properties
-
-        public bool ConnectedToOrchestrator => _connectionStatus == OrchestratorConnectionStatus.Connected;
-        public OrchestratorConnectionStatus ConnectionStatus => _connectionStatus;
-
-        #endregion
-
         #region Unity
 
         private void Awake() {
-            if (_instance == null) {
+            if (!_instance) {
                 DontDestroyOnLoad(this.gameObject);
                 this.gameObject.name += "_keep";
                 _instance = this;
-            } else if (_instance != this) {
+            }
+            else if (_instance != this)
+            {
 #if UNITY_EDITOR
-                string newName = SearchUtils.GetHierarchyPath(gameObject, false);
-                string oldName = SearchUtils.GetHierarchyPath(_instance.gameObject, false);
+                var newName = SearchUtils.GetHierarchyPath(gameObject, false);
+                var oldName = SearchUtils.GetHierarchyPath(_instance.gameObject, false);
 #else
                 string newName = gameObject.name;
                 string oldName = _instance.gameObject.name;
@@ -255,26 +249,12 @@ namespace Orchestrator.Wrapping
 
         private void OnDestroy() {
             Debug.Log($"{gameObject.name}: OrchestratorController.OnDestroy() called. Will close orchestrator connection. ");
-            _orchestratorWrapper?.Disconnect();
+            Wrapper?.Disconnect();
         }
 
         #endregion
 
         #region Socket.io connect
-
-        /// <summary>
-        /// Establishes a socket connection to the Orchestrator using the specified URL.
-        /// Invokes <c>OnConnectionEvent</c> upon completion.
-        /// </summary>
-        /// <param name="url">The URL of the orchestrator to establish the connection to.</param>
-        [Obsolete("Direct usage of OrchestratorController is deprecated. Use the instance of App.Orchestrator returned by SocketConnectAsync() instead")]
-        public void SocketConnect(string url) {
-            Debug.Log($"OrchestratorController: connect to {url}");
-
-            SocketUrl = new Uri(url);
-            _orchestratorWrapper = new OrchestratorWrapper(url, this, this, this, this, this);
-            _orchestratorWrapper.Connect();
-        }
 
         /// <summary>
         /// Establishes a socket connection to the Orchestrator using the specified URL in an asynchronous manner.
@@ -283,8 +263,28 @@ namespace Orchestrator.Wrapping
         /// <param name="url">The URL of the orchestrator to establish the connection to.</param>
         public Task<App.Orchestrator> SocketConnectAsync(string url)
         {
-            SocketConnect(url);
+            Debug.Log($"OrchestratorController: connect to {url}");
+
+            SocketUrl = new Uri(url);
+            Wrapper = new OrchestratorWrapper(url, this, this, this, this, this);
+            Wrapper.Connect();
+
             return _connectionTaskCompletionSource.Task;
+        }
+
+        /// <summary>
+        /// Disconnects from the current orchestrator session and releases associated resources.
+        /// This method ensures that the application is no longer connected to the orchestrator,
+        /// updates the connection status, and triggers any relevant disconnection events.
+        /// </summary>
+        public void Disconnect()
+        {
+            Wrapper.Disconnect();
+            Orchestrator = null;
+            Wrapper = null;
+            SocketUrl = null;
+
+            ConnectionStatus = OrchestratorConnectionStatus.Disconnected;
         }
 
         void IOrchestratorResponsesListener.OnConnect()
@@ -296,8 +296,7 @@ namespace Orchestrator.Wrapping
             VerifyOrchestratorVersion();
             #endif
 
-            _connectionStatus = OrchestratorConnectionStatus.Connected;
-
+            ConnectionStatus = OrchestratorConnectionStatus.Connected;
             Orchestrator = new App.Orchestrator();
 
             OnConnectionEvent?.Invoke(true);
@@ -307,31 +306,13 @@ namespace Orchestrator.Wrapping
         void IOrchestratorResponsesListener.OnConnecting() {
             Debug.Log($"OrchestratorController: connecting to orchestrator");
 
-            _connectionStatus = OrchestratorConnectionStatus.Connecting;
+            ConnectionStatus = OrchestratorConnectionStatus.Connecting;
             OnConnectingEvent?.Invoke();
-        }
-
-        /// <summary>
-        /// Abort connection to Orchestrator.
-        /// </summary>
-        [Obsolete("Direct usage of OrchestratorController is deprecated. Use the instance of App.Orchestrator returned by SocketConnectAsync() instead")]
-        public void Abort() {
-            _orchestratorWrapper.Disconnect();
-            ((IOrchestratorResponsesListener)this).OnDisconnect();
-        }
-
-        /// <summary>
-        /// Disconnect from the Orchestrator
-        /// </summary>
-        [Obsolete("Direct usage of OrchestratorController is deprecated. Use the instance of App.Orchestrator returned by SocketConnectAsync() instead")]
-        public void Disconnect()
-        {
-            Abort();
         }
 
         void IOrchestratorResponsesListener.OnDisconnect() {
             Debug.LogWarning($"OrchestratorController: disconnected from orchestrator");
-            _connectionStatus = OrchestratorConnectionStatus.Disconnected;
+            ConnectionStatus = OrchestratorConnectionStatus.Disconnected;
             SocketUrl = null;
             OnConnectionEvent?.Invoke(false);
         }
@@ -491,7 +472,7 @@ namespace Orchestrator.Wrapping
         /// <param name="deliverToCaller">Whether to deliver the broadcast to the caller as well</param>
         public void Broadcast(string channel, byte[] bytes, bool deliverToCaller = false)
         {
-            _orchestratorWrapper.SendBroadcastToChannel(channel, bytes, deliverToCaller);
+            Wrapper.SendBroadcastToChannel(channel, bytes, deliverToCaller);
         }
 
         void IUserMessagesListener.OnBroadcastReceived(BroadcastData broadcastData) {
@@ -550,5 +531,3 @@ namespace Orchestrator.Wrapping
 #endif
     }
 }
-
-#pragma warning restore CS0618

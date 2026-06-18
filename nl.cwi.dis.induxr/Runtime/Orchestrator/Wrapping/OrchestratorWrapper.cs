@@ -74,24 +74,18 @@ namespace Orchestrator.Wrapping {
             lock (_sendLock)
             {
                 _socket.Connect();
+                OnSocketConnecting();
             }
 
-            OnSocketConnecting();
         }
 
         public void OnSocketConnect()
         {
-            if (_responsesListener == null)
+            Debug.Log("Calling OnConnect");
+            UnityThread.executeInUpdate(() =>
             {
-                Debug.LogWarning($"OrchestratorWrapper: OnSocketConnect: no ResponsesListener");
-            }
-            else
-            {
-                Debug.Log("Calling OnConnect");
-                UnityThread.executeInUpdate(() => {
-                  _responsesListener.OnConnect();
-                });
-            }
+                _responsesListener?.OnConnect();
+            });
         }
 
         public void Disconnect()
