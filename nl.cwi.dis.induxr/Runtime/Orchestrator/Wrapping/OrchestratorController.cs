@@ -16,9 +16,6 @@ namespace Orchestrator.Wrapping
 {
     public class OrchestratorController : MonoBehaviour, IOrchestratorResponsesListener, IUserMessagesListener, IUserSessionEventsListener, IOrchestratorEventsListener, IBubbleEventsListener
     {
-        [Tooltip("Enable trace logging output")]
-        [SerializeField] private bool enableLogging = true;
-
         public enum OrchestratorConnectionStatus
         {
             Disconnected,
@@ -275,7 +272,7 @@ namespace Orchestrator.Wrapping
         /// <param name="url">The URL of the orchestrator to establish the connection to.</param>
         [Obsolete("Direct usage of OrchestratorController is deprecated. Use the instance of App.Orchestrator returned by SocketConnectAsync() instead")]
         public void SocketConnect(string url) {
-            Log($"OrchestratorController: connect to {url}");
+            Debug.Log($"OrchestratorController: connect to {url}");
 
             SocketUrl = new Uri(url);
             _orchestratorWrapper = new OrchestratorWrapper(url, this, this, this, this, this);
@@ -295,7 +292,7 @@ namespace Orchestrator.Wrapping
 
         void IOrchestratorResponsesListener.OnConnect()
         {
-            Log($"OrchestratorController: connected to orchestrator");
+            Debug.Log($"OrchestratorController: connected to orchestrator");
 
             #if UNITY_EDITOR
             // Verify that we're connected to a version of the Orchestrator that's compatible with this library
@@ -312,7 +309,7 @@ namespace Orchestrator.Wrapping
         }
 
         void IOrchestratorResponsesListener.OnConnecting() {
-            Log($"OrchestratorController: connecting to orchestrator");
+            Debug.Log($"OrchestratorController: connecting to orchestrator");
 
             _connectionStatus = OrchestratorConnectionStatus.Connecting;
             OnConnectingEvent?.Invoke();
@@ -351,7 +348,7 @@ namespace Orchestrator.Wrapping
         void IUserSessionEventsListener.OnSessionClosed()
         {
             // The session has been closed by the session creator.
-            Log("OrchestratorController: OnSessionClosed: Current session closed by session creator.");
+            Debug.Log("OrchestratorController: OnSessionClosed: Current session closed by session creator.");
 
             OnSessionCloseEvent?.Invoke();
         }
@@ -511,36 +508,12 @@ namespace Orchestrator.Wrapping
         #region Errors
 
         void IOrchestratorResponsesListener.OnError(ResponseStatus status) {
-            Log("OrchestratorController: OnError: Error code: " + status.Error + "::Error message: " + status.Message);
+            Debug.Log("OrchestratorController: OnError: Error code: " + status.Error + "::Error message: " + status.Message);
 
             OnErrorEvent?.Invoke(status);
         }
 
         #endregion
-
-        private void Log(string message)
-        {
-            if (enableLogging)
-            {
-                Debug.Log(message);
-            }
-        }
-
-        private void LogError(string message)
-        {
-            if (enableLogging)
-            {
-                Debug.LogError(message);
-            }
-        }
-
-        private void LogWarning(string message)
-        {
-            if (enableLogging)
-            {
-                Debug.LogWarning(message);
-            }
-        }
 
 #if UNITY_EDITOR
         private void VerifyOrchestratorVersion()
