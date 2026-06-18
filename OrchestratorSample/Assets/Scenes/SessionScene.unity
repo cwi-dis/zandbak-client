@@ -3522,7 +3522,7 @@ Transform:
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
   m_LocalPosition: {x: 0, y: 6.81, z: 15.45}
-  m_LocalScale: {x: 17.29466, y: 9.728248, z: 0.8647331}
+  m_LocalScale: {x: 14.983576, y: 8.428262, z: 0.7491788}
   m_ConstrainProportionsScale: 1
   m_Children: []
   m_Father: {fileID: 8781438078149090892}
@@ -4156,7 +4156,7 @@ PrefabInstance:
     m_Modifications:
     - target: {fileID: -8679921383154817045, guid: 0903d778cea9944a98c8acf9bf4ad31d, type: 3}
       propertyPath: m_LocalPosition.x
-      value: -30
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: 0903d778cea9944a98c8acf9bf4ad31d, type: 3}
       propertyPath: m_LocalPosition.y
@@ -4164,7 +4164,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: 0903d778cea9944a98c8acf9bf4ad31d, type: 3}
       propertyPath: m_LocalPosition.z
-      value: 0
+      value: 30
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: 0903d778cea9944a98c8acf9bf4ad31d, type: 3}
       propertyPath: m_LocalRotation.w
@@ -9941,6 +9941,7 @@ MonoBehaviour:
   inviteToBubbleButton: {fileID: 1730295680}
   leaveBubbleButton: {fileID: 89269653}
   requestBubbleAccessButton: {fileID: 708259479}
+  bubbleModel: {fileID: 2009925787}
   panelManager: {fileID: 132269953}
   voiceTransmitter: {fileID: 8781438078149090893}
   voiceReceiver: {fileID: 8781438078149090894}
