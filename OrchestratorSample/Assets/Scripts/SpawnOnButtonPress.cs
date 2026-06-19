@@ -33,7 +33,7 @@ public class SpawnOnButtonPress : MonoBehaviour
         }
 
         var spawnPosition = transform.position + transform.forward * spawnOffset;
-        spawnPosition.y = 1;
+        spawnPosition.y += 1;
 
         Debug.Log($"Spawning shared object at {spawnPosition} with rotation {transform.rotation}");
 
