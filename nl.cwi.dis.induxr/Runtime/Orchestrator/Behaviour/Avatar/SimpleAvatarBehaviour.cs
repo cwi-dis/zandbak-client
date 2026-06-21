@@ -12,6 +12,15 @@ namespace Orchestrator.Behaviour.Avatar
         private Vector3 _interpStartPos;
         private Quaternion _interpStartRot;
 
+        protected override void StartRemote()
+        {
+            var rb = GetComponent<Rigidbody>();
+            if (rb)
+                rb.isKinematic = true;
+
+            base.StartRemote();
+        }
+
         protected override void InterpolatePose()
         {
             if (LastReceivedData == null)
