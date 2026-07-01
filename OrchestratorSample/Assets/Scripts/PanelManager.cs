@@ -1,42 +1,35 @@
 using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
+
+internal static class CanvasGroupExtensions
+{
+    public static void ActivatePanel(this CanvasGroup panel, bool activate)
+    {
+        panel.alpha = (activate) ? 1 : 0;
+        panel.interactable = activate;
+        panel.blocksRaycasts = activate;
+    }
+}
 
 public class PanelManager : MonoBehaviour
 {
-    public List<CanvasGroup> panels;
+    [SerializeField]
+    private bool activateFirstPanel = true;
+
+    private List<CanvasGroup> _panels;
 
     private void Start()
     {
-        foreach (var panel in panels)
-        {
-            TogglePanel(panel, false);
-            Debug.Log("Toggling: " + panel.name);
-        }
+        _panels = GetComponentsInChildren<CanvasGroup>().ToList();
+        _panels.ForEach(panel => panel.ActivatePanel(false));
 
-        if (panels.Count > 0) TogglePanel(panels[0], true);
+        if (activateFirstPanel && _panels.Count > 0)
+            _panels[0].ActivatePanel(true);
     }
 
     public void ActivatePanelByName(string panelName)
     {
-        foreach (var panel in panels)
-        {
-            TogglePanel(panel, panel.gameObject.name == panelName);
-        }
-    }
-
-    private void TogglePanel(CanvasGroup panel, bool active)
-    {
-        if (active)
-        {
-            panel.alpha = 1;
-            panel.interactable = true;
-            panel.blocksRaycasts = true;
-        }
-        else
-        {
-            panel.alpha = 0;
-            panel.interactable = false;
-            panel.blocksRaycasts = false;
-        }
+        _panels.ForEach(panel => panel.ActivatePanel(panel.gameObject.name == panelName));
     }
 }
