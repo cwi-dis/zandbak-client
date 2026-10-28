@@ -1,11 +1,10 @@
 using System.Collections.Generic;
-using Orchestrator.Behaviour.Avatar;
 using Orchestrator.Behaviour.Voice;
+using Orchestrator.Behaviour.Telemetry;
 using Orchestrator.Data;
 using Orchestrator.ScriptableObjects;
 using Orchestrator.Wrapping;
 using TMPro;
-using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 using UnityEngine.UI;
@@ -59,6 +58,10 @@ public class SessionController : MonoBehaviour
     public VoiceTransmitter voiceTransmitter;
     public VoiceReceiver voiceReceiver;
 
+    [Header("Telemetry")]
+    public TMP_Text telemetryField;
+    public TelemetryCollector telemetryCollector;
+
     private NotificationBuffer _notificationBuffer;
     private Session _session;
     private bool _isHandRaised = false;
@@ -105,6 +108,12 @@ public class SessionController : MonoBehaviour
         // Bind audio transmitter and receiver
         voiceTransmitter.Bind(_session);
         voiceReceiver.Bind(_session);
+
+        // Bind telemetry collector
+        if (telemetryCollector)
+        {
+            telemetryCollector.OnTelemetryReported += OnTelemetryReported;
+        }
 
         // Only enable presentation control buttons if there is at least one presentation
         if (_session.Presentations.Count > 0 && _session.Self.Type == "presenter")
@@ -500,6 +509,18 @@ public class SessionController : MonoBehaviour
     private void OnObjectSpawned(SharedObject obj)
     {
         _notificationBuffer.AddNotification($"<i>Object '{obj.PrefabName}' spawned</i>");
+    }
+
+    private void OnTelemetryReported(TelemetryData data)
+    {
+        if (telemetryField != null)
+        {
+            telemetryField.text = $"RTT: {data.RttMs:F1}ms\nJitter: {data.JitterMs:F1}ms\nLoss: {data.PacketLossRate * 100f:F1}%";
+        }
+        else
+        {
+            Debug.Log($"Telemetry Reported - RTT: {data.RttMs:F1}ms, Jitter: {data.JitterMs:F1}ms, Loss: {data.PacketLossRate * 100f:F1}%");
+        }
     }
 }
 

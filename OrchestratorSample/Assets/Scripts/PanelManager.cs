@@ -4,19 +4,17 @@ using UnityEngine;
 
 internal static class CanvasGroupExtensions
 {
-    public static void ActivatePanel(this CanvasGroup panel, bool activate)
+    public static void ActivatePanel(this CanvasGroup panel, bool isActive)
     {
-        panel.alpha = (activate) ? 1 : 0;
-        panel.interactable = activate;
-        panel.blocksRaycasts = activate;
+        panel.alpha = (isActive) ? 1 : 0;
+        panel.interactable = isActive;
+        panel.blocksRaycasts = isActive;
     }
 }
 
 public class PanelManager : MonoBehaviour
 {
-    [SerializeField]
-    private bool activateFirstPanel = true;
-
+    [SerializeField] private bool activateFirstPanel = true;
     private List<CanvasGroup> _panels;
 
     private void Start()
@@ -25,7 +23,7 @@ public class PanelManager : MonoBehaviour
         _panels.ForEach(panel => panel.ActivatePanel(false));
 
         if (activateFirstPanel && _panels.Count > 0)
-            _panels[0].ActivatePanel(true);
+            _panels.First().ActivatePanel(true);
     }
 
     public void ActivatePanelByName(string panelName)
