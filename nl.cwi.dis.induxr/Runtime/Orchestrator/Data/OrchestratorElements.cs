@@ -57,6 +57,7 @@ namespace Orchestrator.Data
         [JsonProperty("isSpeaking")] public bool IsSpeaking;
         [JsonProperty("status")] public string Status;
         [JsonProperty("prefabName")] public string PrefabName;
+        [JsonProperty("telemetry")] public TelemetryData Telemetry;
     }
 
     public class UserData: IOrchestratorElement

@@ -2,6 +2,7 @@ using System;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using Orchestrator.Data;
+using Orchestrator.Wrapping;
 using UnityEngine;
 
 namespace Orchestrator.App
@@ -77,6 +78,7 @@ namespace Orchestrator.App
             {
                 Id = Id,
                 Timestamp = Time.time,
+                NtpTimestamp = _orchestrator.GetTimeWithOffset(),
                 Value = JToken.FromObject(data)
             }, true);
         }

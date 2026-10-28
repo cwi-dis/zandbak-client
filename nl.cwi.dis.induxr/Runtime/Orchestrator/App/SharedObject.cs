@@ -132,6 +132,7 @@ namespace Orchestrator.App
             {
                 Id = Id,
                 Timestamp = Time.time,
+                NtpTimestamp = _orchestrator.GetTimeWithOffset(),
                 Position = position,
                 Rotation = rotation
             });

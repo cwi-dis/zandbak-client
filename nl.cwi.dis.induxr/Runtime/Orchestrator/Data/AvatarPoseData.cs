@@ -9,6 +9,7 @@ namespace Orchestrator.Data
         [JsonProperty("userId")] public string UserId;
         [JsonProperty("transforms")] public Dictionary<string, BoneData> Transforms;
         [JsonProperty("timestamp")] public float Timestamp;
+        [JsonProperty("ntpTimestamp")] public long NtpTimestamp;
     }
 
     public class ObjectData
@@ -17,12 +18,14 @@ namespace Orchestrator.Data
         [JsonProperty("position")] public PositionData Position;
         [JsonProperty("rotation")] public RotationData Rotation;
         [JsonProperty("timestamp")] public float Timestamp;
+        [JsonProperty("ntpTimestamp")] public long NtpTimestamp;
     }
 
     public class TriggerData
     {
         [JsonProperty("id")] public string Id;
         [JsonProperty("timestamp")] public float Timestamp;
+        [JsonProperty("ntpTimestamp")] public long NtpTimestamp;
         [JsonProperty("value")] public JToken Value;
 
         public bool IsPopulated => Value != null && Id != null && Timestamp > 0;

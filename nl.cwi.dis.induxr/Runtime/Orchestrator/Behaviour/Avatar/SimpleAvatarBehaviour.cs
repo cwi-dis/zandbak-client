@@ -1,5 +1,4 @@
 using System.Collections.Generic;
-using Orchestrator.App;
 using Orchestrator.Data;
 using UnityEngine;
 
@@ -62,6 +61,7 @@ namespace Orchestrator.Behaviour.Avatar
             return new AvatarPoseData {
                 UserId = User.Id,
                 Timestamp = Time.time,
+                NtpTimestamp = User.Orchestrator.GetTimeWithOffset(),
                 Transforms = positionData
             };
         }
