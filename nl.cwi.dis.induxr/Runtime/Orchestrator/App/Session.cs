@@ -308,6 +308,7 @@ namespace Orchestrator.App
             await Info();
 
             _orchestrator.CurrentSession = this;
+            _orchestrator.QoeEnabled = _sessionData.QoeEnabled;
             Self.Join();
 
             // Update user definitions from refreshed sessionData

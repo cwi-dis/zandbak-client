@@ -60,6 +60,11 @@ namespace Orchestrator.App
         /// - If no user is authenticated, <c>Self</c> will be null.
         /// </remarks>
         public SelfUser Self { get; private set; }
+        
+        /// <summary>
+        /// Indicates whether dynamic Quality of Experience (QoE) adjustments are enabled for the current session.
+        /// </summary>
+        public bool QoeEnabled { get; set; }
 
         /// <summary>
         /// Occurs when a new session is created

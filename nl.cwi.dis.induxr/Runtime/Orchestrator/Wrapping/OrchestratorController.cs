@@ -60,6 +60,7 @@ namespace Orchestrator.Wrapping
         public bool ConnectedToOrchestrator => ConnectionStatus == OrchestratorConnectionStatus.Connected;
         public OrchestratorConnectionStatus ConnectionStatus { get; private set; }
         public Uri SocketUrl { get; private set; }
+        public bool QoeEnabled => Orchestrator?.QoeEnabled ?? false;
 
         // the wrapper for the orchestrator
         // the reference controller for singleton
@@ -223,6 +224,11 @@ namespace Orchestrator.Wrapping
         /// Invoked when a bubble join request is approved or denied by the owner of the bubble
         /// </summary>
         public event Action<string, bool> OnBubbleJoinRequestApproved;
+
+        /// <summary>
+        /// Invoked when a quality target adjustment is received from the orchestrator
+        /// </summary>
+        public event Action<QualityTarget> OnQualityTargetEvent;
 
         #endregion
 
@@ -404,6 +410,11 @@ namespace Orchestrator.Wrapping
         void IUserSessionEventsListener.OnObjectOwnershipChanged(SharedObject sharedObject)
         {
             OnObjectOwnershipChanged?.Invoke(sharedObject);
+        }
+
+        void IUserSessionEventsListener.OnQualityTargetReceived(QualityTarget qualityTarget)
+        {
+            OnQualityTargetEvent?.Invoke(qualityTarget);
         }
 
         void IUserSessionEventsListener.OnObjectRegistered(SharedObject sharedObject)

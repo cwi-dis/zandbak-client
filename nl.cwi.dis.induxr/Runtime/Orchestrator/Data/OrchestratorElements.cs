@@ -192,5 +192,6 @@ namespace Orchestrator.Data
         [JsonProperty("sessionRoom")] public Room Room;
         [JsonProperty("sessionStatus")] public string Status;
         [JsonProperty("sessionPersistent")] public bool Persistent;
+        [JsonProperty("sessionQoeEnabled")] public bool QoeEnabled;
     }
 }

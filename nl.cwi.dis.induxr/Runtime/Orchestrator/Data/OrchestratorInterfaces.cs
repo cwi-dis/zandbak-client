@@ -52,6 +52,7 @@ namespace Orchestrator.Data
         void OnObjectSpawned(SharedObject sharedObject);
         void OnObjectDestroyed(SharedObject sharedObject);
         void OnObjectOwnershipChanged(SharedObject sharedObject);
+        void OnQualityTargetReceived(QualityTarget qualityTarget);
     }
 
     // Interface for clients that will use the orchestrator wrapper

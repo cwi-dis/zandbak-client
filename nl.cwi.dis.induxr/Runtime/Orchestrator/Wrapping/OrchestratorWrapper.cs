@@ -72,6 +72,7 @@ namespace Orchestrator.Wrapping {
             _socket.On("SessionClosed", OnSessionClosed);
             _socket.On("OrchestratorUpdated", OnOrchestratorUpdated);
             _socket.On("BubbleUpdated", OnBubbleUpdated);
+            _socket.On("QualityTarget", OnQualityTargetReceived);
         }
 
         public void Connect()
@@ -867,6 +868,18 @@ namespace Orchestrator.Wrapping {
         #endregion
 
         #region events
+
+        private void OnQualityTargetReceived(SocketIOResponse response)
+        {
+            lock (this)
+            {
+                var target = response.GetValue<QualityTarget>();
+                UnityThread.executeInUpdate(() =>
+                {
+                    _userSessionEventListener?.OnQualityTargetReceived(target);
+                });
+            }
+        }
 
         private void OnMessageSentFromOrchestrator(SocketIOResponse response) {
             lock (this) {

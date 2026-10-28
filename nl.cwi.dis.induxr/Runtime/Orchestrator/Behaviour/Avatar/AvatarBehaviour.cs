@@ -2,7 +2,9 @@ using System;
 using Orchestrator.App;
 using Orchestrator.Attributes;
 using Orchestrator.Behaviour.Shared;
+using Orchestrator.Behaviour.Telemetry;
 using Orchestrator.Data;
+using Orchestrator.Wrapping;
 using UnityEngine;
 using User = Orchestrator.App.User;
 
@@ -71,12 +73,16 @@ namespace Orchestrator.Behaviour.Avatar
             {
                 StartRemote();
             }
+
+            OrchestratorController.Instance.OnQualityTargetEvent += ApplyQualityTarget;
         }
 
         private void OnDestroy()
         {
             if (User != null)
                 User.OnHandRaised -= HandRaised;
+
+            OrchestratorController.Instance.OnQualityTargetEvent -= ApplyQualityTarget;
         }
 
         protected virtual void StartLocal()
@@ -127,6 +133,11 @@ namespace Orchestrator.Behaviour.Avatar
         protected virtual void Update()
         {
             if (User == null) return;
+
+            if (_isLocal && OrchestratorController.Instance.QoeEnabled)
+            {
+                CheckLocalQoe();
+            }
 
             if (_isLocal)
             {
@@ -181,5 +192,44 @@ namespace Orchestrator.Behaviour.Avatar
         }
 
         private void HandRaised(bool isRaised) => notification.SetActive(isRaised);
+
+        private void CheckLocalQoe()
+        {
+            if (TelemetryCollector.Instance == null) return;
+
+            // Simple local logic to respond faster than the server monitor
+            if (TelemetryCollector.Instance.RttMs > 250 || TelemetryCollector.Instance.JitterMs > 50)
+            {
+                if (updateRate > 5)
+                {
+                    updateRate = 5;
+                    Debug.Log("[QoE] Local self-adaptation: lowering pose update rate due to network instability.");
+                }
+            }
+            // Note: we don't automatically restore here because we want the server to decide when it's safe 
+            // or use a more conservative recovery logic.
+        }
+
+        private void ApplyQualityTarget(QualityTarget target)
+        {
+            if (!OrchestratorController.Instance.QoeEnabled) return;
+
+            if (_isLocal)
+            {
+                if (target.PoseUpdateRate.HasValue)
+                {
+                    updateRate = (int)target.PoseUpdateRate.Value;
+                    Debug.Log($"[QoE] Updated local pose update rate to {updateRate}Hz");
+                }
+            }
+            else
+            {
+                if (target.InterpolationBufferMs.HasValue)
+                {
+                    linearInterpolationRate = 1000 / target.InterpolationBufferMs.Value;
+                    Debug.Log($"[QoE] Updated remote interpolation rate to {linearInterpolationRate} (buffer: {target.InterpolationBufferMs.Value}ms)");
+                }
+            }
+        }
     }
 }

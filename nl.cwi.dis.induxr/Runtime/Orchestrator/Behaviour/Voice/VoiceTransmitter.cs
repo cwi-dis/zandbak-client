@@ -2,6 +2,8 @@ using System;
 using Concentus;
 using Concentus.Enums;
 using Orchestrator.App;
+using Orchestrator.Behaviour.Telemetry;
+using Orchestrator.Wrapping;
 using UnityEngine;
 
 namespace Orchestrator.Behaviour.Voice
@@ -64,9 +66,19 @@ namespace Orchestrator.Behaviour.Voice
             _readHead = 0;
         }
 
+        private void Start()
+        {
+            OrchestratorController.Instance.OnQualityTargetEvent += ApplyQualityTarget;
+        }
+
         private void Update()
         {
             if (_session == null || !_mic) return;
+
+            if (OrchestratorController.Instance.QoeEnabled)
+            {
+                CheckLocalQoe();
+            }
 
             if (pushToTalk && !Input.GetKey(talkKey)) {
                 _readHead = Microphone.GetPosition(_device);   // skip backlog while muted
@@ -123,6 +135,35 @@ namespace Orchestrator.Behaviour.Voice
         private void OnDestroy()
         {
             if (_device != null) Microphone.End(_device);
+            OrchestratorController.Instance.OnQualityTargetEvent -= ApplyQualityTarget;
+        }
+
+        private void CheckLocalQoe()
+        {
+            if (TelemetryCollector.Instance == null) return;
+
+            // If packet loss is high, reduce bitrate locally
+            if (TelemetryCollector.Instance.PacketLossRate > 0.05f)
+            {
+                if (bitrate > 12000)
+                {
+                    bitrate = 12000;
+                    if (_encoder != null) _encoder.Bitrate = bitrate;
+                    Debug.Log("[QoE] Local self-adaptation: reducing voice bitrate due to packet loss.");
+                }
+            }
+        }
+
+        private void ApplyQualityTarget(Data.QualityTarget target)
+        {
+            if (!OrchestratorController.Instance.QoeEnabled) return;
+
+            if (target.VoiceBitrate.HasValue && _encoder != null)
+            {
+                bitrate = target.VoiceBitrate.Value;
+                _encoder.Bitrate = bitrate;
+                Debug.Log($"[QoE] Updated voice bitrate to {bitrate}bps");
+            }
         }
     }
 }

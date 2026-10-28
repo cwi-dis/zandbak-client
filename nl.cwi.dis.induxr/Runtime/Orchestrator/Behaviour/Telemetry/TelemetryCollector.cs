@@ -8,6 +8,8 @@ namespace Orchestrator.Behaviour.Telemetry
 {
     public class TelemetryCollector : MonoBehaviour
     {
+        public static TelemetryCollector Instance { get; private set; }
+
         [Header("Settings")]
         public float reportInterval = 5f;
         public float syncInterval = 10f;
@@ -30,8 +32,13 @@ namespace Orchestrator.Behaviour.Telemetry
         private long _packetsExpected;
         private long _packetsLost;
 
+        public float RttMs => _lastRtt;
+        public float JitterMs => _jitter * 1000f;
+        public float PacketLossRate => _packetsExpected > 0 ? (float)_packetsLost / _packetsExpected : 0;
+
         public void Awake()
         {
+            Instance = this;
             _orchestrator = OrchestratorController.Instance.Orchestrator;
             _orchestrator.OnSessionJoined += OnSessionJoined;
 
