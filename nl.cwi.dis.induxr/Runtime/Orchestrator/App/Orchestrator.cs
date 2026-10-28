@@ -71,6 +71,11 @@ namespace Orchestrator.App
         public event Action<Session> OnSessionCreated;
 
         /// <summary>
+        /// Occurs when a session is joined by the current user
+        /// </summary>
+        public event Action<Session> OnSessionJoined;
+
+        /// <summary>
         /// Occurs when a new session is deleted
         /// </summary>
         /// <remarks>
@@ -185,6 +190,42 @@ namespace Orchestrator.App
             return tcs.Task;
         }
 
+        public long GetTimeWithOffset()
+        {
+            return OrchestratorController.Instance.Wrapper.GetNtpTime();
+        }
+
+        public long GetMonotonicTime()
+        {
+            return OrchestratorController.Instance.Wrapper.GetMonotonicTime();
+        }
+
+        public void UpdateNtpOffset(long offset)
+        {
+            OrchestratorController.Instance.Wrapper.UpdateNtpOffset(offset);
+        }
+
+        public Task<TelemetryData> ReportTelemetry(TelemetryData telemetryData)
+        {
+            var tcs = new TaskCompletionSource<TelemetryData>();
+
+            OrchestratorController.Instance.Wrapper.ReportTelemetry(telemetryData, (status, result) =>
+            {
+                if (!status.IsOk)
+                {
+                    Debug.LogWarning($"Failed to report telemetry: {status.Message}");
+                    tcs.SetException(new Exception(status.Message));
+                }
+                else
+                {
+                    Debug.Log($"Reported telemetry: {result}");
+                    tcs.SetResult(result);
+                }
+            });
+
+            return tcs.Task;
+        }
+
         /// <summary>
         /// Retrieves the list of active sessions asynchronously.
         /// </summary>
@@ -250,6 +291,7 @@ namespace Orchestrator.App
                 {
                     CurrentSession = new Session(this, session);
                     CurrentSession.Join();
+                    OnSessionJoined?.Invoke(CurrentSession);
 
                     tcs.SetResult(CurrentSession);
                 });
@@ -272,6 +314,7 @@ namespace Orchestrator.App
                 {
                     CurrentSession = new Session(this, session);
                     CurrentSession.Join();
+                    OnSessionJoined?.Invoke(CurrentSession);
 
                     tcs.SetResult(CurrentSession);
                 });
@@ -293,6 +336,7 @@ namespace Orchestrator.App
             {
                 CurrentSession = new Session(this, session);
                 CurrentSession.Join();
+                OnSessionJoined?.Invoke(CurrentSession);
 
                 tcs.SetResult(CurrentSession);
             });
@@ -322,6 +366,7 @@ namespace Orchestrator.App
                     CurrentSession = sessionToJoin;
                     sessionToJoin.SessionData = session;
                     sessionToJoin.Join();
+                    OnSessionJoined?.Invoke(sessionToJoin);
 
                     tcs.SetResult(sessionToJoin);
                 });

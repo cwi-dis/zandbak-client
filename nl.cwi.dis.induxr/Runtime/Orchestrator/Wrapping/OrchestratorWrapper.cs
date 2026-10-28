@@ -1,12 +1,14 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Text;
+using System.Diagnostics;
 using Newtonsoft.Json.Linq;
 using Orchestrator.Data;
 using SocketIOClient;
 using SocketIOClient.Newtonsoft.Json;
 using SocketIOClient.Transport;
 using UnityEngine;
+using Debug = UnityEngine.Debug;
 
 namespace Orchestrator.Wrapping {
     public class OrchestratorWrapper : IOrchestratorConnectionListener
@@ -15,6 +17,9 @@ namespace Orchestrator.Wrapping {
         private readonly object _sendLock = new();
 
         private static OrchestratorWrapper _instance;
+
+        private static readonly Stopwatch MonotonicClock = Stopwatch.StartNew();
+        private long _ntpOffset;
         // Listener for the responses of the orchestrator
         private readonly IOrchestratorResponsesListener _responsesListener;
 
@@ -141,6 +146,37 @@ namespace Orchestrator.Wrapping {
                         callback(data.ResponseStatus, data.Body);
                     });
                 }, new { });
+            }
+        }
+
+        public long GetNtpTime()
+        {
+            return MonotonicClock.ElapsedMilliseconds + _ntpOffset;
+        }
+
+        public long GetMonotonicTime()
+        {
+            return MonotonicClock.ElapsedMilliseconds;
+        }
+
+        public void UpdateNtpOffset(long offset)
+        {
+            _ntpOffset = offset;
+        }
+
+        public void ReportTelemetry(TelemetryData telemetry, Action<ResponseStatus, TelemetryData> callback)
+        {
+            lock (this)
+            {
+                _socket.Emit("ReportTelemetry", (response) =>
+                {
+                    var data = response.GetValue<OrchestratorResponse<TelemetryData>>();
+
+                    UnityThread.executeInUpdate(() =>
+                    {
+                        callback(data.ResponseStatus, data.Body);
+                    });
+                }, new { telemetry });
             }
         }
 
